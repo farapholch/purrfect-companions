@@ -1,3 +1,10 @@
+## 2.3.2 — Readable button prompts
+
+Standing next to a cat, or riding one, showed a raw translation key instead of a
+word. Minecraft builds the dismount prompt from the entity id, and there is no
+built-in text behind it for custom creatures. Every prompt the add-on can
+produce is now spelled out: *Put on*, *Ride*, *Mount*, *Dismount*.
+
 ## 2.3.1 — Snow's ears
 
 Snow is a white cat, so her ears disappeared into the rest of her coat. They are

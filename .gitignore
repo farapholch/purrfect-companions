@@ -6,3 +6,4 @@
 publish/*.mcaddon
 __pycache__/
 *.pyc
+variants.private.json

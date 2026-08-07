@@ -51,7 +51,7 @@ Den **privata** versionen (familjens riktiga kattnamn) genereras vid paketering 
 
 | Variant | Namn | Pack-namn | UUID |
 |---|---|---|---|
-| `private` (standard) | Vinda, Vilma, Lillen, Maja | Purrfect Companions (familj) | egna |
+| `private` (standard) | (privat namn), (privat namn), (privat namn), (privat namn) | Purrfect Companions (familj) | egna |
 | `public` | Misty, Hazel, Mocha, Snow | Purrfect Companions | källans |
 
 **Varianterna har olika pack-UUID:n med flit** — annars skriver de över varandra i

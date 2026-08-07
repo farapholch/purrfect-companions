@@ -16,7 +16,15 @@ import json, os, re, shutil, sys, glob
 BASE = "/opt/purrfect-companions"
 
 def build(variant, outdir):
-    cfg = json.load(open(f"{BASE}/variants.json"))[variant]
+    # Publika varianten ligger i variants.json (versionshanterad).
+    # Den privata (familjens riktiga kattnamn) ligger i variants.private.json som
+    # är gitignore:ad — privata namn ska aldrig hamna i repot.
+    cfgs = json.load(open(f"{BASE}/variants.json"))
+    pf = f"{BASE}/variants.private.json"
+    if os.path.exists(pf): cfgs.update(json.load(open(pf, encoding="utf-8")))
+    if variant not in cfgs:
+        raise SystemExit(f"varianten '{variant}' saknas (privat konfig i variants.private.json?)")
+    cfg = cfgs[variant]
     if os.path.exists(outdir): shutil.rmtree(outdir)
     os.makedirs(outdir)
     for pack in ("PurrfectCompanions_BP", "PurrfectCompanions_RP"):

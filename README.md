@@ -2,8 +2,7 @@
 
 Minecraft **Bedrock** add-on: four hand-made cats you can tame, ride, breed and dress up.
 
-By **Pellzor** · free to use — see [LICENSE.txt](LICENSE.txt)
-[CurseForge](https://www.curseforge.com/minecraft-bedrock/addons/purrfect-companions) · [purrfect.pelleops.se](https://purrfect.pelleops.se)
+[CurseForge](https://www.curseforge.com/minecraft-bedrock/addons/purrfect-companions)
 
 ![Purrfect Companions](02-tillbehor.png)
 ---

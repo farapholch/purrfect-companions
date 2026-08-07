@@ -1,128 +1,138 @@
 # Purrfect Companions
 
-_Av **Pellzor**. Fri att använda — se `publish/LICENSE.txt`._
+Minecraft **Bedrock** add-on: four hand-made cats you can tame, ride, breed and dress up.
 
-Minecraft **Bedrock**-add-on med fyra egna katter. Körs på Xbox via Mod Mate.
+By **Pellzor** · free to use — see [LICENSE.txt](LICENSE.txt)
+[CurseForge](https://www.curseforge.com/minecraft-bedrock/addons/purrfect-companions) · [purrfect.pelleops.se](https://purrfect.pelleops.se)
 
-## Katterna
+---
 
-| Entitet | Namn | Ras | Utseende | Storlek |
+## The cats
+
+| Entity | Name | Breed | Look | Scale |
 |---|---|---|---|---|
-| `mjau:misty` | Misty | Sibirisk | grå tabby, gröna ögon | 1.0 |
-| `mjau:hazel` | Hazel | Sibirisk | brun-vit tabby, vit bringa/tassar, gröna ögon | 1.0 |
-| `mjau:mocha` | Mocha | Helig birma | vit med bruna points, vita handskar, magränder, blå ögon | 0.85 |
-| `mjau:snow` | Snow | Ragdoll | helvit, blå ögon | 1.15 |
+| `mjau:misty` | Misty | Siberian | Grey tabby, green eyes | 1.0 |
+| `mjau:hazel` | Hazel | Siberian | Brown-and-white tabby, white bib and paws | 1.0 |
+| `mjau:mocha` | Mocha | Sacred Birman | White with brown points, white gloves, belly stripes, blue eyes | 0.85 |
+| `mjau:snow` | Snow | Ragdoll | All white, blue eyes | 1.15 |
 
-## Funktioner
+Each meows in its own pitch — Mocha highest, Snow deepest.
 
-- **Tämjs** med torsk/lax → följer dig
-- **Sitter** på tryck när tam (tom hand)
-- **Rids** när sadlad: sadel i handen → tryck → tryck igen. +56 % fart, laddat hopp. **Sadeln syns på ryggen.**
-### Tillbehör (craftas, sätts på tam katt — alla kan bäras samtidigt)
+## Features
 
-| Plagg | Färger | Recept |
+- **Tame** with cod, salmon or a crafted Cat Treat → they follow you
+- **Sit** on interact once tamed (empty hand)
+- **Ride** when saddled: hold a saddle → interact → interact again. ~56 % faster, charged jump. The saddle is visible on their back
+- **Breed** with fish → a kitten of the **same breed**, half size, which grows up
+- **Gifts** — tamed cats bring presents in the morning
+- **Creepers and phantoms flee** from them (they carry the `cat` family)
+- They **stalk and pounce** on rabbits and chickens
+- **Spawn naturally** in plains biomes
+- **Spawn eggs show cat faces**, not eggs
+- **Animated**: walk cycle with legs in diagonal pairs, swaying tail, head tracking, curled-up sitting pose
+
+## Blocks
+
+| Block | Recipe |
+|---|---|
+| **Cat Bed** | 3 wool + 3 leather |
+| **Yarn Ball** | 8 string + 1 wool |
+
+Cats seek both out on their own (`minecraft:behavior.move_to_block`).
+
+## Outfits
+
+Craftable, applied to a tamed cat, and all wearable at the same time.
+
+| Outfit | Colours | Recipe |
 |---|---|---|
-| **Kattsadel** | brun, svart, ljus | 3 läder + 2 snöre (+ färg). Vanlig hästsadel ger brun |
-| **Kattkeps** | cyan, röd, grön, gul | 3 ull i färgen + 1 läder |
-| **Katthalsduk** | röd, blå, grön, gul | 4 ull i färgen |
-| **Kattryggsäck** | brun, grön, blå | 5 läder + 2 snöre + färg |
-| **Kattglasögon** | svarta, guld, rosa | 2 glasrutor + färg/guldklimp |
-| **Kattmantel** | röd, blå, lila, svart | 6 ull i färgen + 2 snöre |
-| **Kattossor** | vita, svarta, röda, gula | 4 ull i färgen (i hörnen) — en på varje tass |
-| **Cat Collar** | röd, blå, grön | 3 ull + 1 järnklimp (bjällra) |
-| **Cat Bow** | rosa, röd, blå, gul | 3 ull i färgen |
-| **Cat Wings** | vit, svart, guld | 4 fjädrar + färgmaterial |
-| **Cat Crown** | guld, silver | 5 tackor + 1 smaragd |
-| **Kattvagn** | trä, röd, blå | 3 plankor + 2 pinnar + 2 träplattor. Ger en **andra sittplats** — kompis åker i vagnen |
+| **Cat Saddle** | brown, black, light | 3 leather + 2 string (+ dye). A vanilla saddle gives brown |
+| **Cat Cap** | cyan, red, green, yellow | 3 wool + 1 leather |
+| **Cat Scarf** | red, blue, green, yellow | 4 wool |
+| **Cat Backpack** | brown, green, blue | 5 leather + 2 string + dye |
+| **Cat Glasses** | black, gold, pink | 2 glass panes + dye or gold nugget |
+| **Cat Cape** | red, blue, purple, black | 6 wool + 2 string |
+| **Cat Booties** | white, black, red, yellow | 4 wool in the corners — one on each paw |
+| **Cat Collar** | red, blue, green | 3 wool + 1 iron nugget (bell) |
+| **Cat Bow** | pink, red, blue, yellow | 3 wool |
+| **Cat Wings** | white, black, gold | 4 feathers + colour material |
+| **Cat Crown** | gold, silver | 5 ingots + 1 emerald |
+| **Cat Cart** | wood, red, blue | 3 planks + 2 sticks + 2 slabs. Adds a **second seat** — a friend rides along |
 
-**Lägg till fler plagg:** redigera `ACC` överst i `build_accessories.py` och kör `python3 build_accessories.py`. Skriptet genererar geometri, textur, render controller, entity-property, event, interaktion, föremål, ikon, recept och språksträng. Kör sedan `purrfect-test`.
-- **Parar sig** med fisk → kattunge av **samma ras**, halva storleken, växer upp
-- **Jamar** med eget tonläge per katt (vanilla-ljud, inga egna .ogg)
-- **Creepers & phantoms flyr** (familjen `cat`)
-- **Jagar** kaniner och höns (smyg + språng)
-- **Spawnar naturligt** i slättbiom
-- **Spawn-ikoner är kattansikten**, inte ägg
+**Cat Treat** — cod + wheat, works as a taming treat.
 
-## Två varianter
+## Two variants
 
-Källan är den **publika** versionen (generiska namn: Misty, Hazel, Mocha, Snow).
-Den **privata** versionen (familjens riktiga kattnamn) genereras vid paketering av
-`make_variant.py` — privata namn hamnar alltså aldrig i källkoden eller på GitHub.
+The source is the **public** version (generic names: Misty, Hazel, Mocha, Snow).
+A **private** variant with different cat names is generated at packaging time by
+`make_variant.py`, reading `variants.private.json` — which is gitignored, so those
+names never enter the repository.
 
-| Variant | Namn | Pack-namn | UUID |
-|---|---|---|---|
-| `private` (standard) | (privat namn), (privat namn), (privat namn), (privat namn) | Purrfect Companions (familj) | egna |
-| `public` | Misty, Hazel, Mocha, Snow | Purrfect Companions | källans |
+The variants deliberately use **different pack UUIDs**; identical UUIDs would make
+them overwrite each other in Minecraft's pack list. Both can be installed together.
 
-**Varianterna har olika pack-UUID:n med flit** — annars skriver de över varandra i
-Minecrafts paketlista. Båda kan installeras samtidigt.
-
-## Arbetsflöde
+## Workflow
 
 ```bash
-purrfect-test --quick             # snabb validering (~2 s)
-purrfect-test                     # + live-test i Bedrock-server (~1 min)
-purrfect-ship                     # privat variant → Mod Mate (till Xbox)
-purrfect-ship --public            # publik variant
-purrfect-ship --bump minor        # höj version först (major|minor|patch)
-purrfect-ship --public --no-upload  # bygg publik för CurseForge utan att skicka
-python3 render_preview.py     # marknadsföringsbilder + logga → publish/
-python3 build_blocks.py       # kattbädd och garnnystan
-./publish_site.sh             # publicera sidan (purrfect.pelleops.se, nginx :8091)
+purrfect-test --quick             # validation only (~2 s)
+purrfect-test                     # + live test in a Bedrock server (~1 min)
+purrfect-ship                     # private variant → Mod Mate
+purrfect-ship --public            # public variant
+purrfect-ship --curseforge        # public variant → CurseForge
+purrfect-ship --bump minor        # bump version first (major|minor|patch)
+python3 build_accessories.py      # regenerate outfits
+python3 build_blocks.py           # regenerate blocks
+python3 render_preview.py         # marketing images + logo → publish/
+./publish_site.sh                 # publish the site
 ```
 
-Filnamnet härleds ur paketnamnet i manifestet: `purrfect-companions-v<VER>.mcaddon`
-(publik) och `...-familj.mcaddon` (privat) — byter man paketnamn följer filnamnet med.
+`purrfect-ship` **refuses to ship if the test fails**, and verifies the checksum
+after upload. The filename is derived from the pack name in the manifest.
 
-`purrfect-ship` **vägrar skicka om testet failar**, och verifierar checksumman efter uppladdning.
+Everything — outfits, blocks, geometry, textures, icons, recipes, language strings —
+is generated from single definitions at the top of `build_accessories.py` and
+`build_blocks.py`. **Do not edit generated files by hand**; they are overwritten.
 
-## Struktur
+## Layout
 
 ```
-/opt/purrfect-companions/
-├── PurrfectCompanions_BP/          beteendepaket (entiteter, loot, spawn-regler, events)
-│   ├── entities/         en fil per katt
-│   ├── spawn_rules/      naturlig spawn
-│   └── loot_tables/
-├── PurrfectCompanions_RP/          resurspaket (modell, texturer, ljud, ikoner)
-│   ├── entity/           client_entity per katt
-│   ├── models/entity/    katt.geo.json (delad modell)
-│   ├── textures/entity/  64×64 per katt
-│   ├── textures/items/   16×16 spawn-ikoner
-│   └── sounds.json       mappning till vanilla kattljud
-├── .modmate-code         Mod Mate transfer-kod (600)
-└── README.md
+PurrfectCompanions_BP/     behaviour pack — entities, blocks, items, recipes, loot, spawn rules
+PurrfectCompanions_RP/     resource pack — models, textures, animations, sounds, icons
+build_accessories.py       outfits, from one ACC table
+build_blocks.py            blocks, from one BLOCKS table
+make_variant.py            builds a named variant as a transformed copy
+render_preview.py          isometric renderer for previews (pure stdlib, no PIL)
+md2html.py                 markdown → HTML for storefront descriptions
+publish_site.sh            publishes publish/ to the website
 ```
 
-Testservern (Bedrock Dedicated Server) ligger i `/opt/bds/server` och startas **bara** under test.
+A Bedrock Dedicated Server lives in `/opt/bds` and is started **only** during tests.
 
-## Animationer
+## Testing
 
-`PurrfectCompanions_RP/animations/katt.animation.json` + `animation_controllers/`.
-Fyra animationer: **walk** (diagonala benpar via Molang `query.modified_distance_moved`),
-**tail** (svaj på `query.life_time`), **look** (huvudet följer med `query.target_*_rotation`)
-och **sit** (hopkurad pose). Controllern växlar mellan standing / walking / sitting.
+`purrfect-test` validates JSON, manifest version consistency, behaviour priority
+collisions, saddle seat height against the model, geometry IDs, texture sizes,
+icon registration, item namespaces in interaction filters and spawn rules — then
+runs a real Bedrock server, spawns every cat and fires every event.
 
-Kopplas in av `build_accessories.py` (`description.animations` + `scripts.animate`) —
-lägg till där, inte för hand, annars försvinner det vid nästa bygge.
+The server validates the **behaviour pack only**. Appearance, animation and how
+riding *feels* can only be judged in-game.
 
-## Fallgropar (dyrköpta)
+## Pitfalls worth knowing
 
-1. **Unika `priority` på alla behaviors** — kolla även i `component_groups`.
-2. **`minecraft:scale` får inte ligga i både bas och grupp.**
-3. **Sadelns `seats.position` måste följa modellen** — kroppens ovansida y9 → `0.562`.
-4. **UV-layouten måste ritas om när kubstorlekar ändras.**
-5. **Versioner:** `header.version` + `modules[].version` i BÅDA manifesten, och BP:s `dependencies[].version` måste matcha RP:s header.
-6. **`follow_owner` kräver ägare** → bara i tamed-gruppen.
-7. **`sittable` + `rideable` krockar** (samma interaktion) → `sittable` i egen grupp som tas bort vid sadling.
-8. **`server.properties` måste ha `level-name=Kattest`**, annars startar testservern en tom värld utan paket.
-9. **Recept i 1.20+ kräver `unlock`-data** — utan den laddas receptet inte alls (fångas bara i ContentLog, inte av JSON-validering).
-10. **Synlig utrustning — en geometri PER TILLBEHÖR, inte per kombination.** Att baka in tillbehör i kattmodellen ger kombinatorisk explosion (4 plagg × färger ≈ 400 modeller). Lösningen: varje plagg är en egen liten geometri (`geometry.katt.keps2` osv) + en **egen render controller** som väljer färg eller `geometry.katt.empty`. `client_entity.render_controllers` listar alla fem (kropp + 4 plagg). Resultat: **16 geometrier i stället för 400**.
-11. **Bara EN component group får definiera `minecraft:rideable`.** Två grupper som båda gör det ger odefinierat beteende (vilken vinner?). Vagnens andra sittplats ligger därför i `mjau:saddled`, inte i en egen grupp. `purrfect-test` kontrollerar detta.
-12. **Ett kraschande kontrollskript får inte se ut som godkänt.** Sadelhöjds-kontrollen antog att `seats` är ett objekt; med två platser blev det en lista → skriptet dog tyst med stderr dolt, och HELA strukturkontrollen hoppades över medan testet visade grönt. `purrfect-test` larmar nu explicit om kontrollen inte producerar resultat, och visar felet.
-13. **Tillbehörens läge styrs av entity properties**, inte variant/mark_variant (som bara räcker till två oberoende värden). `description.properties` definierar `mjau:sadel|keps|halsduk|ryggsack` (int med range), events sätter dem med `"set_property"`, och Molang läser med `query.property('mjau:keps')`. Så är plaggen helt oberoende av varandra.
-11. **Texturen är 128×128** sedan färgvarianterna tillkom. UV:er är absoluta pixelkoordinater, så befintliga regioner kunde behållas när texturen växte — men `texture_width`/`texture_height` i varje geometris `description` MÅSTE uppdateras, annars mappas allt fel.
+1. Every behaviour needs a **unique `priority`** — check component groups too, not just base components.
+2. `minecraft:scale` must not sit in both base components and a component group.
+3. The saddle's `seats.position` must follow the model; it is checked against the body's top face.
+4. UV layout must be redrawn whenever cube sizes change.
+5. Versions live in **four** places: `header.version` and `modules[].version` in both manifests, plus the BP's `dependencies[].version`.
+6. `follow_owner` requires an owner → tamed group only.
+7. `sittable` and `rideable` share one interaction → `sittable` moves to its own group, removed on saddling.
+8. Only **one** component group may define `minecraft:rideable`.
+9. Recipes in 1.20+ require `unlock` data, and can silently **collide with vanilla recipes** — `[GGG,G G]` in gold is a golden helmet, `[G G,GGG]` in iron is a minecart. Only visible in the server's ContentLog.
+10. Visible equipment needs **one geometry per accessory**, not per combination — baking them into the cat model causes combinatorial explosion. Each is selected by its own render controller.
+11. Accessory state uses **entity properties** (`query.property(...)`), not `variant`/`mark_variant`, which only cover two independent values.
+12. Every geometry's declared `texture_width`/`texture_height` must match the actual PNG. Mismatch reads all UVs at the wrong scale and the model becomes unreadable in-game — invisible to the server.
+13. Custom items need their **full namespace** in `has_equipment` filters (`mjau:sadel_brun`). Without it nothing ever matches and no outfit can be equipped.
+14. Animation files alone do nothing — they must be wired into `client_entity` (`animations` + `scripts.animate`).
 
-`purrfect-test` kontrollerar 1, 2, 3, 5, 6 och 8 automatiskt.
-
-14. **Recept kan krocka med VANILLA.** `[GGG,G G]` med guld = gyllene hjälm, `[G G,GGG]` med järn = vagn. Egna recept med samma ingredienser blir dessutom dubbletter (alla tre vingfärger hade identiskt recept). Fångas bara i ContentLog som warning — kör alltid `purrfect-test` efter nya recept.
+`purrfect-test` checks 1, 2, 3, 5, 6, 8, 12 and 13 automatically.

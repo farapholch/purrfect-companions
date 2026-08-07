@@ -1,6 +1,4 @@
-<h2>2.2.0 — Animations and four new outfits</h2>
-<p><strong>The cats now move.</strong> Previously they slid around as rigid models; they now have a proper walk cycle with legs moving in diagonal pairs, a swaying tail, heads that turn to follow you, and a curled-up sitting pose.</p>
-<p><strong>Four new outfits</strong> — collar with a bell, bow, wings and crown. That brings the total to twelve outfits in forty colour variants, all wearable at the same time.</p>
-<p><strong>Gifts.</strong> Tamed cats now bring you presents in the morning, like vanilla cats — string, feathers, rabbit hide, the occasional phantom membrane.</p>
-<p><strong>Cat Treat</strong> — a new craftable item (cod + wheat) that works as a taming treat.</p>
-<p>Fixes: the wing colours all shared one recipe, and the crown recipe collided with the vanilla golden helmet. Both now have unique recipes.</p>
+<h2>2.2.2 — Two fixes that mattered</h2>
+<p><strong>The cats look like cats again.</strong> The model still declared the old texture size after the texture grew, so every coordinate on the body was read at half scale and the cats rendered as an unreadable mess. Fixed, with an automated check so it cannot happen again.</p>
+<p><strong>Outfits can actually be put on.</strong> The interaction filters looked for the outfit items without their namespace, so no outfit ever matched and nothing could be equipped. All twelve outfits now work as intended.</p>
+<p>Everything from 2.2.0 is included: walk cycles and sitting poses, four new outfits (collar, bow, wings, crown), cat bed and yarn ball blocks the cats seek out, morning gifts from tamed cats, and the craftable Cat Treat.</p>

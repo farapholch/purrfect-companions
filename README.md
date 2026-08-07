@@ -66,7 +66,9 @@ purrfect-ship                     # privat variant → Mod Mate (till Xbox)
 purrfect-ship --public            # publik variant
 purrfect-ship --bump minor        # höj version först (major|minor|patch)
 purrfect-ship --public --no-upload  # bygg publik för CurseForge utan att skicka
-python3 render_preview.py     # marknadsföringsbilder → publish/
+python3 render_preview.py     # marknadsföringsbilder + logga → publish/
+python3 build_blocks.py       # kattbädd och garnnystan
+./publish_site.sh             # publicera sidan (purrfect.pelleops.se, nginx :8091)
 ```
 
 Filnamnet härleds ur paketnamnet i manifestet: `purrfect-companions-v<VER>.mcaddon`

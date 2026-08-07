@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:halsduk_gron"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "WW",
+      "WW"
+    ],
+    "key": {
+      "W": {
+        "item": "minecraft:green_wool"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:green_wool"
+      }
+    ],
+    "result": {
+      "item": "mjau:halsduk_gron"
+    }
+  }
+}

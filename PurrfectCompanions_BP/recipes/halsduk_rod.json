@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:halsduk_rod"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "WW",
+      "WW"
+    ],
+    "key": {
+      "W": {
+        "item": "minecraft:red_wool"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:red_wool"
+      }
+    ],
+    "result": {
+      "item": "mjau:halsduk_rod"
+    }
+  }
+}

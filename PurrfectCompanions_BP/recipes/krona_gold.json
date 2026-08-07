@@ -1,0 +1,34 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:krona_gold"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "GEG",
+      "GGG"
+    ],
+    "key": {
+      "G": {
+        "item": "minecraft:gold_ingot"
+      },
+      "E": {
+        "item": "minecraft:emerald"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:gold_ingot"
+      },
+      {
+        "item": "minecraft:emerald"
+      }
+    ],
+    "result": {
+      "item": "mjau:krona_gold"
+    }
+  }
+}

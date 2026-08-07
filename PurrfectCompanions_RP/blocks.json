@@ -1,0 +1,15 @@
+{
+  "format_version": [
+    1,
+    1,
+    0
+  ],
+  "mjau:kattbadd": {
+    "textures": "pc_kattbadd",
+    "sound": "cloth"
+  },
+  "mjau:garnnystan": {
+    "textures": "pc_garnnystan",
+    "sound": "cloth"
+  }
+}

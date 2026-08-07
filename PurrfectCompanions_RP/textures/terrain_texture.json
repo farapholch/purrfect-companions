@@ -1,0 +1,12 @@
+{
+  "resource_pack_name": "PurrfectCompanions",
+  "texture_name": "atlas.terrain",
+  "texture_data": {
+    "pc_kattbadd": {
+      "textures": "textures/blocks/pc_kattbadd"
+    },
+    "pc_garnnystan": {
+      "textures": "textures/blocks/pc_garnnystan"
+    }
+  }
+}

@@ -1,0 +1,1858 @@
+{
+  "format_version": "1.19.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "mjau:misty",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "is_experimental": false,
+      "properties": {
+        "mjau:sadel": {
+          "type": "int",
+          "range": [
+            0,
+            3
+          ],
+          "default": 0
+        },
+        "mjau:keps": {
+          "type": "int",
+          "range": [
+            0,
+            4
+          ],
+          "default": 0
+        },
+        "mjau:halsduk": {
+          "type": "int",
+          "range": [
+            0,
+            4
+          ],
+          "default": 0
+        },
+        "mjau:ryggsack": {
+          "type": "int",
+          "range": [
+            0,
+            3
+          ],
+          "default": 0
+        },
+        "mjau:glasogon": {
+          "type": "int",
+          "range": [
+            0,
+            3
+          ],
+          "default": 0
+        },
+        "mjau:tossor": {
+          "type": "int",
+          "range": [
+            0,
+            4
+          ],
+          "default": 0
+        },
+        "mjau:vagn": {
+          "type": "int",
+          "range": [
+            0,
+            3
+          ],
+          "default": 0
+        },
+        "mjau:halsband": {
+          "type": "int",
+          "range": [
+            0,
+            3
+          ],
+          "default": 0
+        },
+        "mjau:rosett": {
+          "type": "int",
+          "range": [
+            0,
+            4
+          ],
+          "default": 0
+        },
+        "mjau:vingar": {
+          "type": "int",
+          "range": [
+            0,
+            3
+          ],
+          "default": 0
+        },
+        "mjau:krona": {
+          "type": "int",
+          "range": [
+            0,
+            2
+          ],
+          "default": 0
+        },
+        "mjau:mantel": {
+          "type": "int",
+          "range": [
+            0,
+            4
+          ],
+          "default": 0
+        }
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [
+          "katt",
+          "mjaukatt",
+          "cat",
+          "mob"
+        ]
+      },
+      "minecraft:health": {
+        "value": 20,
+        "max": 20
+      },
+      "minecraft:collision_box": {
+        "width": 0.7,
+        "height": 0.7
+      },
+      "minecraft:physics": {},
+      "minecraft:pushable": {
+        "is_pushable": true,
+        "is_pushable_by_piston": true
+      },
+      "minecraft:movement": {
+        "value": 0.32
+      },
+      "minecraft:movement.basic": {},
+      "minecraft:jump.static": {},
+      "minecraft:navigation.walk": {
+        "can_path_over_water": false,
+        "avoid_water": true
+      },
+      "minecraft:can_climb": {},
+      "minecraft:nameable": {},
+      "minecraft:persistent": {},
+      "minecraft:loot": {
+        "table": "loot_tables/entities/katt.json"
+      },
+      "minecraft:behavior.float": {
+        "priority": 1
+      },
+      "minecraft:behavior.panic": {
+        "priority": 2,
+        "speed_multiplier": 1.35
+      },
+      "minecraft:behavior.tempt": {
+        "priority": 9,
+        "speed_multiplier": 1.2,
+        "items": [
+          "cod",
+          "salmon"
+        ]
+      },
+      "minecraft:behavior.random_stroll": {
+        "priority": 13,
+        "speed_multiplier": 1.0
+      },
+      "minecraft:behavior.look_at_player": {
+        "priority": 15,
+        "look_distance": 6.0
+      },
+      "minecraft:behavior.random_look_around": {
+        "priority": 16
+      },
+      "minecraft:tameable": {
+        "probability": 0.4,
+        "tame_items": [
+          "cod",
+          "salmon",
+          "godis"
+        ],
+        "tame_event": {
+          "event": "mjau:on_tame",
+          "target": "self"
+        }
+      },
+      "minecraft:ambient_sound_interval": {
+        "value": 10.0,
+        "range": 14.0,
+        "event_name": "ambient"
+      },
+      "minecraft:attack": {
+        "damage": 3
+      },
+      "minecraft:behavior.nearest_attackable_target": {
+        "priority": 6,
+        "must_see": true,
+        "reselect_targets": true,
+        "within_radius": 12,
+        "entity_types": [
+          {
+            "filters": {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "rabbit"
+                },
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "chicken"
+                }
+              ]
+            },
+            "max_dist": 12
+          }
+        ]
+      },
+      "minecraft:behavior.stalk_and_pounce_on_target": {
+        "priority": 7,
+        "stalk_speed": 1.0,
+        "max_stalk_dist": 12.0,
+        "leap_distance": 0.8,
+        "leap_height": 0.9,
+        "max_pounce_dist": 5.0,
+        "interest_time": 2.0,
+        "pounce_max_dist": 5.0
+      },
+      "minecraft:behavior.melee_attack": {
+        "priority": 8,
+        "speed_multiplier": 1.2,
+        "track_target": true
+      },
+      "minecraft:behavior.random_sitting": {
+        "priority": 14,
+        "min_sit_time": 8,
+        "start_chance": 0.08,
+        "stop_chance": 0.06
+      },
+      "minecraft:behavior.move_to_block": {
+        "priority": 12,
+        "tick_interval": 40,
+        "start_chance": 0.4,
+        "search_range": 12,
+        "search_height": 4,
+        "goal_radius": 1.5,
+        "stay_duration": 20,
+        "target_selection_method": "nearest",
+        "target_offset": [
+          0,
+          1,
+          0
+        ],
+        "target_blocks": [
+          "mjau:kattbadd",
+          "mjau:garnnystan"
+        ]
+      }
+    },
+    "component_groups": {
+      "mjau:tamed": {
+        "minecraft:is_tamed": {},
+        "minecraft:behavior.follow_owner": {
+          "priority": 10,
+          "speed_multiplier": 1.0,
+          "start_distance": 10,
+          "stop_distance": 2
+        },
+        "minecraft:interact": {
+          "interactions": [
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "sadel_brun"
+                    }
+                  ]
+                },
+                "event": "mjau:on_sadel_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "saddle",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "sadel_svart"
+                    }
+                  ]
+                },
+                "event": "mjau:on_sadel_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "saddle",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "sadel_ljus"
+                    }
+                  ]
+                },
+                "event": "mjau:on_sadel_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "saddle",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "keps_cyan"
+                    }
+                  ]
+                },
+                "event": "mjau:on_keps_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "keps_rod"
+                    }
+                  ]
+                },
+                "event": "mjau:on_keps_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "keps_gron"
+                    }
+                  ]
+                },
+                "event": "mjau:on_keps_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "keps_gul"
+                    }
+                  ]
+                },
+                "event": "mjau:on_keps_4",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "halsduk_rod"
+                    }
+                  ]
+                },
+                "event": "mjau:on_halsduk_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "halsduk_bla"
+                    }
+                  ]
+                },
+                "event": "mjau:on_halsduk_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "halsduk_gron"
+                    }
+                  ]
+                },
+                "event": "mjau:on_halsduk_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "halsduk_gul"
+                    }
+                  ]
+                },
+                "event": "mjau:on_halsduk_4",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "ryggsack_brun"
+                    }
+                  ]
+                },
+                "event": "mjau:on_ryggsack_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "ryggsack_gron"
+                    }
+                  ]
+                },
+                "event": "mjau:on_ryggsack_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "ryggsack_bla"
+                    }
+                  ]
+                },
+                "event": "mjau:on_ryggsack_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "glasogon_svart"
+                    }
+                  ]
+                },
+                "event": "mjau:on_glasogon_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_generic",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "glasogon_guld"
+                    }
+                  ]
+                },
+                "event": "mjau:on_glasogon_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_generic",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "glasogon_rosa"
+                    }
+                  ]
+                },
+                "event": "mjau:on_glasogon_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_generic",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "tossor_vit"
+                    }
+                  ]
+                },
+                "event": "mjau:on_tossor_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "tossor_svart"
+                    }
+                  ]
+                },
+                "event": "mjau:on_tossor_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "tossor_rod"
+                    }
+                  ]
+                },
+                "event": "mjau:on_tossor_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "tossor_gul"
+                    }
+                  ]
+                },
+                "event": "mjau:on_tossor_4",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "vagn_tra"
+                    }
+                  ]
+                },
+                "event": "mjau:on_vagn_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "vagn_rod"
+                    }
+                  ]
+                },
+                "event": "mjau:on_vagn_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "vagn_bla"
+                    }
+                  ]
+                },
+                "event": "mjau:on_vagn_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "halsband_red"
+                    }
+                  ]
+                },
+                "event": "mjau:on_halsband_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "halsband_blue"
+                    }
+                  ]
+                },
+                "event": "mjau:on_halsband_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "halsband_green"
+                    }
+                  ]
+                },
+                "event": "mjau:on_halsband_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "rosett_pink"
+                    }
+                  ]
+                },
+                "event": "mjau:on_rosett_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "rosett_red"
+                    }
+                  ]
+                },
+                "event": "mjau:on_rosett_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "rosett_blue"
+                    }
+                  ]
+                },
+                "event": "mjau:on_rosett_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "rosett_yellow"
+                    }
+                  ]
+                },
+                "event": "mjau:on_rosett_4",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "vingar_white"
+                    }
+                  ]
+                },
+                "event": "mjau:on_vingar_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "vingar_black"
+                    }
+                  ]
+                },
+                "event": "mjau:on_vingar_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "vingar_gold"
+                    }
+                  ]
+                },
+                "event": "mjau:on_vingar_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "krona_gold"
+                    }
+                  ]
+                },
+                "event": "mjau:on_krona_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_generic",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "krona_silver"
+                    }
+                  ]
+                },
+                "event": "mjau:on_krona_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_generic",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mantel_rod"
+                    }
+                  ]
+                },
+                "event": "mjau:on_mantel_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mantel_bla"
+                    }
+                  ]
+                },
+                "event": "mjau:on_mantel_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mantel_lila"
+                    }
+                  ]
+                },
+                "event": "mjau:on_mantel_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mantel_svart"
+                    }
+                  ]
+                },
+                "event": "mjau:on_mantel_4",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "saddle"
+                    }
+                  ]
+                },
+                "event": "mjau:on_sadel_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "saddle",
+              "interact_text": "action.interact.equip"
+            }
+          ]
+        },
+        "minecraft:behavior.drop_item_for": {
+          "priority": 3,
+          "seconds_before_pickup": 0,
+          "cooldown": 300,
+          "drop_item_chance": 0.7,
+          "offering_distance": 5,
+          "minimum_teleport_distance": 2,
+          "target_range": [
+            5,
+            5,
+            5
+          ],
+          "teleport_offset": [
+            0,
+            1,
+            0
+          ],
+          "time_of_day_range": [
+            0.74,
+            0.83
+          ],
+          "speed_multiplier": 1,
+          "search_range": 5,
+          "search_height": 2,
+          "search_count": 0,
+          "goal_radius": 1,
+          "entity_types": {
+            "filters": {
+              "test": "is_owner",
+              "subject": "other"
+            }
+          },
+          "loot_table": "loot_tables/entities/cat_gift.json"
+        }
+      },
+      "mjau:adult": {
+        "minecraft:scale": {
+          "value": 1.0
+        },
+        "minecraft:behavior.breed": {
+          "priority": 4,
+          "speed_multiplier": 1.0
+        },
+        "minecraft:breedable": {
+          "require_tame": false,
+          "breed_items": [
+            "cod",
+            "salmon"
+          ],
+          "breeds_with": [
+            {
+              "mate_type": "mjau:misty",
+              "baby_type": "mjau:misty",
+              "breed_event": {
+                "event": "minecraft:entity_born",
+                "target": "baby"
+              }
+            }
+          ]
+        }
+      },
+      "mjau:baby": {
+        "minecraft:is_baby": {},
+        "minecraft:scale": {
+          "value": 0.5
+        },
+        "minecraft:ageable": {
+          "duration": 1200,
+          "feed_items": [
+            "cod",
+            "salmon"
+          ],
+          "grow_up": {
+            "event": "mjau:grow_up",
+            "target": "self"
+          }
+        },
+        "minecraft:behavior.follow_parent": {
+          "priority": 11,
+          "speed_multiplier": 1.1
+        }
+      },
+      "mjau:saddled": {
+        "minecraft:is_saddled": {},
+        "minecraft:rideable": {
+          "seat_count": 2,
+          "family_types": [
+            "player"
+          ],
+          "interact_text": "action.interact.ride",
+          "seats": [
+            {
+              "position": [
+                0.0,
+                0.562,
+                -0.2
+              ]
+            },
+            {
+              "position": [
+                0.0,
+                0.42,
+                0.85
+              ]
+            }
+          ]
+        },
+        "minecraft:input_ground_controlled": {},
+        "minecraft:behavior.controlled_by_player": {
+          "priority": 0
+        },
+        "minecraft:movement": {
+          "value": 0.5
+        },
+        "minecraft:horse.jump_strength": {
+          "value": 0.7
+        },
+        "minecraft:can_power_jump": {}
+      },
+      "mjau:sittable": {
+        "minecraft:sittable": {},
+        "minecraft:behavior.stay_while_sitting": {
+          "priority": 5
+        }
+      }
+    },
+    "events": {
+      "mjau:on_tame": {
+        "add": {
+          "component_groups": [
+            "mjau:tamed",
+            "mjau:sittable"
+          ]
+        }
+      },
+      "minecraft:entity_spawned": {
+        "sequence": [
+          {
+            "randomize": [
+              {
+                "weight": 90,
+                "add": {
+                  "component_groups": [
+                    "mjau:adult"
+                  ]
+                }
+              },
+              {
+                "weight": 10,
+                "add": {
+                  "component_groups": [
+                    "mjau:baby"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "minecraft:entity_born": {
+        "add": {
+          "component_groups": [
+            "mjau:baby"
+          ]
+        }
+      },
+      "mjau:grow_up": {
+        "remove": {
+          "component_groups": [
+            "mjau:baby"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "mjau:adult"
+          ]
+        }
+      },
+      "mjau:on_sadel_1": {
+        "set_property": {
+          "mjau:sadel": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:saddled"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:sittable"
+          ]
+        }
+      },
+      "mjau:on_sadel_2": {
+        "set_property": {
+          "mjau:sadel": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:saddled"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:sittable"
+          ]
+        }
+      },
+      "mjau:on_sadel_3": {
+        "set_property": {
+          "mjau:sadel": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:saddled"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:sittable"
+          ]
+        }
+      },
+      "mjau:on_keps_1": {
+        "set_property": {
+          "mjau:keps": 1
+        }
+      },
+      "mjau:on_keps_2": {
+        "set_property": {
+          "mjau:keps": 2
+        }
+      },
+      "mjau:on_keps_3": {
+        "set_property": {
+          "mjau:keps": 3
+        }
+      },
+      "mjau:on_keps_4": {
+        "set_property": {
+          "mjau:keps": 4
+        }
+      },
+      "mjau:on_halsduk_1": {
+        "set_property": {
+          "mjau:halsduk": 1
+        }
+      },
+      "mjau:on_halsduk_2": {
+        "set_property": {
+          "mjau:halsduk": 2
+        }
+      },
+      "mjau:on_halsduk_3": {
+        "set_property": {
+          "mjau:halsduk": 3
+        }
+      },
+      "mjau:on_halsduk_4": {
+        "set_property": {
+          "mjau:halsduk": 4
+        }
+      },
+      "mjau:on_ryggsack_1": {
+        "set_property": {
+          "mjau:ryggsack": 1
+        }
+      },
+      "mjau:on_ryggsack_2": {
+        "set_property": {
+          "mjau:ryggsack": 2
+        }
+      },
+      "mjau:on_ryggsack_3": {
+        "set_property": {
+          "mjau:ryggsack": 3
+        }
+      },
+      "mjau:on_glasogon_1": {
+        "set_property": {
+          "mjau:glasogon": 1
+        }
+      },
+      "mjau:on_glasogon_2": {
+        "set_property": {
+          "mjau:glasogon": 2
+        }
+      },
+      "mjau:on_glasogon_3": {
+        "set_property": {
+          "mjau:glasogon": 3
+        }
+      },
+      "mjau:on_tossor_1": {
+        "set_property": {
+          "mjau:tossor": 1
+        }
+      },
+      "mjau:on_tossor_2": {
+        "set_property": {
+          "mjau:tossor": 2
+        }
+      },
+      "mjau:on_tossor_3": {
+        "set_property": {
+          "mjau:tossor": 3
+        }
+      },
+      "mjau:on_tossor_4": {
+        "set_property": {
+          "mjau:tossor": 4
+        }
+      },
+      "mjau:on_vagn_1": {
+        "set_property": {
+          "mjau:vagn": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:saddled"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:sittable"
+          ]
+        }
+      },
+      "mjau:on_vagn_2": {
+        "set_property": {
+          "mjau:vagn": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:saddled"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:sittable"
+          ]
+        }
+      },
+      "mjau:on_vagn_3": {
+        "set_property": {
+          "mjau:vagn": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:saddled"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:sittable"
+          ]
+        }
+      },
+      "mjau:on_halsband_1": {
+        "set_property": {
+          "mjau:halsband": 1
+        }
+      },
+      "mjau:on_halsband_2": {
+        "set_property": {
+          "mjau:halsband": 2
+        }
+      },
+      "mjau:on_halsband_3": {
+        "set_property": {
+          "mjau:halsband": 3
+        }
+      },
+      "mjau:on_rosett_1": {
+        "set_property": {
+          "mjau:rosett": 1
+        }
+      },
+      "mjau:on_rosett_2": {
+        "set_property": {
+          "mjau:rosett": 2
+        }
+      },
+      "mjau:on_rosett_3": {
+        "set_property": {
+          "mjau:rosett": 3
+        }
+      },
+      "mjau:on_rosett_4": {
+        "set_property": {
+          "mjau:rosett": 4
+        }
+      },
+      "mjau:on_vingar_1": {
+        "set_property": {
+          "mjau:vingar": 1
+        }
+      },
+      "mjau:on_vingar_2": {
+        "set_property": {
+          "mjau:vingar": 2
+        }
+      },
+      "mjau:on_vingar_3": {
+        "set_property": {
+          "mjau:vingar": 3
+        }
+      },
+      "mjau:on_krona_1": {
+        "set_property": {
+          "mjau:krona": 1
+        }
+      },
+      "mjau:on_krona_2": {
+        "set_property": {
+          "mjau:krona": 2
+        }
+      },
+      "mjau:on_mantel_1": {
+        "set_property": {
+          "mjau:mantel": 1
+        }
+      },
+      "mjau:on_mantel_2": {
+        "set_property": {
+          "mjau:mantel": 2
+        }
+      },
+      "mjau:on_mantel_3": {
+        "set_property": {
+          "mjau:mantel": 3
+        }
+      },
+      "mjau:on_mantel_4": {
+        "set_property": {
+          "mjau:mantel": 4
+        }
+      }
+    }
+  }
+}

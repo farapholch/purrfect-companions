@@ -1,0 +1,141 @@
+{
+  "resource_pack_name": "PurrfectCompanions",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "pc_misty": {
+      "textures": "textures/items/pc_misty"
+    },
+    "pc_hazel": {
+      "textures": "textures/items/pc_hazel"
+    },
+    "pc_mocha": {
+      "textures": "textures/items/pc_mocha"
+    },
+    "pc_snow": {
+      "textures": "textures/items/pc_snow"
+    },
+    "pc_sadel_brun": {
+      "textures": "textures/items/pc_sadel_brun"
+    },
+    "pc_sadel_svart": {
+      "textures": "textures/items/pc_sadel_svart"
+    },
+    "pc_sadel_ljus": {
+      "textures": "textures/items/pc_sadel_ljus"
+    },
+    "pc_keps_cyan": {
+      "textures": "textures/items/pc_keps_cyan"
+    },
+    "pc_keps_rod": {
+      "textures": "textures/items/pc_keps_rod"
+    },
+    "pc_keps_gron": {
+      "textures": "textures/items/pc_keps_gron"
+    },
+    "pc_keps_gul": {
+      "textures": "textures/items/pc_keps_gul"
+    },
+    "pc_halsduk_rod": {
+      "textures": "textures/items/pc_halsduk_rod"
+    },
+    "pc_halsduk_bla": {
+      "textures": "textures/items/pc_halsduk_bla"
+    },
+    "pc_halsduk_gron": {
+      "textures": "textures/items/pc_halsduk_gron"
+    },
+    "pc_halsduk_gul": {
+      "textures": "textures/items/pc_halsduk_gul"
+    },
+    "pc_ryggsack_brun": {
+      "textures": "textures/items/pc_ryggsack_brun"
+    },
+    "pc_ryggsack_gron": {
+      "textures": "textures/items/pc_ryggsack_gron"
+    },
+    "pc_ryggsack_bla": {
+      "textures": "textures/items/pc_ryggsack_bla"
+    },
+    "pc_glasogon_svart": {
+      "textures": "textures/items/pc_glasogon_svart"
+    },
+    "pc_glasogon_guld": {
+      "textures": "textures/items/pc_glasogon_guld"
+    },
+    "pc_glasogon_rosa": {
+      "textures": "textures/items/pc_glasogon_rosa"
+    },
+    "pc_tossor_vit": {
+      "textures": "textures/items/pc_tossor_vit"
+    },
+    "pc_tossor_svart": {
+      "textures": "textures/items/pc_tossor_svart"
+    },
+    "pc_tossor_rod": {
+      "textures": "textures/items/pc_tossor_rod"
+    },
+    "pc_tossor_gul": {
+      "textures": "textures/items/pc_tossor_gul"
+    },
+    "pc_vagn_tra": {
+      "textures": "textures/items/pc_vagn_tra"
+    },
+    "pc_vagn_rod": {
+      "textures": "textures/items/pc_vagn_rod"
+    },
+    "pc_vagn_bla": {
+      "textures": "textures/items/pc_vagn_bla"
+    },
+    "pc_halsband_red": {
+      "textures": "textures/items/pc_halsband_red"
+    },
+    "pc_halsband_blue": {
+      "textures": "textures/items/pc_halsband_blue"
+    },
+    "pc_halsband_green": {
+      "textures": "textures/items/pc_halsband_green"
+    },
+    "pc_rosett_pink": {
+      "textures": "textures/items/pc_rosett_pink"
+    },
+    "pc_rosett_red": {
+      "textures": "textures/items/pc_rosett_red"
+    },
+    "pc_rosett_blue": {
+      "textures": "textures/items/pc_rosett_blue"
+    },
+    "pc_rosett_yellow": {
+      "textures": "textures/items/pc_rosett_yellow"
+    },
+    "pc_vingar_white": {
+      "textures": "textures/items/pc_vingar_white"
+    },
+    "pc_vingar_black": {
+      "textures": "textures/items/pc_vingar_black"
+    },
+    "pc_vingar_gold": {
+      "textures": "textures/items/pc_vingar_gold"
+    },
+    "pc_krona_gold": {
+      "textures": "textures/items/pc_krona_gold"
+    },
+    "pc_krona_silver": {
+      "textures": "textures/items/pc_krona_silver"
+    },
+    "pc_mantel_rod": {
+      "textures": "textures/items/pc_mantel_rod"
+    },
+    "pc_mantel_bla": {
+      "textures": "textures/items/pc_mantel_bla"
+    },
+    "pc_mantel_lila": {
+      "textures": "textures/items/pc_mantel_lila"
+    },
+    "pc_mantel_svart": {
+      "textures": "textures/items/pc_mantel_svart"
+    },
+    "pc_godis": {
+      "textures": "textures/items/pc_godis"
+    }
+  }
+}

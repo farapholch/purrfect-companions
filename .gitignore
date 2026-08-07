@@ -1,0 +1,8 @@
+# Hemligheter — får ALDRIG till GitHub
+.curseforge-token
+.modmate-code
+
+# Byggartefakter
+publish/*.mcaddon
+__pycache__/
+*.pyc

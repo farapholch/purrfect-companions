@@ -1,0 +1,45 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.katt.walk": {
+      "loop": true,
+      "bones": {
+        "leg0": { "rotation": ["math.cos(query.modified_distance_moved * 38.17) * 42.0 * query.modified_move_speed", 0, 0] },
+        "leg3": { "rotation": ["math.cos(query.modified_distance_moved * 38.17) * 42.0 * query.modified_move_speed", 0, 0] },
+        "leg1": { "rotation": ["math.cos(query.modified_distance_moved * 38.17 + 180.0) * 42.0 * query.modified_move_speed", 0, 0] },
+        "leg2": { "rotation": ["math.cos(query.modified_distance_moved * 38.17 + 180.0) * 42.0 * query.modified_move_speed", 0, 0] },
+        "body": { "position": [0, "math.abs(math.cos(query.modified_distance_moved * 38.17)) * 0.35 * query.modified_move_speed", 0] }
+      }
+    },
+    "animation.katt.look": {
+      "loop": true,
+      "bones": {
+        "head": { "rotation": ["query.target_x_rotation", "query.target_y_rotation", 0] }
+      }
+    },
+    "animation.katt.tail": {
+      "loop": true,
+      "bones": {
+        "tail": {
+          "rotation": [
+            "math.sin(query.life_time * 90.0) * 4.0",
+            "math.sin(query.life_time * 130.0) * 9.0",
+            0
+          ]
+        }
+      }
+    },
+    "animation.katt.sit": {
+      "loop": true,
+      "bones": {
+        "body": { "rotation": [-16, 0, 0], "position": [0, -1.2, 0] },
+        "leg0": { "rotation": [-84, 0, 0], "position": [0, -0.6, 1.4] },
+        "leg1": { "rotation": [-84, 0, 0], "position": [0, -0.6, 1.4] },
+        "leg2": { "rotation": [-6, 0, 0] },
+        "leg3": { "rotation": [-6, 0, 0] },
+        "head": { "rotation": [16, 0, 0] },
+        "tail": { "rotation": [-28, 0, 0] }
+      }
+    }
+  }
+}

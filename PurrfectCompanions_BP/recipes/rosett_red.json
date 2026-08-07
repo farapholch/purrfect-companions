@@ -1,0 +1,27 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:rosett_red"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "WWW"
+    ],
+    "key": {
+      "W": {
+        "item": "minecraft:red_wool"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:red_wool"
+      }
+    ],
+    "result": {
+      "item": "mjau:rosett_red"
+    }
+  }
+}

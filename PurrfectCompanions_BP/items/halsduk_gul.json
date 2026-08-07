@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:halsduk_gul",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_halsduk_gul"
+      },
+      "minecraft:display_name": {
+        "value": "Cat Scarf (Yellow)"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

@@ -1,0 +1,407 @@
+#!/usr/bin/env python3
+"""Genererar ALLA tillbehör till Mjau Mods från en enda definition nedan.
+
+Lägg till ett nytt plagg genom att lägga till en post i ACC — skriptet skapar
+geometri, textur, render controller, entity-property, event, interaktion,
+föremål, ikon, recept och språksträng. Kör sedan `purrfect-test`.
+
+Varje plagg är en EGEN liten geometri (inte inbakad i kattmodellen) — annars
+exploderar antalet kombinationer. Läget styrs av entity properties, så alla
+plagg är oberoende av varandra.
+"""
+import json, zlib, struct, glob, os
+
+BASE = "/opt/purrfect-companions"; BP = f"{BASE}/PurrfectCompanions_BP"; RP = f"{BASE}/PurrfectCompanions_RP"
+TEX = 256
+
+# ---------------------------------------------------------------- definition
+# uv: startpunkt i texturen. cubes: (origin, size, uv-offset från plaggets uv)
+ACC = {
+ "sadel": dict(label="Cat Saddle", bone="body", sound="saddle", rideable=True,
+   uv={1:(24,26),2:(56,26),3:(88,26)},
+   colors={1:("brun",(122,79,45)),2:("svart",(58,52,48)),3:("ljus",(206,190,160))},
+   names={1:"Brown",2:"Black",3:"Light"},
+   cubes=[([-3.25,9,-3],[6.5,1,6],(0,0)), ([-1.5,10,-3],[3,1,1],(0,8))],
+   recipe=lambda mat: dict(pattern=["LLL","S S"] if not mat else ["LLL","SDS"],
+       key={"L":{"item":"minecraft:leather"},"S":{"item":"minecraft:string"}} if not mat
+           else {"L":{"item":"minecraft:leather"},"S":{"item":"minecraft:string"},"D":{"item":mat}},
+       unlock=[{"item":"minecraft:leather"}]+([{"item":mat}] if mat else [])),
+   mats={1:None,2:"minecraft:black_dye",3:"minecraft:white_dye"}),
+
+ "keps": dict(label="Cat Cap", bone="head", sound="armor.equip_leather",
+   uv={1:(24,40),2:(56,40),3:(24,56),4:(56,56)},
+   colors={1:("cyan",(0,168,214)),2:("rod",(198,62,55)),3:("gron",(76,168,84)),4:("gul",(238,196,62))},
+   names={1:"Cyan",2:"Red",3:"Green",4:"Yellow"},
+   cubes=[([-3.25,9.8,-9.25],[6.5,2,4.5],(0,0)), ([-2.5,9.9,-11.5],[5,0.5,2.5],(0,8))],
+   recipe=lambda mat: dict(pattern=["WWW"," L "],
+       key={"W":{"item":mat},"L":{"item":"minecraft:leather"}},
+       unlock=[{"item":mat},{"item":"minecraft:leather"}]),
+   mats={1:"minecraft:cyan_wool",2:"minecraft:red_wool",3:"minecraft:green_wool",4:"minecraft:yellow_wool"}),
+
+ "halsduk": dict(label="Cat Scarf", bone="body", sound="armor.equip_leather",
+   uv={1:(0,72),2:(24,72),3:(48,72),4:(72,72)},
+   colors={1:("rod",(198,62,55)),2:("bla",(64,116,200)),3:("gron",(76,168,84)),4:("gul",(238,196,62))},
+   names={1:"Red",2:"Blue",3:"Green",4:"Yellow"},
+   cubes=[([-3.4,7.5,-5.6],[6.8,2,1.6],(0,0)), ([-1,5,-5.7],[2,2.5,1],(0,6))],
+   recipe=lambda mat: dict(pattern=["WW","WW"], key={"W":{"item":mat}}, unlock=[{"item":mat}]),
+   mats={1:"minecraft:red_wool",2:"minecraft:blue_wool",3:"minecraft:green_wool",4:"minecraft:yellow_wool"}),
+
+ "ryggsack": dict(label="Cat Backpack", bone="body", sound="armor.equip_leather",
+   uv={1:(0,88),2:(24,88),3:(48,88)},
+   colors={1:("brun",(122,79,45)),2:("gron",(76,140,84)),3:("bla",(64,104,168))},
+   names={1:"Brown",2:"Green",3:"Blue"},
+   cubes=[([-3.25,9,1],[6.5,2.5,3],(0,0)), ([-3.4,9.5,1.5],[6.9,0.5,2],(0,8))],
+   recipe=lambda mat: dict(pattern=["S S","LDL","LLL"],
+       key={"L":{"item":"minecraft:leather"},"S":{"item":"minecraft:string"},"D":{"item":mat}},
+       unlock=[{"item":"minecraft:leather"},{"item":mat}]),
+   mats={1:"minecraft:brown_dye",2:"minecraft:green_dye",3:"minecraft:blue_dye"}),
+
+ "glasogon": dict(label="Cat Glasses", bone="head", sound="armor.equip_generic",
+   uv={1:(0,100),2:(16,100),3:(32,100)},
+   colors={1:("svart",(38,38,42)),2:("guld",(212,175,60)),3:("rosa",(232,130,180))},
+   names={1:"Black",2:"Gold",3:"Pink"},
+   cubes=[([-3.2,7.8,-9.5],[6.4,1.4,0.5],(0,0))],
+   recipe=lambda mat: dict(pattern=["GDG"],
+       key={"G":{"item":"minecraft:glass_pane"},"D":{"item":mat}},
+       unlock=[{"item":"minecraft:glass_pane"},{"item":mat}]),
+   mats={1:"minecraft:black_dye",2:"minecraft:gold_nugget",3:"minecraft:pink_dye"}),
+
+ # fyra tossor delar samma UV-region (som benen gör i grundmodellen)
+ "tossor": dict(label="Cat Booties", bone="body", sound="armor.equip_leather",
+   uv={1:(0,118),2:(12,118),3:(24,118),4:(36,118)},
+   colors={1:("vit",(240,240,238)),2:("svart",(52,50,56)),3:("rod",(198,62,55)),4:("gul",(238,196,62))},
+   names={1:"White",2:"Black",3:"Red",4:"Yellow"},
+   cubes=[([-3.2,-0.05,2.8],[2.4,1.6,2.4],(0,0)),   # bak vänster
+          ([0.8,-0.05,2.8],[2.4,1.6,2.4],(0,0)),    # bak höger
+          ([-3.2,-0.05,-5.2],[2.4,1.6,2.4],(0,0)),  # fram vänster
+          ([0.8,-0.05,-5.2],[2.4,1.6,2.4],(0,0))],  # fram höger
+   recipe=lambda mat: dict(pattern=["W W","W W"], key={"W":{"item":mat}}, unlock=[{"item":mat}]),
+   mats={1:"minecraft:white_wool",2:"minecraft:black_wool",3:"minecraft:red_wool",4:"minecraft:yellow_wool"}),
+
+ "vagn": dict(label="Cat Cart", bone="body", sound="armor.equip_leather",
+   uv={1:(0,128),2:(24,128),3:(48,128)},
+   colors={1:("tra",(150,108,64)),2:("rod",(178,58,52)),3:("bla",(58,102,172))},
+   names={1:"Wood",2:"Red",3:"Blue"},
+   cubes=[([-3,2,8],[6,4,5],(0,0)),          # flaket
+          ([-3.8,0.5,9],[0.8,3,3],(0,10)),   # hjul vänster
+          ([3,0.5,9],[0.8,3,3],(0,10)),      # hjul höger
+          ([-0.5,4,5],[1,0.8,3],(0,18))],    # dragstång till katten
+   seats=[[0.0,0.562,-0.2],[0.0,0.42,0.85]], # ryttare fram, passagerare i vagnen
+   recipe=lambda mat: dict(pattern=["S S","PPP","W W"],
+       key={"P":{"item":mat},"S":{"item":"minecraft:stick"},"W":{"item":"minecraft:wooden_slab"}},
+       unlock=[{"item":mat},{"item":"minecraft:stick"}]),
+   mats={1:"minecraft:oak_planks",2:"minecraft:red_terracotta",3:"minecraft:blue_terracotta"}),
+
+ "halsband": dict(label="Cat Collar", bone="body", sound="armor.equip_leather",
+   uv={1:(0,176),2:(24,176),3:(48,176)},
+   colors={1:("red",(196,58,52)),2:("blue",(58,102,178)),3:("green",(72,158,80))},
+   names={1:"Red",2:"Blue",3:"Green"},
+   cubes=[([-3.4,7.6,-5.5],[6.8,1.2,1.4],(0,0)), ([-0.5,6.9,-5.6],[1,1,1],(0,4))],
+   recipe=lambda mat: dict(pattern=["LLL"," I "],
+       key={"L":{"item":mat},"I":{"item":"minecraft:iron_nugget"}},
+       unlock=[{"item":mat},{"item":"minecraft:iron_nugget"}]),
+   mats={1:"minecraft:red_wool",2:"minecraft:blue_wool",3:"minecraft:green_wool"}),
+
+ "rosett": dict(label="Cat Bow", bone="head", sound="armor.equip_leather",
+   uv={1:(0,186),2:(16,186),3:(32,186),4:(48,186)},
+   colors={1:("pink",(238,138,186)),2:("red",(198,62,55)),3:("blue",(64,116,200)),4:("yellow",(238,196,62))},
+   names={1:"Pink",2:"Red",3:"Blue",4:"Yellow"},
+   cubes=[([-1.5,10.2,-7.6],[3,1.6,1],(0,0))],
+   recipe=lambda mat: dict(pattern=["WWW"], key={"W":{"item":mat}}, unlock=[{"item":mat}]),
+   mats={1:"minecraft:pink_wool",2:"minecraft:red_wool",3:"minecraft:blue_wool",4:"minecraft:yellow_wool"}),
+
+ "vingar": dict(label="Cat Wings", bone="body", sound="armor.equip_leather",
+   uv={1:(0,192),2:(20,192),3:(40,192)},
+   colors={1:("white",(242,242,240)),2:("black",(48,46,54)),3:("gold",(226,190,84))},
+   names={1:"White",2:"Black",3:"Gold"},
+   cubes=[([-4.4,7,0],[0.6,5,5],(0,0)), ([3.8,7,0],[0.6,5,5],(0,0))],
+   recipe=lambda mat: dict(pattern=["F F","FWF"],
+       key={"F":{"item":"minecraft:feather"},"W":{"item":mat}},
+       unlock=[{"item":"minecraft:feather"},{"item":mat}]),
+   mats={1:"minecraft:white_wool",2:"minecraft:black_wool",3:"minecraft:gold_ingot"}),
+
+ "krona": dict(label="Cat Crown", bone="head", sound="armor.equip_generic",
+   uv={1:(0,206),2:(24,206)},
+   colors={1:("gold",(232,196,72)),2:("silver",(206,210,216))},
+   names={1:"Gold",2:"Silver"},
+   cubes=[([-2.5,11.6,-8.4],[5,1.6,3.4],(0,0))],
+   recipe=lambda mat: dict(pattern=["GEG","GGG"],
+       key={"G":{"item":mat},"E":{"item":"minecraft:emerald"}},
+       unlock=[{"item":mat},{"item":"minecraft:emerald"}]),
+   mats={1:"minecraft:gold_ingot",2:"minecraft:iron_ingot"}),
+
+ "mantel": dict(label="Cat Cape", bone="body", sound="armor.equip_leather",
+   uv={1:(0,150),2:(40,150),3:(80,150),4:(120,150)},
+   colors={1:("rod",(178,48,44)),2:("bla",(56,96,178)),3:("lila",(122,64,178)),4:("svart",(44,42,48))},
+   names={1:"Red",2:"Blue",3:"Purple",4:"Black"},
+   cubes=[([-3.3,9.6,-5.6],[6.6,1,0.6],(0,0)),      # krage vid halsen
+          ([-3.4,9.9,-5.5],[6.8,0.5,11],(0,3)),      # drapering över ryggen
+          ([-3.4,4,5.2],[6.8,6,0.6],(0,16))],        # hängande bakstycke
+   recipe=lambda mat: dict(pattern=["S S","WWW","WWW"],
+       key={"W":{"item":mat},"S":{"item":"minecraft:string"}},
+       unlock=[{"item":mat},{"item":"minecraft:string"}]),
+   mats={1:"minecraft:red_wool",2:"minecraft:blue_wool",3:"minecraft:purple_wool",4:"minecraft:black_wool"}),
+}
+
+# ---------------------------------------------------------------- hjälpare
+def sh(c, f):
+    return tuple(max(0, min(255, int(v*f))) for v in c[:3]) + (255,)
+
+def read_png(path):
+    d=open(path,'rb').read(); pos=8; idat=b''; w=h=None
+    while pos<len(d):
+        ln=struct.unpack(">I",d[pos:pos+4])[0]; typ=d[pos+4:pos+8]; data=d[pos+8:pos+8+ln]
+        if typ==b'IHDR': w,h=struct.unpack(">II",data[:8])
+        elif typ==b'IDAT': idat+=data
+        pos+=12+ln
+    raw=zlib.decompress(idat); px=[]; stride=w*4; prev=bytearray(stride); i=0
+    for y in range(h):
+        f=raw[i]; i+=1; line=bytearray(raw[i:i+stride]); i+=stride
+        for x in range(stride):
+            a=line[x-4] if x>=4 else 0; b=prev[x]; cc=prev[x-4] if x>=4 else 0
+            if f==1: line[x]=(line[x]+a)&255
+            elif f==2: line[x]=(line[x]+b)&255
+            elif f==3: line[x]=(line[x]+(a+b)//2)&255
+            elif f==4:
+                p=a+b-cc; pa,pb,pc=abs(p-a),abs(p-b),abs(p-cc)
+                line[x]=(line[x]+(a if(pa<=pb and pa<=pc) else (b if pb<=pc else cc)))&255
+        prev=line; px.append([tuple(line[x*4:x*4+4]) for x in range(w)])
+    return w,h,px
+
+def write_png(p,w,h,px):
+    def ch(t,d):
+        c=t+d; return struct.pack(">I",len(d))+c+struct.pack(">I",zlib.crc32(c)&0xffffffff)
+    raw=bytearray()
+    for y in range(h):
+        raw.append(0)
+        for x in range(w): raw+=bytes(px[y][x])
+    open(p,"wb").write(b"\x89PNG\r\n\x1a\n"+ch(b"IHDR",struct.pack(">IIBBBBB",w,h,8,6,0,0,0))
+        +ch(b"IDAT",zlib.compress(bytes(raw),9))+ch(b"IEND",b""))
+
+def uv_footprint(size):
+    w,h,d = size
+    import math
+    return math.ceil(2*(d+w)), math.ceil(d+h)
+
+# ---------------------------------------------------------------- geometri
+def build_geometry():
+    p=f"{RP}/models/entity/katt.geo.json"
+    g=json.load(open(p))
+    base=[x for x in g["minecraft:geometry"] if x["description"]["identifier"]=="geometry.katt"][0]
+    for b in base["bones"]:
+        b["cubes"]=[c for c in b.get("cubes",[]) if c["uv"][1] < 26]   # bara katten själv
+    desc=lambda i:{"identifier":i,"texture_width":TEX,"texture_height":TEX,
+                   "visible_bounds_width":2,"visible_bounds_height":1.5,"visible_bounds_offset":[0,0.5,0]}
+    geos=[base,{"description":desc("geometry.katt.empty"),"bones":[{"name":"tom","pivot":[0,0,0]}]}]
+    for a,cfg in ACC.items():
+        for i in cfg["colors"]:
+            u,v=cfg["uv"][i]
+            cubes=[{"origin":list(o),"size":list(s),"uv":[u+du,v+dv]} for o,s,(du,dv) in cfg["cubes"]]
+            geos.append({"description":desc(f"geometry.katt.{a}{i}"),
+                         "bones":[{"name":cfg["bone"],"pivot":[0,8,0],"cubes":cubes}]})
+    g["minecraft:geometry"]=geos
+    json.dump(g,open(p,"w"),indent=2)
+    return len(geos)
+
+# ---------------------------------------------------------------- textur
+def paint_accessories():
+    for cid in ("misty","hazel","mocha","snow"):
+        p=f"{RP}/textures/entity/{cid}.png"; w,h,px=read_png(p)
+        def rect(x0,y0,ww,hh,c):
+            for y in range(y0,y0+hh):
+                for x in range(x0,x0+ww):
+                    if 0<=x<w and 0<=y<h: px[y][x]=c
+        for a,cfg in ACC.items():
+            for i,(slug,col) in cfg["colors"].items():
+                u,v=cfg["uv"][i]
+                for (o,s,(du,dv)) in cfg["cubes"]:
+                    fw,fh=uv_footprint(s)
+                    rect(u+du,v+dv,fw,fh,sh(col,1.0))
+                    rect(u+du,v+dv,fw,1,sh(col,1.2))          # ljus ovankant
+                    rect(u+du,v+dv+fh-1,fw,1,sh(col,0.68))    # mörk underkant
+                    for x in range(u+du,u+du+fw):
+                        if (x-u-du)%4==0: rect(x,v+dv,1,fh,sh(col,0.86))   # tyg-/läderstruktur
+        write_png(p,w,h,px)
+
+# ---------------------------------------------------------------- ikoner
+def icon(a,col,path):
+    S=16; T=(0,0,0,0); px=[[T]*S for _ in range(S)]
+    def sp(x,y,c):
+        if 0<=x<S and 0<=y<S: px[y][x]=c
+    if a=="glasogon":
+        for x in range(1,15): sp(x,7,sh(col,0.8)); sp(x,8,sh(col,1.0)); sp(x,9,sh(col,0.8))
+        for y in range(6,11):
+            for x in (2,3,4,11,12,13): sp(x,y,sh(col,1.0))
+        for y in range(7,10):
+            for x in (3,12): sp(x,y,(150,200,230,255))
+    elif a=="mantel":
+        for y in range(3,14):
+            wsp=1 if y<5 else 0
+            for x in range(3+wsp,13-wsp): sp(x,y,sh(col,1.0))
+        for x in range(4,12): sp(x,3,sh(col,1.2))
+        for y in range(3,14): sp(3,y,sh(col,0.7)); sp(12,y,sh(col,0.7))
+        for x in range(3,13):
+            if x%3==0:
+                for y in range(5,14): sp(x,y,sh(col,0.86))
+    elif a=="vagn":
+        for y in range(5,11):
+            for x in range(2,14): sp(x,y,sh(col,1.0))
+        for x in range(2,14): sp(x,5,sh(col,1.22))
+        for x in range(2,14): sp(x,10,sh(col,0.7))
+        for x in range(3,13):
+            if x%3==0:
+                for y in range(6,10): sp(x,y,sh(col,0.86))
+        for (wx) in (4,11):                      # hjul
+            for y in range(11,15):
+                for x in range(wx-1,wx+2): sp(x,y,(72,60,48,255))
+            sp(wx,12,(140,124,100,255)); sp(wx,13,(140,124,100,255))
+    elif a=="tossor":
+        for (bx,by) in ((2,4),(9,4),(2,10),(9,10)):      # fyra små tossor
+            for y in range(by,by+4):
+                for x in range(bx,bx+5):
+                    if y==by and x in (bx,bx+4): continue
+                    sp(x,y,sh(col,1.0))
+            for x in range(bx+1,bx+4): sp(x,by,sh(col,1.2))
+            for x in range(bx,bx+5): sp(x,by+3,sh(col,0.68))
+    else:
+        for y in range(5,12):
+            for x in range(3,13): sp(x,y,sh(col,1.0))
+        for x in range(3,13): sp(x,5,sh(col,1.2)); sp(x,11,sh(col,0.7))
+    write_png(path,S,S,px)
+
+def icon_treat():
+    """Kattgodis: liten fiskformad godbit."""
+    S=16; T=(0,0,0,0); px=[[T]*S for _ in range(S)]
+    BODY=(226,150,92,255); DARK=(186,116,66,255); LIGHT=(242,190,140,255)
+    def sp(x,y,c):
+        if 0<=x<S and 0<=y<S: px[y][x]=c
+    for y in range(6,11):
+        for x in range(4,12): sp(x,y,BODY)
+    for x in range(4,12): sp(x,6,LIGHT); sp(x,10,DARK)
+    for k in range(3):                      # stjärtfena
+        for y in range(6+k,11-k): sp(12+k,y,BODY)
+    sp(6,8,DARK)                            # öga
+    for x in range(5,11):
+        if x%2==0: sp(x,8,DARK)             # mönster
+    write_png(f"{RP}/textures/items/pc_godis.png",S,S,px)
+
+# ---------------------------------------------------------------- allt övrigt
+def build_rest():
+    # render controllers
+    rcs={"controller.render.katt":{"geometry":"Geometry.default",
+         "materials":[{"*":"Material.default"}],"textures":["Texture.default"]}}
+    for a,cfg in ACC.items():
+        arr=["Geometry.empty"]+[f"Geometry.{a}{i}" for i in sorted(cfg["colors"])]
+        rcs[f"controller.render.katt_{a}"]={
+          "arrays":{"geometries":{f"Array.{a}":arr}},
+          "geometry":f"Array.{a}[query.property('mjau:{a}')]",
+          "materials":[{"*":"Material.default"}],"textures":["Texture.default"]}
+    json.dump({"format_version":"1.10.0","render_controllers":rcs},
+              open(f"{RP}/render_controllers/katt.render_controllers.json","w"),indent=2)
+
+    gmap={"default":"geometry.katt","empty":"geometry.katt.empty"}
+    for a,cfg in ACC.items():
+        for i in cfg["colors"]: gmap[f"{a}{i}"]=f"geometry.katt.{a}{i}"
+    for f in glob.glob(f"{RP}/entity/*.json"):
+        d=json.load(open(f)); desc=d["minecraft:client_entity"]["description"]
+        desc["geometry"]=gmap
+        desc["render_controllers"]=["controller.render.katt"]+[f"controller.render.katt_{a}" for a in ACC]
+        # animationer: gångcykel, svanssvaj, huvudet följer spelaren, hopkurad sittpose
+        desc["animations"]={
+            "walk":"animation.katt.walk", "look":"animation.katt.look",
+            "tail":"animation.katt.tail", "sit":"animation.katt.sit",
+            "ctrl":"controller.animation.katt.move"}
+        desc["scripts"]={"animate":["ctrl"]}
+        json.dump(d,open(f,"w"),indent=2)
+
+    # föremål, ikoner, recept, språk
+    for f in glob.glob(f"{BP}/items/*.json")+glob.glob(f"{BP}/recipes/*.json"): os.remove(f)
+    for f in glob.glob(f"{RP}/textures/items/pc_*.png"):
+        if not any(f.endswith(f"pc_{c}.png") for c in ("misty","hazel","mocha","snow")): os.remove(f)
+    it=json.load(open(f"{RP}/textures/item_texture.json"))
+    it["texture_data"]={k:v for k,v in it["texture_data"].items()
+                        if k in ("pc_misty","pc_hazel","pc_mocha","pc_snow")}
+    lang=[]
+    for a,cfg in ACC.items():
+        for i,(slug,col) in cfg["colors"].items():
+            ident=f"mjau:{a}_{slug}"; tex=f"pc_{a}_{slug}"
+            icon(a,col,f"{RP}/textures/items/{tex}.png")
+            it["texture_data"][tex]={"textures":f"textures/items/{tex}"}
+            nm=f"{cfg['label']} ({cfg['names'][i]})"
+            json.dump({"format_version":"1.20.50","minecraft:item":{"description":{"identifier":ident,
+              "menu_category":{"category":"equipment"}},"components":{"minecraft:icon":{"texture":tex},
+              "minecraft:display_name":{"value":nm},"minecraft:max_stack_size":1}}},
+              open(f"{BP}/items/{a}_{slug}.json","w"),indent=2)
+            r=cfg["recipe"](cfg["mats"][i])
+            json.dump({"format_version":"1.20.10","minecraft:recipe_shaped":{
+              "description":{"identifier":ident},"tags":["crafting_table"],
+              "pattern":r["pattern"],"key":r["key"],"unlock":r["unlock"],"result":{"item":ident}}},
+              open(f"{BP}/recipes/{a}_{slug}.json","w"),indent=2)
+            lang.append(f"item.{ident}={nm}")
+    json.dump(it,open(f"{RP}/textures/item_texture.json","w"),indent=2)
+
+    # föremål UTAN geometri (inget plagg) — t.ex. kattgodis
+    icon_treat()
+    it["texture_data"]["pc_godis"]={"textures":"textures/items/pc_godis"}
+    json.dump({"format_version":"1.20.50","minecraft:item":{"description":{"identifier":"mjau:godis",
+      "menu_category":{"category":"nature"}},"components":{"minecraft:icon":{"texture":"pc_godis"},
+      "minecraft:display_name":{"value":"Cat Treat"},"minecraft:max_stack_size":16}}},
+      open(f"{BP}/items/godis.json","w"),indent=2)
+    json.dump({"format_version":"1.20.10","minecraft:recipe_shaped":{
+      "description":{"identifier":"mjau:godis"},"tags":["crafting_table"],
+      "pattern":["FW"],"key":{"F":{"item":"minecraft:cod"},"W":{"item":"minecraft:wheat"}},
+      "unlock":[{"item":"minecraft:cod"}],"result":{"item":"mjau:godis","count":3}}},
+      open(f"{BP}/recipes/godis.json","w"),indent=2)
+    lang.append("item.mjau:godis=Cat Treat")
+    json.dump(it,open(f"{RP}/textures/item_texture.json","w"),indent=2)  # skrivs om: godis-ikonen tillkom efter första dumpen
+
+    # entiteter: properties, events, interaktioner
+    for f in sorted(glob.glob(f"{BP}/entities/*.json")):
+        d=json.load(open(f)); e=d["minecraft:entity"]; g=e["component_groups"]; ev=e["events"]
+        e["description"]["properties"]={f"mjau:{a}":{"type":"int","range":[0,len(cfg["colors"])],"default":0}
+                                        for a,cfg in ACC.items()}
+        for k in [k for k in ev if k.startswith("mjau:on_") and k not in ("mjau:on_tame",)]: del ev[k]
+        g.pop("mjau:vagnsplats",None)   # gammal grupp: rideable bor numera bara i mjau:saddled
+        inter=[]
+        def entry(item,event,sound):
+            return {"on_interact":{"filters":{"all_of":[
+                      {"test":"is_family","subject":"other","value":"player"},
+                      {"test":"is_owner","subject":"other"},
+                      {"test":"has_equipment","domain":"hand","subject":"other","value":item}]},
+                    "event":event,"target":"self"},
+                    "use_item":True,"play_sounds":sound,"interact_text":"action.interact.equip"}
+        for a,cfg in ACC.items():
+            for i,(slug,col) in cfg["colors"].items():
+                evn=f"mjau:on_{a}_{i}"
+                ev[evn]={"set_property":{f"mjau:{a}":i}}
+                if cfg.get("rideable"):
+                    ev[evn]["add"]={"component_groups":["mjau:saddled"]}
+                    ev[evn]["remove"]={"component_groups":["mjau:sittable"]}
+                if cfg.get("seats"):
+                    # EN enda rideable-definition (i mjau:saddled) — två grupper som
+                    # båda definierar minecraft:rideable ger odefinierat beteende.
+                    # Plats 2 sitter där vagnen står; utan vagn används den sällan.
+                    g["mjau:saddled"]["minecraft:rideable"]={
+                        "seat_count":2,"family_types":["player"],
+                        "interact_text":"action.interact.ride",
+                        "seats":[{"position":cfg["seats"][0]},{"position":cfg["seats"][1]}]}
+                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:saddled")
+                    ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).append("mjau:sittable")
+                inter.append(entry(f"{a}_{slug}",evn,cfg["sound"]))
+        inter.append(entry("saddle","mjau:on_sadel_1","saddle"))
+        g["mjau:tamed"]["minecraft:interact"]={"interactions":inter}
+        json.dump(d,open(f,"w"),indent=2)
+
+    for pack in ("PurrfectCompanions_BP","PurrfectCompanions_RP"):
+        lp=f"{BASE}/{pack}/texts/en_US.lang"
+        keep=[l for l in open(lp).read().rstrip("\n").split("\n") if not l.startswith("item.mjau:")]
+        open(lp,"w").write("\n".join(keep+lang)+"\n")
+    return len(lang), len(inter)
+
+if __name__ == "__main__":
+    n = build_geometry()
+    paint_accessories()
+    items, inters = build_rest()
+    print(f"{len(ACC)} plagg · {n} geometrier · {items} föremål · {inters} interaktioner")
+    for a,cfg in ACC.items():
+        print(f"  {a:9s} {len(cfg['colors'])} färger  ({cfg['label']})")

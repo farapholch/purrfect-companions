@@ -1,0 +1,70 @@
+{
+  "entity_sounds": {
+    "entities": {
+      "mjau:misty": {
+        "volume": 1.0,
+        "pitch": [
+          0.85,
+          1.05
+        ],
+        "events": {
+          "ambient": "mob.cat.meow",
+          "hurt": "mob.cat.hit",
+          "death": "mob.cat.hit",
+          "eat": "mob.cat.eat",
+          "tame": "mob.cat.tame",
+          "purr": "mob.cat.purr",
+          "purreow": "mob.cat.purreow"
+        }
+      },
+      "mjau:hazel": {
+        "volume": 1.0,
+        "pitch": [
+          0.9,
+          1.12
+        ],
+        "events": {
+          "ambient": "mob.cat.meow",
+          "hurt": "mob.cat.hit",
+          "death": "mob.cat.hit",
+          "eat": "mob.cat.eat",
+          "tame": "mob.cat.tame",
+          "purr": "mob.cat.purr",
+          "purreow": "mob.cat.purreow"
+        }
+      },
+      "mjau:mocha": {
+        "volume": 1.0,
+        "pitch": [
+          1.15,
+          1.38
+        ],
+        "events": {
+          "ambient": "mob.cat.meow",
+          "hurt": "mob.cat.hit",
+          "death": "mob.cat.hit",
+          "eat": "mob.cat.eat",
+          "tame": "mob.cat.tame",
+          "purr": "mob.cat.purr",
+          "purreow": "mob.cat.purreow"
+        }
+      },
+      "mjau:snow": {
+        "volume": 1.0,
+        "pitch": [
+          0.7,
+          0.92
+        ],
+        "events": {
+          "ambient": "mob.cat.meow",
+          "hurt": "mob.cat.hit",
+          "death": "mob.cat.hit",
+          "eat": "mob.cat.eat",
+          "tame": "mob.cat.tame",
+          "purr": "mob.cat.purr",
+          "purreow": "mob.cat.purreow"
+        }
+      }
+    }
+  }
+}

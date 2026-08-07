@@ -1,0 +1,38 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:vagn_rod"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "S S",
+      "PPP",
+      "W W"
+    ],
+    "key": {
+      "P": {
+        "item": "minecraft:red_terracotta"
+      },
+      "S": {
+        "item": "minecraft:stick"
+      },
+      "W": {
+        "item": "minecraft:wooden_slab"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:red_terracotta"
+      },
+      {
+        "item": "minecraft:stick"
+      }
+    ],
+    "result": {
+      "item": "mjau:vagn_rod"
+    }
+  }
+}

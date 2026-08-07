@@ -1,0 +1,35 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:mantel_rod"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "S S",
+      "WWW",
+      "WWW"
+    ],
+    "key": {
+      "W": {
+        "item": "minecraft:red_wool"
+      },
+      "S": {
+        "item": "minecraft:string"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:red_wool"
+      },
+      {
+        "item": "minecraft:string"
+      }
+    ],
+    "result": {
+      "item": "mjau:mantel_rod"
+    }
+  }
+}

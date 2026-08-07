@@ -1,0 +1,272 @@
+{
+  "format_version": "1.10.0",
+  "render_controllers": {
+    "controller.render.katt": {
+      "geometry": "Geometry.default",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_sadel": {
+      "arrays": {
+        "geometries": {
+          "Array.sadel": [
+            "Geometry.empty",
+            "Geometry.sadel1",
+            "Geometry.sadel2",
+            "Geometry.sadel3"
+          ]
+        }
+      },
+      "geometry": "Array.sadel[query.property('mjau:sadel')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_keps": {
+      "arrays": {
+        "geometries": {
+          "Array.keps": [
+            "Geometry.empty",
+            "Geometry.keps1",
+            "Geometry.keps2",
+            "Geometry.keps3",
+            "Geometry.keps4"
+          ]
+        }
+      },
+      "geometry": "Array.keps[query.property('mjau:keps')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_halsduk": {
+      "arrays": {
+        "geometries": {
+          "Array.halsduk": [
+            "Geometry.empty",
+            "Geometry.halsduk1",
+            "Geometry.halsduk2",
+            "Geometry.halsduk3",
+            "Geometry.halsduk4"
+          ]
+        }
+      },
+      "geometry": "Array.halsduk[query.property('mjau:halsduk')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_ryggsack": {
+      "arrays": {
+        "geometries": {
+          "Array.ryggsack": [
+            "Geometry.empty",
+            "Geometry.ryggsack1",
+            "Geometry.ryggsack2",
+            "Geometry.ryggsack3"
+          ]
+        }
+      },
+      "geometry": "Array.ryggsack[query.property('mjau:ryggsack')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_glasogon": {
+      "arrays": {
+        "geometries": {
+          "Array.glasogon": [
+            "Geometry.empty",
+            "Geometry.glasogon1",
+            "Geometry.glasogon2",
+            "Geometry.glasogon3"
+          ]
+        }
+      },
+      "geometry": "Array.glasogon[query.property('mjau:glasogon')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_tossor": {
+      "arrays": {
+        "geometries": {
+          "Array.tossor": [
+            "Geometry.empty",
+            "Geometry.tossor1",
+            "Geometry.tossor2",
+            "Geometry.tossor3",
+            "Geometry.tossor4"
+          ]
+        }
+      },
+      "geometry": "Array.tossor[query.property('mjau:tossor')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_vagn": {
+      "arrays": {
+        "geometries": {
+          "Array.vagn": [
+            "Geometry.empty",
+            "Geometry.vagn1",
+            "Geometry.vagn2",
+            "Geometry.vagn3"
+          ]
+        }
+      },
+      "geometry": "Array.vagn[query.property('mjau:vagn')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_halsband": {
+      "arrays": {
+        "geometries": {
+          "Array.halsband": [
+            "Geometry.empty",
+            "Geometry.halsband1",
+            "Geometry.halsband2",
+            "Geometry.halsband3"
+          ]
+        }
+      },
+      "geometry": "Array.halsband[query.property('mjau:halsband')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_rosett": {
+      "arrays": {
+        "geometries": {
+          "Array.rosett": [
+            "Geometry.empty",
+            "Geometry.rosett1",
+            "Geometry.rosett2",
+            "Geometry.rosett3",
+            "Geometry.rosett4"
+          ]
+        }
+      },
+      "geometry": "Array.rosett[query.property('mjau:rosett')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_vingar": {
+      "arrays": {
+        "geometries": {
+          "Array.vingar": [
+            "Geometry.empty",
+            "Geometry.vingar1",
+            "Geometry.vingar2",
+            "Geometry.vingar3"
+          ]
+        }
+      },
+      "geometry": "Array.vingar[query.property('mjau:vingar')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_krona": {
+      "arrays": {
+        "geometries": {
+          "Array.krona": [
+            "Geometry.empty",
+            "Geometry.krona1",
+            "Geometry.krona2"
+          ]
+        }
+      },
+      "geometry": "Array.krona[query.property('mjau:krona')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_mantel": {
+      "arrays": {
+        "geometries": {
+          "Array.mantel": [
+            "Geometry.empty",
+            "Geometry.mantel1",
+            "Geometry.mantel2",
+            "Geometry.mantel3",
+            "Geometry.mantel4"
+          ]
+        }
+      },
+      "geometry": "Array.mantel[query.property('mjau:mantel')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.katt.move": {
+      "initial_state": "standing",
+      "states": {
+        "standing": {
+          "animations": [ "look", "tail" ],
+          "transitions": [
+            { "sitting": "query.is_sitting" },
+            { "walking": "query.modified_move_speed > 0.05" }
+          ]
+        },
+        "walking": {
+          "animations": [ "look", "tail", "walk" ],
+          "transitions": [
+            { "sitting": "query.is_sitting" },
+            { "standing": "query.modified_move_speed <= 0.05" }
+          ]
+        },
+        "sitting": {
+          "animations": [ "sit", "look" ],
+          "transitions": [
+            { "standing": "!query.is_sitting" }
+          ]
+        }
+      }
+    }
+  }
+}

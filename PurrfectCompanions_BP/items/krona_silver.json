@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:krona_silver",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_krona_silver"
+      },
+      "minecraft:display_name": {
+        "value": "Cat Crown (Silver)"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

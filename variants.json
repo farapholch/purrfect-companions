@@ -1,0 +1,75 @@
+{
+  "public": {
+    "pack_bp": "Purrfect Companions",
+    "pack_rp": "Purrfect Companions (resources)",
+    "desc_bp": "Misty, Hazel, Mocha and Snow - tame, ride, breed and dress up four cats.",
+    "names": {},
+    "uuids": null,
+    "item_names": {}
+  },
+  "private": {
+    "pack_bp": "Purrfect Companions (familj)",
+    "pack_rp": "Purrfect Companions (familj, resurser)",
+    "desc_bp": "Vinda, Vilma, Lillen och Maja - familjens egna katter.",
+    "names": {
+      "misty": [
+        "vinda",
+        "Vinda"
+      ],
+      "hazel": [
+        "vilma",
+        "Vilma"
+      ],
+      "mocha": [
+        "lillen",
+        "Lillen"
+      ],
+      "snow": [
+        "maja",
+        "Maja"
+      ]
+    },
+    "breeds": {
+      "vinda": "Sibirisk katt",
+      "vilma": "Sibirisk katt",
+      "lillen": "Helig birma",
+      "maja": "Ragdoll"
+    },
+    "uuids": {
+      "bp_header": "f3641d97-ba4b-4324-ba68-f944c0f0c1df",
+      "bp_module": "10db2d54-afc0-49ec-9fc3-87a8d5d51459",
+      "rp_header": "0f10cf55-371a-4526-b253-29145d56de1c",
+      "rp_module": "6e2df2b4-4e0a-40de-b7a1-73e82aa2bd4a"
+    },
+    "item_names": {
+      "mjau:glasogon_guld": "Kattglasögon (Guld)",
+      "mjau:glasogon_rosa": "Kattglasögon (Rosa)",
+      "mjau:glasogon_svart": "Kattglasögon (Svarta)",
+      "mjau:halsduk_bla": "Katthalsduk (Blå)",
+      "mjau:halsduk_gron": "Katthalsduk (Grön)",
+      "mjau:halsduk_gul": "Katthalsduk (Gul)",
+      "mjau:halsduk_rod": "Katthalsduk (Röd)",
+      "mjau:keps_cyan": "Kattkeps (Cyan)",
+      "mjau:keps_gron": "Kattkeps (Grön)",
+      "mjau:keps_gul": "Kattkeps (Gul)",
+      "mjau:keps_rod": "Kattkeps (Röd)",
+      "mjau:mantel_bla": "Kattmantel (Blå)",
+      "mjau:mantel_lila": "Kattmantel (Lila)",
+      "mjau:mantel_rod": "Kattmantel (Röd)",
+      "mjau:mantel_svart": "Kattmantel (Svart)",
+      "mjau:ryggsack_bla": "Kattryggsäck (Blå)",
+      "mjau:ryggsack_brun": "Kattryggsäck (Brun)",
+      "mjau:ryggsack_gron": "Kattryggsäck (Grön)",
+      "mjau:sadel_brun": "Kattsadel (Brun)",
+      "mjau:sadel_ljus": "Kattsadel (Ljus)",
+      "mjau:sadel_svart": "Kattsadel (Svart)",
+      "mjau:tossor_gul": "Kattossor (Gula)",
+      "mjau:tossor_rod": "Kattossor (Röda)",
+      "mjau:tossor_svart": "Kattossor (Svarta)",
+      "mjau:tossor_vit": "Kattossor (Vita)",
+      "mjau:vagn_bla": "Kattvagn (Blå)",
+      "mjau:vagn_rod": "Kattvagn (Röd)",
+      "mjau:vagn_tra": "Kattvagn (Trä)"
+    }
+  }
+}

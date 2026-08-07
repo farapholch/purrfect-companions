@@ -1,0 +1,33 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:glasogon_svart"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "GDG"
+    ],
+    "key": {
+      "G": {
+        "item": "minecraft:glass_pane"
+      },
+      "D": {
+        "item": "minecraft:black_dye"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:glass_pane"
+      },
+      {
+        "item": "minecraft:black_dye"
+      }
+    ],
+    "result": {
+      "item": "mjau:glasogon_svart"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:glasogon_guld",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_glasogon_guld"
+      },
+      "minecraft:display_name": {
+        "value": "Cat Glasses (Gold)"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

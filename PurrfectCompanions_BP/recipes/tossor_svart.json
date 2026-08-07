@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:tossor_svart"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "W W",
+      "W W"
+    ],
+    "key": {
+      "W": {
+        "item": "minecraft:black_wool"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:black_wool"
+      }
+    ],
+    "result": {
+      "item": "mjau:tossor_svart"
+    }
+  }
+}

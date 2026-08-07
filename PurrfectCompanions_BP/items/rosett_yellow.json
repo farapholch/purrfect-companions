@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:rosett_yellow",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_rosett_yellow"
+      },
+      "minecraft:display_name": {
+        "value": "Cat Bow (Yellow)"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

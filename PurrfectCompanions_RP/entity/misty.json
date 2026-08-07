@@ -1,0 +1,89 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "mjau:misty",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/entity/misty"
+      },
+      "geometry": {
+        "default": "geometry.katt",
+        "empty": "geometry.katt.empty",
+        "sadel1": "geometry.katt.sadel1",
+        "sadel2": "geometry.katt.sadel2",
+        "sadel3": "geometry.katt.sadel3",
+        "keps1": "geometry.katt.keps1",
+        "keps2": "geometry.katt.keps2",
+        "keps3": "geometry.katt.keps3",
+        "keps4": "geometry.katt.keps4",
+        "halsduk1": "geometry.katt.halsduk1",
+        "halsduk2": "geometry.katt.halsduk2",
+        "halsduk3": "geometry.katt.halsduk3",
+        "halsduk4": "geometry.katt.halsduk4",
+        "ryggsack1": "geometry.katt.ryggsack1",
+        "ryggsack2": "geometry.katt.ryggsack2",
+        "ryggsack3": "geometry.katt.ryggsack3",
+        "glasogon1": "geometry.katt.glasogon1",
+        "glasogon2": "geometry.katt.glasogon2",
+        "glasogon3": "geometry.katt.glasogon3",
+        "tossor1": "geometry.katt.tossor1",
+        "tossor2": "geometry.katt.tossor2",
+        "tossor3": "geometry.katt.tossor3",
+        "tossor4": "geometry.katt.tossor4",
+        "vagn1": "geometry.katt.vagn1",
+        "vagn2": "geometry.katt.vagn2",
+        "vagn3": "geometry.katt.vagn3",
+        "halsband1": "geometry.katt.halsband1",
+        "halsband2": "geometry.katt.halsband2",
+        "halsband3": "geometry.katt.halsband3",
+        "rosett1": "geometry.katt.rosett1",
+        "rosett2": "geometry.katt.rosett2",
+        "rosett3": "geometry.katt.rosett3",
+        "rosett4": "geometry.katt.rosett4",
+        "vingar1": "geometry.katt.vingar1",
+        "vingar2": "geometry.katt.vingar2",
+        "vingar3": "geometry.katt.vingar3",
+        "krona1": "geometry.katt.krona1",
+        "krona2": "geometry.katt.krona2",
+        "mantel1": "geometry.katt.mantel1",
+        "mantel2": "geometry.katt.mantel2",
+        "mantel3": "geometry.katt.mantel3",
+        "mantel4": "geometry.katt.mantel4"
+      },
+      "spawn_egg": {
+        "texture": "pc_misty",
+        "texture_index": 0
+      },
+      "render_controllers": [
+        "controller.render.katt",
+        "controller.render.katt_sadel",
+        "controller.render.katt_keps",
+        "controller.render.katt_halsduk",
+        "controller.render.katt_ryggsack",
+        "controller.render.katt_glasogon",
+        "controller.render.katt_tossor",
+        "controller.render.katt_vagn",
+        "controller.render.katt_halsband",
+        "controller.render.katt_rosett",
+        "controller.render.katt_vingar",
+        "controller.render.katt_krona",
+        "controller.render.katt_mantel"
+      ],
+      "animations": {
+        "walk": "animation.katt.walk",
+        "look": "animation.katt.look",
+        "tail": "animation.katt.tail",
+        "sit": "animation.katt.sit",
+        "ctrl": "controller.animation.katt.move"
+      },
+      "scripts": {
+        "animate": [
+          "ctrl"
+        ]
+      }
+    }
+  }
+}

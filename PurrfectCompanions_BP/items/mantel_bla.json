@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:mantel_bla",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_mantel_bla"
+      },
+      "minecraft:display_name": {
+        "value": "Cat Cape (Blue)"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

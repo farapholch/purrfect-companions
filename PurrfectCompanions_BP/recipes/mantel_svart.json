@@ -1,0 +1,35 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:mantel_svart"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "S S",
+      "WWW",
+      "WWW"
+    ],
+    "key": {
+      "W": {
+        "item": "minecraft:black_wool"
+      },
+      "S": {
+        "item": "minecraft:string"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:black_wool"
+      },
+      {
+        "item": "minecraft:string"
+      }
+    ],
+    "result": {
+      "item": "mjau:mantel_svart"
+    }
+  }
+}

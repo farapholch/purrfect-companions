@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:vagn_bla",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_vagn_bla"
+      },
+      "minecraft:display_name": {
+        "value": "Cat Cart (Blue)"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

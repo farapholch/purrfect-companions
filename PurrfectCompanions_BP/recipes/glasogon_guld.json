@@ -1,0 +1,33 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:glasogon_guld"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "GDG"
+    ],
+    "key": {
+      "G": {
+        "item": "minecraft:glass_pane"
+      },
+      "D": {
+        "item": "minecraft:gold_nugget"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:glass_pane"
+      },
+      {
+        "item": "minecraft:gold_nugget"
+      }
+    ],
+    "result": {
+      "item": "mjau:glasogon_guld"
+    }
+  }
+}

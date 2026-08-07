@@ -1,0 +1,38 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:ryggsack_bla"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "S S",
+      "LDL",
+      "LLL"
+    ],
+    "key": {
+      "L": {
+        "item": "minecraft:leather"
+      },
+      "S": {
+        "item": "minecraft:string"
+      },
+      "D": {
+        "item": "minecraft:blue_dye"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:leather"
+      },
+      {
+        "item": "minecraft:blue_dye"
+      }
+    ],
+    "result": {
+      "item": "mjau:ryggsack_bla"
+    }
+  }
+}

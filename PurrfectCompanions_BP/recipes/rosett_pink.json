@@ -1,0 +1,27 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:rosett_pink"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "WWW"
+    ],
+    "key": {
+      "W": {
+        "item": "minecraft:pink_wool"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:pink_wool"
+      }
+    ],
+    "result": {
+      "item": "mjau:rosett_pink"
+    }
+  }
+}

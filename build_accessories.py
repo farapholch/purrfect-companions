@@ -190,6 +190,11 @@ def build_geometry():
     base=[x for x in g["minecraft:geometry"] if x["description"]["identifier"]=="geometry.katt"][0]
     for b in base["bones"]:
         b["cubes"]=[c for c in b.get("cubes",[]) if c["uv"][1] < 26]   # bara katten själv
+    # KRITISKT: bas-geometrin måste deklarera samma texturstorlek som filen.
+    # Missas det läses alla UV i fel skala och katten blir obegriplig i spelet
+    # (tillbehören såg rätt ut eftersom de byggs om med rätt TEX varje gång).
+    base["description"]["texture_width"]=TEX
+    base["description"]["texture_height"]=TEX
     desc=lambda i:{"identifier":i,"texture_width":TEX,"texture_height":TEX,
                    "visible_bounds_width":2,"visible_bounds_height":1.5,"visible_bounds_offset":[0,0.5,0]}
     geos=[base,{"description":desc("geometry.katt.empty"),"bones":[{"name":"tom","pivot":[0,0,0]}]}]
@@ -387,7 +392,7 @@ def build_rest():
                         "seats":[{"position":cfg["seats"][0]},{"position":cfg["seats"][1]}]}
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:saddled")
                     ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).append("mjau:sittable")
-                inter.append(entry(f"{a}_{slug}",evn,cfg["sound"]))
+                inter.append(entry(f"mjau:{a}_{slug}",evn,cfg["sound"]))   # namnrymd krävs för EGNA föremål
         inter.append(entry("saddle","mjau:on_sadel_1","saddle"))
         g["mjau:tamed"]["minecraft:interact"]={"interactions":inter}
         json.dump(d,open(f,"w"),indent=2)

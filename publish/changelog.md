@@ -1,14 +1,6 @@
-## 2.2.2 — Two fixes that mattered
+## 2.3.1 — Snow's ears
 
-**The cats look like cats again.** The model still declared the old texture size
-after the texture grew, so every coordinate on the body was read at half scale
-and the cats rendered as an unreadable mess. Fixed, with an automated check so it
-cannot happen again.
+Snow is a white cat, so her ears disappeared into the rest of her coat. They are
+now grey with a pink inner, clearly separated from the fur.
 
-**Outfits can actually be put on.** The interaction filters looked for the outfit
-items without their namespace, so no outfit ever matched and nothing could be
-equipped. All twelve outfits now work as intended.
-
-Everything from 2.2.0 is included: walk cycles and sitting poses, four new
-outfits (collar, bow, wings, crown), cat bed and yarn ball blocks the cats seek
-out, morning gifts from tamed cats, and the craftable Cat Treat.
+Includes everything from 2.3.0, where outfits finally became visible on the cat.

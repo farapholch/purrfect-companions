@@ -38,6 +38,11 @@ def build(variant, outdir):
         for f in targets:
             s = open(f, encoding="utf-8").read(); o = s
             for src, (slug, disp) in names.items():
+                # OBS: ta pc_-prefixade texturnamn FÖRST. \b matchar inte inuti
+                # "pc_misty" (understreck är ett ordtecken), så utan den här raden
+                # döps filerna om medan item_texture.json pekar kvar på gamla
+                # namnet → spawn-äggen blir rutiga "saknad textur" i spelet.
+                s = s.replace(f"pc_{src}", f"pc_{slug}")
                 s = re.sub(rf"\b{src}\b", slug, s)
                 s = re.sub(rf"\b{src.capitalize()}\b", disp, s)
             if s != o: open(f, "w", encoding="utf-8").write(s)

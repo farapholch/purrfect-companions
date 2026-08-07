@@ -13,7 +13,8 @@
             0,
             3
           ],
-          "default": 0
+          "default": 0,
+          "client_sync": true
         },
         "mjau:keps": {
           "type": "int",
@@ -21,7 +22,8 @@
             0,
             4
           ],
-          "default": 0
+          "default": 0,
+          "client_sync": true
         },
         "mjau:halsduk": {
           "type": "int",
@@ -29,7 +31,8 @@
             0,
             4
           ],
-          "default": 0
+          "default": 0,
+          "client_sync": true
         },
         "mjau:ryggsack": {
           "type": "int",
@@ -37,7 +40,8 @@
             0,
             3
           ],
-          "default": 0
+          "default": 0,
+          "client_sync": true
         },
         "mjau:glasogon": {
           "type": "int",
@@ -45,7 +49,8 @@
             0,
             3
           ],
-          "default": 0
+          "default": 0,
+          "client_sync": true
         },
         "mjau:tossor": {
           "type": "int",
@@ -53,7 +58,8 @@
             0,
             4
           ],
-          "default": 0
+          "default": 0,
+          "client_sync": true
         },
         "mjau:vagn": {
           "type": "int",
@@ -61,7 +67,8 @@
             0,
             3
           ],
-          "default": 0
+          "default": 0,
+          "client_sync": true
         },
         "mjau:halsband": {
           "type": "int",
@@ -69,7 +76,8 @@
             0,
             3
           ],
-          "default": 0
+          "default": 0,
+          "client_sync": true
         },
         "mjau:rosett": {
           "type": "int",
@@ -77,7 +85,8 @@
             0,
             4
           ],
-          "default": 0
+          "default": 0,
+          "client_sync": true
         },
         "mjau:vingar": {
           "type": "int",
@@ -85,7 +94,8 @@
             0,
             3
           ],
-          "default": 0
+          "default": 0,
+          "client_sync": true
         },
         "mjau:krona": {
           "type": "int",
@@ -93,7 +103,8 @@
             0,
             2
           ],
-          "default": 0
+          "default": 0,
+          "client_sync": true
         },
         "mjau:mantel": {
           "type": "int",
@@ -101,7 +112,8 @@
             0,
             4
           ],
-          "default": 0
+          "default": 0,
+          "client_sync": true
         }
       }
     },
@@ -291,7 +303,7 @@
               },
               "use_item": true,
               "play_sounds": "saddle",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -319,7 +331,7 @@
               },
               "use_item": true,
               "play_sounds": "saddle",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -347,7 +359,7 @@
               },
               "use_item": true,
               "play_sounds": "saddle",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -375,7 +387,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -403,7 +415,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -431,7 +443,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -459,7 +471,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -487,7 +499,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -515,7 +527,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -543,7 +555,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -571,7 +583,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -599,7 +611,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -627,7 +639,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -655,7 +667,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -683,7 +695,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_generic",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -711,7 +723,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_generic",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -739,7 +751,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_generic",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -767,7 +779,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -795,7 +807,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -823,7 +835,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -851,7 +863,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -879,7 +891,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -907,7 +919,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -935,7 +947,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -963,7 +975,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -991,7 +1003,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1019,7 +1031,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1047,7 +1059,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1075,7 +1087,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1103,7 +1115,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1131,7 +1143,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1159,7 +1171,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1187,7 +1199,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1215,7 +1227,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1243,7 +1255,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_generic",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1271,7 +1283,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_generic",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1299,7 +1311,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1327,7 +1339,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1355,7 +1367,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1383,7 +1395,7 @@
               },
               "use_item": true,
               "play_sounds": "armor.equip_leather",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             },
             {
               "on_interact": {
@@ -1411,7 +1423,7 @@
               },
               "use_item": true,
               "play_sounds": "saddle",
-              "interact_text": "action.interact.equip"
+              "interact_text": "action.interact.mjau_equip"
             }
           ]
         },

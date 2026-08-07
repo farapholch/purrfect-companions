@@ -358,13 +358,28 @@ def build_rest():
       "unlock":[{"item":"minecraft:cod"}],"result":{"item":"mjau:godis","count":3}}},
       open(f"{BP}/recipes/godis.json","w"),indent=2)
     lang.append("item.mjau:godis=Cat Treat")
+    # Prompten som visas när man riktar mot katten med ett plagg i handen.
+    # Utan den här raden visar spelet nyckeln i klartext ("action.interact.equip").
+    lang.append("action.interact.mjau_equip=Put on")
+    lang.append("action.interact.ride=Ride")          # visas när man sitter upp
+    lang.append("action.interact.mount=Mount")
+    # Bedrock bygger avstigningsprompten som action.hint.exit.<entity-id>; utan
+    # egna nycklar visas den råa nyckeln på skärmen.
+    for c in ("misty","hazel","mocha","snow"):
+        lang.append(f"action.hint.exit.mjau:{c}=Dismount")
+        lang.append(f"action.hint.exit.{c}=Dismount")
     json.dump(it,open(f"{RP}/textures/item_texture.json","w"),indent=2)  # skrivs om: godis-ikonen tillkom efter första dumpen
 
     # entiteter: properties, events, interaktioner
     for f in sorted(glob.glob(f"{BP}/entities/*.json")):
         d=json.load(open(f)); e=d["minecraft:entity"]; g=e["component_groups"]; ev=e["events"]
-        e["description"]["properties"]={f"mjau:{a}":{"type":"int","range":[0,len(cfg["colors"])],"default":0}
-                                        for a,cfg in ACC.items()}
+        # client_sync ÄR NÖDVÄNDIG: utan den finns propertyn bara på servern och
+        # render controllers (som körs på klienten) kan inte läsa query.property
+        # → plaggen sätts på men syns aldrig. Ridning fungerade ändå, eftersom den
+        # kommer från en komponentgrupp och inte från en property.
+        e["description"]["properties"]={
+            f"mjau:{a}": {"type":"int","range":[0,len(cfg["colors"])],"default":0,"client_sync":True}
+            for a,cfg in ACC.items()}
         for k in [k for k in ev if k.startswith("mjau:on_") and k not in ("mjau:on_tame",)]: del ev[k]
         g.pop("mjau:vagnsplats",None)   # gammal grupp: rideable bor numera bara i mjau:saddled
         inter=[]
@@ -374,7 +389,7 @@ def build_rest():
                       {"test":"is_owner","subject":"other"},
                       {"test":"has_equipment","domain":"hand","subject":"other","value":item}]},
                     "event":event,"target":"self"},
-                    "use_item":True,"play_sounds":sound,"interact_text":"action.interact.equip"}
+                    "use_item":True,"play_sounds":sound,"interact_text":"action.interact.mjau_equip"}
         for a,cfg in ACC.items():
             for i,(slug,col) in cfg["colors"].items():
                 evn=f"mjau:on_{a}_{i}"
@@ -399,8 +414,9 @@ def build_rest():
 
     for pack in ("PurrfectCompanions_BP","PurrfectCompanions_RP"):
         lp=f"{BASE}/{pack}/texts/en_US.lang"
-        keep=[l for l in open(lp).read().rstrip("\n").split("\n") if not l.startswith("item.mjau:")]
-        open(lp,"w").write("\n".join(keep+lang)+"\n")
+        keep=[l for l in open(lp).read().rstrip("\n").split("\n")
+              if not l.startswith(("item.mjau:","action."))]
+        open(lp,"w").write("\n".join(dict.fromkeys(keep+lang))+"\n")
     return len(lang), len(inter)
 
 if __name__ == "__main__":

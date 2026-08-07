@@ -60,3 +60,44 @@ Craftable, applied to a tamed cat, and all wearable at the same time.
 | **Cat Cart** | wood, red, blue | 3 planks + 2 sticks + 2 slabs. Adds a **second seat** — a friend rides along |
 
 **Cat Treat** — cod + wheat, works as a taming treat.
+
+---
+
+## How it is built
+
+Almost nothing in the two packs is written by hand. Three generators emit the
+JSON, the geometry and the textures from small tables at the top of each file,
+so adding an outfit colour is a one-line change rather than a dozen edits kept
+manually in sync.
+
+| Script | Owns |
+|---|---|
+| `build_accessories.py` | Outfits: geometry, textures, render controllers, entity properties and events, interactions, items, icons, recipes, language keys |
+| `build_blocks.py` | Cat Bed and Yarn Ball, plus the behaviour that makes cats seek them out |
+| `render_preview.py` | The preview images, with a small z-buffered renderer — no image library required |
+| `make_variant.py` | Rewrites the pack into its public naming, with its own pack UUIDs |
+
+Textures are written by a short pure-`zlib` PNG writer, so the whole toolchain
+runs on a stock Python install.
+
+## Testing
+
+`purrfect-test` validates the packs and then runs them for real: it boots a
+Bedrock dedicated server, spawns every cat, fires every outfit event and checks
+with `has_property` that the cat's state actually changed — not merely that the
+command was accepted.
+
+The static half encodes the mistakes this add-on has already made, so none of
+them can come back:
+
+- a texture whose declared size no longer matches the actual PNG
+- `has_equipment` filters missing the `mjau:` namespace, which silently makes an
+  outfit impossible to equip
+- an entity property read by a render controller but missing `client_sync`, so
+  the server knows about the outfit and the client never draws it
+- a translation key referenced but never defined, which shows the player the raw
+  key instead of a word
+- icons or textures a variant renamed but forgot to re-register
+- duplicate behaviour priorities, conflicting scales, wrong saddle seat height
+
+`purrfect-ship` packages and uploads, and refuses to run if the test is red.

@@ -76,14 +76,13 @@ them overwrite each other in Minecraft's pack list. Both can be installed togeth
 ```bash
 purrfect-test --quick             # validation only (~2 s)
 purrfect-test                     # + live test in a Bedrock server (~1 min)
-purrfect-ship                     # private variant → Mod Mate
+purrfect-ship                     # build the private variant
 purrfect-ship --public            # public variant
 purrfect-ship --curseforge        # public variant → CurseForge
 purrfect-ship --bump minor        # bump version first (major|minor|patch)
 python3 build_accessories.py      # regenerate outfits
 python3 build_blocks.py           # regenerate blocks
 python3 render_preview.py         # marketing images + logo → publish/
-./publish_site.sh                 # publish the site
 ```
 
 `purrfect-ship` **refuses to ship if the test fails**, and verifies the checksum
@@ -103,10 +102,9 @@ build_blocks.py            blocks, from one BLOCKS table
 make_variant.py            builds a named variant as a transformed copy
 render_preview.py          isometric renderer for previews (pure stdlib, no PIL)
 md2html.py                 markdown → HTML for storefront descriptions
-publish_site.sh            publishes publish/ to the website
 ```
 
-A Bedrock Dedicated Server lives in `/opt/bds` and is started **only** during tests.
+Testing uses a local Bedrock Dedicated Server, started **only** for the duration of a test run.
 
 ## Testing
 

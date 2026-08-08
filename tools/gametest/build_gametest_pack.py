@@ -59,8 +59,8 @@ function done(test, msg, ok) {
 }
 
 gt.registerAsync("mjau", "interakt", async (test) => {
-  const p = test.spawnSimulatedPlayer({ x: 1, y: 2, z: 1 }, "GTKatt");
-  const cat = test.spawn("mjau:misty", { x: 3, y: 2, z: 3 });
+  const p = test.spawnSimulatedPlayer({ x: 20, y: 2, z: 18 }, "GTKatt");
+  const cat = test.spawn("mjau:misty", { x: 20, y: 2, z: 21 });
   await test.idle(20);
 
   // 1) TAMJA som spelare: torsk i handen, interagera. 0.4 chans/forsok,
@@ -95,7 +95,33 @@ gt.registerAsync("mjau", "interakt", async (test) => {
     return done(test, "kunde inte sitta upp pa sadlad katt", false);
   console.warn("[MJAU-GT] rider pa " + riding.entityRidingOn.typeId);
 
-  done(test, "tamja+sadla+rida via simulerad spelare", true);
+  // 4) STYRNING: hall spaken framat och mat om KATTEN flyttar sig.
+  //    input_ground_controlled ska omsatta ryttarens rorelseinmatning i
+  //    kattens rorelse — det har ar kedjan 2.3.4-fixen gallde.
+  const before = cat.location;
+  p.moveRelative(0, 1);          // full spak framat
+  await test.idle(25);           // ~1,25 s — arenan ar 40 bred, katten ska stanna INNE
+  p.stopMoving();
+  const after = cat.location;
+  const dist = Math.hypot(after.x - before.x, after.z - before.z);
+  console.warn(`[MJAU-GT] styrning: katten flyttade ${dist.toFixed(2)} block pa 1,25 s`);
+  if (dist < 1.5)
+    return done(test, `styrningen svarar inte (${dist.toFixed(2)} block)`, false);
+
+  // 5) HOPP: krafthoppet (can_power_jump) kravs ladda-och-slapp som en
+  //    simulerad spelare inte kan gora — men sjalva jump_strength anvands
+  //    aven av ett direkt hopp fran ryttaren. Mat kattens hojdvinst.
+  await test.idle(20);
+  const baseY = cat.location.y;
+  let peak = baseY;
+  p.jump();
+  for (let i = 0; i < 30; i++) { await test.idle(1); if (cat.location.y > peak) peak = cat.location.y; }
+  const gain = peak - baseY;
+  console.warn(`[MJAU-GT] hopp fran ryttaren: +${gain.toFixed(2)} block`);
+  // Ingen FAIL har: kan spelaren inte trigga ridhopp ar det API-begransning,
+  // inte ett fel i paketet. Raden ger anda matvarde nar det fungerar.
+
+  done(test, "tamja+sadla+rida+styra via simulerad spelare", true);
 })
   .structureName("mjau:arena")
   .maxTicks(2400);
@@ -104,12 +130,14 @@ gt.registerAsync("mjau", "interakt", async (test) => {
 # Arena: 7x5x7-struktur, stengolv, resten luft. GameTest kräver en struktur
 # att placera testet i. NBT skriven för hand — inga bibliotek på maskinen.
 V = nbt.Val
-SX, SY, SZ = 7, 5, 7
+SX, SY, SZ = 40, 6, 40
 idx = []
 for x in range(SX):
     for y in range(SY):
         for z in range(SZ):
-            idx.append(V(nbt.TAG_INT, 0 if y == 0 else 1))   # 0=sten, 1=luft
+            edge = x in (0, SX - 1) or z in (0, SZ - 1)
+            solid = y == 0 or (edge and y <= 2)   # golv + 2 hog kantvagg
+            idx.append(V(nbt.TAG_INT, 0 if solid else 1))   # 0=sten, 1=luft
 layer2 = [V(nbt.TAG_INT, -1)] * (SX * SY * SZ)
 block = lambda name: V(nbt.TAG_COMPOUND, {
     "name": V(nbt.TAG_STRING, name),

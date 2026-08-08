@@ -1,3 +1,12 @@
+## 2.4.1 — A tail that looks like a tail
+
+The tail was a solid pillar — three blocks wide, three deep, straight up. It
+is now slim and curves up and back the way a content cat carries it, and it
+still sways. Every breed keeps its own tail colour.
+
+Taming is also now visible to the server side, which tightens our automated
+tests.
+
 ## 2.4.0 — Names, storage and a proper jump
 
 **Item names were showing as raw ids.** A pack has to declare its languages in

@@ -100,4 +100,14 @@ them can come back:
 - icons or textures a variant renamed but forgot to re-register
 - duplicate behaviour priorities, conflicting scales, wrong saddle seat height
 
-`purrfect-ship` packages and uploads, and refuses to run if the test is red.
+On top of the static half sit three live layers: a real Bedrock Dedicated
+Server run (spawns, events, block placement, cart cargo via `replaceitem`),
+a real network client (`bedrock-protocol`) that joins as a player and checks
+the item registry, `/give`, entity streaming and property syncs — and a
+**simulated player** (Mojang's GameTest framework) that tames a cat by feeding
+it cod, saddles it through the ownership and held-item filters, mounts it and
+steers it, measuring that the cat actually moves.
+
+`purrfect-ship` packages and uploads, refuses to run if the test is red, and
+keeps a ledger so the same version can never ship twice with different
+content.

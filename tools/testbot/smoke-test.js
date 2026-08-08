@@ -1,0 +1,67 @@
+// Spelar-röktest: ansluter en RIKTIG klient (bedrock-protocol) till testservern
+// och verifierar det servern aldrig kan se från kommandosidan:
+//
+//   JOIN        klienten tar sig hela vägen till spawn på aktuell MC-version
+//   REGISTRY    alla egna föremål finns i item_registry som klienten får
+//   GIVE        egna föremål går att ge till en spelare (verklig registrering)
+//   ENTITIES    egna entiteter strömmas till klienten med rätt typnamn
+//   PROPS       sync_entity_property-paket flödar (entity properties når klienter)
+//
+// Vad den INTE testar: interaktioner (använd-föremål-på-katt). Servern kräver
+// fullt modernt klienthandslag (tick-ack, prediction) innan den processar
+// interaktionspaket från klienten — dokumenterat försök i interact-test.js.
+// Exit 0 = allt grönt.
+const { spawn } = require('child_process')
+const bp = require('bedrock-protocol')
+
+const SRV = '/opt/bds/server'
+const sleep = (ms) => new Promise(r => setTimeout(r, ms))
+const checks = { join: false, registry: 0, give: false, entities: new Set(), props: 0 }
+let srvlog = ''
+
+const srv = spawn('./bedrock_server', [], { cwd: SRV, env: { ...process.env, LD_LIBRARY_PATH: '.' } })
+srv.stdout.on('data', (d) => { srvlog += d.toString() })
+const say = (cmd) => srv.stdin.write(cmd + '\n')
+const finish = (code) => {
+  try { say('stop') } catch {}
+  setTimeout(() => { try { srv.kill('SIGKILL') } catch {}; process.exit(code) }, 3000)
+}
+setTimeout(() => { console.log('FAIL timeout'); finish(1) }, 90000)
+
+async function main () {
+  while (!srvlog.includes('Server started')) await sleep(500)
+  const client = bp.createClient({ host: '127.0.0.1', port: 19199, username: 'Provkatt', offline: true })
+  const registry = {}
+  client.on('error', (e) => { console.log('FAIL client: ' + e.message); finish(1) })
+  client.on('item_registry', (p) => {
+    for (const i of p.itemstates || []) registry[i.runtime_id] = i.name
+    checks.registry = Object.values(registry).filter(x => x.startsWith('mjau:')).length
+  })
+  client.on('add_entity', (p) => { if (p.entity_type.startsWith('mjau:')) checks.entities.add(p.entity_type) })
+  client.on('sync_entity_property', () => { checks.props++ })
+  client.on('inventory_content', (p) => {
+    if ((p.input || []).some(s => s && registry[s.network_id] === 'mjau:sadel_brun')) checks.give = true
+  })
+
+  await new Promise(res => client.on('spawn', res))
+  checks.join = true
+  // säkra att minst en egen entitet finns inom synhåll för entitetskontrollen
+  say('summon mjau:misty 4 102 4')
+  say('give Provkatt mjau:sadel_brun')
+  await sleep(6000)
+
+  const rows = [
+    ['JOIN', checks.join],
+    ['REGISTRY', checks.registry >= 40, `${checks.registry} mjau-föremål`],
+    ['GIVE', checks.give, 'mjau:sadel_brun nådde inventariet'],
+    ['ENTITIES', checks.entities.size >= 1, [...checks.entities].join(',')],
+    ['PROPS', checks.props >= 1, `${checks.props} property-syncs`],
+  ]
+  let fail = 0
+  for (const [name, ok, info] of rows) {
+    console.log(`${ok ? 'OK  ' : 'FAIL'} ${name}${info ? ' — ' + info : ''}`)
+    if (!ok) fail = 1
+  }
+  finish(fail)
+}
+main().catch(e => { console.log('FAIL ' + e.message); finish(1) })

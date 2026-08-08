@@ -385,6 +385,9 @@ def build_rest():
         e["description"]["properties"]={
             f"mjau:{a}": {"type":"int","range":[0,len(cfg["colors"])],"default":0,"client_sync":True}
             for a,cfg in ACC.items()}
+        # mjau:tam gor tamjningen OBSERVERBAR server-side (is_tamed syns inte i
+        # selektorer). Ingen render controller laser den -> ingen client_sync.
+        e["description"]["properties"]["mjau:tam"]={"type":"int","range":[0,1],"default":0}
         for k in [k for k in ev if k.startswith("mjau:on_") and k not in ("mjau:on_tame",)]: del ev[k]
         g.pop("mjau:vagnsplats",None)   # gammal grupp: rideable bor numera bara i mjau:saddled
         inter=[]

@@ -114,6 +114,14 @@
           ],
           "default": 0,
           "client_sync": true
+        },
+        "mjau:tam": {
+          "type": "int",
+          "range": [
+            0,
+            1
+          ],
+          "default": 0
         }
       }
     },
@@ -1565,6 +1573,9 @@
             "mjau:tamed",
             "mjau:sittable"
           ]
+        },
+        "set_property": {
+          "mjau:tam": 1
         }
       },
       "minecraft:entity_spawned": {

@@ -120,11 +120,13 @@ def walk_pose(t):
 # ---------------------------------------------------------------- scener ----
 # Varje scen ger (renderjobb | färdig bild). Jobb kör i arbetarpool.
 CATS = [("misty", "MISTY"), ("hazel", "HAZEL"), ("mocha", "MOCHA"), ("snow", "SNOW")]
-OUTFITS = [("sadel1", "SADDLE"), ("keps1", "CAP"), ("halsduk1", "SCARF"),
-           ("ryggsack1", "BACKPACK"), ("glasogon1", "GLASSES"), ("mantel1", "CAPE"),
-           ("tossor1", "BOOTIES"), ("halsband1", "COLLAR"), ("rosett1", "BOW"),
-           ("vingar1", "WINGS"), ("krona1", "CROWN"), ("vagn1", "CART")]
-FULL = ["sadel1", "keps1", "halsduk1", "ryggsack1", "mantel1", "vagn1"]
+OUTFITS = [("sadel1", "SADDLE"), ("rustning3", "ARMOR"), ("horn2", "UNICORN HORN"),
+           ("vingar1", "WINGS"), ("batvingar1", "BAT WINGS"), ("haxhatt1", "WITCH HAT"),
+           ("tomteluva1", "SANTA HAT"), ("doktorsrock1", "DOCTOR COAT"), ("keps1", "CAP"),
+           ("halsduk1", "SCARF"), ("ryggsack1", "BACKPACK"), ("glasogon1", "GLASSES"),
+           ("mantel1", "CAPE"), ("tossor1", "BOOTIES"), ("halsband1", "COLLAR"),
+           ("rosett1", "BOW"), ("krona1", "CROWN"), ("vagn1", "CART")]
+FULL = ["rustning3", "horn1", "vingar1", "halsduk1", "tossor2", "vagn1"]
 
 
 def scenes():

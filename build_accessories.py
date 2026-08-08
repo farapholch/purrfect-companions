@@ -79,14 +79,18 @@ ACC = {
    mats={1:"minecraft:white_wool",2:"minecraft:black_wool",3:"minecraft:red_wool",4:"minecraft:yellow_wool"}),
 
  "vagn": dict(label="Cat Cart", bone="body", sound="armor.equip_leather",
-   uv={1:(0,128),2:(24,128),3:(48,128)},
+   uv={1:(0,128),2:(32,128),3:(64,128)},
    colors={1:("tra",(150,108,64)),2:("rod",(178,58,52)),3:("bla",(58,102,172))},
    names={1:"Wood",2:"Red",3:"Blue"},
-   cubes=[([-3,2,8],[6,4,5],(0,0)),          # flaket
-          ([-3.8,0.5,9],[0.8,3,3],(0,10)),   # hjul vänster
-          ([3,0.5,9],[0.8,3,3],(0,10)),      # hjul höger
-          ([-0.5,4,5],[1,0.8,3],(0,18))],    # dragstång till katten
-   seats=[[0.0,0.562,-0.2],[0.0,0.42,0.85]], # ryttare fram, passagerare i vagnen
+   # uppskalad ~35 % efter Xbox-test ("för liten") — flaket rymmer en spelare
+   cubes=[([-4,2,8],[8,5,7],(0,0)),          # flaket
+          ([-4.9,0,10],[1,4,4],(0,13)),      # hjul vänster
+          ([3.9,0,10],[1,4,4],(0,13)),       # hjul höger
+          ([-0.5,4.5,5],[1,1,3],(12,13))],   # dragstång till katten
+   # seat 0 = I VAGNEN (styr som en släde), seat 1 = på ryggen. Xbox-testet:
+   # med ryggen som seat 0 gick vagnen aldrig att sitta i — ensam spelare får
+   # alltid första lediga sätet.
+   seats=[[0.0,0.55,0.72],[0.0,0.562,-0.2]],
    recipe=lambda mat: dict(pattern=["S S","PPP","W W"],
        key={"P":{"item":mat},"S":{"item":"minecraft:stick"},"W":{"item":"minecraft:wooden_slab"}},
        unlock=[{"item":mat},{"item":"minecraft:stick"}]),
@@ -119,6 +123,20 @@ ACC = {
        key={"F":{"item":"minecraft:feather"},"W":{"item":mat}},
        unlock=[{"item":"minecraft:feather"},{"item":mat}]),
    mats={1:"minecraft:white_wool",2:"minecraft:black_wool",3:"minecraft:gold_ingot"}),
+
+ "horn": dict(label="Unicorn Horn", bone="head", sound="armor.equip_generic",
+   uv={1:(96,128),2:(112,128),3:(128,128)},
+   colors={1:("vit",(244,240,232)),2:("guld",(238,198,72)),3:("rosa",(238,150,196))},
+   names={1:"White",2:"Gold",3:"Pink"},
+   # avsmalnande spira mitt i pannan — enhörningskatt (kombinera med vingarna!)
+   cubes=[([-0.6,11.5,-7.1],[1.2,1.6,1.2],(0,0)),
+          ([-0.45,13.1,-6.95],[0.9,1.4,0.9],(0,4)),
+          ([-0.3,14.5,-6.8],[0.6,1.3,0.6],(0,8))],
+   recipe=lambda mat: dict(pattern=["N","I","M"],
+       key={"N":{"item":"minecraft:gold_nugget"},"I":{"item":mat},
+            "M":{"item":"minecraft:bone"}},
+       unlock=[{"item":mat}]),
+   mats={1:"minecraft:quartz",2:"minecraft:gold_ingot",3:"minecraft:amethyst_shard"}),
 
  "krona": dict(label="Cat Crown", bone="head", sound="armor.equip_generic",
    uv={1:(0,206),2:(24,206)},
@@ -403,24 +421,34 @@ def build_rest():
                 evn=f"mjau:on_{a}_{i}"
                 ev[evn]={"set_property":{f"mjau:{a}":i}}
                 if cfg.get("rideable"):
-                    ev[evn]["add"]={"component_groups":["mjau:saddled"]}
-                    ev[evn]["remove"]={"component_groups":["mjau:sittable"]}
-                if cfg.get("seats"):
-                    # EN enda rideable-definition (i mjau:saddled) — två grupper som
-                    # båda definierar minecraft:rideable ger odefinierat beteende.
-                    # Plats 2 sitter där vagnen står; utan vagn används den sällan.
+                    # SADEL: ryttare på ryggen. Utesluter vagnläget — två aktiva
+                    # rideable-definitioner ger odefinierat beteende.
                     g["mjau:saddled"]["minecraft:rideable"]={
-                        "seat_count":2,"family_types":["player"],
+                        "seat_count":1,"family_types":["player"],
                         "interact_text":"action.interact.ride",
-                        "seats":[{"position":cfg["seats"][0]},{"position":cfg["seats"][1]}]}
-                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:saddled")
-                    ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).append("mjau:sittable")
-                    # Vagnen är ett släp — den ska gå att lasta. is_chested + inventory
-                    # ger åsne-liknande förvaring som öppnas med smyg + interagera.
-                    g["mjau:carted"]={"minecraft:is_chested":{},
-                                      "minecraft:inventory":{"container_type":"horse",
-                                                             "inventory_size":15,"private":False}}
-                    ev[evn]["add"]["component_groups"].append("mjau:carted")
+                        "seats":[{"position":[0.0,0.562,-0.2]}]}
+                    ev[evn]["add"]={"component_groups":["mjau:saddled"]}
+                    ev[evn]["remove"]={"component_groups":["mjau:sittable","mjau:carted"]}
+                if cfg.get("seats"):
+                    # VAGN: seat 0 I vagnen (styrbar som en släde), seat 1 på ryggen
+                    # för en vän. Egen grupp med egna styr-/lastkomponenter; sadel-
+                    # och vagnläget tar bort varandra så bara EN rideable är aktiv.
+                    sad=g["mjau:saddled"]
+                    g["mjau:carted"]={
+                        "minecraft:is_saddled":{},
+                        "minecraft:input_ground_controlled":{},
+                        "minecraft:movement":dict(sad.get("minecraft:movement",{"value":0.5})),
+                        "minecraft:horse.jump_strength":dict(sad.get("minecraft:horse.jump_strength",{"value":1.2})),
+                        "minecraft:can_power_jump":{},
+                        "minecraft:is_chested":{},
+                        "minecraft:inventory":{"container_type":"horse",
+                                               "inventory_size":15,"private":False},
+                        "minecraft:rideable":{
+                            "seat_count":2,"family_types":["player"],
+                            "interact_text":"action.interact.ride",
+                            "seats":[{"position":cfg["seats"][0]},{"position":cfg["seats"][1]}]}}
+                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:carted")
+                    ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).extend(["mjau:sittable","mjau:saddled"])
                 inter.append(entry(f"mjau:{a}_{slug}",evn,cfg["sound"]))   # namnrymd krävs för EGNA föremål
         inter.append(entry("saddle","mjau:on_sadel_1","saddle"))
         g["mjau:tamed"]["minecraft:interact"]={"interactions":inter}

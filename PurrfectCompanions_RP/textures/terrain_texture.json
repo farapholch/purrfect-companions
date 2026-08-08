@@ -5,6 +5,9 @@
     "pc_kattbadd": {
       "textures": "textures/blocks/pc_kattbadd"
     },
+    "pc_matskal": {
+      "textures": "textures/blocks/pc_matskal"
+    },
     "pc_garnnystan": {
       "textures": "textures/blocks/pc_garnnystan"
     }

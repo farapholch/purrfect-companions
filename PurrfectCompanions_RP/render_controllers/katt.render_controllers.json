@@ -226,6 +226,27 @@
         "Texture.default"
       ]
     },
+    "controller.render.katt_horn": {
+      "arrays": {
+        "geometries": {
+          "Array.horn": [
+            "Geometry.empty",
+            "Geometry.horn1",
+            "Geometry.horn2",
+            "Geometry.horn3"
+          ]
+        }
+      },
+      "geometry": "Array.horn[query.property('mjau:horn')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
     "controller.render.katt_krona": {
       "arrays": {
         "geometries": {

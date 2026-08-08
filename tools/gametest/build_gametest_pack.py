@@ -95,6 +95,16 @@ gt.registerAsync("mjau", "interakt", async (test) => {
     return done(test, "kunde inte sitta upp pa sadlad katt", false);
   console.warn("[MJAU-GT] rider pa " + riding.entityRidingOn.typeId);
 
+  // 3b) NEGATIV KONTROLL: sitt still utan inmatning — katten far INTE vandra.
+  //     Precis den har saknades nar "katten styr sig sjalv" slank till Xbox:
+  //     vi matte att den ror sig MED gas, aldrig att den star still UTAN.
+  const idle0 = cat.location;
+  await test.idle(60);
+  const drift = Math.hypot(cat.location.x - idle0.x, cat.location.z - idle0.z);
+  console.warn(`[MJAU-GT] stillastaende utan gas: drev ${drift.toFixed(2)} block`);
+  if (drift > 1.5)
+    return done(test, `katten vandrar sjalv under ryttaren (${drift.toFixed(2)} block)`, false);
+
   // 4) STYRNING: hall spaken framat och mat om KATTEN flyttar sig.
   //    input_ground_controlled ska omsatta ryttarens rorelseinmatning i
   //    kattens rorelse — det har ar kedjan 2.3.4-fixen gallde.
@@ -122,6 +132,45 @@ gt.registerAsync("mjau", "interakt", async (test) => {
   // inte ett fel i paketet. Raden ger anda matvarde nar det fungerar.
 
   done(test, "tamja+sadla+rida+styra via simulerad spelare", true);
+})
+  .structureName("mjau:arena")
+  .maxTicks(2400);
+
+gt.registerAsync("mjau", "vagn", async (test) => {
+  const p = test.spawnSimulatedPlayer({ x: 20, y: 2, z: 18 }, "GTVagn");
+  const cat = test.spawn("mjau:misty", { x: 20, y: 2, z: 21 });
+  await test.idle(20);
+  let tamed = false;
+  for (let i = 0; i < 30 && !tamed; i++) {
+    p.setItem(new ItemStack("minecraft:cod", 1), 0, true);
+    await test.idle(5);
+    p.interactWithEntity(cat);
+    await test.idle(10);
+    tamed = cat.getProperty("mjau:tam") === 1;
+  }
+  if (!tamed) return done(test, "vagn: tamjning misslyckades", false);
+  p.setItem(new ItemStack("mjau:vagn_tra", 1), 0, true);
+  await test.idle(5);
+  p.interactWithEntity(cat);
+  await test.idle(10);
+  if (cat.getProperty("mjau:vagn") !== 1)
+    return done(test, "vagnen gick inte att spanna for", false);
+  console.warn("[MJAU-GT] vagnen PA");
+  await test.idle(10);
+  p.interactWithEntity(cat);
+  await test.idle(20);
+  const riding = p.getComponent("minecraft:riding");
+  if (!riding || !riding.entityRidingOn)
+    return done(test, "gick inte att SITTA I vagnen", false);
+  console.warn("[MJAU-GT] sitter i vagnen");
+  const b = cat.location;
+  p.moveRelative(0, 1);
+  await test.idle(25);
+  p.stopMoving();
+  const d = Math.hypot(cat.location.x - b.x, cat.location.z - b.z);
+  console.warn(`[MJAU-GT] drar vagnen: ${d.toFixed(2)} block`);
+  if (d < 1.5) return done(test, "vagnen gar inte att kora", false);
+  done(test, "vagn: spanna for + sitta i + kora", true);
 })
   .structureName("mjau:arena")
   .maxTicks(2400);

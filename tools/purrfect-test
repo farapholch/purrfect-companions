@@ -14,7 +14,7 @@ SRV=/opt/bds/server
 WORLD="$SRV/worlds/Kattest"
 LOG=/tmp/purrfect-test.log
 CATS="misty hazel mocha snow"
-EVENTS="mjau:on_tame mjau:on_sadel_1 mjau:on_keps_2 mjau:on_halsduk_2 mjau:on_ryggsack_3 mjau:on_glasogon_2 mjau:on_mantel_3 mjau:on_tossor_2 mjau:on_vagn_1 minecraft:entity_born mjau:grow_up"
+EVENTS="mjau:on_tame mjau:on_sadel_1 mjau:on_keps_2 mjau:on_halsduk_2 mjau:on_ryggsack_3 mjau:on_glasogon_2 mjau:on_mantel_3 mjau:on_tossor_2 mjau:on_vagn_1 mjau:on_horn_1 minecraft:entity_born mjau:grow_up"
 FAIL=0
 ok(){ echo "  ✅ $1"; }
 bad(){ echo "  ❌ $1"; FAIL=1; }
@@ -117,9 +117,19 @@ for f in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json")):
         if "minecraft:input_ground_controlled" in grp and "minecraft:behavior.controlled_by_player" in grp:
             bad.append(f"{cid}: {gname} har BÅDE input_ground_controlled och "
                        f"controlled_by_player — AI-målet kör över spelarens styrning")
+    # Flera ridlägen är OK BARA om de utesluter varandra: varje event som
+    # lägger till ett måste ta bort de andra, annars kan två rideable vara
+    # aktiva samtidigt (odefinierat vilken som vinner).
     ride=[k for k,v in groups.items() if "minecraft:rideable" in v]
     if len(ride)>1:
-        bad.append(f"{cid}: {len(ride)} grupper definierar minecraft:rideable ({ride}) - odefinierat vilken som vinner")
+        for evn,evd in e.get("events",{}).items():
+            adds=evd.get("add",{}).get("component_groups",[])
+            rems=evd.get("remove",{}).get("component_groups",[])
+            for grp in ride:
+                if grp in adds:
+                    others=[o for o in ride if o!=grp and o not in rems]
+                    if others:
+                        bad.append(f"{cid}: event {evn} aktiverar {grp} utan att ta bort {others}")
     if "minecraft:behavior.follow_owner" in comp:
         bad.append(f"{cid}: follow_owner i bas-components (kraver agare)")
     if not os.path.exists(f"{SRC}/PurrfectCompanions_BP/spawn_rules/{cid}.json"):
@@ -334,7 +344,7 @@ cd "$SRV" || exit 1
   # EFFEKT-test: räckte det att eventet kördes, eller ändrades kattens tillstånd?
   # has_property läser entity-propertyn som plagget sätter — det är skillnaden
   # mellan "kommandot gick igenom" och "katten bär faktiskt plagget".
-  for pair in "sadel 1" "keps 2" "halsduk 2" "ryggsack 3" "glasogon 2" "mantel 3" "tossor 2" "vagn 1"; do
+  for pair in "sadel 1" "keps 2" "halsduk 2" "ryggsack 3" "glasogon 2" "mantel 3" "tossor 2" "vagn 1" "horn 1"; do
     set -- $pair
     echo "summon mjau:misty 18 20 18"; sleep 1
     echo "event entity @e[type=mjau:misty,x=18,y=20,z=18,r=30] mjau:on_$1_$2"; sleep 1
@@ -353,8 +363,10 @@ cd "$SRV" || exit 1
   # identiskt block räknas inte som placerat
   echo "setblock 20 20 20 air"; sleep 1
   echo "setblock 22 20 20 air"; sleep 1
+  echo "setblock 24 20 20 air"; sleep 1
   echo "setblock 20 20 20 mjau:kattbadd"; sleep 1
   echo "setblock 22 20 20 mjau:garnnystan"; sleep 1
+  echo "setblock 24 20 20 mjau:matskal"; sleep 1
   sleep 2; echo "stop"; sleep 8
 } | LD_LIBRARY_PATH=. ./bedrock_server > "$LOG" 2>&1
 pkill -9 -x bedrock_server 2>/dev/null
@@ -373,10 +385,10 @@ HARD=$(grep -ciE "Syntax error|unknown component|invalid" "$LOG")
 SOFT=$(grep -c "Unable to summon" "$LOG")
 [ "$LOADED" -ge 1 ] && ok "paketet \"$PACKNAME\" laddades (v$VER)" || bad "paketet \"$PACKNAME\" laddades INTE"
 [ "$SUM" -ge 5 ] && ok "spawns: $SUM/5 (gris + 4 katter)" || bad "spawns: $SUM/5"
-[ "$EVOK" -ge 11 ] && ok "händelser: $EVOK/11 (tämjning, 8 plagg inkl vagn, födsel, uppväxt)" || bad "händelser: $EVOK/11"
+[ "$EVOK" -ge 12 ] && ok "händelser: $EVOK/12 (tämjning, 9 plagg inkl vagn+horn, födsel, uppväxt)" || bad "händelser: $EVOK/12"
 [ "$HARD" -eq 0 ] && ok "inga syntax-/komponentfel" || bad "$HARD allvarliga fel (se $LOG)"
-[ "$PROPOK" -ge 8 ] && ok "plaggen ändrar kattens tillstånd: $PROPOK/8 (has_property)" || bad "bara $PROPOK/8 plagg satte sin property"
-[ "$BLOCKOK" -ge 2 ] && ok "blocken går att placera: $BLOCKOK/2" || bad "blocken kunde inte placeras ($BLOCKOK/2)"
+[ "$PROPOK" -ge 9 ] && ok "plaggen ändrar kattens tillstånd: $PROPOK/9 (has_property)" || bad "bara $PROPOK/9 plagg satte sin property"
+[ "$BLOCKOK" -ge 3 ] && ok "blocken går att placera: $BLOCKOK/3" || bad "blocken kunde inte placeras ($BLOCKOK/3)"
 [ "$CARGO" -ge 1 ] && ok "vagnen har ett riktigt lastutrymme (replaceitem i slot.inventory)" || bad "vagnens förvaring gick inte att fylla — is_chested/inventory verkar inte ge någon container"
 if [ "$SOFT" -eq 0 ]; then
   ok "inga misslyckade spawns"

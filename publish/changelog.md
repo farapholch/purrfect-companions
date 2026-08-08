@@ -1,3 +1,22 @@
+## 2.5.0 — The cart you can sit in, the cat that obeys
+
+Found by playing on Xbox, fixed and now machine-tested:
+
+- **Cats no longer wander while ridden.** Their free-will behaviours — strolling,
+  chasing, seeking out beds — switch off the moment a rider sits up, and return
+  when the saddle comes off the agenda. A simulated rider now verifies the cat
+  drifts 0.00 blocks with no input.
+- **The Cat Cart is bigger, and you can finally sit in it.** The cart seat is now
+  the first seat: interact and you sit IN the cart, steering like a sled, with
+  the back seat free for a friend. A simulated player boards it and drives it
+  eighteen blocks in every test run.
+
+New things:
+
+- **Food Bowl** — craft it from a bowl, planks and a cod; cats seek it out.
+- **Unicorn Horn** — white, gold or pink, crafted around quartz, gold or
+  amethyst. Combine with the wings.
+
 ## 2.4.1 — A tail that looks like a tail
 
 The tail was a solid pillar — three blocks wide, three deep, straight up. It

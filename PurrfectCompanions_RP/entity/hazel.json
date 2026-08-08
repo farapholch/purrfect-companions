@@ -46,6 +46,9 @@
         "vingar1": "geometry.katt.vingar1",
         "vingar2": "geometry.katt.vingar2",
         "vingar3": "geometry.katt.vingar3",
+        "horn1": "geometry.katt.horn1",
+        "horn2": "geometry.katt.horn2",
+        "horn3": "geometry.katt.horn3",
         "krona1": "geometry.katt.krona1",
         "krona2": "geometry.katt.krona2",
         "mantel1": "geometry.katt.mantel1",
@@ -69,6 +72,7 @@
         "controller.render.katt_halsband",
         "controller.render.katt_rosett",
         "controller.render.katt_vingar",
+        "controller.render.katt_horn",
         "controller.render.katt_krona",
         "controller.render.katt_mantel"
       ],

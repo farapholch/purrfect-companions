@@ -116,6 +116,15 @@
     "pc_vingar_gold": {
       "textures": "textures/items/pc_vingar_gold"
     },
+    "pc_horn_vit": {
+      "textures": "textures/items/pc_horn_vit"
+    },
+    "pc_horn_guld": {
+      "textures": "textures/items/pc_horn_guld"
+    },
+    "pc_horn_rosa": {
+      "textures": "textures/items/pc_horn_rosa"
+    },
     "pc_krona_gold": {
       "textures": "textures/items/pc_krona_gold"
     },

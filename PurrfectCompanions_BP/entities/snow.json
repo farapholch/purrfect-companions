@@ -97,6 +97,15 @@
           "default": 0,
           "client_sync": true
         },
+        "mjau:horn": {
+          "type": "int",
+          "range": [
+            0,
+            3
+          ],
+          "default": 0,
+          "client_sync": true
+        },
         "mjau:krona": {
           "type": "int",
           "range": [
@@ -169,18 +178,6 @@
         "priority": 2,
         "speed_multiplier": 1.35
       },
-      "minecraft:behavior.tempt": {
-        "priority": 9,
-        "speed_multiplier": 1.2,
-        "items": [
-          "cod",
-          "salmon"
-        ]
-      },
-      "minecraft:behavior.random_stroll": {
-        "priority": 13,
-        "speed_multiplier": 1.0
-      },
       "minecraft:behavior.look_at_player": {
         "priority": 15,
         "look_distance": 6.0
@@ -207,71 +204,6 @@
       },
       "minecraft:attack": {
         "damage": 3
-      },
-      "minecraft:behavior.nearest_attackable_target": {
-        "priority": 6,
-        "must_see": true,
-        "reselect_targets": true,
-        "within_radius": 12,
-        "entity_types": [
-          {
-            "filters": {
-              "any_of": [
-                {
-                  "test": "is_family",
-                  "subject": "other",
-                  "value": "rabbit"
-                },
-                {
-                  "test": "is_family",
-                  "subject": "other",
-                  "value": "chicken"
-                }
-              ]
-            },
-            "max_dist": 12
-          }
-        ]
-      },
-      "minecraft:behavior.stalk_and_pounce_on_target": {
-        "priority": 7,
-        "stalk_speed": 1.0,
-        "max_stalk_dist": 12.0,
-        "leap_distance": 0.8,
-        "leap_height": 0.9,
-        "max_pounce_dist": 5.0,
-        "interest_time": 2.0,
-        "pounce_max_dist": 5.0
-      },
-      "minecraft:behavior.melee_attack": {
-        "priority": 8,
-        "speed_multiplier": 1.2,
-        "track_target": true
-      },
-      "minecraft:behavior.random_sitting": {
-        "priority": 14,
-        "min_sit_time": 8,
-        "start_chance": 0.08,
-        "stop_chance": 0.06
-      },
-      "minecraft:behavior.move_to_block": {
-        "priority": 12,
-        "tick_interval": 40,
-        "start_chance": 0.4,
-        "search_range": 12,
-        "search_height": 4,
-        "goal_radius": 1.5,
-        "stay_duration": 20,
-        "target_selection_method": "nearest",
-        "target_offset": [
-          0,
-          1,
-          0
-        ],
-        "target_blocks": [
-          "mjau:kattbadd",
-          "mjau:garnnystan"
-        ]
       }
     },
     "component_groups": {
@@ -1254,6 +1186,90 @@
                       "test": "has_equipment",
                       "domain": "hand",
                       "subject": "other",
+                      "value": "mjau:horn_vit"
+                    }
+                  ]
+                },
+                "event": "mjau:on_horn_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_generic",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:horn_guld"
+                    }
+                  ]
+                },
+                "event": "mjau:on_horn_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_generic",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:horn_rosa"
+                    }
+                  ]
+                },
+                "event": "mjau:on_horn_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_generic",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
                       "value": "mjau:krona_gold"
                     }
                   ]
@@ -1520,7 +1536,7 @@
       "mjau:saddled": {
         "minecraft:is_saddled": {},
         "minecraft:rideable": {
-          "seat_count": 2,
+          "seat_count": 1,
           "family_types": [
             "player"
           ],
@@ -1531,13 +1547,6 @@
                 0.0,
                 0.562,
                 -0.2
-              ]
-            },
-            {
-              "position": [
-                0.0,
-                0.42,
-                0.85
               ]
             }
           ]
@@ -1558,11 +1567,123 @@
         }
       },
       "mjau:carted": {
+        "minecraft:is_saddled": {},
+        "minecraft:input_ground_controlled": {},
+        "minecraft:movement": {
+          "value": 0.43
+        },
+        "minecraft:horse.jump_strength": {
+          "value": 1.2
+        },
+        "minecraft:can_power_jump": {},
         "minecraft:is_chested": {},
         "minecraft:inventory": {
           "container_type": "horse",
           "inventory_size": 15,
           "private": false
+        },
+        "minecraft:rideable": {
+          "seat_count": 2,
+          "family_types": [
+            "player"
+          ],
+          "interact_text": "action.interact.ride",
+          "seats": [
+            {
+              "position": [
+                0.0,
+                0.55,
+                0.72
+              ]
+            },
+            {
+              "position": [
+                0.0,
+                0.562,
+                -0.2
+              ]
+            }
+          ]
+        }
+      },
+      "mjau:fri": {
+        "minecraft:behavior.tempt": {
+          "priority": 9,
+          "speed_multiplier": 1.2,
+          "items": [
+            "cod",
+            "salmon"
+          ]
+        },
+        "minecraft:behavior.random_stroll": {
+          "priority": 13,
+          "speed_multiplier": 1.0
+        },
+        "minecraft:behavior.random_sitting": {
+          "priority": 14,
+          "min_sit_time": 8,
+          "start_chance": 0.08,
+          "stop_chance": 0.06
+        },
+        "minecraft:behavior.move_to_block": {
+          "priority": 12,
+          "tick_interval": 40,
+          "start_chance": 0.4,
+          "search_range": 12,
+          "search_height": 4,
+          "goal_radius": 1.5,
+          "stay_duration": 20,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0,
+            1,
+            0
+          ],
+          "target_blocks": [
+            "mjau:kattbadd",
+            "mjau:matskal",
+            "mjau:garnnystan"
+          ]
+        },
+        "minecraft:behavior.nearest_attackable_target": {
+          "priority": 6,
+          "must_see": true,
+          "reselect_targets": true,
+          "within_radius": 12,
+          "entity_types": [
+            {
+              "filters": {
+                "any_of": [
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "rabbit"
+                  },
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "chicken"
+                  }
+                ]
+              },
+              "max_dist": 12
+            }
+          ]
+        },
+        "minecraft:behavior.stalk_and_pounce_on_target": {
+          "priority": 7,
+          "stalk_speed": 1.0,
+          "max_stalk_dist": 12.0,
+          "leap_distance": 0.8,
+          "leap_height": 0.9,
+          "max_pounce_dist": 5.0,
+          "interest_time": 2.0,
+          "pounce_max_dist": 5.0
+        },
+        "minecraft:behavior.melee_attack": {
+          "priority": 8,
+          "speed_multiplier": 1.2,
+          "track_target": true
         }
       }
     },
@@ -1571,7 +1692,8 @@
         "add": {
           "component_groups": [
             "mjau:tamed",
-            "mjau:sittable"
+            "mjau:sittable",
+            "mjau:fri"
           ]
         },
         "set_property": {
@@ -1599,13 +1721,21 @@
                 }
               }
             ]
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:fri"
+              ]
+            }
           }
         ]
       },
       "minecraft:entity_born": {
         "add": {
           "component_groups": [
-            "mjau:baby"
+            "mjau:baby",
+            "mjau:fri"
           ]
         }
       },
@@ -1632,7 +1762,8 @@
         },
         "remove": {
           "component_groups": [
-            "mjau:sittable"
+            "mjau:sittable",
+            "mjau:carted"
           ]
         }
       },
@@ -1647,7 +1778,8 @@
         },
         "remove": {
           "component_groups": [
-            "mjau:sittable"
+            "mjau:sittable",
+            "mjau:carted"
           ]
         }
       },
@@ -1662,7 +1794,8 @@
         },
         "remove": {
           "component_groups": [
-            "mjau:sittable"
+            "mjau:sittable",
+            "mjau:carted"
           ]
         }
       },
@@ -1762,13 +1895,13 @@
         },
         "add": {
           "component_groups": [
-            "mjau:saddled",
             "mjau:carted"
           ]
         },
         "remove": {
           "component_groups": [
-            "mjau:sittable"
+            "mjau:sittable",
+            "mjau:saddled"
           ]
         }
       },
@@ -1778,13 +1911,13 @@
         },
         "add": {
           "component_groups": [
-            "mjau:saddled",
             "mjau:carted"
           ]
         },
         "remove": {
           "component_groups": [
-            "mjau:sittable"
+            "mjau:sittable",
+            "mjau:saddled"
           ]
         }
       },
@@ -1794,13 +1927,13 @@
         },
         "add": {
           "component_groups": [
-            "mjau:saddled",
             "mjau:carted"
           ]
         },
         "remove": {
           "component_groups": [
-            "mjau:sittable"
+            "mjau:sittable",
+            "mjau:saddled"
           ]
         }
       },
@@ -1852,6 +1985,21 @@
       "mjau:on_vingar_3": {
         "set_property": {
           "mjau:vingar": 3
+        }
+      },
+      "mjau:on_horn_1": {
+        "set_property": {
+          "mjau:horn": 1
+        }
+      },
+      "mjau:on_horn_2": {
+        "set_property": {
+          "mjau:horn": 2
+        }
+      },
+      "mjau:on_horn_3": {
+        "set_property": {
+          "mjau:horn": 3
         }
       },
       "mjau:on_krona_1": {

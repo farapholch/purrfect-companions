@@ -1,0 +1,35 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:horn_guld"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "N",
+      "I",
+      "M"
+    ],
+    "key": {
+      "N": {
+        "item": "minecraft:gold_nugget"
+      },
+      "I": {
+        "item": "minecraft:gold_ingot"
+      },
+      "M": {
+        "item": "minecraft:bone"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:gold_ingot"
+      }
+    ],
+    "result": {
+      "item": "mjau:horn_guld"
+    }
+  }
+}

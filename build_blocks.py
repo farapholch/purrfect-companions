@@ -22,6 +22,17 @@ BLOCKS = {
      key={"W":{"item":"minecraft:white_wool"},"L":{"item":"minecraft:leather"}},
      unlock=[{"item":"minecraft:white_wool"}]),
    height=5),
+ "matskal": dict(
+   name="Food Bowl",
+   # låg skål med kant och "mat" i mitten
+   cubes=[([-5,0,-5],[10,1,10]), ([-5,1,-5],[10,2,1]), ([-5,1,4],[10,2,1]),
+          ([-5,1,-4],[1,2,8]), ([4,1,-4],[1,2,8]), ([-3,1,-3],[6,1,6])],
+   base=(188,148,96), accent=(120,78,52), sound="wood",
+   recipe=dict(pattern=[" F ","PBP"],
+     key={"B":{"item":"minecraft:bowl"},"P":{"item":"minecraft:planks"},
+          "F":{"item":"minecraft:cod"}},
+     unlock=[{"item":"minecraft:bowl"}]),
+   height=3),
  "garnnystan": dict(
    name="Yarn Ball",
    cubes=[([-5,0,-5],[10,10,10]), ([-6,2,-3],[12,6,6]), ([-3,2,-6],[6,6,12])],
@@ -53,6 +64,13 @@ def texture(bid, cfg):
     acc = cfg["accent"] + (255,)
     dark = tuple(int(c * 0.72) for c in cfg["base"]) + (255,)
     px = [[base] * S for _ in range(S)]
+    if bid == "matskal":
+        for y in range(S):
+            for x in range(S):
+                d2 = max(abs(x - 7.5), abs(y - 7.5))
+                if d2 > 6: px[y][x] = dark          # kant
+                elif d2 < 4: px[y][x] = (222, 130, 92, 255)  # mat (lax!)
+                if d2 < 4 and (x + y) % 3 == 0: px[y][x] = (196, 100, 70, 255)
     if bid == "kattbadd":
         for y in range(S):                       # tygvävnad
             for x in range(S):
@@ -128,10 +146,13 @@ def build():
                 if not l.startswith("tile.mjau:")]
         open(lp, "w", encoding="utf-8").write("\n".join(keep + lang) + "\n")
 
-    # katterna söker sig till bädd och nystan
+    # katterna söker sig till bädd, nystan och matskål — men bara av FRI VILJA:
+    # beteendet bor i mjau:fri, som tas bort medan en spelare rider (annars
+    # "styr katten sig själv", sett på Xbox).
     targets = [f"mjau:{b}" for b in BLOCKS]
     for f in sorted(glob.glob(f"{BP}/entities/*.json")):
-        d = json.load(open(f)); c = d["minecraft:entity"]["components"]
+        d = json.load(open(f)); ent = d["minecraft:entity"]
+        c = ent["component_groups"].setdefault("mjau:fri", {})
         c["minecraft:behavior.move_to_block"] = {
             "priority": 12, "tick_interval": 40, "start_chance": 0.4,
             "search_range": 12, "search_height": 4, "goal_radius": 1.5,

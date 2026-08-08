@@ -8,6 +8,10 @@
     "textures": "pc_kattbadd",
     "sound": "cloth"
   },
+  "mjau:matskal": {
+    "textures": "pc_matskal",
+    "sound": "wood"
+  },
   "mjau:garnnystan": {
     "textures": "pc_garnnystan",
     "sound": "cloth"

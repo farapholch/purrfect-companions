@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:horn_guld",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_horn_guld"
+      },
+      "minecraft:display_name": {
+        "value": "Unicorn Horn (Gold)"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

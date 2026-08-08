@@ -1,0 +1,131 @@
+#!/bin/bash
+# Testar Cat Haven-världarna (Kattgården): bygger båda varianterna från källan,
+# kontrollerar det paketerade artefaktet statiskt och bootar det i servern.
+# Bygget i sig verifierar redan under konstruktion (testforblock/testfor via
+# stdin) — steg 3 finns för att fånga fel i PAKETERINGEN: trasig level.dat,
+# fel paket-UUID:n i world_*_packs.json, strukturer som läckt in i skeppade BP.
+set -u
+SRC=/opt/purrfect-companions
+SRV=/opt/bds/server
+OUT=/tmp/cathaven-test-out
+FAIL=0
+ok(){ echo "  ✅ $1"; }
+bad(){ echo "  ❌ $1"; FAIL=1; }
+
+echo "=== Cat Haven-test $(date '+%F %H:%M') ==="
+
+echo
+echo "[1/3] Bygger båda varianterna (2 serverbyggen, ~3 min)"
+rm -rf "$OUT"
+for V in public private; do
+  if python3 "$SRC/build_world.py" "$V" "$OUT" > /tmp/cathaven-test-$V.txt 2>&1; then
+    ok "variant $V: byggd + byggverifierad (mark, kista, damm, fyrljus, 4 katter)"
+  else
+    sed 's/^/    /' /tmp/cathaven-test-$V.txt | tail -6
+    bad "variant $V föll i bygget"
+  fi
+done
+
+echo
+echo "[2/3] Statisk kontroll av paketen"
+STAT=$(python3 - "$OUT" <<'PY'
+import glob, json, os, sys, zipfile
+sys.path.insert(0, "/opt/purrfect-companions/tools/gametest")
+import nbt
+bad = []
+worlds = sorted(glob.glob(f"{sys.argv[1]}/*.mcworld"))
+if len(worlds) != 2: bad.append(f"väntade 2 världar, hittade {len(worlds)}")
+for w in worlds:
+    z = zipfile.ZipFile(w)
+    names = z.namelist()
+    fam = "familj" in w
+    # level.dat: rätt namn, survival, fusk av
+    ver_len = z.read("level.dat")[:8]
+    import struct as _s, io, tempfile
+    with tempfile.NamedTemporaryFile(suffix=".dat", delete=False) as tf:
+        tf.write(z.read("level.dat")); p = tf.name
+    _, root = nbt.read_level_dat(p); os.unlink(p)
+    d = root.v
+    want = "Kattgården" if fam else "Cat Haven"
+    if d["LevelName"].v != want: bad.append(f"{os.path.basename(w)}: LevelName '{d['LevelName'].v}' != '{want}'")
+    if d["GameType"].v != 0: bad.append(f"{os.path.basename(w)}: GameType != survival")
+    if d["commandsEnabled"].v != 0: bad.append(f"{os.path.basename(w)}: fusk är PÅ i skeppad värld")
+    # inbäddade paket: UUID/version i world_*_packs.json måste matcha manifesten
+    for kind, pack in (("behavior", "PurrfectCompanions_BP"), ("resource", "PurrfectCompanions_RP")):
+        ref = json.loads(z.read(f"world_{kind}_packs.json"))[0]
+        man = json.loads(z.read(f"{kind}_packs/{pack}/manifest.json"))["header"]
+        if ref["pack_id"] != man["uuid"]: bad.append(f"{os.path.basename(w)}: {kind}-UUID matchar inte inbäddat paket")
+        if ref["version"] != man["version"]: bad.append(f"{os.path.basename(w)}: {kind}-version matchar inte")
+    # byggstrukturerna får inte läcka med i det skeppade paketet
+    if any("/structures/" in n for n in names):
+        bad.append(f"{os.path.basename(w)}: byggstrukturer har läckt in i skeppat BP")
+    # familjenamn får aldrig finnas i den publika världen
+    if not fam:
+        blob = b" ".join(z.read(n) for n in names if n.endswith((".json", ".lang")))
+        for privat in (b"vinda", b"vilma", b"lillen", b"maja"):
+            if privat in blob.lower(): bad.append(f"{os.path.basename(w)}: privat namn '{privat.decode()}' i publik värld")
+# boken och skyltarna: parse:a byggstrukturen och verifiera innehållet
+for variant, title in (("public", "The Caretaker's Handbook"), ("private", "Föreståndarens handbok")):
+    p = f"/tmp/cathaven-buildbp-{variant}/structures/haven/shelter.mcstructure"
+    if not os.path.exists(p): bad.append(f"{variant}: shelter.mcstructure saknas"); continue
+    data = open(p, "rb").read()
+    root, _ = nbt._read(data, 3 + len("".encode()), nbt.TAG_COMPOUND)
+    pos = root.v["structure"].v["palette"].v["default"].v["block_position_data"].v
+    books = signs = 0
+    for entry in pos.values():
+        be = entry.v["block_entity_data"].v
+        if be["id"].v == "Chest":
+            for it in be["Items"].v[1]:
+                if it.v["Name"].v == "minecraft:written_book":
+                    tag = it.v["tag"].v
+                    if tag["title"].v == title and len(tag["pages"].v[1]) >= 5: books += 1
+        if be["id"].v == "Sign" and be["FrontText"].v["Text"].v: signs += 1
+    if books != 1: bad.append(f"{variant}: välkomstboken saknas/fel titel i kistan")
+    if signs < 4: bad.append(f"{variant}: bara {signs}/4 namnskyltar med text")
+print("\n".join(bad))
+PY
+)
+if [ -n "$STAT" ]; then echo "$STAT" | while read -r l; do bad "$l"; done; FAIL=1
+else ok "level.dat, paket-UUID:n, inga läckta strukturer, inga privata namn publikt, bok + 4 skyltar i båda varianterna"; fi
+
+echo
+echo "[3/3] Bootar den paketerade publika världen (~1 min)"
+W=$(ls "$OUT"/purrfect-cat-haven-*.mcworld 2>/dev/null | head -1)
+if [ -z "$W" ]; then bad "ingen publik .mcworld att boota"; else
+  SMOKE="$SRV/worlds/CatHavenSmoke"
+  rm -rf "$SMOKE"; mkdir -p "$SMOKE"
+  ( cd "$SMOKE" && unzip -qq "$W" )
+  # skeppad värld har fusk AV — slå på i testkopian så konsolen kan verifiera
+  python3 - "$SMOKE" <<'PY'
+import sys
+sys.path.insert(0, "/opt/purrfect-companions/tools/gametest")
+import nbt
+v, root = nbt.read_level_dat(f"{sys.argv[1]}/level.dat")
+root.v["commandsEnabled"] = nbt.Val(nbt.TAG_BYTE, 1)
+nbt.write_level_dat(f"{sys.argv[1]}/level.dat", v, root)
+PY
+  pkill -9 -x bedrock_server 2>/dev/null; sleep 2
+  PROPS="$SRV/server.properties"; cp "$PROPS" /tmp/cathaven-props.bak
+  sed -i "s/^level-name=.*/level-name=CatHavenSmoke/" "$PROPS"
+  SLOG=/tmp/cathaven-smoke.log
+  { sleep 28
+    echo "tickingarea add -20 -70 -10 20 -40 60 rök"; sleep 4
+    echo "testforblock -4 -59 9 chest"; sleep 1
+    echo "testforblock 12 -60 7 mjau:fiskdamm"; sleep 1
+    echo "testfor @e[type=mjau:misty,x=-9,y=-60,z=33,r=80]"; sleep 1
+    echo "tickingarea remove rök"; sleep 1
+    echo "stop"; sleep 8
+  } | ( cd "$SRV" && LD_LIBRARY_PATH=. ./bedrock_server ) > "$SLOG" 2>&1
+  pkill -9 -x bedrock_server 2>/dev/null
+  cp /tmp/cathaven-props.bak "$PROPS"
+  grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" || bad "paketen laddades INTE ur världen"
+  [ "$(grep -c 'found the block' "$SLOG")" -ge 2 ] && ok "kistan och fiskdammen finns efter ompaketering" || bad "nyckelblock saknas i den paketerade världen"
+  grep -q "Found Misty" "$SLOG" && ok "Misty överlevde paketeringen (namngiven, persistent)" || bad "Misty saknas i den paketerade världen"
+  ERRS=$(grep -ciE "error|failed" "$SLOG")
+  [ "$ERRS" -le 1 ] && ok "inga allvarliga fel i serverloggen" || bad "$ERRS fel-rader i serverloggen ($SLOG)"
+  rm -rf "$SMOKE"
+fi
+
+echo
+if [ $FAIL -eq 0 ]; then echo "=== CAT HAVEN GRÖNT ==="; else echo "=== FEL HITTADE ==="; fi
+exit $FAIL

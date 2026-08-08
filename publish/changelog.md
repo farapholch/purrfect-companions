@@ -1,3 +1,24 @@
+## 2.6.1 — Riding smoothed out, and a door that opens
+
+Six fixes, all found by playing 2.6.0:
+
+- **You can walk through the Cat Door now.** It was defined as a solid,
+  opaque block, so it looked broken next to other blocks and neither cat
+  nor player could pass. It is now a thin frame with no collision — step
+  right through.
+- **No more fall damage while riding.** The mount takes the fall in
+  Minecraft, so a jump off a hill could kill the cat under you. Ridden
+  cats now shrug off falls entirely.
+- **The rider sits behind the neck,** not on the cat's head.
+- **Ridden cats stay on task.** A saddled cat would still lunge at every
+  chicken it passed. Hunting now switches off the moment someone sits up,
+  and returns when the tack comes off.
+- **Cats no longer nap the day away.** The nap urge from 2.6.0 was far too
+  strong — cats lay down the moment they spawned and just stayed there.
+  The constant napping is gone; sitting cats still purr.
+- **Animations blend.** Switching between standing, walking, sitting and
+  sleeping used to snap instantly; poses now ease into each other.
+
 ## 2.6.0 — Moods, naps, purring, fishing and treasure
 
 The cats got an inner life:

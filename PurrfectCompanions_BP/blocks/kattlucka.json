@@ -12,31 +12,20 @@
       "minecraft:material_instances": {
         "*": {
           "texture": "pc_kattlucka",
-          "render_method": "opaque"
+          "render_method": "alpha_test"
         }
       },
-      "minecraft:collision_box": {
-        "origin": [
-          -8,
-          0,
-          -8
-        ],
-        "size": [
-          16,
-          16,
-          16
-        ]
-      },
+      "minecraft:collision_box": false,
       "minecraft:selection_box": {
         "origin": [
-          -8,
+          -6,
           0,
-          -8
+          -1
         ],
         "size": [
+          12,
           16,
-          16,
-          16
+          2
         ]
       },
       "minecraft:destructible_by_mining": {

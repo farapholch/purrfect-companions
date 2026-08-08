@@ -5,6 +5,7 @@
       "initial_state": "standing",
       "states": {
         "standing": {
+          "blend_transition": 0.2,
           "animations": [
             "look",
             "tail"
@@ -22,6 +23,7 @@
           ]
         },
         "walking": {
+          "blend_transition": 0.2,
           "animations": [
             "look",
             "tail",
@@ -40,6 +42,7 @@
           ]
         },
         "sitting": {
+          "blend_transition": 0.3,
           "animations": [
             "sit",
             "look"
@@ -57,6 +60,7 @@
           ]
         },
         "sleeping": {
+          "blend_transition": 0.3,
           "animations": [
             "sova"
           ],

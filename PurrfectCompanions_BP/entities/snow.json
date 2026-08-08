@@ -1936,6 +1936,14 @@
       },
       "mjau:saddled": {
         "minecraft:is_saddled": {},
+        "minecraft:damage_sensor": {
+          "triggers": [
+            {
+              "cause": "fall",
+              "deals_damage": false
+            }
+          ]
+        },
         "minecraft:rideable": {
           "seat_count": 1,
           "family_types": [
@@ -1947,7 +1955,7 @@
               "position": [
                 0.0,
                 0.562,
-                -0.2
+                0.15
               ]
             }
           ]
@@ -1983,6 +1991,14 @@
       },
       "mjau:carted": {
         "minecraft:is_saddled": {},
+        "minecraft:damage_sensor": {
+          "triggers": [
+            {
+              "cause": "fall",
+              "deals_damage": false
+            }
+          ]
+        },
         "minecraft:input_ground_controlled": {},
         "minecraft:movement": {
           "value": 0.43
@@ -2015,7 +2031,7 @@
               "position": [
                 0.0,
                 0.562,
-                -0.2
+                0.15
               ]
             }
           ]
@@ -2078,7 +2094,39 @@
             "mjau:kattlucka",
             "mjau:garnnystan"
           ]
-        },
+        }
+      },
+      "mjau:armored": {
+        "minecraft:health": {
+          "value": 30,
+          "max": 30
+        }
+      },
+      "mjau:skattletare": {
+        "minecraft:spawn_entity": {
+          "entities": [
+            {
+              "min_wait_time": 300,
+              "max_wait_time": 900,
+              "spawn_item": "minecraft:string",
+              "spawn_sound": "drop.slot"
+            },
+            {
+              "min_wait_time": 420,
+              "max_wait_time": 1200,
+              "spawn_item": "minecraft:feather",
+              "spawn_sound": "drop.slot"
+            },
+            {
+              "min_wait_time": 2400,
+              "max_wait_time": 4800,
+              "spawn_item": "minecraft:diamond",
+              "spawn_sound": "random.levelup"
+            }
+          ]
+        }
+      },
+      "mjau:jagar": {
         "minecraft:behavior.nearest_attackable_target": {
           "priority": 6,
           "must_see": true,
@@ -2118,43 +2166,6 @@
           "priority": 8,
           "speed_multiplier": 1.2,
           "track_target": true
-        },
-        "minecraft:behavior.nap": {
-          "priority": 13,
-          "cooldown_min": 30.0,
-          "cooldown_max": 120.0,
-          "mob_detect_dist": 6.0,
-          "mob_detect_height": 3.0
-        }
-      },
-      "mjau:armored": {
-        "minecraft:health": {
-          "value": 30,
-          "max": 30
-        }
-      },
-      "mjau:skattletare": {
-        "minecraft:spawn_entity": {
-          "entities": [
-            {
-              "min_wait_time": 300,
-              "max_wait_time": 900,
-              "spawn_item": "minecraft:string",
-              "spawn_sound": "drop.slot"
-            },
-            {
-              "min_wait_time": 420,
-              "max_wait_time": 1200,
-              "spawn_item": "minecraft:feather",
-              "spawn_sound": "drop.slot"
-            },
-            {
-              "min_wait_time": 2400,
-              "max_wait_time": 4800,
-              "spawn_item": "minecraft:diamond",
-              "spawn_sound": "random.levelup"
-            }
-          ]
         }
       }
     },
@@ -2164,7 +2175,8 @@
           "component_groups": [
             "mjau:tamed",
             "mjau:sittable",
-            "mjau:fri"
+            "mjau:fri",
+            "mjau:jagar"
           ]
         },
         "set_property": {
@@ -2196,7 +2208,8 @@
           {
             "add": {
               "component_groups": [
-                "mjau:fri"
+                "mjau:fri",
+                "mjau:jagar"
               ]
             }
           }
@@ -2206,7 +2219,8 @@
         "add": {
           "component_groups": [
             "mjau:baby",
-            "mjau:fri"
+            "mjau:fri",
+            "mjau:jagar"
           ]
         },
         "sequence": [
@@ -2322,7 +2336,8 @@
         "remove": {
           "component_groups": [
             "mjau:sittable",
-            "mjau:carted"
+            "mjau:carted",
+            "mjau:jagar"
           ]
         }
       },
@@ -2338,7 +2353,8 @@
         "remove": {
           "component_groups": [
             "mjau:sittable",
-            "mjau:carted"
+            "mjau:carted",
+            "mjau:jagar"
           ]
         }
       },
@@ -2354,7 +2370,8 @@
         "remove": {
           "component_groups": [
             "mjau:sittable",
-            "mjau:carted"
+            "mjau:carted",
+            "mjau:jagar"
           ]
         }
       },
@@ -2475,7 +2492,8 @@
         "remove": {
           "component_groups": [
             "mjau:sittable",
-            "mjau:saddled"
+            "mjau:saddled",
+            "mjau:jagar"
           ]
         }
       },
@@ -2491,7 +2509,8 @@
         "remove": {
           "component_groups": [
             "mjau:sittable",
-            "mjau:saddled"
+            "mjau:saddled",
+            "mjau:jagar"
           ]
         }
       },
@@ -2507,7 +2526,8 @@
         "remove": {
           "component_groups": [
             "mjau:sittable",
-            "mjau:saddled"
+            "mjau:saddled",
+            "mjau:jagar"
           ]
         }
       },

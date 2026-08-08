@@ -55,7 +55,7 @@ for _g in GEOALL:
         bad.append(f"{_dsc['identifier']}: texturstorlek {_dsc.get('texture_width')}x{_dsc.get('texture_height')} != PNG {_tw}x{_th}")
 GEOIDS={g["description"]["identifier"] for g in GEOALL}
 geoj=GEOALL[0]
-geo=geoj["description"]["identifier"]; body_top=None
+geo=geoj["description"]["identifier"]; body_top=None; head_back=None
 # render controllers som client_entity refererar måste finnas
 import glob as _g
 RCS=set()
@@ -72,6 +72,8 @@ for itf in _g.glob(f"{SRC}/PurrfectCompanions_BP/items/*.json"):
 for b in geoj["bones"]:
     if b["name"]=="body":
         c=b["cubes"][0]; body_top=c["origin"][1]+c["size"][1]
+    if b["name"]=="head":
+        head_back=max(cu["origin"][2]+cu["size"][2] for cu in b["cubes"])
 for f in glob.glob(f"{SRC}/PurrfectCompanions_RP/entity/*.json"):
     d=json.load(open(f))["minecraft:client_entity"]["description"]
     for key,gid in d["geometry"].items():
@@ -109,6 +111,48 @@ for f in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json")):
         seat=first["position"][1]
         if abs(seat-body_top/16)>0.08:
             bad.append(f"{cid}: sadelhojd {seat} != kroppens topp {round(body_top/16,3)}")
+    # Sätets djupled (z): live-testet ser att man RIDER, inte VAR man sitter.
+    # z=-0.2 satte ryttaren rakt på kattens skalle. Kräv att varje säte ligger
+    # bakom huvudets bakkant, med marginal för ryttarens överkropp.
+    if head_back is not None:
+        for gname,grp in groups.items():
+            rd=grp.get("minecraft:rideable")
+            if not rd: continue
+            seats2=rd["seats"]; seats2=seats2 if isinstance(seats2,list) else [seats2]
+            for s in seats2:
+                z=s["position"][2]
+                if z < head_back/16 + 0.2:
+                    bad.append(f"{cid}: {gname} säte z={z} sitter på/över huvudet "
+                               f"(bakom halsen kräver z>={round(head_back/16+0.2,3)})")
+    # Fallskada vid ridning: RIDDJURET tar fallskadan, så utan en damage_sensor
+    # som nollar 'fall' dör katten när man hoppar/glidflyger ner. Live-testet
+    # hoppar bara på plan mark och missar det helt.
+    for gname,grp in groups.items():
+        if "minecraft:rideable" not in grp: continue
+        trigs=grp.get("minecraft:damage_sensor",{}).get("triggers",[])
+        trigs=trigs if isinstance(trigs,list) else [trigs]
+        if not any(t.get("cause")=="fall" and t.get("deals_damage") in (False,"no")
+                   for t in trigs):
+            bad.append(f"{cid}: {gname} är rideable men saknar damage_sensor som "
+                       f"nollar fallskada")
+    # 'nap' fick katterna att lägga sig och sova direkt vid spawn — de "bara låg".
+    # Vanilla-katter tar inte tupplur; behålls beteendet ser mobben livlös ut.
+    for bk in [comp]+list(groups.values()):
+        if "minecraft:behavior.nap" in bk:
+            bad.append(f"{cid}: behavior.nap får katten att bara ligga och sova")
+    # Ridden katt ska inte jaga: jaktbeteendet måste ligga i en grupp som varje
+    # sadel-/vagn-event tar bort, annars anfaller riddjuret hönor medan man rider.
+    _hunt="minecraft:behavior.nearest_attackable_target"
+    if _hunt in comp:
+        bad.append(f"{cid}: nearest_attackable_target i bas-components — går inte att stänga av vid ridning")
+    _hg={g for g,v in groups.items() if _hunt in v}
+    for evn,evd in e.get("events",{}).items():
+        adds=evd.get("add",{}).get("component_groups",[])
+        if "mjau:saddled" in adds or "mjau:carted" in adds:
+            _miss=_hg-set(evd.get("remove",{}).get("component_groups",[]))
+            if _miss:
+                bad.append(f"{cid}: event {evn} sätter riddjuret utan att ta bort "
+                           f"jaktgrupp {sorted(_miss)} — jagar hönor under ridning")
     # Två styrsystem på samma riddjur slåss: controlled_by_player är ett AI-mål
     # som driver entiteten mot ryttarens blick, input_ground_controlled är
     # spelarens direkta spakinmatning. Ligger AI-målet på prio 0 vinner det varje
@@ -228,6 +272,25 @@ for cname,ctrl in _ac["animation_controllers"].items():
             bad.append(f"{cname}: tillstånd '{sname}' saknar utgång")
         elif "walk" not in sname and not any(q in conds for q in ("ground_speed","move_speed")):
             bad.append(f"{cname}: '{sname}' kan inte lämnas när katten börjar gå")
+        # Utan blend_transition snäpper posen till direkt vid varje tillståndsbyte
+        # — det är den "fladdriga" animationen mellan stå/gå/sitt/sov.
+        if "blend_transition" not in st:
+            bad.append(f"{cname}: tillstånd '{sname}' saknar blend_transition — hård övergång fladdrar")
+
+# --- kattluckan: en dörr man ska kunna gå igenom -------------------------
+# Den definierades som en solid 16³ opaque-kub fast modellen är en gles karm:
+# opaque på en icke-fylld modell cullar grannytorna (luckan ser trasig ut) och
+# en full kollisionslåda gör att varken katt eller spelare kan passera. Live-
+# testet placerar bara blocket, det går aldrig IGENOM det.
+_kl=f"{SRC}/PurrfectCompanions_BP/blocks/kattlucka.json"
+if os.path.exists(_kl):
+    _klc=json.load(open(_kl))["minecraft:block"]["components"]
+    if _klc.get("minecraft:material_instances",{}).get("*",{}).get("render_method")=="opaque":
+        bad.append("kattlucka: render_method 'opaque' på gles karm-modell — "
+                   "grannytor cullas och luckan ser trasig ut (använd alpha_test)")
+    if _klc.get("minecraft:collision_box") is not False:
+        bad.append("kattlucka: har kollisionslåda — då kan man inte gå igenom "
+                   "kattdörren (sätt collision_box: false)")
 
 print("VERSION="+".".join(map(str,V)))
 for b in bad: print("BAD="+b)

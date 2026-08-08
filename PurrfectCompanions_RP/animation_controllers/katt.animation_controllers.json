@@ -5,23 +5,46 @@
       "initial_state": "standing",
       "states": {
         "standing": {
-          "animations": [ "look", "tail" ],
+          "animations": [
+            "look",
+            "tail"
+          ],
           "transitions": [
-            { "sitting": "query.is_sitting" },
-            { "walking": "query.modified_move_speed > 0.05" }
+            {
+              "sitting": "query.is_sitting && query.modified_move_speed <= 0.05"
+            },
+            {
+              "walking": "query.modified_move_speed > 0.05"
+            }
           ]
         },
         "walking": {
-          "animations": [ "look", "tail", "walk" ],
+          "animations": [
+            "look",
+            "tail",
+            "walk"
+          ],
           "transitions": [
-            { "sitting": "query.is_sitting" },
-            { "standing": "query.modified_move_speed <= 0.05" }
+            {
+              "sitting": "query.is_sitting && query.modified_move_speed <= 0.05"
+            },
+            {
+              "standing": "query.modified_move_speed <= 0.05"
+            }
           ]
         },
         "sitting": {
-          "animations": [ "sit", "look" ],
+          "animations": [
+            "sit",
+            "look"
+          ],
           "transitions": [
-            { "standing": "!query.is_sitting" }
+            {
+              "walking": "query.modified_move_speed > 0.05"
+            },
+            {
+              "standing": "!query.is_sitting"
+            }
           ]
         }
       }

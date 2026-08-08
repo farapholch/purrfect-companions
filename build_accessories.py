@@ -198,12 +198,17 @@ def build_geometry():
     desc=lambda i:{"identifier":i,"texture_width":TEX,"texture_height":TEX,
                    "visible_bounds_width":2,"visible_bounds_height":1.5,"visible_bounds_offset":[0,0.5,0]}
     geos=[base,{"description":desc("geometry.katt.empty"),"bones":[{"name":"tom","pivot":[0,0,0]}]}]
+    # Ett tillbehörsben roterar kring SIN egen pivot. Har den inte exakt samma
+    # pivot som benet med samma namn i grundmodellen svänger plagget kring en
+    # annan punkt än kroppsdelen och far ut vid sidan om katten när den rör sig.
+    PIVOTS={b["name"]:b["pivot"] for b in base["bones"]}
     for a,cfg in ACC.items():
         for i in cfg["colors"]:
             u,v=cfg["uv"][i]
             cubes=[{"origin":list(o),"size":list(s),"uv":[u+du,v+dv]} for o,s,(du,dv) in cfg["cubes"]]
             geos.append({"description":desc(f"geometry.katt.{a}{i}"),
-                         "bones":[{"name":cfg["bone"],"pivot":[0,8,0],"cubes":cubes}]})
+                         "bones":[{"name":cfg["bone"],
+                                   "pivot":PIVOTS[cfg["bone"]],"cubes":cubes}]})
     g["minecraft:geometry"]=geos
     json.dump(g,open(p,"w"),indent=2)
     return len(geos)

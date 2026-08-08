@@ -11,3 +11,4 @@ variants.private.json
 # Internt — inte för publikt repo
 publish/CURSEFORGE-submission.md
 publish_site.sh
+.shipped.tsv

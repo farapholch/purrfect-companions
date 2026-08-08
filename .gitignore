@@ -4,6 +4,7 @@
 
 # Byggartefakter
 publish/*.mcaddon
+publish/*.mcworld
 __pycache__/
 *.pyc
 variants.private.json

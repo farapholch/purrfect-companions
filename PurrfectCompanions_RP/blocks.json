@@ -12,6 +12,14 @@
     "textures": "pc_matskal",
     "sound": "wood"
   },
+  "mjau:kattoa": {
+    "textures": "pc_kattoa",
+    "sound": "gravel"
+  },
+  "mjau:stallning": {
+    "textures": "pc_stallning",
+    "sound": "wood"
+  },
   "mjau:garnnystan": {
     "textures": "pc_garnnystan",
     "sound": "cloth"

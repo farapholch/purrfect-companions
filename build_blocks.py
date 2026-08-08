@@ -33,6 +33,27 @@ BLOCKS = {
           "F":{"item":"minecraft:cod"}},
      unlock=[{"item":"minecraft:bowl"}]),
    height=3),
+ "kattoa": dict(
+   name="Litter Box",
+   # låg back med kant och strö i mitten
+   cubes=[([-7,0,-7],[14,1,14]), ([-7,1,-7],[14,3,1]), ([-7,1,6],[14,3,1]),
+          ([-7,1,-6],[1,3,12]), ([6,1,-6],[1,3,12]), ([-6,1,-6],[12,1,12])],
+   base=(158,160,168), accent=(214,198,150), sound="gravel",
+   recipe=dict(pattern=["P P","PSP"],
+     key={"P":{"item":"minecraft:planks"},"S":{"item":"minecraft:sand"}},
+     unlock=[{"item":"minecraft:sand"}]),
+   height=4),
+ "stallning": dict(
+   name="Cat Tower",
+   # bottenplatta, sisalstolpe, topplattform med kant
+   cubes=[([-6,0,-6],[12,1,12]), ([-1.5,1,-1.5],[3,10,3]),
+          ([-5,11,-5],[10,1,10]), ([-5,12,-5],[10,1,1]), ([-5,12,4],[10,1,1])],
+   base=(196,176,140), accent=(150,118,84), sound="wood",
+   recipe=dict(pattern=["WWW"," S ","PPP"],
+     key={"W":{"item":"minecraft:white_wool"},"S":{"item":"minecraft:string"},
+          "P":{"item":"minecraft:planks"}},
+     unlock=[{"item":"minecraft:white_wool"}]),
+   height=13),
  "garnnystan": dict(
    name="Yarn Ball",
    cubes=[([-5,0,-5],[10,10,10]), ([-6,2,-3],[12,6,6]), ([-3,2,-6],[6,6,12])],
@@ -64,6 +85,17 @@ def texture(bid, cfg):
     acc = cfg["accent"] + (255,)
     dark = tuple(int(c * 0.72) for c in cfg["base"]) + (255,)
     px = [[base] * S for _ in range(S)]
+    if bid == "kattoa":
+        for y in range(S):
+            for x in range(S):
+                d2 = max(abs(x - 7.5), abs(y - 7.5))
+                if d2 > 6: px[y][x] = dark                        # kant
+                elif (x * 7 + y * 3) % 5 == 0: px[y][x] = acc     # strö
+    if bid == "stallning":
+        for y in range(S):
+            for x in range(S):
+                if y % 4 == 0 and 5 <= x <= 10: px[y][x] = dark   # sisalvarv
+                elif (x + y * 2) % 5 == 0: px[y][x] = acc         # matta
     if bid == "matskal":
         for y in range(S):
             for x in range(S):

@@ -1642,6 +1642,8 @@
           "target_blocks": [
             "mjau:kattbadd",
             "mjau:matskal",
+            "mjau:kattoa",
+            "mjau:stallning",
             "mjau:garnnystan"
           ]
         },

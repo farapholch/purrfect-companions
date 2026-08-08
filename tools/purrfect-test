@@ -364,9 +364,13 @@ cd "$SRV" || exit 1
   echo "setblock 20 20 20 air"; sleep 1
   echo "setblock 22 20 20 air"; sleep 1
   echo "setblock 24 20 20 air"; sleep 1
+  echo "setblock 26 20 20 air"; sleep 1
+  echo "setblock 28 20 20 air"; sleep 1
   echo "setblock 20 20 20 mjau:kattbadd"; sleep 1
   echo "setblock 22 20 20 mjau:garnnystan"; sleep 1
   echo "setblock 24 20 20 mjau:matskal"; sleep 1
+  echo "setblock 26 20 20 mjau:kattoa"; sleep 1
+  echo "setblock 28 20 20 mjau:stallning"; sleep 1
   sleep 2; echo "stop"; sleep 8
 } | LD_LIBRARY_PATH=. ./bedrock_server > "$LOG" 2>&1
 pkill -9 -x bedrock_server 2>/dev/null
@@ -388,7 +392,7 @@ SOFT=$(grep -c "Unable to summon" "$LOG")
 [ "$EVOK" -ge 12 ] && ok "händelser: $EVOK/12 (tämjning, 9 plagg inkl vagn+horn, födsel, uppväxt)" || bad "händelser: $EVOK/12"
 [ "$HARD" -eq 0 ] && ok "inga syntax-/komponentfel" || bad "$HARD allvarliga fel (se $LOG)"
 [ "$PROPOK" -ge 9 ] && ok "plaggen ändrar kattens tillstånd: $PROPOK/9 (has_property)" || bad "bara $PROPOK/9 plagg satte sin property"
-[ "$BLOCKOK" -ge 3 ] && ok "blocken går att placera: $BLOCKOK/3" || bad "blocken kunde inte placeras ($BLOCKOK/3)"
+[ "$BLOCKOK" -ge 5 ] && ok "blocken går att placera: $BLOCKOK/5" || bad "blocken kunde inte placeras ($BLOCKOK/5)"
 [ "$CARGO" -ge 1 ] && ok "vagnen har ett riktigt lastutrymme (replaceitem i slot.inventory)" || bad "vagnens förvaring gick inte att fylla — is_chested/inventory verkar inte ge någon container"
 if [ "$SOFT" -eq 0 ]; then
   ok "inga misslyckade spawns"

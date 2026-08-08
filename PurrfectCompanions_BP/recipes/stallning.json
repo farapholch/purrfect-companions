@@ -1,0 +1,35 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:stallning"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "WWW",
+      " S ",
+      "PPP"
+    ],
+    "key": {
+      "W": {
+        "item": "minecraft:white_wool"
+      },
+      "S": {
+        "item": "minecraft:string"
+      },
+      "P": {
+        "item": "minecraft:planks"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:white_wool"
+      }
+    ],
+    "result": {
+      "item": "mjau:stallning"
+    }
+  }
+}

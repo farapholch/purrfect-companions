@@ -1,3 +1,10 @@
+## 2.5.1 — Litter Box and Cat Tower
+
+Two more things for the home: a **Litter Box** (planks around sand) and a
+**Cat Tower** with a sisal post and a viewing platform (wool, string and
+planks). Cats seek both out on their own, along with the bed, the yarn ball
+and the food bowl.
+
 ## 2.5.0 — The cart you can sit in, the cat that obeys
 
 Found by playing on Xbox, fixed and now machine-tested:

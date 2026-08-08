@@ -8,6 +8,12 @@
     "pc_matskal": {
       "textures": "textures/blocks/pc_matskal"
     },
+    "pc_kattoa": {
+      "textures": "textures/blocks/pc_kattoa"
+    },
+    "pc_stallning": {
+      "textures": "textures/blocks/pc_stallning"
+    },
     "pc_garnnystan": {
       "textures": "textures/blocks/pc_garnnystan"
     }

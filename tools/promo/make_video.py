@@ -144,6 +144,14 @@ def scenes():
     return out
 
 
+def watermark(img):
+    """Diskret stämpel i hörnet på alla scenrutor (slutkortet bär redan adressen).
+    Ritas i halvton — vår text() saknar alfa, men dämpad grå på mörk botten
+    ger samma intryck."""
+    text(img, "PURRFECT.PELLEOPS.SE", W - 70, H - 12, 1, (120, 128, 148, 255))
+    return img
+
+
 def fade(img, i, n, edge=8):
     k = min(1.0, (i + 1) / edge, (n - i) / edge)
     if k >= 1.0: return img
@@ -173,20 +181,20 @@ def make_frame(job):
         t = i / FPS
         img = rr.render(cat, [], walk_pose(t), W=W, H=H, yaw=15 + i * 0.55, pitch=14)
         text(img, label, W // 2, H - 30, 2)
-        return fade(img, i, n)
+        return fade(watermark(img), i, n)
     if kind == "outfit":
         _, oi, i, n = job
         acc, label = OUTFITS[oi]
         img = rr.render("misty", [acc], {"head": (-8, 18, 0), "tail": (10, 0, 12)},
                         W=W, H=H, yaw=30 + i * 0.3, pitch=14)
         text(img, label, W // 2, H - 30, 2)
-        return fade(img, i, n, edge=4)
+        return fade(watermark(img), i, n, edge=4)
     if kind == "full":
         _, i, n = job
         t = i / FPS
         img = rr.render("misty", FULL, walk_pose(t), W=W, H=H, yaw=10 + i * 0.8, pitch=16)
         text(img, "ALL WEARABLE AT THE SAME TIME", W // 2, H - 30, 1)
-        return fade(img, i, n)
+        return fade(watermark(img), i, n)
     if kind == "card_end":
         _, i, n = job
         img = bg_gradient()

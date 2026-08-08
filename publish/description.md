@@ -1,6 +1,6 @@
 **Purrfect Companions** adds four distinct cats to Minecraft Bedrock — modelled after real breeds: two Siberians, a Sacred Birman and a Ragdoll.
 
-They are not reskins. Each has its own colouring, size, temperament and voice.
+They are not reskins. Each has its own colouring, size, temperament, voice — and mood.
 
 ### The cats
 
@@ -13,64 +13,51 @@ They are not reskins. Each has its own colouring, size, temperament and voice.
 
 Each cat meows in its own pitch — Mocha highest, Snow deepest.
 
-### They move like cats
+### They live like cats
 
-Full walk cycle with legs in diagonal pairs, swaying tails, heads that turn to follow you, and a curled-up sitting pose.
+- **Moods.** A happy cat walks with its tail high; a hungry one lets it droop. Feed a Cat Treat to cheer them up — hunger creeps back over time.
+- **Naps.** They curl up flat and doze off purring, and wake the moment they move.
+- **Purring.** A sitting cat purrs, with the occasional heart.
+- Full walk cycle with legs in diagonal pairs, swaying tails, heads that follow you.
 
 ### What they do
 
 - **Tame** them with cod, salmon or a crafted Cat Treat; they follow you and sit on command
-- **Ride** them once saddled — about 55 % faster, with a charged jump like a horse
-- **Breed** two of the same cat for a kitten of that same breed, half size, which follows its parents and grows up
-- **Gifts** — tamed cats bring you presents in the morning: string, feathers, rabbit hide, the occasional phantom membrane
-- **Creepers and phantoms flee** from them, just like vanilla cats
-- They **stalk and pounce** on rabbits and chickens
+- **Ride** them once saddled — much faster, with a charged jump like a horse. They stand perfectly still and obey the reins while you ride
+- **Cat fishing** — a saddled cat in water catches cod for you
+- **Hitch the Cat Cart** and sit IN it, steering like a sled, with a back seat for a friend — and fifteen slots of cargo space
+- **Treasure hunting** — cats wearing a backpack dig up string and feathers, and once in a long while, a diamond
+- **Breed** two of the same cat for a kitten of that breed — sometimes born wearing a little bow
+- **Gifts** — tamed cats bring you presents in the morning
+- **Creepers and phantoms flee** from them; they stalk and pounce on rabbits and chickens
 - They **spawn naturally** in plains, or use the spawn eggs (which show cat faces, not eggs)
 
 ### Furniture they actually use
 
-- **Cat Bed** — a cushion they seek out and rest on
-- **Yarn Ball** — place it and they will come to play
+Cats seek all of these out on their own:
 
-### Twelve craftable outfits
+**Cat Bed** · **Yarn Ball** · **Food Bowl** · **Litter Box** · **Cat Tower** · **Cardboard Box** (cats love boxes) · **Fish Pond** · **Cat Door**
 
-All can be worn at the same time, in any combination — **forty colour variants** in total.
+### Eighteen craftable outfits
 
-| Outfit | Colours | Recipe |
-|---|---|---|
-| Saddle | brown, black, light | 3 leather + 2 string (+ dye) |
-| Cap | cyan, red, green, yellow | 3 wool + 1 leather |
-| Scarf | red, blue, green, yellow | 4 wool |
-| Backpack | brown, green, blue | 5 leather + 2 string + dye |
-| Glasses | black, gold, pink | 2 glass panes + dye or gold nugget |
-| Cape | red, blue, purple, black | 6 wool + 2 string |
-| Booties | white, black, red, yellow | 4 wool — one on each paw |
-| Cart | wood, red, blue | 3 planks + 2 sticks + 2 slabs |
-| Collar | red, blue, green | 3 wool + 1 iron nugget (bell) |
-| Bow | pink, red, blue, yellow | 3 wool |
-| Wings | white, black, gold | 4 feathers + colour material |
-| Crown | gold, silver | 5 ingots + 1 emerald |
+All wearable at the same time, in any combination — **over fifty colour variants**.
 
-The **cart adds a second seat** — you ride the cat while a friend rides along behind.
+| Outfit | Notes |
+|---|---|
+| **Cat Saddle** | Brown, black or light — ride! A vanilla saddle works too |
+| **Cat Armor** | Iron, gold, diamond or netherite. Not just for looks: an armored cat has three times the hearts |
+| **Cat Cart** | Sit in it and drive, load it with cargo, bring a friend |
+| **Unicorn Horn** | White, gold or pink — combine with the Wings |
+| **Cat Wings** | White, black or gold |
+| **Witch Hat / Santa Hat** | For the season |
+| **Doctor Coat** | Trust them, they are a doctor |
+| **Bat Wings** | Leather or phantom membrane |
+| **Cap, Scarf, Backpack, Glasses, Booties, Collar, Bow, Crown, Cape** | In many colours |
 
-### How to use
+**Cat Treat** — cod + wheat: tames, and cheers them up.
 
-1. Enable **both** packs (behaviour + resources) in your world
-2. Find a cat, or use a spawn egg in Creative
-3. Feed it fish or a Cat Treat to tame it
-4. Craft an outfit and use it on your tamed cat
-5. With a saddle on, interact with an empty hand to mount
+### Quality
 
-### Notes
+Every release passes six layers of automated testing before it ships — including a simulated player that tames a cat by hand, saddles it, rides it and drives the cart. If a test is red, nothing ships.
 
-- Works on Minecraft Bedrock 1.20+
-- Tested on a Bedrock Dedicated Server (1.26): packs load clean, no content errors
-- No experimental toggles required
-
----
-
-## License
-
-**Free to use.** Use it in any world or server, record videos with it, take it apart to learn from it. Please link to this page rather than re-uploading the file, and credit Pellzor if you build on it.
-
-Made by **Pellzor**. Not affiliated with Mojang or Microsoft.
+*Trailer and more at* **purrfect.pelleops.se**

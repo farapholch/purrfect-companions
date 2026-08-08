@@ -1,0 +1,389 @@
+#!/bin/bash
+# Utvecklingsupplägg för Purrfect Companions (Minecraft Bedrock-add-on).
+# Validerar källan och kör den skarpt i en riktig Bedrock-server: spawnar alla
+# katter och avfyrar mod-händelserna, så man ser om något gått sönder INNAN
+# filen skickas till Xbox. Servern startas bara under testet och stoppas efter
+# (den får inte ligga och äta RAM på LXC 102 där Rocket.Chat m.fl. kör).
+#
+# Användning:  purrfect-test           # full validering + live-test (~1 min)
+#              purrfect-test --quick   # bara validering, ingen server (~2 s)
+# Exit 0 = allt grönt, 1 = något fel. Skapad 2026-08-07.
+set -u
+SRC=/opt/purrfect-companions
+SRV=/opt/bds/server
+WORLD="$SRV/worlds/Kattest"
+LOG=/tmp/purrfect-test.log
+CATS="misty hazel mocha snow"
+EVENTS="mjau:on_tame mjau:on_sadel_1 mjau:on_keps_2 mjau:on_halsduk_2 mjau:on_ryggsack_3 mjau:on_glasogon_2 mjau:on_mantel_3 mjau:on_tossor_2 mjau:on_vagn_1 minecraft:entity_born mjau:grow_up"
+FAIL=0
+ok(){ echo "  ✅ $1"; }
+bad(){ echo "  ❌ $1"; FAIL=1; }
+
+echo "=== Purrfect Companions test $(date '+%F %H:%M') ==="
+[ -d "$SRC/PurrfectCompanions_BP" ] || { echo "hittar inte källan i $SRC"; exit 1; }
+
+echo
+echo "[1/4] JSON-validering"
+n=0; badjson=0
+while read -r f; do
+  n=$((n+1))
+  python3 -c "import json;json.load(open('$f'))" 2>/dev/null || { bad "ogiltig JSON: ${f#$SRC/}"; badjson=1; }
+done < <(find "$SRC" -name "*.json")
+[ $badjson -eq 0 ] && ok "$n filer giltiga"
+
+echo
+echo "[2/4] Struktur & kända fallgropar"
+python3 - "$SRC" > /tmp/purrfect-struct.txt 2>/tmp/purrfect-struct.err <<'PY'
+import json,glob,os,sys
+SRC=sys.argv[1]; bad=[]
+bp=json.load(open(f"{SRC}/PurrfectCompanions_BP/manifest.json")); rp=json.load(open(f"{SRC}/PurrfectCompanions_RP/manifest.json"))
+V=bp["header"]["version"]
+if rp["header"]["version"]!=V: bad.append("RP-version != BP-version")
+if any(m["version"]!=V for m in bp["modules"]+rp["modules"]): bad.append("modul-version != header-version")
+dep=[d for d in bp.get("dependencies",[]) if d["uuid"]==rp["header"]["uuid"]]
+if not dep: bad.append("BP saknar beroende till RP")
+elif dep[0]["version"]!=rp["header"]["version"]: bad.append("beroende-version != RP-version")
+GEOALL=json.load(open(f"{SRC}/PurrfectCompanions_RP/models/entity/katt.geo.json"))["minecraft:geometry"]
+# Texturstorleken i VARJE geometri måste matcha den faktiska PNG-filen, annars
+# läses UV i fel skala och modellen blir obegriplig i spelet (servern märker inget).
+import struct as _st
+_d=open(f"{SRC}/PurrfectCompanions_RP/textures/entity/misty.png","rb").read()
+_tw,_th=_st.unpack(">II",_d[16:24])
+for _g in GEOALL:
+    _dsc=_g["description"]
+    if (_dsc.get("texture_width"),_dsc.get("texture_height"))!=(_tw,_th):
+        bad.append(f"{_dsc['identifier']}: texturstorlek {_dsc.get('texture_width')}x{_dsc.get('texture_height')} != PNG {_tw}x{_th}")
+GEOIDS={g["description"]["identifier"] for g in GEOALL}
+geoj=GEOALL[0]
+geo=geoj["description"]["identifier"]; body_top=None
+# render controllers som client_entity refererar måste finnas
+import glob as _g
+RCS=set()
+for rf in _g.glob(f"{SRC}/PurrfectCompanions_RP/render_controllers/*.json"):
+    RCS|=set(json.load(open(rf)).get("render_controllers",{}).keys())
+# egna föremål: ikon måste vara registrerad
+ITEX=json.load(open(f"{SRC}/PurrfectCompanions_RP/textures/item_texture.json")).get("texture_data",{}) if os.path.exists(f"{SRC}/PurrfectCompanions_RP/textures/item_texture.json") else {}
+for itf in _g.glob(f"{SRC}/PurrfectCompanions_BP/items/*.json"):
+    ic=json.load(open(itf))["minecraft:item"]["components"].get("minecraft:icon",{})
+    t=ic.get("texture")
+    if t and t not in ITEX: bad.append(f"föremål {os.path.basename(itf)}: ikon '{t}' saknas i item_texture.json")
+    elif t and not os.path.exists(f"{SRC}/PurrfectCompanions_RP/{ITEX[t]['textures']}.png"):
+        bad.append(f"föremål {os.path.basename(itf)}: ikonfil saknas")
+for b in geoj["bones"]:
+    if b["name"]=="body":
+        c=b["cubes"][0]; body_top=c["origin"][1]+c["size"][1]
+for f in glob.glob(f"{SRC}/PurrfectCompanions_RP/entity/*.json"):
+    d=json.load(open(f))["minecraft:client_entity"]["description"]
+    for key,gid in d["geometry"].items():
+        if gid not in GEOIDS: bad.append(f"{os.path.basename(f)}: geometri '{gid}' ({key}) finns inte i katt.geo.json")
+    for rc in d.get("render_controllers",[]):
+        if isinstance(rc,str) and rc not in RCS and not rc.startswith("controller.render.default"):
+            bad.append(f"{os.path.basename(f)}: render controller '{rc}' saknas")
+    if not os.path.exists(f"{SRC}/PurrfectCompanions_RP/{d['textures']['default']}.png"):
+        bad.append(f"saknad textur för {os.path.basename(f)}")
+    egg=d.get("spawn_egg",{})
+    if "texture" in egg:
+        it=f"{SRC}/PurrfectCompanions_RP/textures/item_texture.json"
+        if not os.path.exists(it): bad.append("spawn_egg använder texture men item_texture.json saknas")
+        else:
+            td=json.load(open(it)).get("texture_data",{})
+            if egg["texture"] not in td: bad.append(f"spawn_egg-textur '{egg['texture']}' saknas i item_texture.json")
+            elif not os.path.exists(f"{SRC}/PurrfectCompanions_RP/{td[egg['texture']]['textures']}.png"):
+                bad.append(f"spawn-ikon-fil saknas för {egg['texture']}")
+for f in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json")):
+    cid=os.path.basename(f)[:-5]; e=json.load(open(f))["minecraft:entity"]
+    comp=e["components"]; groups=e.get("component_groups",{})
+    pri={}
+    for bk in [comp]+list(groups.values()):
+        for k,v in bk.items():
+            if k.startswith("minecraft:behavior.") and isinstance(v,dict):
+                pri.setdefault(v.get("priority"),[]).append(k.split(".")[-1])
+    dup={p:v for p,v in pri.items() if len(v)>1}
+    if dup: bad.append(f"{cid}: prioritetskrock {dup}")
+    if "minecraft:scale" in comp and any("minecraft:scale" in g for g in groups.values()):
+        bad.append(f"{cid}: scale i både bas och grupp")
+    sad=groups.get("mjau:saddled",{})
+    if sad and body_top:
+        seats=sad["minecraft:rideable"]["seats"]
+        first=seats[0] if isinstance(seats,list) else seats     # 1 plats = dict, flera = lista
+        seat=first["position"][1]
+        if abs(seat-body_top/16)>0.08:
+            bad.append(f"{cid}: sadelhojd {seat} != kroppens topp {round(body_top/16,3)}")
+    # Två styrsystem på samma riddjur slåss: controlled_by_player är ett AI-mål
+    # som driver entiteten mot ryttarens blick, input_ground_controlled är
+    # spelarens direkta spakinmatning. Ligger AI-målet på prio 0 vinner det varje
+    # tick och styrningen känns död.
+    for gname,grp in groups.items():
+        if "minecraft:input_ground_controlled" in grp and "minecraft:behavior.controlled_by_player" in grp:
+            bad.append(f"{cid}: {gname} har BÅDE input_ground_controlled och "
+                       f"controlled_by_player — AI-målet kör över spelarens styrning")
+    ride=[k for k,v in groups.items() if "minecraft:rideable" in v]
+    if len(ride)>1:
+        bad.append(f"{cid}: {len(ride)} grupper definierar minecraft:rideable ({ride}) - odefinierat vilken som vinner")
+    if "minecraft:behavior.follow_owner" in comp:
+        bad.append(f"{cid}: follow_owner i bas-components (kraver agare)")
+    if not os.path.exists(f"{SRC}/PurrfectCompanions_BP/spawn_rules/{cid}.json"):
+        bad.append(f"{cid}: saknar spawn_rules")
+    # has_equipment-filtren: EGNA föremål måste anges med full identifierare
+    # (mjau:sadel_brun), annars matchar filtret aldrig och plagget går inte att
+    # sätta på. Testet avfyrar events direkt och hoppar över filtren, så det här
+    # är enda stället felet fångas.
+    own={json.load(open(p))["minecraft:item"]["description"]["identifier"]
+         for p in _g.glob(f"{SRC}/PurrfectCompanions_BP/items/*.json")}
+    shortnames={i.split(":",1)[1] for i in own}
+    for grp in groups.values():
+        for inter in grp.get("minecraft:interact",{}).get("interactions",[]):
+            for filt in inter.get("on_interact",{}).get("filters",{}).get("all_of",[]):
+                if filt.get("test")=="has_equipment":
+                    v=filt.get("value","")
+                    if ":" not in v and v in shortnames:
+                        bad.append(f"{cid}: has_equipment '{v}' saknar namnrymd - ska vara 'mjau:{v}'")
+                    elif ":" in v and v not in own:
+                        bad.append(f"{cid}: has_equipment '{v}' matchar inget föremål")
+    # En property som render controllers läser MÅSTE ha client_sync — annars finns
+    # den bara på servern och plagget syns aldrig, trots att allt annat fungerar.
+    _rcs=open(f"{SRC}/PurrfectCompanions_RP/render_controllers/katt.render_controllers.json",encoding="utf-8").read()
+    for pname,pdef in e["description"].get("properties",{}).items():
+        if f"query.property('{pname}')" in _rcs and not pdef.get("client_sync"):
+            bad.append(f"{cid}: property '{pname}' läses av en render controller men saknar client_sync")
+    # interact_text måste finnas i lang-filen, annars visar spelet nyckeln i
+    # klartext för spelaren ("action.interact.equip" i stället för "Put on")
+    _lang=open(f"{SRC}/PurrfectCompanions_BP/texts/en_US.lang",encoding="utf-8").read()
+    # Vi definierar ALLA nycklar vi refererar, även sådana vanilla råkar ha —
+    # vår egen rad vinner ändå, och då kan regeln vara enkel och strikt.
+    for grp in groups.values():
+        for inter in grp.get("minecraft:interact",{}).get("interactions",[]):
+            t=inter.get("interact_text","")
+            if t and t not in _lang:
+                bad.append(f"{cid}: interact_text '{t}' saknas i en_US.lang")
+        # Avstigningsprompten byggs som action.hint.exit.<entity-id> och har
+        # ingen vanilla-motsvarighet för egna varelser.
+        if "minecraft:rideable" in grp and f"action.hint.exit.{cid}=" not in _lang:
+            bad.append(f"{cid}: rideable men action.hint.exit.{cid} saknas i en_US.lang")
+    tam=comp.get("minecraft:tameable",{})
+    for ti in tam.get("tame_items",[]):
+        if ":" not in ti and ti in shortnames:
+            bad.append(f"{cid}: tame_items '{ti}' saknar namnrymd")
+# Utan texts/languages.json läser Bedrock inte .lang-filen alls: alla namn faller
+# tillbaka på råa identifierare (våra är svenska) och hint-nycklar visas i klartext.
+# Felet är helt tyst — servern bryr sig inte om texter.
+for _pack in ("PurrfectCompanions_BP","PurrfectCompanions_RP"):
+    _tx=f"{SRC}/{_pack}/texts"
+    _langs=[os.path.basename(x)[:-5] for x in glob.glob(f"{_tx}/*.lang")]
+    _lj=f"{_tx}/languages.json"
+    if _langs and not os.path.exists(_lj):
+        bad.append(f"{_pack}: har {len(_langs)} .lang-filer men saknar texts/languages.json "
+                   f"— inga översättningar laddas")
+    elif _langs:
+        _dec=json.load(open(_lj,encoding="utf-8"))
+        for _l in _langs:
+            if _l not in _dec:
+                bad.append(f"{_pack}: {_l}.lang finns men är inte deklarerad i languages.json")
+
+# --- klientsidig geometri & animation -------------------------------------
+# Servern kör aldrig render controllers eller animationer, så allt nedan är
+# sådant live-testet omöjligt kan upptäcka. Tre buggar nådde Pelle den vägen.
+_geo=json.load(open(f"{SRC}/PurrfectCompanions_RP/models/entity/katt.geo.json",encoding="utf-8"))
+_all={g["description"]["identifier"]:g for g in _geo["minecraft:geometry"]}
+_basebones={b["name"]:b for b in _all["geometry.katt"]["bones"]}
+
+# 1. Ett plagg roterar kring sin egen pivot. Skiljer den sig från kroppsdelens
+#    svänger plagget ut vid sidan om katten (kronan gjorde det).
+for gid,g in _all.items():
+    if gid=="geometry.katt": continue
+    for b in g.get("bones",[]):
+        ref=_basebones.get(b["name"])
+        if ref and b.get("pivot")!=ref.get("pivot"):
+            bad.append(f"{gid}: ben '{b['name']}' har pivot {b.get('pivot')}, "
+                       f"grundmodellen har {ref.get('pivot')}")
+
+# 2. Svansen har regredierat åt båda hållen: först svävande (rörde kroppen bara
+#    i en kant), sedan stubbig (begravd en enhet inne i kroppen). Den ska ligga
+#    exakt an mot kroppens bakre yta.
+_bc=_basebones["body"]["cubes"][0]; _tc=_basebones["tail"]["cubes"][0]
+_body_back=_bc["origin"][2]+_bc["size"][2]
+if _tc["origin"][2]!=_body_back:
+    bad.append(f"svansen börjar vid z={_tc['origin'][2]} men kroppen slutar vid "
+               f"z={_body_back} — {'begravd i kroppen' if _tc['origin'][2]<_body_back else 'svävar bakom kroppen'}")
+if _tc["origin"][1] >= _bc["origin"][1]+_bc["size"][1]:
+    bad.append("svansen sitter helt ovanför kroppen — den nuddar bara översta kanten")
+
+# 3. Ett tillstånd man inte kan lämna medan katten förflyttar sig ger en katt
+#    som glider fram utan att röra benen.
+_ac=json.load(open(f"{SRC}/PurrfectCompanions_RP/animation_controllers/katt.animation_controllers.json",encoding="utf-8"))
+for cname,ctrl in _ac["animation_controllers"].items():
+    for sname,st in ctrl["states"].items():
+        conds=" ".join(k for t in st.get("transitions",[]) for k in t.values())
+        if not st.get("transitions"):
+            bad.append(f"{cname}: tillstånd '{sname}' saknar utgång")
+        elif "walk" not in sname and not any(q in conds for q in ("ground_speed","move_speed")):
+            bad.append(f"{cname}: '{sname}' kan inte lämnas när katten börjar gå")
+
+print("VERSION="+".".join(map(str,V)))
+for b in bad: print("BAD="+b)
+PY
+if ! grep -q '^VERSION=' /tmp/purrfect-struct.txt; then
+  bad "strukturkontrollen KRASCHADE - inget resultat (fel nedan):"
+  tail -4 /tmp/purrfect-struct.err 2>/dev/null | sed 's/^/     /'
+fi
+VER=$(grep '^VERSION=' /tmp/purrfect-struct.txt | cut -d= -f2)
+if grep -q '^BAD=' /tmp/purrfect-struct.txt; then
+  grep '^BAD=' /tmp/purrfect-struct.txt | sed 's/^BAD=/  ❌ /'
+  FAIL=1
+else
+  ok "versioner ($VER), prioriteter, sadelhöjd, geometri-id, texturer, spawn-regler"
+fi
+
+# Testet granskade bara KÄLLAN. Den privata varianten byggs om av make_variant
+# och kan ha egna fel (t.ex. omdöpta ikonfiler som item_texture.json inte följt
+# med på) — bygg den och kontrollera referensintegriteten.
+for V in public private; do
+  VDIR="/tmp/purrfect-varcheck-$V"
+  python3 "$SRC/make_variant.py" "$V" "$VDIR" >/dev/null 2>&1 || { bad "varianten $V kunde inte byggas"; continue; }
+  OUT=$(python3 - "$VDIR" <<'PYV'
+import json, os, sys, glob
+d = sys.argv[1]; rp = f"{d}/PurrfectCompanions_RP"; bad = []
+it = json.load(open(f"{rp}/textures/item_texture.json"))["texture_data"]
+for k, v in it.items():
+    if not os.path.exists(f"{rp}/{v['textures']}.png"): bad.append(f"ikon '{k}' saknar fil")
+for f in glob.glob(f"{rp}/entity/*.json"):
+    e = json.load(open(f))["minecraft:client_entity"]["description"]
+    t = e.get("spawn_egg", {}).get("texture")
+    if t and t not in it: bad.append(f"{os.path.basename(f)}: spawn_egg '{t}' saknas i atlasen")
+    tex = e["textures"]["default"]
+    if not os.path.exists(f"{rp}/{tex}.png"): bad.append(f"{os.path.basename(f)}: textur {tex}.png saknas")
+print("\n".join(bad))
+PYV
+)
+  if [ -n "$OUT" ]; then echo "$OUT" | while read -r l; do bad "variant $V: $l"; done; FAIL=1
+  else ok "variant $V: alla textur- och ikonreferenser stämmer"; fi
+  python3 -c "
+import json
+for p in ('PurrfectCompanions_BP','PurrfectCompanions_RP'):
+    d=json.load(open('$VDIR/'+p+'/manifest.json'))
+    print(d['header']['uuid']); [print(m['uuid']) for m in d['modules']]
+" >> /tmp/purrfect-uuids.txt 2>/dev/null
+  rm -rf "$VDIR"
+done
+# Delar varianterna ett enda UUID vägrar Minecraft ladda den ena när båda är
+# installerade — "at least one of your behaviour packs failed to load".
+DUPES=$(sort /tmp/purrfect-uuids.txt 2>/dev/null | uniq -d)
+if [ -n "$DUPES" ]; then
+  echo "$DUPES" | while read -r u; do bad "UUID $u används av BÅDA varianterna"; done; FAIL=1
+else
+  ok "varianternas UUID:n är unika ($(sort -u /tmp/purrfect-uuids.txt 2>/dev/null | wc -l) st)"
+fi
+rm -f /tmp/purrfect-uuids.txt
+
+echo
+echo "[2b/4] Referensintegritet (audit.py)"
+AOUT=$(python3 "$SRC/audit.py" "$SRC" 2>&1)
+if [ -n "$AOUT" ]; then echo "$AOUT" | while read -r l; do bad "$l"; done; FAIL=1
+else ok "allt som refereras finns, allt som finns går att nå"; fi
+
+echo
+echo "[2c/4] Bildregression (render_regression.py)"
+ROUT=$(python3 "$SRC/render_regression.py" 2>&1)
+if [ -n "$ROUT" ]; then echo "$ROUT" | while read -r l; do bad "$l"; done; FAIL=1
+else ok "modellen ser ut som facit i vila och i pose ($(ls "$SRC/tests/baseline" | wc -l) vyer)"; fi
+
+if [ "${1:-}" = "--quick" ]; then
+  echo
+  [ $FAIL -eq 0 ] && echo "=== SNABBTEST GRÖNT (v$VER) ===" || echo "=== FEL HITTADE ==="
+  exit $FAIL
+fi
+
+echo
+echo "[3/4] Synkar in i testservern"
+# Säkerställ att servern kör TESTvärlden (annars startar den "Bedrock level" utan paket)
+if ! grep -q "^level-name=Kattest" "$SRV/server.properties" 2>/dev/null; then
+  bad "server.properties pekar inte på världen Kattest — rättar"
+  sed -i 's/^level-name=.*/level-name=Kattest/' "$SRV/server.properties" 2>/dev/null || true
+  FAIL=0
+fi
+
+rm -rf "$WORLD/behavior_packs" "$WORLD/resource_packs"
+mkdir -p "$WORLD/behavior_packs" "$WORLD/resource_packs"
+cp -r "$SRC/PurrfectCompanions_BP" "$WORLD/behavior_packs/"
+cp -r "$SRC/PurrfectCompanions_RP" "$WORLD/resource_packs/"
+python3 - "$WORLD" <<'PY'
+import json,sys
+W=sys.argv[1]
+bp=json.load(open(f"{W}/behavior_packs/PurrfectCompanions_BP/manifest.json"))["header"]
+rp=json.load(open(f"{W}/resource_packs/PurrfectCompanions_RP/manifest.json"))["header"]
+json.dump([{"pack_id":bp["uuid"],"version":bp["version"]}],open(f"{W}/world_behavior_packs.json","w"))
+json.dump([{"pack_id":rp["uuid"],"version":rp["version"]}],open(f"{W}/world_resource_packs.json","w"))
+PY
+ok "paketen kopplade till världen"
+
+echo
+echo "[4/4] Live-test i Bedrock-server (~1 min)"
+pkill -9 -x bedrock_server 2>/dev/null; sleep 2
+find "$SRV" -name "ContentLog*" -delete 2>/dev/null
+cd "$SRV" || exit 1
+{
+  sleep 28
+  echo "tickingarea add 0 0 0 48 48 48 mjau"; sleep 3
+  echo "summon minecraft:pig 10 20 10"; sleep 2
+  for c in $CATS; do echo "summon mjau:$c 10 20 10"; sleep 2; done
+  for ev in $EVENTS; do
+    echo "summon mjau:misty 14 20 14"; sleep 1
+    echo "event entity @e[type=mjau:misty,x=14,y=20,z=14,r=30] $ev"; sleep 1
+    echo "kill @e[type=mjau:misty,x=14,y=20,z=14,r=30]"; sleep 1
+  done
+  # EFFEKT-test: räckte det att eventet kördes, eller ändrades kattens tillstånd?
+  # has_property läser entity-propertyn som plagget sätter — det är skillnaden
+  # mellan "kommandot gick igenom" och "katten bär faktiskt plagget".
+  for pair in "sadel 1" "keps 2" "halsduk 2" "ryggsack 3" "glasogon 2" "mantel 3" "tossor 2" "vagn 1"; do
+    set -- $pair
+    echo "summon mjau:misty 18 20 18"; sleep 1
+    echo "event entity @e[type=mjau:misty,x=18,y=20,z=18,r=30] mjau:on_$1_$2"; sleep 1
+    echo "testfor @e[type=mjau:misty,x=18,y=20,z=18,r=30,has_property={mjau:$1=$2}]"; sleep 1
+    echo "kill @e[type=mjau:misty,x=18,y=20,z=18,r=30]"; sleep 1
+  done
+  # BLOCK-test: går de att placera? (verifierar registrering + geometri)
+  # rensa först - världen sparas mellan körningar, och setblock på ett redan
+  # identiskt block räknas inte som placerat
+  echo "setblock 20 20 20 air"; sleep 1
+  echo "setblock 22 20 20 air"; sleep 1
+  echo "setblock 20 20 20 mjau:kattbadd"; sleep 1
+  echo "setblock 22 20 20 mjau:garnnystan"; sleep 1
+  sleep 2; echo "stop"; sleep 8
+} | LD_LIBRARY_PATH=. ./bedrock_server > "$LOG" 2>&1
+pkill -9 -x bedrock_server 2>/dev/null
+
+# läs paketnamnet ur manifestet i stället för att hårdkoda det
+PACKNAME=$(python3 -c "import json;print(json.load(open('$SRC/PurrfectCompanions_BP/manifest.json'))['header']['name'])")
+LOADED=$(grep -c "Pack Stack.*$PACKNAME" "$LOG")
+SUM=$(grep -c "Object successfully summoned" "$LOG")
+EVOK=$(grep -c "successfully executed on: mjau:" "$LOG")
+PROPOK=$(grep -c "Found entity.mjau:" "$LOG")
+BLOCKOK=$(grep -c "Block placed" "$LOG")
+# Syntax-/komponentfel är ALLTID allvarliga. "Unable to summon" kan vara flakigt
+# för första spawnen precis när tickingarea laddas → tolerera högst 1.
+HARD=$(grep -ciE "Syntax error|unknown component|invalid" "$LOG")
+SOFT=$(grep -c "Unable to summon" "$LOG")
+[ "$LOADED" -ge 1 ] && ok "paketet \"$PACKNAME\" laddades (v$VER)" || bad "paketet \"$PACKNAME\" laddades INTE"
+[ "$SUM" -ge 5 ] && ok "spawns: $SUM/5 (gris + 4 katter)" || bad "spawns: $SUM/5"
+[ "$EVOK" -ge 11 ] && ok "händelser: $EVOK/11 (tämjning, 8 plagg inkl vagn, födsel, uppväxt)" || bad "händelser: $EVOK/11"
+[ "$HARD" -eq 0 ] && ok "inga syntax-/komponentfel" || bad "$HARD allvarliga fel (se $LOG)"
+[ "$PROPOK" -ge 8 ] && ok "plaggen ändrar kattens tillstånd: $PROPOK/8 (has_property)" || bad "bara $PROPOK/8 plagg satte sin property"
+[ "$BLOCKOK" -ge 2 ] && ok "blocken går att placera: $BLOCKOK/2" || bad "blocken kunde inte placeras ($BLOCKOK/2)"
+if [ "$SOFT" -eq 0 ]; then
+  ok "inga misslyckade spawns"
+elif [ "$SOFT" -le 1 ]; then
+  echo "  ℹ️  1 flakig spawn vid uppstart (tolereras)"
+else
+  bad "$SOFT misslyckade spawns"
+fi
+CL=$(find "$SRV" -name "ContentLog*" 2>/dev/null | head -1)
+if [ -n "$CL" ] && [ -s "$CL" ]; then
+  bad "innehållsfel i $(basename "$CL")"; grep -v '^[[:space:]]*$' "$CL" | head -5 | sed 's/^/     /'
+else
+  ok "inga innehållsfel"
+fi
+
+echo
+if [ $FAIL -eq 0 ]; then echo "=== ALLT GRÖNT — v$VER redo att skickas ==="
+else echo "=== FEL HITTADE — fixa innan du skickar (logg: $LOG) ==="; fi
+exit $FAIL

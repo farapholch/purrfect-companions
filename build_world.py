@@ -201,11 +201,15 @@ def build_structures(outdir, t, disp, cats):
     s.entity_at(0, 0, 0, sign_entity(t["welcome_sign"]))
     s.emit(f"{st}/welcome.mcstructure")
 
-    # DAMMEN: 11×11, stenram runt vatten, fiskdammsblocket på kanten
-    s = Struct(11, 2, 11)
-    s.box(0, 0, 0, 10, 0, 10, "minecraft:water", {"liquid_depth": 0})
-    s.box(0, 0, 0, 10, 0, 10, "minecraft:stone_bricks", hollow=True)
-    s.set(0, 1, 5, "mjau:fiskdamm")
+    # DAMMEN: 11×11, 2 djup så katten kan simma — stenbotten, ram, vatten.
+    # OBS: box(hollow=True) med höjd 1 gör ALLA block till kant (y träffar
+    # alltid y0/y1) — därför läggs vattnet EFTER ramen, aldrig tvärtom.
+    s = Struct(11, 4, 11)
+    s.box(0, 0, 0, 10, 0, 10, "minecraft:stone_bricks")            # botten
+    for y in (1, 2):
+        s.box(0, y, 0, 10, y, 10, "minecraft:stone_bricks")        # ram...
+        s.box(1, y, 1, 9, y, 9, "minecraft:water", {"liquid_depth": 0})  # ...vatten
+    s.set(0, 3, 5, "mjau:fiskdamm")
     s.emit(f"{st}/pond.mcstructure")
 
     # FYREN: 7×7-bas, 5×5-torn med röda band, stege upp, belönings­kista i topp
@@ -268,7 +272,7 @@ def build_commands(cats, disp):
     c.append(("sleep", 2))
     c.append(f"structure load haven:welcome 1 {f} 1")
     c.append(("sleep", 1))
-    c.append(f"structure load haven:pond 12 {g} 2")
+    c.append(f"structure load haven:pond 12 {g-2} 2")
     c.append(("sleep", 1))
     c.append(f"structure load haven:lighthouse -3 {g+5} 53")
     c.append(("sleep", 2))
@@ -277,7 +281,8 @@ def build_commands(cats, disp):
         c.append(("sleep", 1))
     # verifiera att nyckelblock faktiskt finns där de ska
     c.append(f"testforblock -4 {f+1} 9 chest")         # startkistan (världskoord)
-    c.append(f"testforblock 12 {g+1} 7 mjau:fiskdamm") # dammen
+    c.append(f"testforblock 12 {g+1} 7 mjau:fiskdamm") # dammen (ramkanten)
+    c.append(f"testforblock 17 {g} 7 water")           # vattnet i dammen
     c.append(f"testforblock 0 {g+19} 56 glowstone")    # fyrljuset
     c.append(("sleep", 2))
     # katterna: namngivna (persistenta), vuxna, otama — att hitta dem är uppdraget

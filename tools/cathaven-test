@@ -117,17 +117,33 @@ PY
     echo "tickingarea add -20 -70 -10 20 -40 60 rök"; sleep 4
     echo "testforblock -4 -59 9 chest"; sleep 1
     echo "testforblock 12 -60 7 mjau:fiskdamm"; sleep 1
+    echo "testforblock 17 -61 7 water"; sleep 1
+    echo "testforblock 2 -59 8 mjau:kattlucka"; sleep 1
+    echo "testforblock -2 -42 56 chest"; sleep 1
+    echo "testforblock 0 -50 55 ladder"; sleep 1
     echo "testfor @e[type=mjau:misty,x=-9,y=-60,z=33,r=80]"; sleep 1
+    # kistprovet: slå sönder startkistan (i SMOKE-kopian, inte skeppade filen)
+    # — bara riktiga, accepterade föremål trillar ut som item-entiteter.
+    # Vägrar Minecraft NBT:n (fel format, okänt id) blir golvet tomt.
+    echo "setblock -4 -59 9 air destroy"; sleep 2
+    echo "testfor @e[type=item,x=-4,y=-59,z=9,r=8]"; sleep 1
     echo "tickingarea remove rök"; sleep 1
     echo "stop"; sleep 8
   } | ( cd "$SRV" && LD_LIBRARY_PATH=. ./bedrock_server ) > "$SLOG" 2>&1
   pkill -9 -x bedrock_server 2>/dev/null
   cp /tmp/cathaven-props.bak "$PROPS"
   grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" || bad "paketen laddades INTE ur världen"
-  [ "$(grep -c 'found the block' "$SLOG")" -ge 2 ] && ok "kistan och fiskdammen finns efter ompaketering" || bad "nyckelblock saknas i den paketerade världen"
+  FB=$(grep -c 'found the block' "$SLOG")
+  [ "$FB" -ge 6 ] && ok "alla $FB/6 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege)" || bad "bara $FB/6 nyckelblock i den paketerade världen"
   grep -q "Found Misty" "$SLOG" && ok "Misty överlevde paketeringen (namngiven, persistent)" || bad "Misty saknas i den paketerade världen"
-  ERRS=$(grep -ciE "error|failed" "$SLOG")
-  [ "$ERRS" -le 1 ] && ok "inga allvarliga fel i serverloggen" || bad "$ERRS fel-rader i serverloggen ($SLOG)"
+  DROP=$(awk '/Block placed/{m=1; next} m && /Found /{f=1} END{print f+0}' "$SLOG")
+  if [ "$DROP" -ge 1 ]; then
+    ok "kistföremålen är riktiga — trillade ut som item-entiteter vid kistprovet"
+  else
+    bad "kistprovet: inga föremål föll ur kistan — NBT-innehållet avvisades?"
+  fi
+  ERRS=$(grep -iE "error|failed" "$SLOG" | grep -cv "errorMessage=(null)")
+  [ "$ERRS" -eq 0 ] && ok "inga fel i serverloggen" || bad "$ERRS fel-rader i serverloggen ($SLOG)"
   rm -rf "$SMOKE"
 fi
 

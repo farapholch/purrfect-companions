@@ -154,6 +154,55 @@ ACC = {
    mats={1:"minecraft:iron_ingot",2:"minecraft:gold_ingot",
          3:"minecraft:diamond",4:"minecraft:netherite_ingot"}),
 
+ "haxhatt": dict(label="Witch Hat", bone="head", sound="armor.equip_leather",
+   uv={1:(176,30),2:(216,30)},
+   colors={1:("svart",(38,34,44)),2:("lila",(96,56,140))},
+   names={1:"Black",2:"Purple"},
+   cubes=[([-3,11.5,-8.5],[6,0.8,6],(0,0)),        # brätte
+          ([-1.8,12.3,-7.3],[3.6,2.2,3.6],(0,8)),  # kupa
+          ([-1,14.5,-6.5],[2,2,2],(0,15))],        # topp
+   recipe=lambda mat: dict(pattern=[" W ","WWW"],
+       key={"W":{"item":mat}},
+       unlock=[{"item":mat}]),
+   mats={1:"minecraft:black_wool",2:"minecraft:purple_wool"}),
+
+ "tomteluva": dict(label="Santa Hat", bone="head", sound="armor.equip_leather",
+   uv={1:(176,60),2:(216,60)},
+   colors={1:("rod",(196,44,44)),2:("gron",(46,128,62))},
+   names={1:"Red",2:"Green"},
+   cubes=[([-2.6,11.4,-8.1],[5.2,1,5.2],(0,0)),    # vit kant
+          ([-1.8,12.4,-7.3],[3.6,2.4,3.6],(0,7)),  # luva
+          ([-0.8,14.8,-6.3],[1.6,1.6,1.6],(0,14))],# tofs
+   recipe=lambda mat: dict(pattern=[" S ","WWW"],
+       key={"W":{"item":mat},"S":{"item":"minecraft:snowball"}},
+       unlock=[{"item":mat}]),
+   mats={1:"minecraft:red_wool",2:"minecraft:green_wool"}),
+
+ "doktorsrock": dict(label="Doctor Coat", bone="body", sound="armor.equip_leather",
+   uv={1:(176,90)},
+   colors={1:("vit",(238,240,242))},
+   names={1:"White"},
+   cubes=[([-3.5,4.2,-4.8],[0.6,4.6,9.4],(0,0)),
+          ([2.9,4.2,-4.8],[0.6,4.6,9.4],(0,0)),
+          ([-3.5,8.8,-4.8],[7,0.8,9.4],(0,15))],
+   recipe=lambda mat: dict(pattern=["W W","WWW","W W"],
+       key={"W":{"item":mat}},
+       unlock=[{"item":mat}]),
+   mats={1:"minecraft:white_wool"}),
+
+ "batvingar": dict(label="Bat Wings", bone="body", sound="armor.equip_leather",
+   uv={1:(176,110),2:(216,110)},
+   colors={1:("svart",(30,28,34)),2:("lila",(74,44,104))},
+   names={1:"Black",2:"Purple"},
+   cubes=[([-8.5,8.6,-1],[5,0.7,6],(0,0)),
+          ([3.5,8.6,-1],[5,0.7,6],(0,0)),
+          ([-9.5,8.4,1],[1.6,3,1.6],(0,8)),
+          ([7.9,8.4,1],[1.6,3,1.6],(0,8))],
+   recipe=lambda mat: dict(pattern=["L L","LLL"],
+       key={"L":{"item":mat}},
+       unlock=[{"item":mat}]),
+   mats={1:"minecraft:leather",2:"minecraft:phantom_membrane"}),
+
  "krona": dict(label="Cat Crown", bone="head", sound="armor.equip_generic",
    uv={1:(0,206),2:(24,206)},
    colors={1:("gold",(232,196,72)),2:("silver",(206,210,216))},
@@ -355,6 +404,9 @@ def build_rest():
             "walk":"animation.katt.walk", "look":"animation.katt.look",
             "tail":"animation.katt.tail", "sit":"animation.katt.sit",
             "ctrl":"controller.animation.katt.move"}
+        desc["animations"]["sova"]="animation.katt.sova"
+        desc["sound_effects"]={"purr":"mob.cat.purr"}
+        desc["particle_effects"]={"hjarta":"minecraft:heart_particle"}
         desc["scripts"]={"animate":["ctrl"]}
         json.dump(d,open(f,"w"),indent=2)
 
@@ -422,6 +474,9 @@ def build_rest():
         # mjau:tam gor tamjningen OBSERVERBAR server-side (is_tamed syns inte i
         # selektorer). Ingen render controller laser den -> ingen client_sync.
         e["description"]["properties"]["mjau:tam"]={"type":"int","range":[0,1],"default":0}
+        # humor: 0=hungrig (hängande svans), 1=neutral, 2=glad (hög svans).
+        # Godis höjer, timern sänker. client_sync: svans-animationen läser den.
+        e["description"]["properties"]["mjau:humor"]={"type":"int","range":[0,2],"default":1,"client_sync":True}
         for k in [k for k in ev if k.startswith("mjau:on_") and k not in ("mjau:on_tame",)]: del ev[k]
         g.pop("mjau:vagnsplats",None)   # gammal grupp: rideable bor numera bara i mjau:saddled
         inter=[]
@@ -471,6 +526,43 @@ def build_rest():
                     ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).extend(["mjau:sittable","mjau:saddled"])
                 inter.append(entry(f"mjau:{a}_{slug}",evn,cfg["sound"]))   # namnrymd krävs för EGNA föremål
         inter.append(entry("saddle","mjau:on_sadel_1","saddle"))
+        # SPINNA/MATA: godis på tam katt höjer humöret
+        inter.append(entry("mjau:godis","mjau:on_matad","eat"))
+        ev["mjau:on_matad"]={"set_property":{"mjau:humor":2}}
+        # humöret sjunker med tiden (ordningen 1->0 före 2->1 hindrar kaskad)
+        e["components"]["minecraft:timer"]={"time":[180,360],"looping":True,
+            "time_down_event":{"event":"mjau:hungrigare","target":"self"}}
+        ev["mjau:hungrigare"]={"sequence":[
+            {"filters":{"test":"int_property","domain":"mjau:humor","value":1},
+             "set_property":{"mjau:humor":0}},
+            {"filters":{"test":"int_property","domain":"mjau:humor","value":2},
+             "set_property":{"mjau:humor":1}}]}
+        # SOVA: tupplur som rävar — sovpose via query.is_sleeping i animationen
+        g.setdefault("mjau:fri",{})["minecraft:behavior.nap"]={
+            "priority":5,"cooldown_min":30.0,"cooldown_max":120.0,
+            "mob_detect_dist":6.0,"mob_detect_height":3.0}
+        # KATTFISKE: sadlad/förspänd katt i vatten fångar fisk
+        for _rg in ("mjau:saddled","mjau:carted"):
+            g[_rg]["minecraft:spawn_entity"]={"entities":[
+                {"min_wait_time":12,"max_wait_time":40,"spawn_item":"minecraft:cod",
+                 "spawn_sound":"splash","filters":{"test":"in_water","value":True}}]}
+        # SKATTLETANDE: ryggsäckskatter gräver fram småsaker (sällsynt en diamant)
+        g["mjau:skattletare"]={"minecraft:spawn_entity":{"entities":[
+            {"min_wait_time":300,"max_wait_time":900,"spawn_item":"minecraft:string","spawn_sound":"drop.slot"},
+            {"min_wait_time":420,"max_wait_time":1200,"spawn_item":"minecraft:feather","spawn_sound":"drop.slot"},
+            {"min_wait_time":2400,"max_wait_time":4800,"spawn_item":"minecraft:diamond","spawn_sound":"random.levelup"}]}}
+        for _i in (1,2,3):
+            _evn=f"mjau:on_ryggsack_{_i}"
+            if _evn in ev:
+                ev[_evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:skattletare")
+        # KATTUNGAR föds ibland med rosett
+        _born=ev["minecraft:entity_born"]
+        _born.setdefault("sequence",[]).append({"randomize":[
+            {"weight":60},
+            {"weight":10,"set_property":{"mjau:rosett":1}},
+            {"weight":10,"set_property":{"mjau:rosett":2}},
+            {"weight":10,"set_property":{"mjau:rosett":3}},
+            {"weight":10,"set_property":{"mjau:rosett":4}}]})
         g["mjau:tamed"]["minecraft:interact"]={"interactions":inter}
         json.dump(d,open(f,"w"),indent=2)
 

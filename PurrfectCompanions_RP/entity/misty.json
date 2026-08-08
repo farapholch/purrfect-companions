@@ -53,6 +53,13 @@
         "rustning2": "geometry.katt.rustning2",
         "rustning3": "geometry.katt.rustning3",
         "rustning4": "geometry.katt.rustning4",
+        "haxhatt1": "geometry.katt.haxhatt1",
+        "haxhatt2": "geometry.katt.haxhatt2",
+        "tomteluva1": "geometry.katt.tomteluva1",
+        "tomteluva2": "geometry.katt.tomteluva2",
+        "doktorsrock1": "geometry.katt.doktorsrock1",
+        "batvingar1": "geometry.katt.batvingar1",
+        "batvingar2": "geometry.katt.batvingar2",
         "krona1": "geometry.katt.krona1",
         "krona2": "geometry.katt.krona2",
         "mantel1": "geometry.katt.mantel1",
@@ -78,6 +85,10 @@
         "controller.render.katt_vingar",
         "controller.render.katt_horn",
         "controller.render.katt_rustning",
+        "controller.render.katt_haxhatt",
+        "controller.render.katt_tomteluva",
+        "controller.render.katt_doktorsrock",
+        "controller.render.katt_batvingar",
         "controller.render.katt_krona",
         "controller.render.katt_mantel"
       ],
@@ -86,12 +97,19 @@
         "look": "animation.katt.look",
         "tail": "animation.katt.tail",
         "sit": "animation.katt.sit",
-        "ctrl": "controller.animation.katt.move"
+        "ctrl": "controller.animation.katt.move",
+        "sova": "animation.katt.sova"
       },
       "scripts": {
         "animate": [
           "ctrl"
         ]
+      },
+      "sound_effects": {
+        "purr": "mob.cat.purr"
+      },
+      "particle_effects": {
+        "hjarta": "minecraft:heart_particle"
       }
     }
   }

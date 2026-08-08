@@ -269,6 +269,85 @@
         "Texture.default"
       ]
     },
+    "controller.render.katt_haxhatt": {
+      "arrays": {
+        "geometries": {
+          "Array.haxhatt": [
+            "Geometry.empty",
+            "Geometry.haxhatt1",
+            "Geometry.haxhatt2"
+          ]
+        }
+      },
+      "geometry": "Array.haxhatt[query.property('mjau:haxhatt')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_tomteluva": {
+      "arrays": {
+        "geometries": {
+          "Array.tomteluva": [
+            "Geometry.empty",
+            "Geometry.tomteluva1",
+            "Geometry.tomteluva2"
+          ]
+        }
+      },
+      "geometry": "Array.tomteluva[query.property('mjau:tomteluva')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_doktorsrock": {
+      "arrays": {
+        "geometries": {
+          "Array.doktorsrock": [
+            "Geometry.empty",
+            "Geometry.doktorsrock1"
+          ]
+        }
+      },
+      "geometry": "Array.doktorsrock[query.property('mjau:doktorsrock')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_batvingar": {
+      "arrays": {
+        "geometries": {
+          "Array.batvingar": [
+            "Geometry.empty",
+            "Geometry.batvingar1",
+            "Geometry.batvingar2"
+          ]
+        }
+      },
+      "geometry": "Array.batvingar[query.property('mjau:batvingar')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
     "controller.render.katt_krona": {
       "arrays": {
         "geometries": {

@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:tomteluva_rod",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_tomteluva_rod"
+      },
+      "minecraft:display_name": {
+        "value": "Santa Hat (Red)"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

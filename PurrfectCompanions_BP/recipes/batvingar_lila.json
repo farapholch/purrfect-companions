@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:batvingar_lila"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "L L",
+      "LLL"
+    ],
+    "key": {
+      "L": {
+        "item": "minecraft:phantom_membrane"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:phantom_membrane"
+      }
+    ],
+    "result": {
+      "item": "mjau:batvingar_lila"
+    }
+  }
+}

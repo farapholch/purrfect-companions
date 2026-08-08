@@ -54,6 +54,37 @@ BLOCKS = {
           "P":{"item":"minecraft:planks"}},
      unlock=[{"item":"minecraft:white_wool"}]),
    height=13),
+ "kartong": dict(
+   name="Cardboard Box",
+   # öppen låda — katter älskar lådor
+   cubes=[([-7,0,-7],[14,1,14]), ([-7,1,-7],[14,7,1]), ([-7,1,6],[14,7,1]),
+          ([-7,1,-6],[1,7,12]), ([6,1,-6],[1,7,12]),
+          ([-8,7,-8],[3,1,16]), ([5,7,-8],[3,1,16])],   # uppvikta flikar
+   base=(184,146,98), accent=(150,112,70), sound="wood",
+   recipe=dict(pattern=["P P","PPP"],
+     key={"P":{"item":"minecraft:paper"}},
+     unlock=[{"item":"minecraft:paper"}]),
+   height=8),
+ "fiskdamm": dict(
+   name="Fish Pond",
+   cubes=[([-8,0,-8],[16,2,16]), ([-8,2,-8],[16,2,2]), ([-8,2,6],[16,2,2]),
+          ([-8,2,-6],[2,2,12]), ([6,2,-6],[2,2,12]), ([-6,2,-6],[12,1,12])],
+   base=(96,104,116), accent=(66,132,196), sound="stone",
+   recipe=dict(pattern=["SFS","SWS"],
+     key={"S":{"item":"minecraft:stone"},"W":{"item":"minecraft:water_bucket"},
+          "F":{"item":"minecraft:cod"}},
+     unlock=[{"item":"minecraft:stone"}]),
+   height=4),
+ "kattlucka": dict(
+   name="Cat Door",
+   # ram med lucka — dekorativ, ställs i en dörröppning
+   cubes=[([-6,0,-1],[2,14,2]), ([4,0,-1],[2,14,2]), ([-6,14,-1],[12,2,2]),
+          ([-4,2,-0.5],[8,10,1])],
+   base=(142,104,66), accent=(190,160,120), sound="wood",
+   recipe=dict(pattern=["PPP","P P","PWP"],
+     key={"P":{"item":"minecraft:planks"},"W":{"item":"minecraft:white_wool"}},
+     unlock=[{"item":"minecraft:planks"}]),
+   height=16),
  "garnnystan": dict(
    name="Yarn Ball",
    cubes=[([-5,0,-5],[10,10,10]), ([-6,2,-3],[12,6,6]), ([-3,2,-6],[6,6,12])],
@@ -85,6 +116,23 @@ def texture(bid, cfg):
     acc = cfg["accent"] + (255,)
     dark = tuple(int(c * 0.72) for c in cfg["base"]) + (255,)
     px = [[base] * S for _ in range(S)]
+    if bid == "kartong":
+        for y in range(S):
+            for x in range(S):
+                if (x + y * 3) % 7 == 0: px[y][x] = dark          # wellpapp-räfflor
+    if bid == "fiskdamm":
+        for y in range(S):
+            for x in range(S):
+                d2 = max(abs(x - 7.5), abs(y - 7.5))
+                if d2 > 6: px[y][x] = dark                        # stenkant
+                else:
+                    px[y][x] = acc                                # vatten
+                    if (x * 3 + y * 5) % 7 == 0: px[y][x] = (110, 176, 224, 255)
+    if bid == "kattlucka":
+        for y in range(S):
+            for x in range(S):
+                if x < 2 or x > 13 or y < 2: px[y][x] = dark      # karm
+                elif (y % 5) == 0: px[y][x] = acc                 # panel
     if bid == "kattoa":
         for y in range(S):
             for x in range(S):
@@ -198,10 +246,11 @@ def build():
                  "minecraft:behavior.stalk_and_pounce_on_target", "minecraft:behavior.melee_attack",
                  "minecraft:behavior.tempt", "minecraft:behavior.follow_owner",
                  "minecraft:behavior.follow_parent", "minecraft:behavior.move_to_block",
-                 "minecraft:behavior.random_stroll", "minecraft:behavior.random_sitting",
+                 "minecraft:behavior.nap", "minecraft:behavior.random_stroll", "minecraft:behavior.random_sitting",
                  "minecraft:behavior.look_at_player", "minecraft:behavior.random_look_around"]
         P = {k: i for i, k in enumerate(order)}
-        for bucket in [c] + list(d["minecraft:entity"].get("component_groups", {}).values()):
+        # OBS: c pekar på mjau:fri sedan frivilje-flytten — basen måste med separat
+        for bucket in [ent["components"]] + list(ent.get("component_groups", {}).values()):
             for k, v in bucket.items():
                 if k in P and isinstance(v, dict): v["priority"] = P[k]
         json.dump(d, open(f, "w"), indent=2)

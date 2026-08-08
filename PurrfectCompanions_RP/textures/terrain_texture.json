@@ -14,6 +14,15 @@
     "pc_stallning": {
       "textures": "textures/blocks/pc_stallning"
     },
+    "pc_kartong": {
+      "textures": "textures/blocks/pc_kartong"
+    },
+    "pc_fiskdamm": {
+      "textures": "textures/blocks/pc_fiskdamm"
+    },
+    "pc_kattlucka": {
+      "textures": "textures/blocks/pc_kattlucka"
+    },
     "pc_garnnystan": {
       "textures": "textures/blocks/pc_garnnystan"
     }

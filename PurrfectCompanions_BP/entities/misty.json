@@ -115,6 +115,42 @@
           "default": 0,
           "client_sync": true
         },
+        "mjau:haxhatt": {
+          "type": "int",
+          "range": [
+            0,
+            2
+          ],
+          "default": 0,
+          "client_sync": true
+        },
+        "mjau:tomteluva": {
+          "type": "int",
+          "range": [
+            0,
+            2
+          ],
+          "default": 0,
+          "client_sync": true
+        },
+        "mjau:doktorsrock": {
+          "type": "int",
+          "range": [
+            0,
+            1
+          ],
+          "default": 0,
+          "client_sync": true
+        },
+        "mjau:batvingar": {
+          "type": "int",
+          "range": [
+            0,
+            2
+          ],
+          "default": 0,
+          "client_sync": true
+        },
         "mjau:krona": {
           "type": "int",
           "range": [
@@ -140,6 +176,15 @@
             1
           ],
           "default": 0
+        },
+        "mjau:humor": {
+          "type": "int",
+          "range": [
+            0,
+            2
+          ],
+          "default": 1,
+          "client_sync": true
         }
       }
     },
@@ -188,11 +233,11 @@
         "speed_multiplier": 1.35
       },
       "minecraft:behavior.look_at_player": {
-        "priority": 15,
+        "priority": 16,
         "look_distance": 6.0
       },
       "minecraft:behavior.random_look_around": {
-        "priority": 16
+        "priority": 17
       },
       "minecraft:tameable": {
         "probability": 0.4,
@@ -213,6 +258,17 @@
       },
       "minecraft:attack": {
         "damage": 3
+      },
+      "minecraft:timer": {
+        "time": [
+          180,
+          360
+        ],
+        "looping": true,
+        "time_down_event": {
+          "event": "mjau:hungrigare",
+          "target": "self"
+        }
       }
     },
     "component_groups": {
@@ -1391,6 +1447,202 @@
                       "test": "has_equipment",
                       "domain": "hand",
                       "subject": "other",
+                      "value": "mjau:haxhatt_svart"
+                    }
+                  ]
+                },
+                "event": "mjau:on_haxhatt_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:haxhatt_lila"
+                    }
+                  ]
+                },
+                "event": "mjau:on_haxhatt_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:tomteluva_rod"
+                    }
+                  ]
+                },
+                "event": "mjau:on_tomteluva_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:tomteluva_gron"
+                    }
+                  ]
+                },
+                "event": "mjau:on_tomteluva_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:doktorsrock_vit"
+                    }
+                  ]
+                },
+                "event": "mjau:on_doktorsrock_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:batvingar_svart"
+                    }
+                  ]
+                },
+                "event": "mjau:on_batvingar_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:batvingar_lila"
+                    }
+                  ]
+                },
+                "event": "mjau:on_batvingar_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
                       "value": "mjau:krona_gold"
                     }
                   ]
@@ -1569,6 +1821,34 @@
               "use_item": true,
               "play_sounds": "saddle",
               "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:godis"
+                    }
+                  ]
+                },
+                "event": "mjau:on_matad",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "eat",
+              "interact_text": "action.interact.mjau_equip"
             }
           ]
         },
@@ -1679,7 +1959,21 @@
         "minecraft:horse.jump_strength": {
           "value": 1.2
         },
-        "minecraft:can_power_jump": {}
+        "minecraft:can_power_jump": {},
+        "minecraft:spawn_entity": {
+          "entities": [
+            {
+              "min_wait_time": 12,
+              "max_wait_time": 40,
+              "spawn_item": "minecraft:cod",
+              "spawn_sound": "splash",
+              "filters": {
+                "test": "in_water",
+                "value": true
+              }
+            }
+          ]
+        }
       },
       "mjau:sittable": {
         "minecraft:sittable": {},
@@ -1725,6 +2019,20 @@
               ]
             }
           ]
+        },
+        "minecraft:spawn_entity": {
+          "entities": [
+            {
+              "min_wait_time": 12,
+              "max_wait_time": 40,
+              "spawn_item": "minecraft:cod",
+              "spawn_sound": "splash",
+              "filters": {
+                "test": "in_water",
+                "value": true
+              }
+            }
+          ]
         }
       },
       "mjau:fri": {
@@ -1737,11 +2045,11 @@
           ]
         },
         "minecraft:behavior.random_stroll": {
-          "priority": 13,
+          "priority": 14,
           "speed_multiplier": 1.0
         },
         "minecraft:behavior.random_sitting": {
-          "priority": 14,
+          "priority": 15,
           "min_sit_time": 8,
           "start_chance": 0.08,
           "stop_chance": 0.06
@@ -1765,6 +2073,9 @@
             "mjau:matskal",
             "mjau:kattoa",
             "mjau:stallning",
+            "mjau:kartong",
+            "mjau:fiskdamm",
+            "mjau:kattlucka",
             "mjau:garnnystan"
           ]
         },
@@ -1807,12 +2118,43 @@
           "priority": 8,
           "speed_multiplier": 1.2,
           "track_target": true
+        },
+        "minecraft:behavior.nap": {
+          "priority": 13,
+          "cooldown_min": 30.0,
+          "cooldown_max": 120.0,
+          "mob_detect_dist": 6.0,
+          "mob_detect_height": 3.0
         }
       },
       "mjau:armored": {
         "minecraft:health": {
           "value": 30,
           "max": 30
+        }
+      },
+      "mjau:skattletare": {
+        "minecraft:spawn_entity": {
+          "entities": [
+            {
+              "min_wait_time": 300,
+              "max_wait_time": 900,
+              "spawn_item": "minecraft:string",
+              "spawn_sound": "drop.slot"
+            },
+            {
+              "min_wait_time": 420,
+              "max_wait_time": 1200,
+              "spawn_item": "minecraft:feather",
+              "spawn_sound": "drop.slot"
+            },
+            {
+              "min_wait_time": 2400,
+              "max_wait_time": 4800,
+              "spawn_item": "minecraft:diamond",
+              "spawn_sound": "random.levelup"
+            }
+          ]
         }
       }
     },
@@ -1866,7 +2208,71 @@
             "mjau:baby",
             "mjau:fri"
           ]
-        }
+        },
+        "sequence": [
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          }
+        ]
       },
       "mjau:grow_up": {
         "remove": {
@@ -1879,6 +2285,30 @@
             "mjau:adult"
           ]
         }
+      },
+      "mjau:hungrigare": {
+        "sequence": [
+          {
+            "filters": {
+              "test": "int_property",
+              "domain": "mjau:humor",
+              "value": 1
+            },
+            "set_property": {
+              "mjau:humor": 0
+            }
+          },
+          {
+            "filters": {
+              "test": "int_property",
+              "domain": "mjau:humor",
+              "value": 2
+            },
+            "set_property": {
+              "mjau:humor": 1
+            }
+          }
+        ]
       },
       "mjau:on_sadel_1": {
         "set_property": {
@@ -1971,16 +2401,31 @@
       "mjau:on_ryggsack_1": {
         "set_property": {
           "mjau:ryggsack": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:skattletare"
+          ]
         }
       },
       "mjau:on_ryggsack_2": {
         "set_property": {
           "mjau:ryggsack": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:skattletare"
+          ]
         }
       },
       "mjau:on_ryggsack_3": {
         "set_property": {
           "mjau:ryggsack": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:skattletare"
+          ]
         }
       },
       "mjau:on_glasogon_1": {
@@ -2171,6 +2616,41 @@
           ]
         }
       },
+      "mjau:on_haxhatt_1": {
+        "set_property": {
+          "mjau:haxhatt": 1
+        }
+      },
+      "mjau:on_haxhatt_2": {
+        "set_property": {
+          "mjau:haxhatt": 2
+        }
+      },
+      "mjau:on_tomteluva_1": {
+        "set_property": {
+          "mjau:tomteluva": 1
+        }
+      },
+      "mjau:on_tomteluva_2": {
+        "set_property": {
+          "mjau:tomteluva": 2
+        }
+      },
+      "mjau:on_doktorsrock_1": {
+        "set_property": {
+          "mjau:doktorsrock": 1
+        }
+      },
+      "mjau:on_batvingar_1": {
+        "set_property": {
+          "mjau:batvingar": 1
+        }
+      },
+      "mjau:on_batvingar_2": {
+        "set_property": {
+          "mjau:batvingar": 2
+        }
+      },
       "mjau:on_krona_1": {
         "set_property": {
           "mjau:krona": 1
@@ -2199,6 +2679,11 @@
       "mjau:on_mantel_4": {
         "set_property": {
           "mjau:mantel": 4
+        }
+      },
+      "mjau:on_matad": {
+        "set_property": {
+          "mjau:humor": 2
         }
       }
     }

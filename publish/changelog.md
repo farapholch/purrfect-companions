@@ -1,3 +1,20 @@
+## 2.6.0 — Moods, naps, purring, fishing and treasure
+
+The cats got an inner life:
+
+- **Moods.** A happy cat walks with its tail high; a hungry one lets it droop.
+  Feed a Cat Treat to cheer them up — hunger creeps back over time.
+- **Naps.** Cats curl up flat and doze off, purring, and wake the moment they
+  move.
+- **Purring.** A sitting cat purrs, with the occasional heart.
+- **Cat fishing.** A saddled or harnessed cat in water catches cod for you.
+- **Treasure hunting.** Cats wearing a backpack dig up string and feathers —
+  and once in a long while, a diamond.
+- **Kittens** are sometimes born wearing a little bow.
+
+New furniture: **Cardboard Box** (cats love boxes), **Fish Pond**, **Cat Door**.
+New outfits: **Witch Hat**, **Santa Hat**, **Doctor Coat**, **Bat Wings**.
+
 ## 2.5.2 — Cat Armor
 
 Four tiers — iron, gold, diamond, netherite — crafted from five of the

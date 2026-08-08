@@ -20,6 +20,18 @@
     "textures": "pc_stallning",
     "sound": "wood"
   },
+  "mjau:kartong": {
+    "textures": "pc_kartong",
+    "sound": "wood"
+  },
+  "mjau:fiskdamm": {
+    "textures": "pc_fiskdamm",
+    "sound": "stone"
+  },
+  "mjau:kattlucka": {
+    "textures": "pc_kattlucka",
+    "sound": "wood"
+  },
   "mjau:garnnystan": {
     "textures": "pc_garnnystan",
     "sound": "cloth"

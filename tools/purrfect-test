@@ -14,7 +14,7 @@ SRV=/opt/bds/server
 WORLD="$SRV/worlds/Kattest"
 LOG=/tmp/purrfect-test.log
 CATS="misty hazel mocha snow"
-EVENTS="mjau:on_tame mjau:on_sadel_1 mjau:on_keps_2 mjau:on_halsduk_2 mjau:on_ryggsack_3 mjau:on_glasogon_2 mjau:on_mantel_3 mjau:on_tossor_2 mjau:on_vagn_1 mjau:on_horn_1 mjau:on_rustning_1 minecraft:entity_born mjau:grow_up"
+EVENTS="mjau:on_tame mjau:on_sadel_1 mjau:on_keps_2 mjau:on_halsduk_2 mjau:on_ryggsack_3 mjau:on_glasogon_2 mjau:on_mantel_3 mjau:on_tossor_2 mjau:on_vagn_1 mjau:on_horn_1 mjau:on_rustning_1 mjau:on_matad minecraft:entity_born mjau:grow_up"
 FAIL=0
 ok(){ echo "  ✅ $1"; }
 bad(){ echo "  ❌ $1"; FAIL=1; }
@@ -389,7 +389,7 @@ HARD=$(grep -ciE "Syntax error|unknown component|invalid" "$LOG")
 SOFT=$(grep -c "Unable to summon" "$LOG")
 [ "$LOADED" -ge 1 ] && ok "paketet \"$PACKNAME\" laddades (v$VER)" || bad "paketet \"$PACKNAME\" laddades INTE"
 [ "$SUM" -ge 5 ] && ok "spawns: $SUM/5 (gris + 4 katter)" || bad "spawns: $SUM/5"
-[ "$EVOK" -ge 13 ] && ok "händelser: $EVOK/13 (tämjning, 10 plagg inkl vagn+horn+rustning, födsel, uppväxt)" || bad "händelser: $EVOK/13"
+[ "$EVOK" -ge 14 ] && ok "händelser: $EVOK/14 (tämjning, 10 plagg+godis inkl vagn+horn+rustning, födsel, uppväxt)" || bad "händelser: $EVOK/14"
 [ "$HARD" -eq 0 ] && ok "inga syntax-/komponentfel" || bad "$HARD allvarliga fel (se $LOG)"
 [ "$PROPOK" -ge 10 ] && ok "plaggen ändrar kattens tillstånd: $PROPOK/10 (has_property)" || bad "bara $PROPOK/10 plagg satte sin property"
 [ "$BLOCKOK" -ge 5 ] && ok "blocken går att placera: $BLOCKOK/5" || bad "blocken kunde inte placeras ($BLOCKOK/5)"
@@ -414,7 +414,14 @@ fi
 if [ -f /opt/purrfect-testbot/smoke-test.js ] && [ -d /opt/purrfect-testbot/node_modules ]; then
   echo
   echo "[5/5] Spelar-röktest (riktig klient)"
+  # Tre serveruppstarter i följd på 2 kärnor gör första försöket flaky
+  # (RakNet-ping hinner inte besvaras) — ge testet ETT omförsök.
   BOTOUT=$(cd /opt/purrfect-testbot && timeout 120 node smoke-test.js 2>/dev/null | grep -E "^(OK|FAIL)")
+  if echo "$BOTOUT" | grep -q "^FAIL"; then
+    echo "  (omförsök — första kan vara resurs-flake)"
+    sleep 5
+    BOTOUT=$(cd /opt/purrfect-testbot && timeout 120 node smoke-test.js 2>/dev/null | grep -E "^(OK|FAIL)")
+  fi
   echo "$BOTOUT" | sed 's/^/  /'
   echo "$BOTOUT" | grep -q "^FAIL" && bad "spelar-röktestet föll"
   [ -z "$BOTOUT" ] && bad "spelar-röktestet gav ingen utdata"

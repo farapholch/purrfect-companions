@@ -2955,6 +2955,556 @@
     },
     {
       "description": {
+        "identifier": "geometry.katt.haxhatt1",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "head",
+          "pivot": [
+            0,
+            7,
+            -5
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3,
+                11.5,
+                -8.5
+              ],
+              "size": [
+                6,
+                0.8,
+                6
+              ],
+              "uv": [
+                176,
+                30
+              ]
+            },
+            {
+              "origin": [
+                -1.8,
+                12.3,
+                -7.3
+              ],
+              "size": [
+                3.6,
+                2.2,
+                3.6
+              ],
+              "uv": [
+                176,
+                38
+              ]
+            },
+            {
+              "origin": [
+                -1,
+                14.5,
+                -6.5
+              ],
+              "size": [
+                2,
+                2,
+                2
+              ],
+              "uv": [
+                176,
+                45
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.haxhatt2",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "head",
+          "pivot": [
+            0,
+            7,
+            -5
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3,
+                11.5,
+                -8.5
+              ],
+              "size": [
+                6,
+                0.8,
+                6
+              ],
+              "uv": [
+                216,
+                30
+              ]
+            },
+            {
+              "origin": [
+                -1.8,
+                12.3,
+                -7.3
+              ],
+              "size": [
+                3.6,
+                2.2,
+                3.6
+              ],
+              "uv": [
+                216,
+                38
+              ]
+            },
+            {
+              "origin": [
+                -1,
+                14.5,
+                -6.5
+              ],
+              "size": [
+                2,
+                2,
+                2
+              ],
+              "uv": [
+                216,
+                45
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.tomteluva1",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "head",
+          "pivot": [
+            0,
+            7,
+            -5
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -2.6,
+                11.4,
+                -8.1
+              ],
+              "size": [
+                5.2,
+                1,
+                5.2
+              ],
+              "uv": [
+                176,
+                60
+              ]
+            },
+            {
+              "origin": [
+                -1.8,
+                12.4,
+                -7.3
+              ],
+              "size": [
+                3.6,
+                2.4,
+                3.6
+              ],
+              "uv": [
+                176,
+                67
+              ]
+            },
+            {
+              "origin": [
+                -0.8,
+                14.8,
+                -6.3
+              ],
+              "size": [
+                1.6,
+                1.6,
+                1.6
+              ],
+              "uv": [
+                176,
+                74
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.tomteluva2",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "head",
+          "pivot": [
+            0,
+            7,
+            -5
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -2.6,
+                11.4,
+                -8.1
+              ],
+              "size": [
+                5.2,
+                1,
+                5.2
+              ],
+              "uv": [
+                216,
+                60
+              ]
+            },
+            {
+              "origin": [
+                -1.8,
+                12.4,
+                -7.3
+              ],
+              "size": [
+                3.6,
+                2.4,
+                3.6
+              ],
+              "uv": [
+                216,
+                67
+              ]
+            },
+            {
+              "origin": [
+                -0.8,
+                14.8,
+                -6.3
+              ],
+              "size": [
+                1.6,
+                1.6,
+                1.6
+              ],
+              "uv": [
+                216,
+                74
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.doktorsrock1",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.5,
+                4.2,
+                -4.8
+              ],
+              "size": [
+                0.6,
+                4.6,
+                9.4
+              ],
+              "uv": [
+                176,
+                90
+              ]
+            },
+            {
+              "origin": [
+                2.9,
+                4.2,
+                -4.8
+              ],
+              "size": [
+                0.6,
+                4.6,
+                9.4
+              ],
+              "uv": [
+                176,
+                90
+              ]
+            },
+            {
+              "origin": [
+                -3.5,
+                8.8,
+                -4.8
+              ],
+              "size": [
+                7,
+                0.8,
+                9.4
+              ],
+              "uv": [
+                176,
+                105
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.batvingar1",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -8.5,
+                8.6,
+                -1
+              ],
+              "size": [
+                5,
+                0.7,
+                6
+              ],
+              "uv": [
+                176,
+                110
+              ]
+            },
+            {
+              "origin": [
+                3.5,
+                8.6,
+                -1
+              ],
+              "size": [
+                5,
+                0.7,
+                6
+              ],
+              "uv": [
+                176,
+                110
+              ]
+            },
+            {
+              "origin": [
+                -9.5,
+                8.4,
+                1
+              ],
+              "size": [
+                1.6,
+                3,
+                1.6
+              ],
+              "uv": [
+                176,
+                118
+              ]
+            },
+            {
+              "origin": [
+                7.9,
+                8.4,
+                1
+              ],
+              "size": [
+                1.6,
+                3,
+                1.6
+              ],
+              "uv": [
+                176,
+                118
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.batvingar2",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -8.5,
+                8.6,
+                -1
+              ],
+              "size": [
+                5,
+                0.7,
+                6
+              ],
+              "uv": [
+                216,
+                110
+              ]
+            },
+            {
+              "origin": [
+                3.5,
+                8.6,
+                -1
+              ],
+              "size": [
+                5,
+                0.7,
+                6
+              ],
+              "uv": [
+                216,
+                110
+              ]
+            },
+            {
+              "origin": [
+                -9.5,
+                8.4,
+                1
+              ],
+              "size": [
+                1.6,
+                3,
+                1.6
+              ],
+              "uv": [
+                216,
+                118
+              ]
+            },
+            {
+              "origin": [
+                7.9,
+                8.4,
+                1
+              ],
+              "size": [
+                1.6,
+                3,
+                1.6
+              ],
+              "uv": [
+                216,
+                118
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
         "identifier": "geometry.katt.krona1",
         "texture_width": 256,
         "texture_height": 256,

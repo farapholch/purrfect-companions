@@ -137,6 +137,27 @@
     "pc_rustning_netherit": {
       "textures": "textures/items/pc_rustning_netherit"
     },
+    "pc_haxhatt_svart": {
+      "textures": "textures/items/pc_haxhatt_svart"
+    },
+    "pc_haxhatt_lila": {
+      "textures": "textures/items/pc_haxhatt_lila"
+    },
+    "pc_tomteluva_rod": {
+      "textures": "textures/items/pc_tomteluva_rod"
+    },
+    "pc_tomteluva_gron": {
+      "textures": "textures/items/pc_tomteluva_gron"
+    },
+    "pc_doktorsrock_vit": {
+      "textures": "textures/items/pc_doktorsrock_vit"
+    },
+    "pc_batvingar_svart": {
+      "textures": "textures/items/pc_batvingar_svart"
+    },
+    "pc_batvingar_lila": {
+      "textures": "textures/items/pc_batvingar_lila"
+    },
     "pc_krona_gold": {
       "textures": "textures/items/pc_krona_gold"
     },

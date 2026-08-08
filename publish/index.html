@@ -77,8 +77,10 @@ The cart even adds a second seat so a friend can ride along.</p>
 <img class="hero" src="03-fullt-utrustad.png" alt="A fully equipped cat">
 
 <h2>How it's built</h2>
-<p>Every outfit, block and texture is generated from a single definition, and
-each release is validated against a real Bedrock Dedicated Server before it ships.</p>
+<p>Every outfit, block and texture is generated from a single definition. Each
+release then passes four layers of testing — including a rendered-image check
+that poses the model and compares it against approved pictures — and finally runs
+against a real Bedrock Dedicated Server before it ships.</p>
 <svg viewBox="0 0 780 430" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,sans-serif">
 <rect x="0" y="0" width="780" height="430" rx="12" fill="#141b2b"/>
 <defs><marker id="ar" markerWidth="10" markerHeight="10" refX="9" refY="3.5" orient="auto"><path d="M0,0 L0,7 L9,3.5 z" fill="#5ec8ff"/></marker></defs>
@@ -92,10 +94,12 @@ each release is validated against a real Bedrock Dedicated Server before it ship
 <text x="34" y="142" fill="#fff" font-size="14" font-weight="700">Generators</text>
 <text x="34" y="162" fill="#d6e4f5" font-size="11">outfits · blocks · textures</text>
 <text x="34" y="178" fill="#d6e4f5" font-size="11">models · recipes · language</text>
-<rect x="292" y="116" width="212" height="86" rx="10" fill="#4a3a10" stroke="#f0c14b" stroke-width="2"/>
+<rect x="292" y="116" width="212" height="100" rx="10" fill="#4a3a10" stroke="#f0c14b" stroke-width="2"/>
 <text x="308" y="142" fill="#fff" font-size="14" font-weight="700">Automated tests</text>
-<text x="308" y="162" fill="#d6e4f5" font-size="11">structure · recipe conflicts</text>
-<text x="308" y="178" fill="#d6e4f5" font-size="11">live spawn + event checks</text>
+<text x="308" y="162" fill="#d6e4f5" font-size="11">structure · known pitfalls</text>
+<text x="308" y="178" fill="#d6e4f5" font-size="11">referential integrity</text>
+<text x="308" y="194" fill="#d6e4f5" font-size="11">rendered-image regression</text>
+<text x="308" y="210" fill="#d6e4f5" font-size="11">live spawn + event checks</text>
 <rect x="566" y="116" width="196" height="86" rx="10" fill="#2e1c47" stroke="#b57cff" stroke-width="2"/>
 <text x="582" y="142" fill="#fff" font-size="14" font-weight="700">Release</text>
 <text x="582" y="162" fill="#d6e4f5" font-size="11">refuses to ship if a</text>

@@ -392,6 +392,18 @@ else
   ok "inga innehållsfel"
 fi
 
+# Spelar-röktest: en RIKTIG klient (bedrock-protocol) ansluter och verifierar
+# det kommandosidan aldrig ser — item_registry, give av egna föremål,
+# entitetsströmning, property-synk. Frivilligt steg: kräver testboten.
+if [ -f /opt/purrfect-testbot/smoke-test.js ] && [ -d /opt/purrfect-testbot/node_modules ]; then
+  echo
+  echo "[5/5] Spelar-röktest (riktig klient)"
+  BOTOUT=$(cd /opt/purrfect-testbot && timeout 120 node smoke-test.js 2>/dev/null | grep -E "^(OK|FAIL)")
+  echo "$BOTOUT" | sed 's/^/  /'
+  echo "$BOTOUT" | grep -q "^FAIL" && bad "spelar-röktestet föll"
+  [ -z "$BOTOUT" ] && bad "spelar-röktestet gav ingen utdata"
+fi
+
 # Simulerad spelare (GameTest): tämja+sadla+rida via riktiga interaktioner.
 if [ -x "$SRC/tools/purrfect-gametest" ]; then
   echo
@@ -403,18 +415,6 @@ if [ -x "$SRC/tools/purrfect-gametest" ]; then
     tail -6 /tmp/purrfect-gt-stage.txt | sed 's/^/  /'
     bad "gametest föll"
   fi
-fi
-
-# Spelar-röktest: en RIKTIG klient (bedrock-protocol) ansluter och verifierar
-# det kommandosidan aldrig ser — item_registry, give av egna föremål,
-# entitetsströmning, property-synk. Frivilligt steg: kräver testboten.
-if [ -f /opt/purrfect-testbot/smoke-test.js ] && [ -d /opt/purrfect-testbot/node_modules ]; then
-  echo
-  echo "[5/5] Spelar-röktest (riktig klient)"
-  BOTOUT=$(cd /opt/purrfect-testbot && timeout 120 node smoke-test.js 2>/dev/null | grep -E "^(OK|FAIL)")
-  echo "$BOTOUT" | sed 's/^/  /'
-  echo "$BOTOUT" | grep -q "^FAIL" && bad "spelar-röktestet föll"
-  [ -z "$BOTOUT" ] && bad "spelar-röktestet gav ingen utdata"
 fi
 
 echo

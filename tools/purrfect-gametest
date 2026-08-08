@@ -1,0 +1,60 @@
+#!/bin/bash
+# Sista milen i testkedjan: en SIMULERAD SPELARE (Mojangs GameTest-ramverk) gör
+# det ingen annan del av sviten kan — går spelarens väg genom interaktionerna.
+# Tämjer med torsk i handen (riktig tameable → ägare), sadlar genom
+# is_owner+has_equipment-filtren, sitter upp. Event-testerna hoppar över
+# filtren; nätverksboten stoppades av serverns klienthandslag (tools/testbot/).
+#
+# Kör inne i servern via beta-API:er — kräver experimentet 'gametest' i
+# testvärldens level.dat (aktiverat 2026-08-08; ombyggd värld => kör
+# tools/gametest/build_gametest_pack.py-flödet igen, se nbt.py).
+# GameTest-paketet är TESTENDA och skickas aldrig till spelare.
+#
+# Exit 0 = PASS. Skapad 2026-08-08.
+set -u
+SRC=/opt/purrfect-companions
+SRV=/opt/bds/server
+W="$SRV/worlds/Kattest"
+LOG=/tmp/purrfect-gametest.log
+
+# Modulversionerna är per BDS-version; fel version => servern LISTAR de rätta
+# i loggen. Uppdatera här när BDS bytts.
+SERVER_MOD="2.10.0-beta"
+GAMETEST_MOD="1.0.0-beta"
+
+echo "[gametest] bygger och installerar testpaketet"
+python3 "$SRC/tools/gametest/build_gametest_pack.py" /tmp/purrfect-gametest-pack "$SERVER_MOD" "$GAMETEST_MOD" >/dev/null
+rm -rf "$W/behavior_packs/PurrfectGameTest"
+cp -r /tmp/purrfect-gametest-pack "$W/behavior_packs/PurrfectGameTest"
+# purrfect-test skriver om world_behavior_packs.json med BARA huvudpaketet —
+# registrera oss igen varje körning.
+python3 - "$W" <<'PY'
+import json, sys
+W = sys.argv[1]
+wb = json.load(open(f"{W}/world_behavior_packs.json"))
+gt = {"pack_id": "7c1e9f10-31a2-4a3b-9c58-b5c9d2f4a601", "version": [1, 0, 0]}
+if gt not in wb: wb.append(gt)
+json.dump(wb, open(f"{W}/world_behavior_packs.json", "w"))
+PY
+
+pkill -x bedrock_server 2>/dev/null; sleep 1
+rm -f "$LOG"
+cd "$SRV"
+{ until grep -q "Server started" "$LOG" 2>/dev/null; do sleep 2; done
+  echo "gametest run mjau:interakt"
+  # vänta på avgörande i stället för fast tid
+  for i in $(seq 1 60); do
+    grep -qE "MJAU-GT\] (PASS|FAIL)|onTestFailed|failed to create context" "$LOG" && break
+    sleep 3
+  done
+  echo "stop"; sleep 5; } | LD_LIBRARY_PATH=. ./bedrock_server > "$LOG" 2>&1
+pkill -9 -x bedrock_server 2>/dev/null
+
+grep -oE "\[MJAU-GT\].*" "$LOG" | sed 's/^/  /'
+if grep -q "MJAU-GT\] PASS" "$LOG"; then
+  echo "[gametest] ✅ PASS — tämja, sadla och rida fungerar för en riktig spelare"
+  exit 0
+fi
+echo "[gametest] ❌ FAIL (logg: $LOG)"
+grep -iE "error|failed" "$LOG" | head -5 | sed 's/^/  /'
+exit 1

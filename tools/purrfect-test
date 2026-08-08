@@ -392,6 +392,19 @@ else
   ok "inga innehållsfel"
 fi
 
+# Simulerad spelare (GameTest): tämja+sadla+rida via riktiga interaktioner.
+if [ -x "$SRC/tools/purrfect-gametest" ]; then
+  echo
+  echo "[6/6] Simulerad spelare (GameTest)"
+  if "$SRC/tools/purrfect-gametest" > /tmp/purrfect-gt-stage.txt 2>&1; then
+    grep -E "MJAU-GT|PASS" /tmp/purrfect-gt-stage.txt | tail -4 | sed 's/^/  /'
+    ok "simulerad spelare: tämja, sadla, rida"
+  else
+    tail -6 /tmp/purrfect-gt-stage.txt | sed 's/^/  /'
+    bad "gametest föll"
+  fi
+fi
+
 # Spelar-röktest: en RIKTIG klient (bedrock-protocol) ansluter och verifierar
 # det kommandosidan aldrig ser — item_registry, give av egna föremål,
 # entitetsströmning, property-synk. Frivilligt steg: kräver testboten.

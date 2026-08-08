@@ -1,3 +1,10 @@
+## 2.5.2 — Cat Armor
+
+Four tiers — iron, gold, diamond, netherite — crafted from five of the
+material, worn like horse armor with a back plate, side plates and a neck
+guard. It is not just for looks: an armored cat has fifteen hearts instead
+of five.
+
 ## 2.5.1 — Litter Box and Cat Tower
 
 Two more things for the home: a **Litter Box** (planks around sand) and a

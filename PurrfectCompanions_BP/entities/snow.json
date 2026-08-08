@@ -106,6 +106,15 @@
           "default": 0,
           "client_sync": true
         },
+        "mjau:rustning": {
+          "type": "int",
+          "range": [
+            0,
+            4
+          ],
+          "default": 0,
+          "client_sync": true
+        },
         "mjau:krona": {
           "type": "int",
           "range": [
@@ -1270,6 +1279,118 @@
                       "test": "has_equipment",
                       "domain": "hand",
                       "subject": "other",
+                      "value": "mjau:rustning_jarn"
+                    }
+                  ]
+                },
+                "event": "mjau:on_rustning_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_iron",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:rustning_guld"
+                    }
+                  ]
+                },
+                "event": "mjau:on_rustning_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_iron",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:rustning_diamant"
+                    }
+                  ]
+                },
+                "event": "mjau:on_rustning_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_iron",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:rustning_netherit"
+                    }
+                  ]
+                },
+                "event": "mjau:on_rustning_4",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_iron",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
                       "value": "mjau:krona_gold"
                     }
                   ]
@@ -1687,6 +1808,12 @@
           "speed_multiplier": 1.2,
           "track_target": true
         }
+      },
+      "mjau:armored": {
+        "minecraft:health": {
+          "value": 30,
+          "max": 30
+        }
       }
     },
     "events": {
@@ -2002,6 +2129,46 @@
       "mjau:on_horn_3": {
         "set_property": {
           "mjau:horn": 3
+        }
+      },
+      "mjau:on_rustning_1": {
+        "set_property": {
+          "mjau:rustning": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:armored"
+          ]
+        }
+      },
+      "mjau:on_rustning_2": {
+        "set_property": {
+          "mjau:rustning": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:armored"
+          ]
+        }
+      },
+      "mjau:on_rustning_3": {
+        "set_property": {
+          "mjau:rustning": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:armored"
+          ]
+        }
+      },
+      "mjau:on_rustning_4": {
+        "set_property": {
+          "mjau:rustning": 4
+        },
+        "add": {
+          "component_groups": [
+            "mjau:armored"
+          ]
         }
       },
       "mjau:on_krona_1": {

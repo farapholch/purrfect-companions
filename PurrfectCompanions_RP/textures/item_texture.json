@@ -125,6 +125,18 @@
     "pc_horn_rosa": {
       "textures": "textures/items/pc_horn_rosa"
     },
+    "pc_rustning_jarn": {
+      "textures": "textures/items/pc_rustning_jarn"
+    },
+    "pc_rustning_guld": {
+      "textures": "textures/items/pc_rustning_guld"
+    },
+    "pc_rustning_diamant": {
+      "textures": "textures/items/pc_rustning_diamant"
+    },
+    "pc_rustning_netherit": {
+      "textures": "textures/items/pc_rustning_netherit"
+    },
     "pc_krona_gold": {
       "textures": "textures/items/pc_krona_gold"
     },

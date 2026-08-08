@@ -138,6 +138,22 @@ ACC = {
        unlock=[{"item":mat}]),
    mats={1:"minecraft:quartz",2:"minecraft:gold_ingot",3:"minecraft:amethyst_shard"}),
 
+ "rustning": dict(label="Cat Armor", bone="body", sound="armor.equip_iron",
+   uv={1:(0,224),2:(64,224),3:(128,224),4:(192,224)},
+   colors={1:("jarn",(202,206,212)),2:("guld",(238,198,72)),
+           3:("diamant",(108,220,214)),4:("netherit",(72,64,70))},
+   names={1:"Iron",2:"Gold",3:"Diamond",4:"Netherite"},
+   # ryggplåt + sidoplåtar + nackskydd, som hästrustning
+   cubes=[([-3.6,8.8,-5.2],[7.2,1,10.4],(0,0)),
+          ([-3.7,4.5,-4.5],[0.7,4.5,9],(0,13)),
+          ([3.0,4.5,-4.5],[0.7,4.5,9],(0,13)),
+          ([-2.5,6.5,-6.2],[5,3,1],(22,13))],
+   recipe=lambda mat: dict(pattern=["I I","III","I I"],
+       key={"I":{"item":mat}},
+       unlock=[{"item":mat}]),
+   mats={1:"minecraft:iron_ingot",2:"minecraft:gold_ingot",
+         3:"minecraft:diamond",4:"minecraft:netherite_ingot"}),
+
  "krona": dict(label="Cat Crown", bone="head", sound="armor.equip_generic",
    uv={1:(0,206),2:(24,206)},
    colors={1:("gold",(232,196,72)),2:("silver",(206,210,216))},
@@ -420,6 +436,10 @@ def build_rest():
             for i,(slug,col) in cfg["colors"].items():
                 evn=f"mjau:on_{a}_{i}"
                 ev[evn]={"set_property":{f"mjau:{a}":i}}
+                if a=="rustning":
+                    # inte bara kosmetik: pansar ger 15 hjärtan i stället för 5
+                    g["mjau:armored"]={"minecraft:health":{"value":30,"max":30}}
+                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:armored")
                 if cfg.get("rideable"):
                     # SADEL: ryttare på ryggen. Utesluter vagnläget — två aktiva
                     # rideable-definitioner ger odefinierat beteende.

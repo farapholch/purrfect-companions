@@ -14,7 +14,7 @@ SRV=/opt/bds/server
 WORLD="$SRV/worlds/Kattest"
 LOG=/tmp/purrfect-test.log
 CATS="misty hazel mocha snow"
-EVENTS="mjau:on_tame mjau:on_sadel_1 mjau:on_keps_2 mjau:on_halsduk_2 mjau:on_ryggsack_3 mjau:on_glasogon_2 mjau:on_mantel_3 mjau:on_tossor_2 mjau:on_vagn_1 mjau:on_horn_1 minecraft:entity_born mjau:grow_up"
+EVENTS="mjau:on_tame mjau:on_sadel_1 mjau:on_keps_2 mjau:on_halsduk_2 mjau:on_ryggsack_3 mjau:on_glasogon_2 mjau:on_mantel_3 mjau:on_tossor_2 mjau:on_vagn_1 mjau:on_horn_1 mjau:on_rustning_1 minecraft:entity_born mjau:grow_up"
 FAIL=0
 ok(){ echo "  ✅ $1"; }
 bad(){ echo "  ❌ $1"; FAIL=1; }
@@ -344,7 +344,7 @@ cd "$SRV" || exit 1
   # EFFEKT-test: räckte det att eventet kördes, eller ändrades kattens tillstånd?
   # has_property läser entity-propertyn som plagget sätter — det är skillnaden
   # mellan "kommandot gick igenom" och "katten bär faktiskt plagget".
-  for pair in "sadel 1" "keps 2" "halsduk 2" "ryggsack 3" "glasogon 2" "mantel 3" "tossor 2" "vagn 1" "horn 1"; do
+  for pair in "sadel 1" "keps 2" "halsduk 2" "ryggsack 3" "glasogon 2" "mantel 3" "tossor 2" "vagn 1" "horn 1" "rustning 1"; do
     set -- $pair
     echo "summon mjau:misty 18 20 18"; sleep 1
     echo "event entity @e[type=mjau:misty,x=18,y=20,z=18,r=30] mjau:on_$1_$2"; sleep 1
@@ -389,9 +389,9 @@ HARD=$(grep -ciE "Syntax error|unknown component|invalid" "$LOG")
 SOFT=$(grep -c "Unable to summon" "$LOG")
 [ "$LOADED" -ge 1 ] && ok "paketet \"$PACKNAME\" laddades (v$VER)" || bad "paketet \"$PACKNAME\" laddades INTE"
 [ "$SUM" -ge 5 ] && ok "spawns: $SUM/5 (gris + 4 katter)" || bad "spawns: $SUM/5"
-[ "$EVOK" -ge 12 ] && ok "händelser: $EVOK/12 (tämjning, 9 plagg inkl vagn+horn, födsel, uppväxt)" || bad "händelser: $EVOK/12"
+[ "$EVOK" -ge 13 ] && ok "händelser: $EVOK/13 (tämjning, 10 plagg inkl vagn+horn+rustning, födsel, uppväxt)" || bad "händelser: $EVOK/13"
 [ "$HARD" -eq 0 ] && ok "inga syntax-/komponentfel" || bad "$HARD allvarliga fel (se $LOG)"
-[ "$PROPOK" -ge 9 ] && ok "plaggen ändrar kattens tillstånd: $PROPOK/9 (has_property)" || bad "bara $PROPOK/9 plagg satte sin property"
+[ "$PROPOK" -ge 10 ] && ok "plaggen ändrar kattens tillstånd: $PROPOK/10 (has_property)" || bad "bara $PROPOK/10 plagg satte sin property"
 [ "$BLOCKOK" -ge 5 ] && ok "blocken går att placera: $BLOCKOK/5" || bad "blocken kunde inte placeras ($BLOCKOK/5)"
 [ "$CARGO" -ge 1 ] && ok "vagnen har ett riktigt lastutrymme (replaceitem i slot.inventory)" || bad "vagnens förvaring gick inte att fylla — is_chested/inventory verkar inte ge någon container"
 if [ "$SOFT" -eq 0 ]; then

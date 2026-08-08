@@ -247,6 +247,28 @@
         "Texture.default"
       ]
     },
+    "controller.render.katt_rustning": {
+      "arrays": {
+        "geometries": {
+          "Array.rustning": [
+            "Geometry.empty",
+            "Geometry.rustning1",
+            "Geometry.rustning2",
+            "Geometry.rustning3",
+            "Geometry.rustning4"
+          ]
+        }
+      },
+      "geometry": "Array.rustning[query.property('mjau:rustning')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
     "controller.render.katt_krona": {
       "arrays": {
         "geometries": {

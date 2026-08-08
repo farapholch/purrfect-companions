@@ -49,6 +49,10 @@
         "horn1": "geometry.katt.horn1",
         "horn2": "geometry.katt.horn2",
         "horn3": "geometry.katt.horn3",
+        "rustning1": "geometry.katt.rustning1",
+        "rustning2": "geometry.katt.rustning2",
+        "rustning3": "geometry.katt.rustning3",
+        "rustning4": "geometry.katt.rustning4",
         "krona1": "geometry.katt.krona1",
         "krona2": "geometry.katt.krona2",
         "mantel1": "geometry.katt.mantel1",
@@ -73,6 +77,7 @@
         "controller.render.katt_rosett",
         "controller.render.katt_vingar",
         "controller.render.katt_horn",
+        "controller.render.katt_rustning",
         "controller.render.katt_krona",
         "controller.render.katt_mantel"
       ],

@@ -1,3 +1,5 @@
+<h2>2.3.4 — Steering</h2>
+<p>Saddled cats carried two control systems at once: the player&#x27;s own stick input, and an AI goal that steered the cat towards where the rider was looking. The AI goal ran at the highest possible priority, so it overrode the player every tick and the reins felt dead. The AI goal is gone; you steer the cat directly.</p>
 <h2>2.3.3 — Things that sit where they should</h2>
 <p>Three fixes, all found by playing:</p>
 <ul><li><strong>Outfits swung away from the cat.</strong> Every accessory rotated around its own pivot point instead of the body part it belongs to, so the crown flew off to the side whenever the cat turned its head. Hats, saddles, capes and backpacks were all affected.</li><li><strong>The tail was stubby.</strong> It had been seated one unit too far into the body, hiding half its length. It now meets the body flush.</li><li><strong>Cats could glide without moving their legs.</strong> The sitting pose could only be left when the sit flag cleared. Movement now always breaks it.</li></ul>

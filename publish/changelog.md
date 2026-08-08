@@ -1,3 +1,10 @@
+## 2.3.4 — Steering
+
+Saddled cats carried two control systems at once: the player's own stick input,
+and an AI goal that steered the cat towards where the rider was looking. The AI
+goal ran at the highest possible priority, so it overrode the player every tick
+and the reins felt dead. The AI goal is gone; you steer the cat directly.
+
 ## 2.3.3 — Things that sit where they should
 
 Three fixes, all found by playing:

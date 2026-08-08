@@ -1535,9 +1535,6 @@
           ]
         },
         "minecraft:input_ground_controlled": {},
-        "minecraft:behavior.controlled_by_player": {
-          "priority": 0
-        },
         "minecraft:movement": {
           "value": 0.43
         },

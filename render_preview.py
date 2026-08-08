@@ -154,14 +154,14 @@ if __name__=="__main__":
     write_png(f"{OUT}/01-katterna.png",W,H,img); print("01-katterna.png")
     # 2) tillbehör
     # visa upp bredden: varje katt bär flera plagg, inklusive de nya
-    looks=[("misty",["sadel1","keps1","halsband1","tossor2"]),
-           ("hazel",["halsduk1","ryggsack2","rosett1"]),
-           ("mocha",["glasogon2","mantel3","krona1"]),
-           ("snow",["vingar1","halsband2","vagn1"])]
+    looks=[("misty",["rustning3","haxhatt1","tossor2"]),          # diamantrustning + häxhatt
+           ("hazel",["sadel1","tomteluva1","halsduk1","vagn1"]),   # tomteluva + vagn
+           ("mocha",["horn2","vingar1","halsband1"]),              # ENHÖRNINGSKATTEN
+           ("snow",["doktorsrock1","glasogon2","ryggsack2"])]      # doktorn
     W,H,img=sheet([render3d(c,a,PW,PH) for c,a in looks],2,PW,PH)
     write_png(f"{OUT}/02-tillbehor.png",W,H,img); print("02-tillbehor.png")
     # 3) en fullt utrustad katt, stor
-    img=render3d("misty",["sadel2","keps2","halsduk1","ryggsack1","glasogon2","tossor2","mantel3","vagn1"],640,440)
+    img=render3d("misty",["rustning1","horn1","vingar1","halsduk1","ryggsack1","tossor2","vagn1"],640,440)
     write_png(f"{OUT}/03-fullt-utrustad.png",640,440,img); print("03-fullt-utrustad.png")
     # 4) projektlogga 512x512 — 3/4-vy med ansiktet mot kameran + vinjett
     N=512; BG=(24,27,36,255)

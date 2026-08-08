@@ -59,6 +59,11 @@ for w in worlds:
     # byggstrukturerna får inte läcka med i det skeppade paketet
     if any("/structures/" in n for n in names):
         bad.append(f"{os.path.basename(w)}: byggstrukturer har läckt in i skeppat BP")
+    # världslistan visar world_icon.jpeg — utan den blir listposten anonym
+    if "world_icon.jpeg" not in names:
+        bad.append(f"{os.path.basename(w)}: world_icon.jpeg saknas")
+    elif z.read("world_icon.jpeg")[:2] != b"\xff\xd8":
+        bad.append(f"{os.path.basename(w)}: world_icon.jpeg är inte en JPEG")
     # familjenamn får aldrig finnas i den publika världen
     if not fam:
         blob = b" ".join(z.read(n) for n in names if n.endswith((".json", ".lang")))

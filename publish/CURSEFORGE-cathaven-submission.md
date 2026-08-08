@@ -23,8 +23,15 @@ Use the top of `publish/changelog.md` ("Cat Haven — a world to move into") plu
 - Survival, easy difficulty, keep-inventory on - made for kids and families
 - Link to the add-on project: https://www.curseforge.com/minecraft-bedrock/addons/purrfect-companions
 
-## Logo
-Återanvänd `logo.png` (512×512) tills en egen Cat Haven-hjältebild är renderad.
+## Logo & galleri
+- Logo: `logo.png` (512×512, delas med add-onet)
+- Galleri/hjältebild: `cathaven-hero.png` (1280×720, renderad med egna motorn)
+- Rörligt: `cathaven-teaser.gif` (480×270, loopande — fyrsken + gångcykel)
+- **Riktiga in-game-screenshots saknas** — de måste tas på Xbox/klient (servern
+  är headless). Ta 2–3 vid katthemmet, dammen och fyrtoppen innan inskickning;
+  CurseForge-granskningen gillar riktiga skärmdumpar.
+- Världslistans ikon (`world_icon.jpeg`, 800×450) bäddas in automatiskt av
+  `build_world.py` (genereras av `tools/promo/make_cathaven_art.py`).
 
 ## Fil
 `purrfect-cat-haven-v<VER>.mcworld` — byggs med `python3 build_world.py public /tmp`

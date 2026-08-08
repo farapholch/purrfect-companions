@@ -390,11 +390,16 @@ def build(variant, outdir):
     slug = "kattgarden" if variant == "private" else "cat-haven"
     out = f"{outdir}/purrfect-{slug}-v{ver}{suffix}.mcworld"
     if os.path.exists(out): os.remove(out)
+    icon = "/tmp/cathaven-world-icon.jpeg"                # världslistans bild
+    if not os.path.exists(icon):
+        subprocess.run([sys.executable, f"{BASE}/tools/promo/make_cathaven_art.py", "icon"],
+                       check=True, capture_output=True)
     zf = zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED)
     for dirpath, _, files in os.walk(wdir):
         for fn in files:
             p = os.path.join(dirpath, fn)
             zf.write(p, os.path.relpath(p, wdir))
+    zf.write(icon, "world_icon.jpeg")
     zf.close()
     print(f"värld: {out} ({os.path.getsize(out)//1024} KB)")
     for p in problems: print(f"PROBLEM: {p}")

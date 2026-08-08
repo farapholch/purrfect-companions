@@ -9,6 +9,8 @@ fångar buggar vi ännu inte gjort.
 Skriver ett fynd per rad på stdout. Tyst = allt hänger ihop.
 """
 import json, glob, os, re, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from recipe_canon import canon
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else os.path.dirname(os.path.abspath(__file__))
 BP, RP = f"{BASE}/PurrfectCompanions_BP", f"{BASE}/PurrfectCompanions_RP"
@@ -82,6 +84,39 @@ for an, av in J(f"{RP}/animations/katt.animation.json")["animations"].items():
     for bone in av.get("bones", {}):
         if bone not in geo["geometry.katt"]:
             found.append(f"animation {an}: rör benet '{bone}' som inte finns i geometry.katt")
+
+# Recept jämförs KANONISKT (rutnät av föremåls-id, trimmat + speglat — se
+# recipe_canon.py): två recept som ser olika ut i JSON men är samma i
+# hantverksrutan krockar ändå. Kronan blev en gång en guldhjälm och
+# garnnystanet blev ull; alla tre vingfärger hade identiskt recept.
+# Vanilla-facit kommer från Mojangs officiella bedrock-samples
+# (tools/snapshot_vanilla_recipes.py) — BDS levererar inga hantverksrecept.
+VAN = J(f"{BASE}/tests/vanilla-recipes.json") if os.path.exists(f"{BASE}/tests/vanilla-recipes.json") else {}
+if not VAN:
+    found.append("tests/vanilla-recipes.json saknas — vanilla-krockar kontrolleras INTE "
+                 "(kör tools/snapshot_vanilla_recipes.py)")
+sigs = {}
+for rf in sorted(glob.glob(f"{BP}/recipes/*.json")):
+    body = next((v for k, v in J(rf).items() if k.startswith("minecraft:recipe")), {})
+    sig = canon(body)
+    if not sig:
+        continue
+    if sig in VAN:
+        found.append(f"recept {os.path.basename(rf)}: krockar med vanillas '{VAN[sig]}' "
+                     f"— spelaren får vanilla-föremålet, inte vårt")
+    sigs.setdefault(sig, []).append(os.path.basename(rf))
+for sig, files in sigs.items():
+    if len(files) > 1:
+        found.append(f"recept med identiskt mönster och ingredienser: {', '.join(files)} "
+                     f"— bara ett av dem går att tillverka")
+
+# Uppladdat hopp utan laddning, eller tvärtom, gör att den ena halvan inte märks.
+for f in sorted(glob.glob(f"{BP}/entities/*.json")):
+    cid = os.path.basename(f)[:-5]
+    for gname, grp in J(f)["minecraft:entity"].get("component_groups", {}).items():
+        if "minecraft:can_power_jump" in grp and "minecraft:horse.jump_strength" not in grp:
+            found.append(f"{cid}: {gname} har can_power_jump men ingen jump_strength "
+                         f"— laddat hopp utan höjd")
 
 # Recept måste ge något som faktiskt går att få — föremål ELLER block.
 for rf in glob.glob(f"{BP}/recipes/*.json"):

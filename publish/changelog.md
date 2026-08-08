@@ -1,3 +1,14 @@
+## 2.4.0 — Names, storage and a proper jump
+
+**Item names were showing as raw ids.** A pack has to declare its languages in
+`texts/languages.json`, and ours did not exist — so Minecraft ignored the
+translations entirely and fell back to internal identifiers. Every name, and
+every button prompt, now reads the way it was written.
+
+- **The Cat Cart carries things.** Fifteen slots, donkey style. Sneak and
+  interact to open it.
+- **Cats jump higher.** Hold the jump button to charge it.
+
 ## 2.3.4 — Steering
 
 Saddled cats carried two control systems at once: the player's own stick input,

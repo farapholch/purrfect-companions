@@ -1539,7 +1539,7 @@
           "value": 0.5
         },
         "minecraft:horse.jump_strength": {
-          "value": 0.7
+          "value": 1.2
         },
         "minecraft:can_power_jump": {}
       },
@@ -1547,6 +1547,14 @@
         "minecraft:sittable": {},
         "minecraft:behavior.stay_while_sitting": {
           "priority": 5
+        }
+      },
+      "mjau:carted": {
+        "minecraft:is_chested": {},
+        "minecraft:inventory": {
+          "container_type": "horse",
+          "inventory_size": 15,
+          "private": false
         }
       }
     },
@@ -1743,7 +1751,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:saddled"
+            "mjau:saddled",
+            "mjau:carted"
           ]
         },
         "remove": {
@@ -1758,7 +1767,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:saddled"
+            "mjau:saddled",
+            "mjau:carted"
           ]
         },
         "remove": {
@@ -1773,7 +1783,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:saddled"
+            "mjau:saddled",
+            "mjau:carted"
           ]
         },
         "remove": {

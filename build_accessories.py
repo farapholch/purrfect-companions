@@ -9,7 +9,7 @@ Varje plagg är en EGEN liten geometri (inte inbakad i kattmodellen) — annars
 exploderar antalet kombinationer. Läget styrs av entity properties, så alla
 plagg är oberoende av varandra.
 """
-import json, zlib, struct, glob, os
+import json, shutil, zlib, struct, glob, os
 
 BASE = "/opt/purrfect-companions"; BP = f"{BASE}/PurrfectCompanions_BP"; RP = f"{BASE}/PurrfectCompanions_RP"
 TEX = 256
@@ -412,16 +412,31 @@ def build_rest():
                         "seats":[{"position":cfg["seats"][0]},{"position":cfg["seats"][1]}]}
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:saddled")
                     ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).append("mjau:sittable")
+                    # Vagnen är ett släp — den ska gå att lasta. is_chested + inventory
+                    # ger åsne-liknande förvaring som öppnas med smyg + interagera.
+                    g["mjau:carted"]={"minecraft:is_chested":{},
+                                      "minecraft:inventory":{"container_type":"horse",
+                                                             "inventory_size":15,"private":False}}
+                    ev[evn]["add"]["component_groups"].append("mjau:carted")
                 inter.append(entry(f"mjau:{a}_{slug}",evn,cfg["sound"]))   # namnrymd krävs för EGNA föremål
         inter.append(entry("saddle","mjau:on_sadel_1","saddle"))
         g["mjau:tamed"]["minecraft:interact"]={"interactions":inter}
         json.dump(d,open(f,"w"),indent=2)
 
+    # Bedrock läser INTE en .lang-fil utan texts/languages.json som deklarerar
+    # vilka språk paketet har. Saknas den faller allt tillbaka på råa nycklar —
+    # och våra identifierare är svenska (sadel_brun, keps_cyan, ryggsack...), så
+    # spelaren fick svenska namn och råa hint-nycklar trots engelsk lang-fil.
+    # sv_SE finns med och innehåller SAMMA engelska text, så en svenskspråkig
+    # konsol inte hamnar i fallback igen.
+    for pack in ("PurrfectCompanions_BP","PurrfectCompanions_RP"):
+        json.dump(["en_US","sv_SE"],open(f"{BASE}/{pack}/texts/languages.json","w"))
     for pack in ("PurrfectCompanions_BP","PurrfectCompanions_RP"):
         lp=f"{BASE}/{pack}/texts/en_US.lang"
         keep=[l for l in open(lp).read().rstrip("\n").split("\n")
               if not l.startswith(("item.mjau:","action."))]
         open(lp,"w").write("\n".join(dict.fromkeys(keep+lang))+"\n")
+        shutil.copyfile(lp,f"{BASE}/{pack}/texts/sv_SE.lang")
     return len(lang), len(inter)
 
 if __name__ == "__main__":

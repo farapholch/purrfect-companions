@@ -1,3 +1,38 @@
+## 2.6.3 — No cat is "Unknown"
+
+Two safety nets for the name that shows above a cat and in its
+inventory screen:
+
+- Cats that were wearing armor in a world saved before 2.6.2 referenced
+  an armor definition that 2.6.2 renamed away, which could make the
+  game treat them as an unknown creature. The old definition is back,
+  and swapping armor migrates the cat cleanly to the new tiers.
+- Entity names are now declared in both forms Bedrock looks them up —
+  with and without the add-on namespace — so UI screens that use the
+  short form find the right name instead of "Unknown".
+
+Also: **putting armor on a cat now heals it to its new maximum.** It
+turned out the extra hearts arrived empty — the armor raised the
+ceiling but not the health itself. The test suite now proves it by
+dealing 45 damage to a netherite-armored cat and requiring it to
+survive; an unarmored cat would not.
+
+## 2.6.2 — The cat truly obeys, the rider truly sits
+
+- **Ridden cats no longer wander on their own.** The free-will urges —
+  strolling, following a fish, seeking out furniture — were meant to
+  switch off when the cat is tacked up, but never actually did; every so
+  often the stroll urge fired mid-ride and tugged the cat a few blocks
+  sideways. Saddling or hitching now genuinely switches free will off.
+- **The rider finally sits on the cat's back, not its head.** The seat
+  coordinate's forward axis points the opposite way from what 2.6.1
+  assumed, so that fix moved the rider *onto* the head. A simulated
+  rider now measures where it actually sits, in the cat's own frame,
+  every test run — no more guessing at signs.
+- **Better armor is worth more.** Cat Armor now scales with the
+  material: iron 20 hearts, gold 22, diamond 25, netherite 30 — up from
+  a flat 15. Swapping armor applies the new tier cleanly.
+
 ## 2.6.1 — Riding smoothed out, and a door that opens
 
 Six fixes, all found by playing 2.6.0:

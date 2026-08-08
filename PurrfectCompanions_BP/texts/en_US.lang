@@ -1,3 +1,7 @@
+entity.snow.name=Snow (Ragdoll)
+entity.mocha.name=Mocha (Sacred Birman)
+entity.hazel.name=Hazel (Siberian)
+entity.misty.name=Misty (Siberian)
 entity.mjau:snow.name=Snow (Ragdoll)
 item.spawn_egg.entity.mjau:snow.name=Spawn Snow
 entity.mjau:mocha.name=Mocha (Sacred Birman)

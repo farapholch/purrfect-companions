@@ -55,7 +55,7 @@ for _g in GEOALL:
         bad.append(f"{_dsc['identifier']}: texturstorlek {_dsc.get('texture_width')}x{_dsc.get('texture_height')} != PNG {_tw}x{_th}")
 GEOIDS={g["description"]["identifier"] for g in GEOALL}
 geoj=GEOALL[0]
-geo=geoj["description"]["identifier"]; body_top=None; head_back=None
+geo=geoj["description"]["identifier"]; body_top=None; body_back=None
 # render controllers som client_entity refererar måste finnas
 import glob as _g
 RCS=set()
@@ -72,8 +72,7 @@ for itf in _g.glob(f"{SRC}/PurrfectCompanions_BP/items/*.json"):
 for b in geoj["bones"]:
     if b["name"]=="body":
         c=b["cubes"][0]; body_top=c["origin"][1]+c["size"][1]
-    if b["name"]=="head":
-        head_back=max(cu["origin"][2]+cu["size"][2] for cu in b["cubes"])
+        body_back=c["origin"][2]+c["size"][2]
 for f in glob.glob(f"{SRC}/PurrfectCompanions_RP/entity/*.json"):
     d=json.load(open(f))["minecraft:client_entity"]["description"]
     for key,gid in d["geometry"].items():
@@ -111,19 +110,21 @@ for f in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json")):
         seat=first["position"][1]
         if abs(seat-body_top/16)>0.08:
             bad.append(f"{cid}: sadelhojd {seat} != kroppens topp {round(body_top/16,3)}")
-    # Sätets djupled (z): live-testet ser att man RIDER, inte VAR man sitter.
-    # z=-0.2 satte ryttaren rakt på kattens skalle. Kräv att varje säte ligger
-    # bakom huvudets bakkant, med marginal för ryttarens överkropp.
-    if head_back is not None:
+    # Sätets djupled (z): UPPMÄTT i gametest 2026-08-08 — sätets +z pekar MOT
+    # HUVUDET (ryttare på seat z=+0.15 landade forward=+0.15 i kattens eget
+    # koordinatsystem). 2.6.1 antog motsatt tecken och satte ryttaren på
+    # skallen. Kräv bakre kroppshalvan: -(body_back/16) <= z <= -0.1.
+    if body_back is not None:
         for gname,grp in groups.items():
             rd=grp.get("minecraft:rideable")
             if not rd: continue
             seats2=rd["seats"]; seats2=seats2 if isinstance(seats2,list) else [seats2]
-            for s in seats2:
+            for si,s in enumerate(seats2):
+                if gname=="mjau:carted" and si==0: continue   # säte 0 sitter I vagnen, inte på katten
                 z=s["position"][2]
-                if z < head_back/16 + 0.2:
-                    bad.append(f"{cid}: {gname} säte z={z} sitter på/över huvudet "
-                               f"(bakom halsen kräver z>={round(head_back/16+0.2,3)})")
+                if not (-(body_back/16)-0.05 <= z <= -0.1):
+                    bad.append(f"{cid}: {gname} säte {si} z={z} utanför bakre kroppshalvan "
+                               f"(kräver {round(-(body_back/16)-0.05,3)} <= z <= -0.1; +z = mot huvudet)")
     # Fallskada vid ridning: RIDDJURET tar fallskadan, så utan en damage_sensor
     # som nollar 'fall' dör katten när man hoppar/glidflyger ner. Live-testet
     # hoppar bara på plan mark och missar det helt.
@@ -140,19 +141,64 @@ for f in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json")):
     for bk in [comp]+list(groups.values()):
         if "minecraft:behavior.nap" in bk:
             bad.append(f"{cid}: behavior.nap får katten att bara ligga och sova")
-    # Ridden katt ska inte jaga: jaktbeteendet måste ligga i en grupp som varje
-    # sadel-/vagn-event tar bort, annars anfaller riddjuret hönor medan man rider.
-    _hunt="minecraft:behavior.nearest_attackable_target"
-    if _hunt in comp:
-        bad.append(f"{cid}: nearest_attackable_target i bas-components — går inte att stänga av vid ridning")
-    _hg={g for g,v in groups.items() if _hunt in v}
+    # Ett riddjur får inte styra sig självt: varje beteende som FLYTTAR katten
+    # på eget initiativ måste ligga i en grupp som varje sadel-/vagn-event tar
+    # bort. 2.5.0 lovade detta i commit-texten men ingen event tog bort mjau:fri
+    # — random_stroll triggar slumpvis, så gametestets driftmätning var grön i
+    # 2 körningar av 3 och buggen nådde spelarna ändå. Statisk check är
+    # deterministisk där livetestet är ett stickprov.
+    _self_moving=["minecraft:behavior.nearest_attackable_target",
+                  "minecraft:behavior.random_stroll",
+                  "minecraft:behavior.tempt",
+                  "minecraft:behavior.move_to_block",
+                  "minecraft:behavior.random_sitting"]
+    for _b in _self_moving:
+        if _b in comp:
+            bad.append(f"{cid}: {_b.split('.')[-1]} i bas-components — går inte att stänga av vid ridning")
+    _hg={g for g,v in groups.items() if any(_b in v for _b in _self_moving)}
     for evn,evd in e.get("events",{}).items():
         adds=evd.get("add",{}).get("component_groups",[])
         if "mjau:saddled" in adds or "mjau:carted" in adds:
             _miss=_hg-set(evd.get("remove",{}).get("component_groups",[]))
             if _miss:
                 bad.append(f"{cid}: event {evn} sätter riddjuret utan att ta bort "
-                           f"jaktgrupp {sorted(_miss)} — jagar hönor under ridning")
+                           f"självgående grupp {sorted(_miss)} — katten styr sig själv under ridning")
+    # Rustning: nivågrupperna ska finnas och ge mer liv ju bättre material —
+    # och alla ska ge mer än basen, annars är pansaret ren kosmetik.
+    _base=comp.get("minecraft:health",{}).get("value",0)
+    _prev=_base
+    for _i in (1,2,3,4):
+        _ag=groups.get(f"mjau:armored_{_i}")
+        if not _ag or "minecraft:health" not in _ag:
+            bad.append(f"{cid}: rustningsgrupp mjau:armored_{_i} saknas/saknar hälsa"); continue
+        _hv=_ag["minecraft:health"]["value"]
+        if _hv<=_prev:
+            bad.append(f"{cid}: armored_{_i} hälsa {_hv} skalar inte upp (föregående {_prev})")
+        _prev=_hv
+    # Legacy: <=2.6.1-världar bär "mjau:armored" i sparad data. Försvinner
+    # definitionen kan katten bli okänd aktör vid uppgradering (2.6.2-läxan).
+    if "mjau:armored" not in groups:
+        bad.append(f"{cid}: legacy-gruppen mjau:armored saknas — äldre världar tappar katten")
+    for _i in (1,2,3,4):
+        _evd=e.get("events",{}).get(f"mjau:on_rustning_{_i}",{})
+        _adds=_evd.get("add",{}).get("component_groups",[])
+        _rems=set(_evd.get("remove",{}).get("component_groups",[]))
+        if f"mjau:armored_{_i}" not in _adds:
+            bad.append(f"{cid}: on_rustning_{_i} lägger inte till armored_{_i}")
+        _saknas={f"mjau:armored_{_j}" for _j in (1,2,3,4) if _j!=_i}|{"mjau:armored"}
+        _saknas-=_rems
+        if _saknas:
+            bad.append(f"{cid}: on_rustning_{_i} tar inte bort {sorted(_saknas)} — "
+                       f"gammal hälsogrupp ligger kvar vid rustningsbyte")
+    # Namnnycklar: Bedrock slår upp entitetsnamn både MED och UTAN namespace
+    # (vanilla: entity.pig.name). Saknas kortformen visar t.ex. lastutrymmets
+    # rubrik "Unknown". Kräv båda formerna i varje språkfil i RP:n.
+    for _lf in glob.glob(f"{SRC}/PurrfectCompanions_RP/texts/*.lang"):
+        _lt=open(_lf,encoding="utf-8").read()
+        for _k in (f"entity.mjau:{cid}.name=",f"entity.{cid}.name=",
+                   f"item.spawn_egg.entity.mjau:{cid}.name="):
+            if _k not in _lt:
+                bad.append(f"{cid}: nyckeln {_k[:-1]} saknas i {os.path.basename(_lf)}")
     # Två styrsystem på samma riddjur slåss: controlled_by_player är ett AI-mål
     # som driver entiteten mot ryttarens blick, input_ground_controlled är
     # spelarens direkta spakinmatning. Ligger AI-målet på prio 0 vinner det varje
@@ -325,6 +371,14 @@ for f in glob.glob(f"{rp}/entity/*.json"):
     if t and t not in it: bad.append(f"{os.path.basename(f)}: spawn_egg '{t}' saknas i atlasen")
     tex = e["textures"]["default"]
     if not os.path.exists(f"{rp}/{tex}.png"): bad.append(f"{os.path.basename(f)}: textur {tex}.png saknas")
+    # namnnycklar i BÅDA formerna (med/utan namespace) i varje språkfil —
+    # varianten döper om katterna, så källans gröna check räcker inte här
+    cid = e["identifier"]; short = cid.split(":", 1)[1]
+    for lf in glob.glob(f"{rp}/texts/*.lang"):
+        lt = open(lf, encoding="utf-8").read()
+        for k in (f"entity.{cid}.name=", f"entity.{short}.name=",
+                  f"item.spawn_egg.entity.{cid}.name="):
+            if k not in lt: bad.append(f"{cid}: {k[:-1]} saknas i {os.path.basename(lf)}")
 print("\n".join(bad))
 PYV
 )
@@ -421,6 +475,15 @@ cd "$SRV" || exit 1
   echo "event entity @e[type=mjau:misty,x=16,y=20,z=16,r=30] mjau:on_vagn_1"; sleep 1
   echo "replaceitem entity @e[type=mjau:misty,x=16,y=20,z=16,r=30] slot.inventory 0 diamond 1"; sleep 1
   echo "kill @e[type=mjau:misty,x=16,y=20,z=16,r=30]"; sleep 1
+  # RUSTNINGSNIVÅ: netherit ska ge 60 hp. 45 skada dödar basen (20 hp) och
+  # gamla platta rustningen (30 hp) men inte netherit — överlevnad bevisar
+  # att nivågruppen faktiskt gäller, inte bara att eventet gick igenom.
+  echo "kill @e[type=mjau:snow]"; sleep 1
+  echo "summon mjau:snow 12 20 12"; sleep 1
+  echo "event entity @e[type=mjau:snow,x=12,y=20,z=12,r=30] mjau:on_rustning_4"; sleep 1
+  echo "damage @e[type=mjau:snow,x=12,y=20,z=12,r=30] 45"; sleep 1
+  echo "testfor @e[type=mjau:snow,x=12,y=20,z=12,r=30]"; sleep 1
+  echo "kill @e[type=mjau:snow]"; sleep 1
   # BLOCK-test: går de att placera? (verifierar registrering + geometri)
   # rensa först - världen sparas mellan körningar, och setblock på ett redan
   # identiskt block räknas inte som placerat
@@ -443,7 +506,8 @@ PACKNAME=$(python3 -c "import json;print(json.load(open('$SRC/PurrfectCompanions
 LOADED=$(grep -c "Pack Stack.*$PACKNAME" "$LOG")
 SUM=$(grep -c "Object successfully summoned" "$LOG")
 EVOK=$(grep -c "successfully executed on: mjau:" "$LOG")
-PROPOK=$(grep -c "Found entity.mjau:" "$LOG")
+PROPOK=$(grep -c "Found entity.mjau:misty" "$LOG")
+ARMOK=$(grep -c "Found entity.mjau:snow" "$LOG")
 BLOCKOK=$(grep -c "Block placed" "$LOG")
 CARGO=$(grep -ci "Replaced slot" "$LOG")
 # Syntax-/komponentfel är ALLTID allvarliga. "Unable to summon" kan vara flakigt
@@ -457,6 +521,7 @@ SOFT=$(grep -c "Unable to summon" "$LOG")
 [ "$PROPOK" -ge 10 ] && ok "plaggen ändrar kattens tillstånd: $PROPOK/10 (has_property)" || bad "bara $PROPOK/10 plagg satte sin property"
 [ "$BLOCKOK" -ge 5 ] && ok "blocken går att placera: $BLOCKOK/5" || bad "blocken kunde inte placeras ($BLOCKOK/5)"
 [ "$CARGO" -ge 1 ] && ok "vagnen har ett riktigt lastutrymme (replaceitem i slot.inventory)" || bad "vagnens förvaring gick inte att fylla — is_chested/inventory verkar inte ge någon container"
+[ "$ARMOK" -ge 1 ] && ok "netheritrustningen ger extra liv (överlevde 45 skada)" || bad "rustningsnivån gav inte extra liv — 45 skada dödade katten"
 if [ "$SOFT" -eq 0 ]; then
   ok "inga misslyckade spawns"
 elif [ "$SOFT" -le 1 ]; then

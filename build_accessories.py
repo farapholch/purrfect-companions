@@ -90,7 +90,7 @@ ACC = {
    # seat 0 = I VAGNEN (styr som en släde), seat 1 = på ryggen. Xbox-testet:
    # med ryggen som seat 0 gick vagnen aldrig att sitta i — ensam spelare får
    # alltid första lediga sätet.
-   seats=[[0.0,0.55,0.72],[0.0,0.562,-0.2]],
+   seats=[[0.0,0.55,0.72],[0.0,0.562,-0.22]],
    recipe=lambda mat: dict(pattern=["S S","PPP","W W"],
        key={"P":{"item":mat},"S":{"item":"minecraft:stick"},"W":{"item":"minecraft:wooden_slab"}},
        unlock=[{"item":mat},{"item":"minecraft:stick"}]),
@@ -492,18 +492,38 @@ def build_rest():
                 evn=f"mjau:on_{a}_{i}"
                 ev[evn]={"set_property":{f"mjau:{a}":i}}
                 if a=="rustning":
-                    # inte bara kosmetik: pansar ger 15 hjärtan i stället för 5
+                    # inte bara kosmetik: pansar ger liv efter nivå — järn 20,
+                    # guld 22, diamant 25, netherit 30 hjärtan (bas 10). Byte av
+                    # rustning tar bort de andra nivågrupperna, annars avgör
+                    # gruppernas tilläggning vilken hälsa som vinner.
+                    _hp={1:40,2:44,3:50,4:60}[i]
+                    g[f"mjau:armored_{i}"]={"minecraft:health":{"value":_hp,"max":_hp}}
+                    # health-gruppen höjer bara MAX — nuvarande hälsa följer inte
+                    # med (uppmätt i live-testet). Låt påsättningen läka katten
+                    # fullt via spell_effects, annars är extra-hjärtana tomma.
+                    g["mjau:pansarkur"]={"minecraft:spell_effects":{"add_effects":[
+                        {"effect":"instant_health","duration":1,"amplifier":5,
+                         "display_on_screen_animation":False}]}}
+                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:pansarkur")
+                    ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).append("mjau:pansarkur")
+                    # legacy: <=2.6.1 sparade "mjau:armored" i världsdata — behåll
+                    # definitionen (annars okänd aktör vid uppgradering) men låt
+                    # varje rustningsbyte städa bort den
                     g["mjau:armored"]={"minecraft:health":{"value":30,"max":30}}
-                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:armored")
+                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append(f"mjau:armored_{i}")
+                    ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).extend(
+                        [f"mjau:armored_{j}" for j in (1,2,3,4) if j!=i]+["mjau:armored"])
                 if cfg.get("rideable"):
                     # SADEL: ryttare på ryggen. Utesluter vagnläget — två aktiva
                     # rideable-definitioner ger odefinierat beteende.
                     g["mjau:saddled"]["minecraft:rideable"]={
                         "seat_count":1,"family_types":["player"],
                         "interact_text":"action.interact.ride",
-                        "seats":[{"position":[0.0,0.562,-0.2]}]}
+                        "seats":[{"position":[0.0,0.562,-0.22]}]}
                     ev[evn]["add"]={"component_groups":["mjau:saddled"]}
-                    ev[evn]["remove"]={"component_groups":["mjau:sittable","mjau:carted"]}
+                    # jagar + fri måste av när riddjuret sätts — annars styr
+                    # katten sig själv under ryttaren (sköts av statisk check)
+                    ev[evn]["remove"]={"component_groups":["mjau:sittable","mjau:carted","mjau:jagar","mjau:fri"]}
                 if cfg.get("seats"):
                     # VAGN: seat 0 I vagnen (styrbar som en släde), seat 1 på ryggen
                     # för en vän. Egen grupp med egna styr-/lastkomponenter; sadel-
@@ -523,7 +543,7 @@ def build_rest():
                             "interact_text":"action.interact.ride",
                             "seats":[{"position":cfg["seats"][0]},{"position":cfg["seats"][1]}]}}
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:carted")
-                    ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).extend(["mjau:sittable","mjau:saddled"])
+                    ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).extend(["mjau:sittable","mjau:saddled","mjau:jagar","mjau:fri"])
                 inter.append(entry(f"mjau:{a}_{slug}",evn,cfg["sound"]))   # namnrymd krävs för EGNA föremål
         inter.append(entry("saddle","mjau:on_sadel_1","saddle"))
         # SPINNA/MATA: godis på tam katt höjer humöret
@@ -537,12 +557,14 @@ def build_rest():
              "set_property":{"mjau:humor":0}},
             {"filters":{"test":"int_property","domain":"mjau:humor","value":2},
              "set_property":{"mjau:humor":1}}]}
-        # SOVA: tupplur som rävar — sovpose via query.is_sleeping i animationen
-        g.setdefault("mjau:fri",{})["minecraft:behavior.nap"]={
-            "priority":5,"cooldown_min":30.0,"cooldown_max":120.0,
-            "mob_detect_dist":6.0,"mob_detect_height":3.0}
+        # (behavior.nap togs bort i 2.6.1 — katterna "bara låg och sov";
+        #  statisk check förbjuder den, så återinför den inte här)
         # KATTFISKE: sadlad/förspänd katt i vatten fångar fisk
         for _rg in ("mjau:saddled","mjau:carted"):
+            # RIDDJURET tar fallskadan i Bedrock — nolla 'fall' så katten
+            # inte dör när ryttaren hoppar ner (2.6.1-fix)
+            g[_rg]["minecraft:damage_sensor"]={"triggers":[
+                {"cause":"fall","deals_damage":False}]}
             g[_rg]["minecraft:spawn_entity"]={"entities":[
                 {"min_wait_time":12,"max_wait_time":40,"spawn_item":"minecraft:cod",
                  "spawn_sound":"splash","filters":{"test":"in_water","value":True}}]}

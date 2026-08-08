@@ -95,6 +95,21 @@ gt.registerAsync("mjau", "interakt", async (test) => {
     return done(test, "kunde inte sitta upp pa sadlad katt", false);
   console.warn("[MJAU-GT] rider pa " + riding.entityRidingOn.typeId);
 
+  // 3a) SATESLAGE: mat var ryttaren FAKTISKT sitter i kattens eget koordinat-
+  //     system. Sadelns z-tecken har gissats fel forr — matningen ar facit.
+  //     forward > 0 = mot huvudet, forward < 0 = mot svansen.
+  {
+    const dx = p.location.x - cat.location.x;
+    const dz = p.location.z - cat.location.z;
+    const yaw = cat.getRotation().y * Math.PI / 180;
+    const fx = -Math.sin(yaw), fz = Math.cos(yaw);
+    const forward = dx * fx + dz * fz;
+    const up = p.location.y - cat.location.y;
+    console.warn(`[MJAU-GT] sate: forward=${forward.toFixed(2)} up=${up.toFixed(2)} (forward>0 = mot huvudet)`);
+    if (forward > -0.05)
+      return done(test, `ryttaren sitter pa/framfor kattens mitt (forward=${forward.toFixed(2)}, ska vara bakre halvan)`, false);
+  }
+
   // 3b) NEGATIV KONTROLL: sitt still utan inmatning — katten far INTE vandra.
   //     Precis den har saknades nar "katten styr sig sjalv" slank till Xbox:
   //     vi matte att den ror sig MED gas, aldrig att den star still UTAN.

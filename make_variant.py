@@ -65,6 +65,8 @@ def build(variant, outdir):
             for src, (slug, disp) in names.items():
                 lines.insert(0, f"item.spawn_egg.entity.mjau:{slug}.name=Spawna {disp}")
                 lines.insert(0, f"entity.mjau:{slug}.name={disp} ({breeds.get(slug,'')})".replace(" ()", ""))
+                # UI-titlar (t.ex. lastutrymmet) kan slå upp namnet utan namespace
+                lines.insert(0, f"entity.{slug}.name={disp} ({breeds.get(slug,'')})".replace(" ()", ""))
             open(lp, "w", encoding="utf-8").write("\n".join(lines) + "\n")
 
     # 3b) föremålsnamn på svenska i privata varianten (källan är engelsk)

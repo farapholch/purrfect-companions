@@ -1955,7 +1955,7 @@
               "position": [
                 0.0,
                 0.562,
-                0.15
+                -0.22
               ]
             }
           ]
@@ -2031,7 +2031,7 @@
               "position": [
                 0.0,
                 0.562,
-                0.15
+                -0.22
               ]
             }
           ]
@@ -2094,12 +2094,6 @@
             "mjau:kattlucka",
             "mjau:garnnystan"
           ]
-        }
-      },
-      "mjau:armored": {
-        "minecraft:health": {
-          "value": 30,
-          "max": 30
         }
       },
       "mjau:skattletare": {
@@ -2166,6 +2160,48 @@
           "priority": 8,
           "speed_multiplier": 1.2,
           "track_target": true
+        }
+      },
+      "mjau:armored_1": {
+        "minecraft:health": {
+          "value": 40,
+          "max": 40
+        }
+      },
+      "mjau:armored_2": {
+        "minecraft:health": {
+          "value": 44,
+          "max": 44
+        }
+      },
+      "mjau:armored_3": {
+        "minecraft:health": {
+          "value": 50,
+          "max": 50
+        }
+      },
+      "mjau:armored_4": {
+        "minecraft:health": {
+          "value": 60,
+          "max": 60
+        }
+      },
+      "mjau:armored": {
+        "minecraft:health": {
+          "value": 30,
+          "max": 30
+        }
+      },
+      "mjau:pansarkur": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "instant_health",
+              "duration": 1,
+              "amplifier": 5,
+              "display_on_screen_animation": false
+            }
+          ]
         }
       }
     },
@@ -2337,7 +2373,8 @@
           "component_groups": [
             "mjau:sittable",
             "mjau:carted",
-            "mjau:jagar"
+            "mjau:jagar",
+            "mjau:fri"
           ]
         }
       },
@@ -2354,7 +2391,8 @@
           "component_groups": [
             "mjau:sittable",
             "mjau:carted",
-            "mjau:jagar"
+            "mjau:jagar",
+            "mjau:fri"
           ]
         }
       },
@@ -2371,7 +2409,8 @@
           "component_groups": [
             "mjau:sittable",
             "mjau:carted",
-            "mjau:jagar"
+            "mjau:jagar",
+            "mjau:fri"
           ]
         }
       },
@@ -2493,7 +2532,8 @@
           "component_groups": [
             "mjau:sittable",
             "mjau:saddled",
-            "mjau:jagar"
+            "mjau:jagar",
+            "mjau:fri"
           ]
         }
       },
@@ -2510,7 +2550,8 @@
           "component_groups": [
             "mjau:sittable",
             "mjau:saddled",
-            "mjau:jagar"
+            "mjau:jagar",
+            "mjau:fri"
           ]
         }
       },
@@ -2527,7 +2568,8 @@
           "component_groups": [
             "mjau:sittable",
             "mjau:saddled",
-            "mjau:jagar"
+            "mjau:jagar",
+            "mjau:fri"
           ]
         }
       },
@@ -2602,7 +2644,17 @@
         },
         "add": {
           "component_groups": [
-            "mjau:armored"
+            "mjau:armored_1",
+            "mjau:pansarkur"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:armored_2",
+            "mjau:armored_3",
+            "mjau:armored_4",
+            "mjau:armored",
+            "mjau:pansarkur"
           ]
         }
       },
@@ -2612,7 +2664,17 @@
         },
         "add": {
           "component_groups": [
-            "mjau:armored"
+            "mjau:armored_2",
+            "mjau:pansarkur"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:armored_1",
+            "mjau:armored_3",
+            "mjau:armored_4",
+            "mjau:armored",
+            "mjau:pansarkur"
           ]
         }
       },
@@ -2622,7 +2684,17 @@
         },
         "add": {
           "component_groups": [
-            "mjau:armored"
+            "mjau:armored_3",
+            "mjau:pansarkur"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:armored_1",
+            "mjau:armored_2",
+            "mjau:armored_4",
+            "mjau:armored",
+            "mjau:pansarkur"
           ]
         }
       },
@@ -2632,7 +2704,17 @@
         },
         "add": {
           "component_groups": [
-            "mjau:armored"
+            "mjau:armored_4",
+            "mjau:pansarkur"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:armored_1",
+            "mjau:armored_2",
+            "mjau:armored_3",
+            "mjau:armored",
+            "mjau:pansarkur"
           ]
         }
       },

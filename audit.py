@@ -48,8 +48,12 @@ for f in sorted(glob.glob(f"{BP}/entities/*.json")):
 
     # En grupp inget event lägger till kan aldrig aktiveras — antingen död kod
     # eller en glömd koppling.
+    # Undantag: legacy-grupper som äldre världar bär i sparad data. Tas
+    # definitionen bort blir aktören okänd vid uppgradering (2.6.2-läxan),
+    # så de ska finnas kvar trots att inget event längre lägger till dem.
+    LEGACY = {"mjau:armored"}
     added = {g for ev in events.values() for g in ev.get("add", {}).get("component_groups", [])}
-    for g in groups - added:
+    for g in groups - added - LEGACY:
         found.append(f"{cid}: grupp '{g}' läggs aldrig till av något event")
 
     # Egna föremål måste anges med namnrymd, annars matchar filtret aldrig.

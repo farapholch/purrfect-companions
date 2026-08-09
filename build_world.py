@@ -46,6 +46,7 @@ TEXTS = {
         "world": "Cat Haven",
         "welcome_sign": "Cat Haven\nThe shelter\nneeds a new\ncaretaker!",
         "den_clue": "Still warm...\npaw prints go\ndeeper into the\nsouthwest woods",
+        "pool_sign": "CAT POOL\n/\\_/\\ ~\u2248~\n( ^.^ ) splash!\nno dogs allowed",
         "start_sign": "Start here:\nread the book\nin the chest\ninside ->",
         "chest_sign": "The handbook\nis in here!",
         "diary_title": "The Old Caretaker's Diary",
@@ -72,6 +73,7 @@ TEXTS = {
         "world": "Kattgården",
         "welcome_sign": "Kattgården\nKatthemmet\nbehöver en ny\nföreståndare!",
         "den_clue": "Ännu varm...\ntassavtryck mot\nsydväst, djupt\nin i skogen",
+        "pool_sign": "KATTPOOLEN\n/\\_/\\ ~\u2248~\n( ^.^ ) plask!\ninga hundar!",
         "start_sign": "Börja här:\nläs handboken\ni kistan\ndärinne ->",
         "chest_sign": "Handboken\nligger häri!",
         "diary_title": "Gamla föreståndarens dagbok",
@@ -293,6 +295,12 @@ def build_structures(outdir, t, disp, cats):
     s.entity_at(0, 0, 0, sign_entity(t["welcome_sign"]))
     s.emit(f"{st}/welcome.mcstructure")
 
+    # POOLSKYLTEN vid dammens västra strand (vänd mot huset i väster)
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 4})
+    s.entity_at(0, 0, 0, sign_entity(t["pool_sign"]))
+    s.emit(f"{st}/poolsign.mcstructure")
+
     # LEDTRÅDSSKYLTEN i gamla kulan: Maja har flyttat (vänd mot ingången i öster)
     s = Struct(1, 1, 1)
     s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 12})
@@ -422,6 +430,8 @@ def build_commands(cats, disp):
     c.append(f'setblock 0 {f} 7 oak_stairs ["upside_down_bit"=false,"weirdo_direction"=2]')
     # kattskylten vid entrén
     c.append(f"structure load haven:catsign 2 {f} 6")
+    # poolskylten på dammens västra strand
+    c.append(f"structure load haven:poolsign 11 {f} 5")
     c.append(("sleep", 1))
     # dekor längs fyrvägen: lyktstolpar + blommor + två extra ekar
     for lx, lz in ((10, 12), (7, 20), (10, 28), (7, 36), (10, 44)):

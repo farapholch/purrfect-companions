@@ -89,11 +89,12 @@ if PREV=$(grep -P "^$VER\t$VARIANT\t" "$LEDGER" 2>/dev/null | tail -1 | cut -f3)
 fi
 
 if [ "$CURSEFORGE" -eq 1 ]; then
-  # SPÄRR: Pelle 2026-08-09: "Vi får inte skicka till curse forge".
-  # Hävs genom att radera spärrfilen — men fråga Pelle först.
-  if [ -f "$SRC/.curseforge-blocked" ]; then
-    echo "⛔ CurseForge-uppladdning SPÄRRAD ($(cat "$SRC/.curseforge-blocked"))"; exit 1
-  fi
+  # Pelle 2026-08-09: CF-användarna klagar på för täta updates —
+  # ENDAST major-versioner (X.0.0) får skickas till CurseForge.
+  case "$VER" in
+    *.0.0) ;;
+    *) echo "⛔ endast major (X.0.0) till CurseForge — $VER är ingen major"; exit 1;;
+  esac
   [ -f "$CF_TOKEN_FILE" ] || { echo "❌ ingen CurseForge-token i $CF_TOKEN_FILE"; exit 1; }
   CHANGELOG=$(cat /opt/purrfect-companions/publish/changelog.md 2>/dev/null || echo "Update $VER")
   # metadata via FIL — skalcitering bryter sönder JSON med radbrytningar/citattecken

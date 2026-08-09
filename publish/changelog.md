@@ -1,3 +1,15 @@
+## 2.7.2 — A fourth task, and a proper face
+
+- **Cat Haven grew a fourth task.** The old caretaker never trusted
+  banks - what he saved, the cats buried. A cat wearing a backpack
+  remembers where. The handbook explains; the digging is up to you.
+- **The shelter keeps one more secret.** The handbook puts it plainly:
+  mind the boxes. Some hide more than dust.
+- **The pack finally has a face:** all four cats look out of the new
+  pack icon instead of a lone grey render.
+- The world builder learned two hard lessons about world bottoms and
+  lock inheritance; both now have tests standing guard.
+
 ## 2.7.1 — The furniture rises from the floor
 
 Found within hours by an Xbox playtest of Cat Haven: every piece of

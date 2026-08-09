@@ -39,6 +39,13 @@ TEXTS = {
     "public": {
         "world": "Cat Haven",
         "welcome_sign": "Cat Haven\nThe shelter needs\na new caretaker!",
+        "diary_title": "The Old Caretaker's Diary",
+        "diary_author": "The Old Caretaker",
+        "diary_pages": [
+            "Day 214.\n\nThe backpack cat dug up a diamond today. I laughed until I cried.\n\nI buried nothing. They have their own economy down there.",
+            "Day 388.\n\nA fifth cat came with the frost. Black as the space between the stars. She never let me feed her by hand.\n\nMidnight, I called her. The others speak of her still.",
+            "Day 401.\n\nCold night. I left a silver fish on a cat bed, and by morning it was gone - and there were two sets of pawprints in the snow.\n\nIf you are reading this: she is still here. Somewhere.",
+        ],
         "book_title": "The Caretaker's Handbook",
         "book_author": "The Old Caretaker",
         "book_pages": [
@@ -46,13 +53,21 @@ TEXTS = {
             "TASK 1 - FIND THE CATS\n\n%MOCHA% never left the shelter. %HAZEL% fishes by the pond. %MISTY% hides among the trees. %SNOW% wanders the lighthouse road.\n\nTame them with the cod from this chest.",
             "TASK 2 - A CATCH FROM THE POND\n\nPut the saddle on a cat and wade into the pond together.\n\nA saddled cat catches cod all by itself. Let it fish your next meal!",
             "TASK 3 - RIDE TO THE LIGHTHOUSE\n\nFollow the gravel road south and ride to the top of the lighthouse hill.\n\nSomething useful waits in the chest at the top of the tower.",
-            "The beds inside carry the cats' names. Cat treats cheer them up when their tails droop - the recipe is sugar, wheat and cod.\n\nTake good care of them.\n\n- The Old Caretaker",
+            "TASK 4 - THE BURIED SAVINGS\n\nI never trusted banks. What I saved, the cats buried - they bury better than I ever did.\n\nA cat wearing a BACKPACK remembers where. Give one a backpack and let it dig.",
+            "The beds inside carry the cats' names. Cat treats cheer them up when their tails droop - the recipe is sugar, wheat and cod.\n\nTake good care of them.\n\nAnd mind the boxes. Some hide more than dust.\n\n- The Old Caretaker",
             "One more thing, if you will believe an old man.\n\nThe cats used to tell of a FIFTH - black as the gap between the stars, with eyes of amber.\n\nShe shows herself only to those who leave a silver fish on a cat's bed while the moon stands at its highest.",
         ],
     },
     "private": {
         "world": "Kattgården",
         "welcome_sign": "Kattgården\nKatthemmet behöver\nen ny föreståndare!",
+        "diary_title": "Gamla föreståndarens dagbok",
+        "diary_author": "Gamla föreståndaren",
+        "diary_pages": [
+            "Dag 214.\n\nRyggsäckskatten grävde upp en diamant i dag. Jag skrattade tills jag grät.\n\nJag grävde aldrig ner något. De har sin egen ekonomi där nere.",
+            "Dag 388.\n\nEn femte katt kom med frosten. Svart som mellanrummet mellan stjärnorna. Hon lät mig aldrig mata henne ur handen.\n\nMidnight kallade jag henne. De andra talar om henne än.",
+            "Dag 401.\n\nKall natt. Jag lämnade en silverfisk på en kattbädd, och på morgonen var den borta - och det fanns två rader tassavtryck i snön.\n\nLäser du det här: hon är kvar. Någonstans.",
+        ],
         "book_title": "Föreståndarens handbok",
         "book_author": "Gamla föreståndaren",
         "book_pages": [
@@ -60,7 +75,8 @@ TEXTS = {
             "UPPDRAG 1 - HITTA KATTERNA\n\n%MOCHA% lämnade aldrig katthemmet. %HAZEL% fiskar vid dammen. %MISTY% gömmer sig bland träden. %SNOW% strövar på fyrvägen.\n\nTämj dem med torsken ur kistan.",
             "UPPDRAG 2 - EN FÅNGST UR DAMMEN\n\nSätt sadeln på en katt och vada ut i dammen tillsammans.\n\nEn sadlad katt fångar torsk alldeles själv. Låt den fiska din nästa måltid!",
             "UPPDRAG 3 - RID TILL FYREN\n\nFölj grusvägen söderut och rid upp för fyrkullen.\n\nNågot användbart väntar i kistan högst upp i tornet.",
-            "Sängarna därinne bär katternas namn. Kattgodis piggar upp dem när svansen hänger - receptet är socker, vete och torsk.\n\nTa väl hand om dem.\n\n- Gamla föreståndaren",
+            "UPPDRAG 4 - DET NEDGRÄVDA SPARANDET\n\nJag litade aldrig på banker. Det jag sparade grävde katterna ner - de gräver bättre än jag någonsin gjorde.\n\nEn katt med RYGGSÄCK minns var. Ge en katt en ryggsäck och låt den gräva.",
+            "Sängarna därinne bär katternas namn. Kattgodis piggar upp dem när svansen hänger - receptet är socker, vete och torsk.\n\nTa väl hand om dem.\n\nOch se upp med lådorna. Vissa gömmer mer än damm.\n\n- Gamla föreståndaren",
             "En sak till, om du tror en gammal man.\n\nKatterna berättade om en FEMTE - svart som mellanrummet mellan stjärnorna, med ögon av bärnsten.\n\nHon visar sig bara för den som lämnar en silverfisk på en kattbädd när månen står som högst.",
         ],
     },
@@ -197,6 +213,31 @@ def build_structures(outdir, t, disp, cats):
     ]))
     s.emit(f"{st}/shelter.mcstructure")
 
+    # HEMLIGA KÄLLAREN: under katthemmet, nås via schaktet som kartongen döljer
+    # ("mind the boxes"). Dagboken därnere fördjupar femte katt-mytologin och
+    # ryggsäcken låser upp uppdrag 4 (skattletandet).
+    # Världsbotten är bedrock på -64 — källaren får plats exakt ovanpå:
+    # golv -64, rum -63..-62 (två högt), tak -61 (markskiktet).
+    s = Struct(7, 4, 6)
+    s.box(0, 0, 0, 6, 3, 5, "minecraft:cobblestone")
+    s.box(1, 1, 1, 5, 2, 4, "minecraft:air")
+    s.set(4, 3, 1, "minecraft:air")                                # schaktmynningen i taket
+    for y in (1, 2):                                               # stege upp mot schaktet
+        s.set(4, y, 1, "minecraft:ladder", {"facing_direction": 2})
+    s.set(3, 1, 3, "minecraft:lantern", {"hanging": False})
+    s.set(1, 1, 4, "minecraft:chest", {"facing_direction": 5})
+    s.entity_at(1, 1, 4, chest_entity([
+        item(0, "minecraft:written_book", 1, {
+            "title": S(t["diary_title"]), "author": S(t["diary_author"]),
+            "generation": I(0),
+            "pages": L(nbt.TAG_COMPOUND, [C({"photoname": S(""), "text": S(p)})
+                                          for p in t["diary_pages"]])}),
+        item(1, "mjau:ryggsack_brun", 1),
+        item(2, "mjau:haxhatt_svart", 1),
+        item(3, "minecraft:emerald", 5),
+    ]))
+    s.emit(f"{st}/cellar.mcstructure")
+
     # VÄLKOMSTSKYLT vid spawn (egen liten struktur, vänd mot norr=spelaren)
     s = Struct(1, 1, 1)
     s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 8})
@@ -285,6 +326,14 @@ def build_commands(cats, disp):
     c.append(f'setblock -1 {f+1} 8 wooden_door ["direction"=3,"door_hinge_bit"=false]')
     c.append(f'setblock 0 {f+1} 8 wooden_door ["direction"=3,"door_hinge_bit"=true]')
     c.append(("sleep", 1))
+    # hemliga källaren: rum under huset, schakt upp till golvcellen under
+    # kartongen (världs-x5,z9) — kartongen laddas ovanpå och döljer hålet
+    c.append(f"structure load haven:cellar 1 {g-3} 8")   # helt under huset, ovanpå bedrock
+    c.append(("sleep", 2))
+    c.append(f"fill 5 {g-1} 9 5 {f} 9 air")            # genom golvet upp till kartongcellen
+    c.append(f'fill 5 {g-1} 9 5 {f} 9 ladder ["facing_direction"=2]')
+    c.append(("sleep", 1))
+    c.append(f"testforblock 2 {g-2} 12 chest")          # källarkistan
     c.append(f"structure load haven:welcome 1 {f} 1")
     c.append(("sleep", 1))
     c.append(f"structure load haven:pond 12 {g-2} 2")
@@ -321,6 +370,13 @@ def build_commands(cats, disp):
 
 # ------------------------------------------------------------- huvudflöde ----
 def run_server_build(world_name, cmds, log_path):
+    # EN Bedrock-server åt gången på maskinen — portarna är exklusiva och en
+    # parallell purrfect-test/gametest får inte skjutas ner av vår pkill.
+    import fcntl
+    _lock = None
+    if os.environ.get("BDS_LOCK_HELD") != "1":   # annars ärvt från cathaven-test
+        _lock = open("/tmp/bds.lock", "w")
+        fcntl.flock(_lock, fcntl.LOCK_EX)
     props = f"{SRV}/server.properties"
     orig = open(props).read()
     open(props, "w").write(orig.replace("level-name=Kattest", f"level-name={world_name}")
@@ -343,6 +399,8 @@ def run_server_build(world_name, cmds, log_path):
     finally:
         open(props, "w").write(orig)
         subprocess.run(["pkill", "-9", "-x", "bedrock_server"], capture_output=True)
+        if _lock:
+            fcntl.flock(_lock, fcntl.LOCK_UN); _lock.close()
     return open(log_path).read()
 
 def postprocess_level_dat(world_dir, world_name):

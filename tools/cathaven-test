@@ -5,6 +5,12 @@
 # stdin) — steg 3 finns för att fånga fel i PAKETERINGEN: trasig level.dat,
 # fel paket-UUID:n i world_*_packs.json, strukturer som läckt in i skeppade BP.
 set -u
+# EN Bedrock-server åt gången — vänta på låset i stället för att krocka på portarna.
+# Ärftligt: barnprocesserna (build_world.py ×2) tar inte låset igen — självdeadlock annars.
+if [ "${BDS_LOCK_HELD:-}" != "1" ]; then
+  exec 9>/tmp/bds.lock; flock -w 1200 9 || { echo "kunde inte ta serverlåset"; exit 1; }
+  export BDS_LOCK_HELD=1
+fi
 SRC=/opt/purrfect-companions
 SRV=/opt/bds/server
 OUT=/tmp/cathaven-test-out

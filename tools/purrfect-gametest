@@ -12,6 +12,12 @@
 #
 # Exit 0 = PASS. Skapad 2026-08-08.
 set -u
+# EN Bedrock-server åt gången — vänta på låset i stället för att krocka på portarna.
+# Ärftligt: hoppar över om föräldern (purrfect-test) redan håller det.
+if [ "${BDS_LOCK_HELD:-}" != "1" ]; then
+  exec 9>/tmp/bds.lock; flock -w 1200 9 || { echo "kunde inte ta serverlåset"; exit 1; }
+  export BDS_LOCK_HELD=1
+fi
 SRC=/opt/purrfect-companions
 SRV=/opt/bds/server
 W="$SRV/worlds/Kattest"

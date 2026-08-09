@@ -48,6 +48,7 @@ TEXTS = {
         "den_clue": "Still warm...\npaw prints go\ndeeper into the\nsouthwest woods",
         "pool_sign": "CAT POOL\n/\\_/\\ ~\u2248~\n( ^.^ ) splash!\nno dogs allowed",
         "dog_name": "The Guard Dog",
+        "silverfish_name": "§bThe Silver Fish",
         "start_sign": "Start here:\nread the book\nin the chest\ninside ->",
         "chest_sign": "The handbook\nis in here!",
         "diary_title": "The Old Caretaker's Diary",
@@ -67,7 +68,7 @@ TEXTS = {
             "TASK 4 - RIDE TO THE LIGHTHOUSE\n\nFollow the gravel road south and ride to the top of the lighthouse hill.\n\nSomething useful waits in the chest at the top of the tower.",
             "TASK 5 - THE BURIED SAVINGS\n\nI never trusted banks. What I saved, the cats buried - they bury better than I ever did.\n\nA cat wearing a BACKPACK remembers where. Give one a backpack and let it dig.",
             "The beds inside carry the cats' names. Cat treats cheer them up when their tails droop - the recipe is sugar, wheat and cod.\n\nTake good care of them.\n\nAnd mind the boxes. Some hide more than dust.\n\n- The Old Caretaker",
-            "One more thing, if you will believe an old man.\n\nThe cats used to tell of a FIFTH - black as the gap between the stars, with eyes of amber.\n\nShe shows herself only to those who leave a silver fish on a cat's bed while the moon stands at its highest.",
+            "One more thing, if you will believe an old man.\n\nThe cats used to tell of a FIFTH - black as the gap between the stars, with eyes of amber.\n\nShe shows herself only to those who leave the SILVER FISH from the lighthouse chest on a cat's bed while the moon stands at its highest.",
         ],
     },
     "private": {
@@ -76,6 +77,7 @@ TEXTS = {
         "den_clue": "Ännu varm...\ntassavtryck mot\nsydväst, djupt\nin i skogen",
         "pool_sign": "KATTPOOLEN\n/\\_/\\ ~\u2248~\n( ^.^ ) plask!\ninga hundar!",
         "dog_name": "Vakthunden",
+        "silverfish_name": "§bSilverfisken",
         "start_sign": "Börja här:\nläs handboken\ni kistan\ndärinne ->",
         "chest_sign": "Handboken\nligger häri!",
         "diary_title": "Gamla föreståndarens dagbok",
@@ -95,7 +97,7 @@ TEXTS = {
             "UPPDRAG 4 - RID TILL FYREN\n\nFölj grusvägen söderut och rid upp för fyrkullen.\n\nNågot användbart väntar i kistan högst upp i tornet.",
             "UPPDRAG 5 - DET NEDGRÄVDA SPARANDET\n\nJag litade aldrig på banker. Det jag sparade grävde katterna ner - de gräver bättre än jag någonsin gjorde.\n\nEn katt med RYGGSÄCK minns var. Ge en katt en ryggsäck och låt den gräva.",
             "Sängarna därinne bär katternas namn. Kattgodis piggar upp dem när svansen hänger - receptet är socker, vete och torsk.\n\nTa väl hand om dem.\n\nOch se upp med lådorna. Vissa gömmer mer än damm.\n\n- Gamla föreståndaren",
-            "En sak till, om du tror en gammal man.\n\nKatterna berättade om en FEMTE - svart som mellanrummet mellan stjärnorna, med ögon av bärnsten.\n\nHon visar sig bara för den som lämnar en silverfisk på en kattbädd när månen står som högst.",
+            "En sak till, om du tror en gammal man.\n\nKatterna berättade om en FEMTE - svart som mellanrummet mellan stjärnorna, med ögon av bärnsten.\n\nHon visar sig bara för den som lämnar SILVERFISKEN ur fyrens kista på en kattbädd när månen står som högst.",
         ],
     },
 }
@@ -370,7 +372,8 @@ def build_structures(outdir, t, disp, cats):
         item(0, "mjau:rustning_netherit", 1),
         item(1, "minecraft:diamond", 3),
         item(2, "minecraft:golden_apple", 1),
-        item(3, "minecraft:salmon", 1),      # "en silverfisk" — nyckeln till gåtan
+        item(3, "minecraft:salmon", 1,       # nyckeln till gåtan, nu med NAMN —
+             {"display": C({"Name": S(t["silverfish_name"])})}),  # laxen är ju rosa
     ]))
     s.emit(f"{st}/lighthouse.mcstructure")
 

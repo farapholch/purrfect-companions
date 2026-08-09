@@ -65,6 +65,35 @@ for w in worlds:
         man = json.loads(z.read(f"{kind}_packs/{pack}/manifest.json"))["header"]
         if ref["pack_id"] != man["uuid"]: bad.append(f"{os.path.basename(w)}: {kind}-UUID matchar inte inbäddat paket")
         if ref["version"] != man["version"]: bad.append(f"{os.path.basename(w)}: {kind}-version matchar inte")
+    # VERSIONS-INTEGRITET: världens inbäddade paket måste vara IDENTISKA med
+    # add-onet av samma version (v2.3.1-läxan: samma UUID+version med olika
+    # innehåll => "packs failed to load" på Xbox). Jämför mot loggbokens
+    # content-sha för versionen+varianten — finns en rad och innehållet
+    # skiljer sig har källan ändrats efter paketering: bumpa versionen.
+    import hashlib, subprocess
+    _ver = ".".join(map(str, json.loads(z.read("behavior_packs/PurrfectCompanions_BP/manifest.json"))["header"]["version"]))
+    _variant = "private" if fam else "public"
+    _stage = f"/tmp/cathaven-ledgercheck-{_variant}"
+    subprocess.run(["python3", "/opt/purrfect-companions/make_variant.py", _variant, _stage],
+                   check=True, capture_output=True)
+    _h = hashlib.sha256()
+    import os as _os
+    _files = []
+    for _root, _, _fns in _os.walk(_stage):
+        for _fn in _fns: _files.append(_os.path.join(_root, _fn))
+    for _p in sorted(_files, key=lambda p: _os.path.relpath(p, _stage)):
+        _h.update(open(_p, "rb").read())
+    for _line in open("/opt/purrfect-companions/.shipped.tsv"):
+        _c = _line.rstrip("\n").split("\t")
+        if _c[0] == _ver and _c[1] == _variant:
+            # jämför paketstadiets innehåll nu mot när versionen skeppades
+            _cur = subprocess.run(["bash", "-c",
+                f"cd {_stage} && find . -type f | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1"],
+                capture_output=True, text=True).stdout.strip()
+            if _cur != _c[2]:
+                bad.append(f"{os.path.basename(w)}: v{_ver} ({_variant}) är redan skeppad med ANNAT "
+                           f"innehåll — samma UUID+version med olika innehåll vägrar ladda på Xbox. Bumpa!")
+            break
     # byggstrukturerna får inte läcka med i det skeppade paketet
     if any("/structures/" in n for n in names):
         bad.append(f"{os.path.basename(w)}: byggstrukturer har läckt in i skeppat BP")
@@ -135,6 +164,8 @@ PY
     echo "testforblock 2 -59 8 mjau:kattlucka"; sleep 1
     echo "testforblock -2 -42 56 chest"; sleep 1
     echo "testforblock 1 -50 56 ladder"; sleep 1
+    echo "testforblock -1 -59 8 wooden_door"; sleep 1
+    echo "testforblock -1 -58 8 wooden_door"; sleep 1
     echo "testfor @e[type=mjau:misty,x=-9,y=-60,z=33,r=80]"; sleep 1
     # kistprovet: slå sönder startkistan (i SMOKE-kopian, inte skeppade filen)
     # — bara riktiga, accepterade föremål trillar ut som item-entiteter.
@@ -148,7 +179,7 @@ PY
   cp /tmp/cathaven-props.bak "$PROPS"
   grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" || bad "paketen laddades INTE ur världen"
   FB=$(grep -c 'found the block' "$SLOG")
-  [ "$FB" -ge 6 ] && ok "alla $FB/6 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege)" || bad "bara $FB/6 nyckelblock i den paketerade världen"
+  [ "$FB" -ge 8 ] && ok "alla $FB/8 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna)" || bad "bara $FB/8 nyckelblock i den paketerade världen"
   grep -q "Found Misty" "$SLOG" && ok "Misty överlevde paketeringen (namngiven, persistent)" || bad "Misty saknas i den paketerade världen"
   DROP=$(awk '/Block placed/{m=1; next} m && /Found /{f=1} END{print f+0}' "$SLOG")
   if [ "$DROP" -ge 1 ]; then

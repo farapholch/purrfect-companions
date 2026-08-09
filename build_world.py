@@ -106,6 +106,10 @@ class Struct:
         self.blocks[(x, y, z)] = (name, states or {})
 
     def box(self, x0, y0, z0, x1, y1, z1, name, states=None, hollow=False):
+        if hollow and (x0 == x1 or y0 == y1 or z0 == z1):
+            # höjd/bredd 1 gör VARJE cell till kant — hela lagret fylls.
+            # Har bitit tre gånger (dammen, fyrräcket). Bygg kanter explicit.
+            raise ValueError("hollow-box med platt axel fyller allt — bygg kanterna explicit")
         for x in range(x0, x1 + 1):
             for y in range(y0, y1 + 1):
                 for z in range(z0, z1 + 1):
@@ -233,8 +237,10 @@ def build_structures(outdir, t, disp, cats):
     # custom-block renderas nedsjunkna på klienten ("groparna", bekräftat på
     # Xbox 2026-08-09 även efter palettversions-fixen). Kommandoplacering är
     # bevisat felfri (utomhusbädden, kulans bädd).
-    s.set(2, 2, 0, "minecraft:wall_sign", {"facing_direction": 3})             # "handboken häri!"
-    s.entity_at(2, 2, 0, sign_entity(t["chest_sign"]))
+    # skylten sitter på väggens INSIDA (cell z1) — i väggplanet (z0) åt den
+    # upp fönstrets nedre glasruta ("fönster verkar saknas", Xbox-rapport)
+    s.set(2, 2, 1, "minecraft:wall_sign", {"facing_direction": 3})             # "handboken häri!"
+    s.entity_at(2, 2, 1, sign_entity(t["chest_sign"]))
     s.set(2, 1, 1, "minecraft:chest", {"facing_direction": 5})                 # startkistan
     s.entity_at(2, 1, 1, chest_entity([
         item(0, "minecraft:written_book", 1, book_tag(t)),
@@ -304,9 +310,14 @@ def build_structures(outdir, t, disp, cats):
     s = Struct(7, 17, 7)
     s.box(0, 0, 0, 6, 1, 6, "minecraft:cobblestone")
     s.box(2, 0, 2, 4, 1, 4, "minecraft:air")                                   # urgröpt sockel
+    # RINGVÄGGAR per våning — flat hollow-box fyllde hela lagret, så tornet
+    # var i praktiken MASSIVT med en begravd stegschakt (spärren avslöjade det)
     for y in range(2, 13):
         band = "minecraft:red_concrete" if y in (5, 9) else "minecraft:white_concrete"
-        s.box(1, y, 1, 5, y, 5, band, hollow=True)
+        for wx in range(1, 6):
+            s.set(wx, y, 1, band); s.set(wx, y, 5, band)
+        for wz in range(2, 5):
+            s.set(1, y, wz, band); s.set(5, y, wz, band)
     # INGÅNGEN VETTER MOT NORR — det är därifrån vägen kommer (Xbox-rapport:
     # spelaren möttes av en blank sockel; söderöppningen satt på baksidan).
     for z in (0, 1):                                                           # tunnel genom sockeln
@@ -324,7 +335,10 @@ def build_structures(outdir, t, disp, cats):
     # översta stegpinnen SIST — plattformsboxen skrev annars över den och man
     # slog i huvudet strax under luckan (Xbox-rapport #2)
     s.set(4, 13, 3, "minecraft:ladder", {"facing_direction": 4})
-    s.box(0, 14, 0, 6, 14, 6, "minecraft:oak_fence", hollow=True)              # räcke
+    for rx in range(0, 7):                                                     # räcke: bara KANTEN
+        s.set(rx, 14, 0, "minecraft:oak_fence"); s.set(rx, 14, 6, "minecraft:oak_fence")
+    for rz in range(1, 6):
+        s.set(0, 14, rz, "minecraft:oak_fence"); s.set(6, 14, rz, "minecraft:oak_fence")
     # ljuset ETT steg högre — glowstone på y14 satt i huvudhöjd bredvid
     # takluckan och man slog i skallen när man klev upp (Xbox-rapport)
     s.set(3, 15, 3, "minecraft:glowstone")                                     # ljuset
@@ -390,8 +404,10 @@ def build_commands(cats, disp):
     c.append(("sleep", 1))
     # trappsteg framför pardörren — golvet ligger ett block över marken
     # ("dörren sitter i fel höjd", Xbox-rapport)
-    c.append(f'setblock -1 {g} 7 oak_stairs ["upside_down_bit"=false,"weirdo_direction"=2]')
-    c.append(f'setblock 0 {g} 7 oak_stairs ["upside_down_bit"=false,"weirdo_direction"=2]')
+    # trappsteget PÅ marken ({f}), inte I marklagret ({g}) — Xbox-rapport:
+    # "trappen är i marken"
+    c.append(f'setblock -1 {f} 7 oak_stairs ["upside_down_bit"=false,"weirdo_direction"=2]')
+    c.append(f'setblock 0 {f} 7 oak_stairs ["upside_down_bit"=false,"weirdo_direction"=2]')
     # kattskylten vid entrén
     c.append(f"structure load haven:catsign 2 {f} 6")
     c.append(("sleep", 1))
@@ -399,7 +415,7 @@ def build_commands(cats, disp):
     for lx, lz in ((10, 12), (7, 20), (10, 28), (7, 36), (10, 44)):
         c.append(f"setblock {lx} {f} {lz} oak_fence")
         c.append(f'setblock {lx} {f+1} {lz} lantern ["hanging"=false]')
-    for px, pz in ((6, 10), (11, 18), (6, 26), (11, 34), (5, 44)):
+    for px, pz in ((11, 10), (11, 18), (6, 26), (11, 34), (5, 44)):   # (6,10) satt i husväggen
         c.append(f"setblock {px} {f} {pz} poppy")
     for dx, dz in ((10, 15), (7, 31), (12, 41)):
         c.append(f"setblock {dx} {f} {dz} dandelion")
@@ -423,7 +439,9 @@ def build_commands(cats, disp):
                    (-45, 61), (-39, 60)):
         c.append(f"structure load haven:darktree {tx} {g+1} {tz}")
         c.append(("sleep", 1))
-    for wx, wz in ((-36, 35), (-43, 41), (-49, 49), (-35, 50), (-46, 57)):
+    # vävarna får INTE dela cell med trädstammar (origin+3) — en väv ersatte
+    # en stambas och trädet svävade ("träd står på spindelväv", Xbox-rapport)
+    for wx, wz in ((-41, 36), (-47, 45), (-33, 48), (-38, 54), (-45, 59)):
         c.append(f"setblock {wx} {f} {wz} web")
     # jordkulan i gläntan, mynning mot öster (dit spåret leder)
     c.append(f"fill -47 {g+1} 45 -42 {g+4} 49 dirt")

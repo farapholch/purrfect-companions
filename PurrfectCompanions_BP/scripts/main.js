@@ -127,3 +127,38 @@ system.runInterval(() => {
     }
   }
 }, 40);
+
+// ---------------------------------------------------------------------------
+// MÖBELDOKTORN: block sparade av byggservern renderas nedsjunkna på klienten
+// ("groparna") — spelarplacerade renderas rätt. Bevisat på Xbox 2026-08-09:
+// samma block, olika stämpel i chunkpaletten. Botemedlet: skriv om möblerna
+// EN gång inne i spel-sessionen (klientens placeringsväg), sedan är chunken
+// klientstämplad för alltid. Körs tills alla celler kunnat behandlas (kräver
+// att spelaren laddat både byn och kulan) och markerar sedan världen läkt.
+const MOBLER = [
+  [-4, -59, 16], [-2, -59, 16], [2, -59, 16], [4, -59, 16],   // sängraden
+  [-4, -59, 13], [-3, -59, 13],                                // matskålarna
+  [-5, -59, 14], [5, -59, 14], [0, -59, 13], [5, -59, 9],      // låda/ställning/nystan/kartong
+  [12, -60, 7],                                                // fiskdammen
+  [-45, -60, 46],                                              // Majas bädd i kulan
+];
+let moblerLagda = false;
+
+system.runInterval(() => {
+  if (moblerLagda || catHavenWorld !== true) return;
+  try { if (world.getDynamicProperty("mjau_mobler_lagda")) { moblerLagda = true; return; } } catch { }
+  const d = world.getDimension("overworld");
+  let alla = true;
+  for (const [x, y, z] of MOBLER) {
+    try {
+      const b = d.getBlock({ x, y, z });
+      if (!b) { alla = false; continue; }
+      if (b.typeId.startsWith("mjau:")) b.setType(b.typeId);
+    } catch { alla = false; }
+  }
+  if (alla) {
+    moblerLagda = true;
+    try { world.setDynamicProperty("mjau_mobler_lagda", true); } catch { }
+    console.warn("[mjau] möblerna omlagda i session — groparna läkta");
+  }
+}, 100);

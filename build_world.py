@@ -214,15 +214,20 @@ def build_structures(outdir, t, disp, cats):
     s.set(0, 3, 5, "mjau:fiskdamm")
     s.emit(f"{st}/pond.mcstructure")
 
-    # FYREN: 7×7-bas, 5×5-torn med röda band, stege upp, belönings­kista i topp
+    # FYREN: 7×7-bas, 5×5-torn med röda band, stege upp, belönings­kista i topp.
+    # Ingången går i MARKNIVÅ genom sockeln (buggrapport från Xbox: öppningen
+    # satt två block upp utan trapp) — sockelns inre är urgröpt så man kliver
+    # rakt in på kullens nivå, och stegen börjar på golvet.
     s = Struct(7, 17, 7)
     s.box(0, 0, 0, 6, 1, 6, "minecraft:cobblestone")
+    s.box(2, 0, 2, 4, 1, 4, "minecraft:air")                                   # urgröpt sockel
     for y in range(2, 13):
         band = "minecraft:red_concrete" if y in (5, 9) else "minecraft:white_concrete"
         s.box(1, y, 1, 5, y, 5, band, hollow=True)
-    s.set(3, 2, 5, "minecraft:air"); s.set(3, 3, 5, "minecraft:air")           # ingång (söder)
+    for y in (0, 1, 2, 3):                                                     # ingång i marknivå (söder)
+        s.set(3, y, 5, "minecraft:air")
     s.box(3, 2, 3, 3, 3, 3, "minecraft:air")
-    for y in range(2, 14):                                                     # stege mot norrväggen
+    for y in range(0, 14):                                                     # stege från golvet, norrväggen
         s.set(3, y, 2, "minecraft:ladder", {"facing_direction": 3})
     s.box(0, 13, 0, 6, 13, 6, "minecraft:spruce_planks")                       # plattform
     s.set(3, 13, 2, "minecraft:air")                                           # stegluckan
@@ -273,6 +278,13 @@ def build_commands(cats, disp):
     # strukturerna (origins = sydvästra hörnet)
     c.append(f"structure load haven:shelter -6 {f} 8")
     c.append(("sleep", 2))
+    # PARDÖRR i dörröppningen (lokal x5,x6 → värld -1,0). setblock sätter båda
+    # dörrhalvorna korrekt — .mcstructure-vägen kräver handbyggda halvor med
+    # gångjärns-states och gick inte att verifiera visuellt härifrån.
+    # Katterna öppnar inga dörrar — kattluckan bredvid är deras väg.
+    c.append(f'setblock -1 {f+1} 8 wooden_door ["direction"=3,"door_hinge_bit"=false]')
+    c.append(f'setblock 0 {f+1} 8 wooden_door ["direction"=3,"door_hinge_bit"=true]')
+    c.append(("sleep", 1))
     c.append(f"structure load haven:welcome 1 {f} 1")
     c.append(("sleep", 1))
     c.append(f"structure load haven:pond 12 {g-2} 2")
@@ -284,6 +296,7 @@ def build_commands(cats, disp):
         c.append(("sleep", 1))
     # verifiera att nyckelblock faktiskt finns där de ska
     c.append(f"testforblock -4 {f+1} 9 chest")         # startkistan (världskoord)
+    c.append(f"testforblock -1 {f+1} 8 wooden_door")   # pardörren
     c.append(f"testforblock 12 {g+1} 7 mjau:fiskdamm") # dammen (ramkanten)
     c.append(f"testforblock 17 {g} 7 water")           # vattnet i dammen
     c.append(f"testforblock 0 {g+19} 56 glowstone")    # fyrljuset

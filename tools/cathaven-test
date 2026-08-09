@@ -78,24 +78,29 @@ for w in worlds:
         blob = b" ".join(z.read(n) for n in names if n.endswith((".json", ".lang")))
         for privat in (b"vinda", b"vilma", b"lillen", b"maja"):
             if privat in blob.lower(): bad.append(f"{os.path.basename(w)}: privat namn '{privat.decode()}' i publik värld")
-# boken och skyltarna: parse:a byggstrukturen och verifiera innehållet
+# böckerna och skyltarna: parse:a ALLA byggstrukturer och verifiera innehållet.
+# Skyltrader över ~15 tecken KLIPPS i spelet (Xbox-rapport: "texten är klippt").
 for variant, title in (("public", "The Caretaker's Handbook"), ("private", "Föreståndarens handbok")):
-    p = f"/tmp/cathaven-buildbp-{variant}/structures/haven/shelter.mcstructure"
-    if not os.path.exists(p): bad.append(f"{variant}: shelter.mcstructure saknas"); continue
-    data = open(p, "rb").read()
-    root, _ = nbt._read(data, 3 + len("".encode()), nbt.TAG_COMPOUND)
-    pos = root.v["structure"].v["palette"].v["default"].v["block_position_data"].v
     books = signs = 0
-    for entry in pos.values():
-        be = entry.v["block_entity_data"].v
-        if be["id"].v == "Chest":
-            for it in be["Items"].v[1]:
-                if it.v["Name"].v == "minecraft:written_book":
-                    tag = it.v["tag"].v
-                    if tag["title"].v == title and len(tag["pages"].v[1]) >= 5: books += 1
-        if be["id"].v == "Sign" and be["FrontText"].v["Text"].v: signs += 1
+    for p in glob.glob(f"/tmp/cathaven-buildbp-{variant}/structures/haven/*.mcstructure"):
+        data = open(p, "rb").read()
+        root, _ = nbt._read(data, 3 + len("".encode()), nbt.TAG_COMPOUND)
+        pos = root.v["structure"].v["palette"].v["default"].v["block_position_data"].v
+        for entry in pos.values():
+            be = entry.v["block_entity_data"].v
+            if be["id"].v == "Chest":
+                for it in be["Items"].v[1]:
+                    if it.v["Name"].v == "minecraft:written_book":
+                        tag = it.v["tag"].v
+                        if tag["title"].v == title and len(tag["pages"].v[1]) >= 5: books += 1
+            if be["id"].v == "Sign":
+                txt = be["FrontText"].v["Text"].v
+                if txt: signs += 1
+                for line in txt.split("\n"):
+                    if len(line) > 15:
+                        bad.append(f"{variant}: skyltrad '{line}' är {len(line)} tecken — klipps i spelet (max ~15)")
     if books != 1: bad.append(f"{variant}: välkomstboken saknas/fel titel i kistan")
-    if signs < 4: bad.append(f"{variant}: bara {signs}/4 namnskyltar med text")
+    if signs < 8: bad.append(f"{variant}: bara {signs}/8 skyltar med text (namn+välkommen+start+kista+katt)")
 print("\n".join(bad))
 PY
 )

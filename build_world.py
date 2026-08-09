@@ -44,7 +44,9 @@ FLOOR = GROUND + 1         # fötterna/golvnivån
 TEXTS = {
     "public": {
         "world": "Cat Haven",
-        "welcome_sign": "Cat Haven\nThe shelter needs\na new caretaker!",
+        "welcome_sign": "Cat Haven\nThe shelter\nneeds a new\ncaretaker!",
+        "start_sign": "Start here:\nread the book\nin the chest\ninside ->",
+        "chest_sign": "The handbook\nis in here!",
         "diary_title": "The Old Caretaker's Diary",
         "diary_author": "The Old Caretaker",
         "diary_pages": [
@@ -67,7 +69,9 @@ TEXTS = {
     },
     "private": {
         "world": "Kattgården",
-        "welcome_sign": "Kattgården\nKatthemmet behöver\nen ny föreståndare!",
+        "welcome_sign": "Kattgården\nKatthemmet\nbehöver en ny\nföreståndare!",
+        "start_sign": "Börja här:\nläs handboken\ni kistan\ndärinne ->",
+        "chest_sign": "Handboken\nligger häri!",
         "diary_title": "Gamla föreståndarens dagbok",
         "diary_author": "Gamla föreståndaren",
         "diary_pages": [
@@ -212,6 +216,8 @@ def build_structures(outdir, t, disp, cats):
     s.set(11, 1, 6, "mjau:stallning")                                          # klösställning
     s.set(6, 1, 5, "mjau:garnnystan")                                          # garnnystan
     s.set(11, 1, 1, "mjau:kartong")                                            # kartongen
+    s.set(2, 2, 0, "minecraft:wall_sign", {"facing_direction": 3})             # "handboken häri!"
+    s.entity_at(2, 2, 0, sign_entity(t["chest_sign"]))
     s.set(2, 1, 1, "minecraft:chest", {"facing_direction": 5})                 # startkistan
     s.entity_at(2, 1, 1, chest_entity([
         item(0, "minecraft:written_book", 1, book_tag(t)),
@@ -257,6 +263,12 @@ def build_structures(outdir, t, disp, cats):
     s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 8})
     s.entity_at(0, 0, 0, sign_entity(t["welcome_sign"]))
     s.emit(f"{st}/welcome.mcstructure")
+
+    # BÖRJA HÄR-skylten: spelaren ska aldrig behöva undra vad nästa steg är
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 8})
+    s.entity_at(0, 0, 0, sign_entity(t["start_sign"]))
+    s.emit(f"{st}/startsign.mcstructure")
 
     # DAMMEN: 11×11, 2 djup så katten kan simma — stenbotten, ram, vatten.
     # OBS: box(hollow=True) med höjd 1 gör ALLA block till kant (y träffar
@@ -392,6 +404,8 @@ def build_commands(cats, disp):
     c.append(("sleep", 1))
     c.append(f"testforblock 2 {g-2} 12 chest")          # källarkistan
     c.append(f"structure load haven:welcome 1 {f} 1")
+    c.append(("sleep", 1))
+    c.append(f"structure load haven:startsign -2 {f} 1")
     c.append(("sleep", 1))
     c.append(f"structure load haven:pond 12 {g-2} 2")
     c.append(("sleep", 1))

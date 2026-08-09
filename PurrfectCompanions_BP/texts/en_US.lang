@@ -1,3 +1,5 @@
+entity.mjau:midnight.name=Midnight
+entity.midnight.name=Midnight
 entity.snow.name=Snow (Ragdoll)
 entity.mocha.name=Mocha (Sacred Birman)
 entity.hazel.name=Hazel (Siberian)
@@ -84,3 +86,5 @@ tile.mjau:kartong.name=Cardboard Box
 tile.mjau:fiskdamm.name=Fish Pond
 tile.mjau:kattlucka.name=Cat Door
 tile.mjau:garnnystan.name=Yarn Ball
+action.hint.exit.midnight=Dismount
+action.hint.exit.mjau:midnight=Dismount

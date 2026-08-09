@@ -60,8 +60,11 @@ def build(variant, outdir):
         breeds = cfg.get("breeds", {})
         for pack in ("PurrfectCompanions_BP", "PurrfectCompanions_RP"):
             lp = f"{outdir}/{pack}/texts/en_US.lang"
+            # stryk bara raderna för de OMDÖPTA katterna — hemliga katter
+            # (t.ex. midnight) behåller sina rader orörda
+            slugs = "|".join(s for s, _ in names.values())
             lines = [l for l in open(lp, encoding="utf-8").read().rstrip("\n").split("\n")
-                     if not re.match(r"^entity\.|^item\.spawn_egg\.", l)]
+                     if not re.match(rf"^(entity|item\.spawn_egg\.entity)\.(mjau:)?({slugs})\.name=", l)]
             for src, (slug, disp) in names.items():
                 lines.insert(0, f"item.spawn_egg.entity.mjau:{slug}.name=Spawna {disp}")
                 lines.insert(0, f"entity.mjau:{slug}.name={disp} ({breeds.get(slug,'')})".replace(" ()", ""))
@@ -95,7 +98,11 @@ def build(variant, outdir):
     if u:
         bp["header"]["uuid"] = u["bp_header"]; bp["modules"][0]["uuid"] = u["bp_module"]
         rp["header"]["uuid"] = u["rp_header"]; rp["modules"][0]["uuid"] = u["rp_module"]
-        for dep in bp.get("dependencies", []): dep["uuid"] = u["rp_header"]
+        for mod in bp["modules"]:
+            if mod.get("type") == "script" and "bp_script" in u:
+                mod["uuid"] = u["bp_script"]
+        for dep in bp.get("dependencies", []):
+            if "uuid" in dep: dep["uuid"] = u["rp_header"]
     json.dump(bp, open(f"{outdir}/PurrfectCompanions_BP/manifest.json", "w"), indent=2)
     json.dump(rp, open(f"{outdir}/PurrfectCompanions_RP/manifest.json", "w"), indent=2)
 

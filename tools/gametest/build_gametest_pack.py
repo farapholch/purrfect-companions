@@ -189,6 +189,28 @@ gt.registerAsync("mjau", "vagn", async (test) => {
 })
   .structureName("mjau:arena")
   .maxTicks(2400);
+
+gt.registerAsync("mjau", "ritual", async (test) => {
+  // DEN HEMLIGA FEMTE KATTEN: en lax pa en kattbadd vid midnatt => Midnight.
+  // Skriptet i skeppade BP:t skannar var 40:e tick — vanta in det.
+  world.setTimeOfDay(18000);
+  test.setBlockType("mjau:kattbadd", { x: 10, y: 2, z: 10 });
+  await test.idle(10);
+  test.spawnItem(new ItemStack("minecraft:salmon", 1), { x: 10.5, y: 3.5, z: 10.5 });
+  let found = null;
+  for (let i = 0; i < 30 && !found; i++) {
+    await test.idle(20);
+    const near = test.getDimension().getEntities({ type: "mjau:midnight" });
+    if (near.length > 0) found = near[0];
+  }
+  world.setTimeOfDay(6000);
+  if (!found) return done(test, "ritualen: ingen Midnight kom (lax+kattbadd+midnatt)", false);
+  console.warn("[MJAU-GT] MIDNIGHT KOM — ritualen fungerar");
+  try { found.remove(); } catch { }   // stada: narhetsvakten far inte blockera nasta korning
+  done(test, "ritual: lax pa kattbadd vid midnatt gav den hemliga katten", true);
+})
+  .structureName("mjau:arena")
+  .maxTicks(2400);
 ''')
 
 # Arena: 7x5x7-struktur, stengolv, resten luft. GameTest kräver en struktur

@@ -1,3 +1,5 @@
+entity.mjau:midnight.name=Midnight
+entity.midnight.name=Midnight
 entity.snow.name=Snow (Ragdoll)
 entity.mocha.name=Mocha (Sacred Birman)
 entity.hazel.name=Hazel (Siberian)
@@ -84,3 +86,5 @@ action.hint.exit.mjau:mocha=Dismount
 action.hint.exit.mocha=Dismount
 action.hint.exit.mjau:snow=Dismount
 action.hint.exit.snow=Dismount
+action.hint.exit.midnight=Dismount
+action.hint.exit.mjau:midnight=Dismount

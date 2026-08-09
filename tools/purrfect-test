@@ -40,7 +40,7 @@ bp=json.load(open(f"{SRC}/PurrfectCompanions_BP/manifest.json")); rp=json.load(o
 V=bp["header"]["version"]
 if rp["header"]["version"]!=V: bad.append("RP-version != BP-version")
 if any(m["version"]!=V for m in bp["modules"]+rp["modules"]): bad.append("modul-version != header-version")
-dep=[d for d in bp.get("dependencies",[]) if d["uuid"]==rp["header"]["uuid"]]
+dep=[d for d in bp.get("dependencies",[]) if d.get("uuid")==rp["header"]["uuid"]]
 if not dep: bad.append("BP saknar beroende till RP")
 elif dep[0]["version"]!=rp["header"]["version"]: bad.append("beroende-version != RP-version")
 GEOALL=json.load(open(f"{SRC}/PurrfectCompanions_RP/models/entity/katt.geo.json"))["minecraft:geometry"]
@@ -193,10 +193,13 @@ for f in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json")):
     # Namnnycklar: Bedrock slår upp entitetsnamn både MED och UTAN namespace
     # (vanilla: entity.pig.name). Saknas kortformen visar t.ex. lastutrymmets
     # rubrik "Unknown". Kräv båda formerna i varje språkfil i RP:n.
+    _cef2=f"{SRC}/PurrfectCompanions_RP/entity/{cid}.json"
+    _has_egg=os.path.exists(_cef2) and "spawn_egg" in json.load(open(_cef2))["minecraft:client_entity"]["description"]
     for _lf in glob.glob(f"{SRC}/PurrfectCompanions_RP/texts/*.lang"):
         _lt=open(_lf,encoding="utf-8").read()
-        for _k in (f"entity.mjau:{cid}.name=",f"entity.{cid}.name=",
-                   f"item.spawn_egg.entity.mjau:{cid}.name="):
+        _keys=[f"entity.mjau:{cid}.name=",f"entity.{cid}.name="]
+        if _has_egg: _keys.append(f"item.spawn_egg.entity.mjau:{cid}.name=")
+        for _k in _keys:
             if _k not in _lt:
                 bad.append(f"{cid}: nyckeln {_k[:-1]} saknas i {os.path.basename(_lf)}")
     # Två styrsystem på samma riddjur slåss: controlled_by_player är ett AI-mål
@@ -222,7 +225,14 @@ for f in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json")):
                         bad.append(f"{cid}: event {evn} aktiverar {grp} utan att ta bort {others}")
     if "minecraft:behavior.follow_owner" in comp:
         bad.append(f"{cid}: follow_owner i bas-components (kraver agare)")
-    if not os.path.exists(f"{SRC}/PurrfectCompanions_BP/spawn_rules/{cid}.json"):
+    # Hemliga katter (utan spawn_egg i RP-client-entityn) spawnar bara via
+    # sin ritual — de ska INTE ha spawn_rules eller synas i creative-menyn.
+    _cef=f"{SRC}/PurrfectCompanions_RP/entity/{cid}.json"
+    _secret=os.path.exists(_cef) and "spawn_egg" not in json.load(open(_cef))["minecraft:client_entity"]["description"]
+    if _secret:
+        if os.path.exists(f"{SRC}/PurrfectCompanions_BP/spawn_rules/{cid}.json"):
+            bad.append(f"{cid}: hemlig katt med spawn_rules — då är hon inte hemlig")
+    elif not os.path.exists(f"{SRC}/PurrfectCompanions_BP/spawn_rules/{cid}.json"):
         bad.append(f"{cid}: saknar spawn_rules")
     # has_equipment-filtren: EGNA föremål måste anges med full identifierare
     # (mjau:sadel_brun), annars matchar filtret aldrig och plagget går inte att
@@ -376,8 +386,9 @@ for f in glob.glob(f"{rp}/entity/*.json"):
     cid = e["identifier"]; short = cid.split(":", 1)[1]
     for lf in glob.glob(f"{rp}/texts/*.lang"):
         lt = open(lf, encoding="utf-8").read()
-        for k in (f"entity.{cid}.name=", f"entity.{short}.name=",
-                  f"item.spawn_egg.entity.{cid}.name="):
+        keys = [f"entity.{cid}.name=", f"entity.{short}.name="]
+        if "spawn_egg" in e: keys.append(f"item.spawn_egg.entity.{cid}.name=")
+        for k in keys:
             if k not in lt: bad.append(f"{cid}: {k[:-1]} saknas i {os.path.basename(lf)}")
 print("\n".join(bad))
 PYV

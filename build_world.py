@@ -47,6 +47,7 @@ TEXTS = {
             "TASK 2 - A CATCH FROM THE POND\n\nPut the saddle on a cat and wade into the pond together.\n\nA saddled cat catches cod all by itself. Let it fish your next meal!",
             "TASK 3 - RIDE TO THE LIGHTHOUSE\n\nFollow the gravel road south and ride to the top of the lighthouse hill.\n\nSomething useful waits in the chest at the top of the tower.",
             "The beds inside carry the cats' names. Cat treats cheer them up when their tails droop - the recipe is sugar, wheat and cod.\n\nTake good care of them.\n\n- The Old Caretaker",
+            "One more thing, if you will believe an old man.\n\nThe cats used to tell of a FIFTH - black as the gap between the stars, with eyes of amber.\n\nShe shows herself only to those who leave a silver fish on a cat's bed while the moon stands at its highest.",
         ],
     },
     "private": {
@@ -60,6 +61,7 @@ TEXTS = {
             "UPPDRAG 2 - EN FÅNGST UR DAMMEN\n\nSätt sadeln på en katt och vada ut i dammen tillsammans.\n\nEn sadlad katt fångar torsk alldeles själv. Låt den fiska din nästa måltid!",
             "UPPDRAG 3 - RID TILL FYREN\n\nFölj grusvägen söderut och rid upp för fyrkullen.\n\nNågot användbart väntar i kistan högst upp i tornet.",
             "Sängarna därinne bär katternas namn. Kattgodis piggar upp dem när svansen hänger - receptet är socker, vete och torsk.\n\nTa väl hand om dem.\n\n- Gamla föreståndaren",
+            "En sak till, om du tror en gammal man.\n\nKatterna berättade om en FEMTE - svart som mellanrummet mellan stjärnorna, med ögon av bärnsten.\n\nHon visar sig bara för den som lämnar en silverfisk på en kattbädd när månen står som högst.",
         ],
     },
 }
@@ -232,6 +234,7 @@ def build_structures(outdir, t, disp, cats):
         item(0, "mjau:rustning_netherit", 1),
         item(1, "minecraft:diamond", 3),
         item(2, "minecraft:golden_apple", 1),
+        item(3, "minecraft:salmon", 1),      # "en silverfisk" — nyckeln till gåtan
     ]))
     s.emit(f"{st}/lighthouse.mcstructure")
 

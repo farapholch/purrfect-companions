@@ -1,3 +1,13 @@
+## 2.7.0 — The old cats tell of a fifth
+
+These notes will not explain this update. The caretaker's handbook in
+Cat Haven says a little more, on its last page — and the rest is
+between you and the cats, at midnight.
+
+(For the record: whatever this is, it is machine-tested like
+everything else. We are just not going to tell you what the test
+proves.)
+
 ## Cat Haven — a world to move into
 
 Not a version of the add-on, but a new way to start it: a ready-made

@@ -161,7 +161,7 @@ def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16):
 
 def scenes():
     """Varje katt i vila, och varje plagg i pose — plus allt på en gång."""
-    out = [(f"cat-{c}", c, [], {}) for c in ("misty", "hazel", "mocha", "snow")]
+    out = [(f"cat-{c}", c, [], {}) for c in ("misty", "hazel", "mocha", "snow", "midnight")]
     accs = sorted({g.split("geometry.katt.")[1] for g in GEO
                    if g.startswith("geometry.katt.") and g != "geometry.katt.empty"})
     seen = set()

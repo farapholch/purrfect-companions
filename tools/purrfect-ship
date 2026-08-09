@@ -39,7 +39,7 @@ for m in (bp,rp):
     m["header"]["version"]=v
     for mod in m["modules"]: mod["version"]=v
 for d in bp.get("dependencies",[]):
-    if d["uuid"]==rp["header"]["uuid"]: d["version"]=v
+    if d.get("uuid")==rp["header"]["uuid"]: d["version"]=v
 json.dump(bp,open(BP,"w"),indent=2); json.dump(rp,open(RP,"w"),indent=2)
 print("ny version: "+".".join(map(str,v)))
 PY

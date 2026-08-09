@@ -64,6 +64,18 @@
           "purr": "mob.cat.purr",
           "purreow": "mob.cat.purreow"
         }
+      },
+      "mjau:vakthund": {
+        "volume": 1.0,
+        "pitch": [
+          0.8,
+          0.95
+        ],
+        "events": {
+          "ambient": "mob.wolf.growl",
+          "hurt": "mob.wolf.hurt",
+          "death": "mob.wolf.death"
+        }
       }
     }
   }

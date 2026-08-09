@@ -158,6 +158,7 @@ PY
   SLOG=/tmp/cathaven-smoke.log
   { sleep 28
     echo "tickingarea add -20 -70 -10 20 -40 60 rök"; sleep 4
+    echo "tickingarea add -58 -70 60 -45 -40 72 kula"; sleep 4
     echo "testforblock -4 -59 9 chest"; sleep 1
     echo "testforblock 12 -60 7 mjau:fiskdamm"; sleep 1
     echo "testforblock 17 -61 7 water"; sleep 1
@@ -170,6 +171,8 @@ PY
     # -59 ("en extra rad av golv") — mittencellen ska vara LUFT, valvet öppet
     echo "testforblock 2 -59 12 air"; sleep 1
     echo "testforblock 0 -56 12 air"; sleep 1
+    echo "testforblock -52 -60 65 dark_oak_fence"; sleep 1
+    echo "testfor @e[type=mjau:vakthund]"; sleep 1
     echo "testfor @e[type=mjau:misty,x=-9,y=-60,z=33,r=80]"; sleep 1
     # kistprovet: slå sönder startkistan (i SMOKE-kopian, inte skeppade filen)
     # — bara riktiga, accepterade föremål trillar ut som item-entiteter.
@@ -177,13 +180,15 @@ PY
     echo "setblock -4 -59 9 air destroy"; sleep 2
     echo "testfor @e[type=item,x=-4,y=-59,z=9,r=8]"; sleep 1
     echo "tickingarea remove rök"; sleep 1
+    echo "tickingarea remove kula"; sleep 1
     echo "stop"; sleep 8
   } | ( cd "$SRV" && LD_LIBRARY_PATH=. ./bedrock_server ) > "$SLOG" 2>&1
   pkill -9 -x bedrock_server 2>/dev/null
   cp /tmp/cathaven-props.bak "$PROPS"
   grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" || bad "paketen laddades INTE ur världen"
   FB=$(grep -c 'found the block' "$SLOG")
-  [ "$FB" -ge 10 ] && ok "alla $FB/10 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft)" || bad "bara $FB/10 nyckelblock i den paketerade världen"
+  [ "$FB" -ge 11 ] && ok "alla $FB/11 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft, buren)" || bad "bara $FB/11 nyckelblock i den paketerade världen"
+  grep -qE "Found (Vakthunden|The Guard Dog)" "$SLOG" && ok "vakthunden vaktar kulan (persistent, namngiven)" || bad "vakthunden saknas i den paketerade världen"
   grep -q "Found Misty" "$SLOG" && ok "Misty överlevde paketeringen (namngiven, persistent)" || bad "Misty saknas i den paketerade världen"
   DROP=$(awk '/Block placed/{m=1; next} m && /Found /{f=1} END{print f+0}' "$SLOG")
   if [ "$DROP" -ge 1 ]; then

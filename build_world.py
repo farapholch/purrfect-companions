@@ -47,6 +47,7 @@ TEXTS = {
         "welcome_sign": "Cat Haven\nThe shelter\nneeds a new\ncaretaker!",
         "den_clue": "Still warm...\npaw prints go\ndeeper into the\nsouthwest woods",
         "pool_sign": "CAT POOL\n/\\_/\\ ~\u2248~\n( ^.^ ) splash!\nno dogs allowed",
+        "dog_name": "The Guard Dog",
         "start_sign": "Start here:\nread the book\nin the chest\ninside ->",
         "chest_sign": "The handbook\nis in here!",
         "diary_title": "The Old Caretaker's Diary",
@@ -74,6 +75,7 @@ TEXTS = {
         "welcome_sign": "Kattgården\nKatthemmet\nbehöver en ny\nföreståndare!",
         "den_clue": "Ännu varm...\ntassavtryck mot\nsydväst, djupt\nin i skogen",
         "pool_sign": "KATTPOOLEN\n/\\_/\\ ~\u2248~\n( ^.^ ) plask!\ninga hundar!",
+        "dog_name": "Vakthunden",
         "start_sign": "Börja här:\nläs handboken\ni kistan\ndärinne ->",
         "chest_sign": "Handboken\nligger häri!",
         "diary_title": "Gamla föreståndarens dagbok",
@@ -390,7 +392,7 @@ def build_structures(outdir, t, disp, cats):
     s.emit(f"{st}/tree.mcstructure")
 
 # ------------------------------------------------------ serverkommandona ----
-def build_commands(cats, disp):
+def build_commands(cats, disp, dog_name):
     g, f = GROUND, FLOOR
     c = []
     c.append("gamerule commandblockoutput false")
@@ -484,8 +486,17 @@ def build_commands(cats, disp):
     c.append(f"fill -53 {g+1} 65 -50 {g+2} 67 air")
     c.append(f"fill -52 {g+1} 68 -52 {g+2} 68 air")
     c.append(f"setblock -53 {g+1} 65 hay_block")
-    c.append(f'setblock -51 {g+1} 66 soul_lantern ["hanging"=false]')
+    c.append(f'setblock -50 {g+1} 67 soul_lantern ["hanging"=false]')
     c.append(f"setblock -52 {g+1} 66 mjau:kattbadd")
+    # BUREN: Maja hålls fången bakom mörk ek — vakthundens verk. Staketet
+    # bryts snabbt för hand, men hunden har andra åsikter om saken.
+    for cx, cz in ((-53, 66), (-51, 66), (-52, 65), (-52, 67)):
+        c.append(f"fill {cx} {g+1} {cz} {cx} {g+2} {cz} dark_oak_fence")
+    c.append(("sleep", 2))
+    # VAKTHUNDEN utanför ingången (persistent, hemma-radie håller den vid kulan)
+    c.append(f'summon mjau:vakthund "{dog_name}" -52 {f} 69')
+    c.append(("sleep", 1))
+    c.append(f"testfor @e[type=mjau:vakthund,x=-52,y={f},z=69,r=15]")
     c.append(("sleep", 2))
     # ETT enda tassavtryck halvvägs — resten är upp till letaren
     c.append(f"setblock -49 {f} 58 white_carpet")
@@ -666,7 +677,7 @@ def build(variant, outdir):
     json.dump([{"pack_id": rp["uuid"], "version": rp["version"]}],
               open(f"{wdir}/world_resource_packs.json", "w"))
 
-    log = run_server_build(world_name, build_commands(cats, disp), f"/tmp/cathaven-build-{variant}.log")
+    log = run_server_build(world_name, build_commands(cats, disp, t["dog_name"]), f"/tmp/cathaven-build-{variant}.log")
     problems = []
     found_blocks = log.count("found the block")   # 4 testforblock: mark, kista, damm, fyrljus
     found_cats = log.count("Found ")

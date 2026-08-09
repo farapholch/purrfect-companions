@@ -81,7 +81,7 @@ function give(pl, id) {
 
 // PROGRESS-RAPPORTEN: smyg intill en tämjd katt så "berättar" den i chatten
 // vilka uppdrag som är klara. Den hemliga nian visas som ??? tills den tagits.
-const ACHV_ORDER = ["forsta_vannen", "hela_flocken", "ryttaren", "fiskarkatten",
+const ACHV_ORDER = ["forsta_vannen", "befriaren", "hela_flocken", "ryttaren", "fiskarkatten",
                     "fyrvaktaren", "skattgravaren", "lados_hemlighet",
                     "ur_morkret", "alla_hemma"];
 const rapportTyst = new Map();   // spelar-id -> tick då nästa rapport tillåts
@@ -96,9 +96,21 @@ function rapportera(pl) {
     rt.push(har || id !== "ur_morkret" ? { translate: "mjau.achv." + id }
                                        : { text: "???" });
   }
-  rt.push({ text: "\n§e" + n + "/9" });
+  rt.push({ text: "\n§e" + n + "/" + ACHV_ORDER.length });
   try { pl.sendMessage({ rawtext: rt }); pl.playSound("mob.cat.meow"); } catch { }
 }
+
+// VAKTHUNDEN: den som fäller hunden vid Majas kula befriar henne
+try {
+  world.afterEvents.entityDie.subscribe(ev => {
+    if (ev.deadEntity?.typeId !== "mjau:vakthund") return;
+    const p = ev.deadEntity.location;
+    for (const pl of world.getAllPlayers()) {
+      const dx = pl.location.x - p.x, dz = pl.location.z - p.z;
+      if (dx * dx + dz * dz < 24 * 24) give(pl, "befriaren");
+    }
+  });
+} catch { }
 
 let catHavenWorld = null;   // fyrljuset på känd plats = vi är i Cat Haven
 

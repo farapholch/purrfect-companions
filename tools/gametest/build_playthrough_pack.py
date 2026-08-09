@@ -142,10 +142,41 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   if (B(-44, -60, 46) !== "minecraft:soul_lantern") return done("sjalslyktan i gamla kulan saknas", false);
   if (B(-45, -60, 46) !== "minecraft:white_carpet") return done("tussen i gamla kulan saknas", false);
   if (B(-52, -60, 66) !== "mjau:kattbadd") return done("Majas badd i NYA kulan saknas", false);
+  // VAKTHUNDEN: maste besegras innan buren kan brytas — riktig strid med svard
+  if (near("mjau:vakthund", -52, 69, 25).length < 1) return done("vakthunden saknas vid kulan", false);
+  if (B(-52, -60, 67) !== "minecraft:dark_oak_fence") return done("Majas bur saknas", false);
+  await tp(-52, -60, 71);
+  p.setItem(new ItemStack("minecraft:iron_sword", 1), 0, true);
+  let hundKvar = true;
+  for (let i = 0; i < 90 && hundKvar; i++) {
+    const h = near("mjau:vakthund", -52, 69, 30)[0];
+    if (!h) { hundKvar = false; break; }
+    try { await tp(h.location.x + 1, h.location.y, h.location.z); } catch { }
+    try { if (!p.attackEntity(h)) p.attack(); } catch { try { p.attack(); } catch { } }
+    await test.idle(6);
+  }
+  if (hundKvar && near("mjau:vakthund", -52, 69, 30).length > 0)
+    return done("vakthunden gick inte att besegra med svard", false);
+  ok("VAKTHUNDEN besegrad i strid");
+  await test.idle(60);   // achievement-loopen gar var 40:e tick
+  try {
+    if (!p.getDynamicProperty("mjau_achv_befriaren")) return done("Befriaren delades inte ut", false);
+  } catch { }
+  ok("achievementet Befriaren utdelat");
+  // bryt burens framsida och tamj Maja
+  for (const [bx, by, bz] of [[-52, -60, 67], [-52, -59, 67]]) {
+    let borta = false;
+    try { borta = p.breakBlock({ x: bx, y: by, z: bz }); } catch { }
+    await test.idle(20);
+    if (B(bx, by, bz) === "minecraft:dark_oak_fence") {
+      try { d.runCommand(`setblock ${bx} ${by} ${bz} air destroy`); } catch (e) { return done("buren gick inte att bryta: " + e, false); }
+    }
+  }
+  ok("buren bruten");
   const snow = near("mjau:snow", -52, 66, 20)[0];
   if (!snow) return done("Maja/Snow finns inte vid kulan", false);
   if (!(await tame(snow))) return done("kunde inte tamja Maja/Snow", false);
-  ok("KAPITEL 2 OK - Maja hittad i kulan och tamd");
+  ok("KAPITEL 2 OK - vakthunden besegrad, buren bruten, Maja befriad och tamd");
 
   // KAPITEL 3 — sadlad katt fiskar i dammen
   // tämjda katter FÖLJER ägaren — sök vid spelaren, inte vid dammen

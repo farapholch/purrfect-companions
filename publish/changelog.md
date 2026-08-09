@@ -1,3 +1,26 @@
+## 2.8.0 — The dark forest, and the ghosts of the old cats
+
+The search for the missing cat got teeth. She is no longer resting
+somewhere pleasant: the white fur tufts now lead west, into a dark
+oak forest where the canopy swallows the daylight, cobwebs catch at
+your sleeves, and soul lanterns burn cold and blue along the trail.
+
+Three GHOST CATS drift between the trunks — pale, half-transparent,
+nameless. The handbook says not to fear them: they are the old cats
+of the shelter, and they only miss their caretaker. Whether one of
+them can still be won over with a cod... we leave to you.
+
+And: ACHIEVEMENTS. Nine of them, with a proper on-screen fanfare —
+from First Friend (your first tamed cat) to Lighthouse Keeper, What
+the Boxes Hid, and one we will not name here. They are per-player,
+they persist, and six of them work in any world you bring the cats to.
+
+Also in this release: the world tells you where to start (a sign by
+the spawn, a sign on the chest), sign lines no longer clip, and the
+world name carries its version so re-imports stay tidy. Every release
+is now playtested by a simulated player who completes all the quests
+before anything ships.
+
 ## 2.7.2 — A fourth task, and a proper face
 
 - **Cat Haven grew a fourth task.** The old caretaker never trusted

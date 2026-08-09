@@ -1,3 +1,7 @@
+entity.mjau:spokkatt.name=Spökkatt
+entity.spokkatt.name=Spökkatt
+action.hint.exit.mjau:spokkatt=Kliv av
+action.hint.exit.spokkatt=Kliv av
 entity.mjau:midnight.name=Midnight
 entity.midnight.name=Midnight
 entity.snow.name=Snow (Ragdoll)

@@ -1,0 +1,85 @@
+#!/bin/bash
+# GENOMSPELNING: en simulerad spelare spelar igenom ALLA uppdrag i den byggda
+# Cat Haven-världen — kapitel för kapitel (skyltar, tämjning, Maja-spåret,
+# kattfisket, fyren, skattgrävningen, källaren). Körs mot den paketerade
+# publika .mcworld-filen i en ENGÅNGSKOPIA; inget den gör påverkar leveransen.
+#
+# Kräver beta-API:erna (gtst) — experimentflaggan ympas in från Kattest-
+# världens level.dat, som bär den sedan gametest-uppsättningen.
+# Exit 0 = alla kapitel OK.
+set -u
+if [ "${BDS_LOCK_HELD:-}" != "1" ]; then
+  exec 9>/tmp/bds.lock; flock -w 1200 9 || { echo "kunde inte ta serverlåset"; exit 1; }
+  export BDS_LOCK_HELD=1
+fi
+SRC=/opt/purrfect-companions
+SRV=/opt/bds/server
+W="$SRV/worlds/CatHavenPlay"
+LOG=/tmp/cathaven-playthrough.log
+SERVER_MOD="2.10.0-beta"
+GAMETEST_MOD="1.0.0-beta"
+
+MCWORLD=$(ls /tmp/cathaven-test-out/purrfect-cat-haven-*.mcworld 2>/dev/null | head -1)
+[ -n "$MCWORLD" ] || { echo "[playthrough] ❌ ingen byggd publik värld (kör cathaven-test först)"; exit 1; }
+
+echo "[playthrough] förbereder engångsvärld ur $(basename "$MCWORLD")"
+rm -rf "$W"; mkdir -p "$W"
+( cd "$W" && unzip -qq "$MCWORLD" )
+
+# fusk på + gtst-experimentet (ympas från Kattest som redan bär flaggan)
+python3 - "$W" "$SRV/worlds/Kattest/level.dat" <<'PY'
+import sys
+sys.path.insert(0, "/opt/purrfect-companions/tools/gametest")
+import nbt
+w, kattest = sys.argv[1], sys.argv[2]
+v, root = nbt.read_level_dat(f"{w}/level.dat")
+root.v["commandsEnabled"] = nbt.Val(nbt.TAG_BYTE, 1)
+_, kroot = nbt.read_level_dat(kattest)
+if "experiments" in kroot.v:
+    root.v["experiments"] = kroot.v["experiments"]
+nbt.write_level_dat(f"{w}/level.dat", v, root)
+print("   level.dat: fusk på + experiment ympade")
+PY
+
+python3 "$SRC/tools/gametest/build_playthrough_pack.py" /tmp/purrfect-playthrough-pack "$SERVER_MOD" "$GAMETEST_MOD" >/dev/null
+cp -r /tmp/purrfect-playthrough-pack "$W/behavior_packs/PurrfectPlaythrough"
+python3 - "$W" <<'PY'
+import json, sys
+W = sys.argv[1]
+wb = json.load(open(f"{W}/world_behavior_packs.json"))
+pt = {"pack_id": "b4c31c50-9d2e-4f7a-8a11-5c07e1a94402", "version": [1, 0, 0]}
+if pt not in wb: wb.append(pt)
+json.dump(wb, open(f"{W}/world_behavior_packs.json", "w"))
+PY
+
+pkill -9 -x bedrock_server 2>/dev/null; sleep 2
+PROPS="$SRV/server.properties"; cp "$PROPS" /tmp/playthrough-props.bak
+sed -i "s/^level-name=.*/level-name=CatHavenPlay/" "$PROPS"
+rm -f "$LOG"
+cd "$SRV"
+{ until grep -q "Server started" "$LOG" 2>/dev/null; do sleep 2; done
+  echo "tickingarea remove_all"; sleep 2
+  # hela spelytan måste ticka: byn+vägen respektive skogen+kullen
+  echo "tickingarea add -40 -64 -8 20 -40 30 by"; sleep 2
+  echo "tickingarea add -40 -64 30 20 -40 70 skog"; sleep 2
+  # positionera testets ankarstruktur LÅNGT från spelytan — ramverket bygger
+  # struktur + startknapp där kommandot exekverar (spawnen fick en stenknapp
+  # rakt över välkomstskylten i första körningen...)
+  echo "execute positioned 80 -60 -30 run gametest run mjau:genomspelning"
+  # genomspelningen tar flera minuter (fiske + grävning har riktiga väntetider)
+  for i in $(seq 1 160); do
+    grep -qE "MJAU-PT\] (GENOMSPELNING KLAR|FAIL)" "$LOG" && break
+    sleep 3
+  done
+  echo "stop"; sleep 5; } | LD_LIBRARY_PATH=. ./bedrock_server > "$LOG" 2>&1
+pkill -9 -x bedrock_server 2>/dev/null
+cp /tmp/playthrough-props.bak "$PROPS"
+rm -rf "$W"
+
+grep -oE "\[MJAU-PT\].*" "$LOG" | sed 's/^/  /'
+if grep -q "MJAU-PT\] GENOMSPELNING KLAR" "$LOG"; then
+  echo "[playthrough] ✅ alla kapitel avklarade av simulerad spelare"
+  exit 0
+fi
+echo "[playthrough] ❌ genomspelningen föll (logg: $LOG)"
+exit 1

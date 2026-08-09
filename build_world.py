@@ -59,7 +59,7 @@ TEXTS = {
         "book_pages": [
             "Welcome to Cat Haven!\n\nI am too old to care for the shelter now. The four cats still live in these hills - they just need someone to trust again.\n\nEverything you need is in this chest.",
             "TASK 1 - MEET THE CATS\n\n%MOCHA% never left the shelter. %HAZEL% fishes by the pond. %MISTY% hides among the trees.\n\nTame them with the cod from this chest.",
-            "TASK 2 - %SNOW% IS MISSING\n\nShe has not been seen since the storm, and the others will not go near the lighthouse hill.\n\nI found white fur snagged by the pond - and more tufts leading east. Follow them. Bring a cod she cannot resist.",
+            "TASK 2 - %SNOW% IS MISSING\n\nGone since the storm. The others will not go near the DARK FOREST in the west. They say the ghosts of the old cats walk there.\n\nFollow the white tufts from the pond. Do not fear the ghosts - they only miss their caretaker.",
             "TASK 3 - A CATCH FROM THE POND\n\nPut the saddle on a cat and wade into the pond together.\n\nA saddled cat catches cod all by itself. Let it fish your next meal!",
             "TASK 4 - RIDE TO THE LIGHTHOUSE\n\nFollow the gravel road south and ride to the top of the lighthouse hill.\n\nSomething useful waits in the chest at the top of the tower.",
             "TASK 5 - THE BURIED SAVINGS\n\nI never trusted banks. What I saved, the cats buried - they bury better than I ever did.\n\nA cat wearing a BACKPACK remembers where. Give one a backpack and let it dig.",
@@ -84,7 +84,7 @@ TEXTS = {
         "book_pages": [
             "Välkommen till Kattgården!\n\nJag är för gammal för att sköta katthemmet nu. De fyra katterna bor kvar i kullarna - de behöver bara någon att lita på igen.\n\nAllt du behöver ligger i den här kistan.",
             "UPPDRAG 1 - MÖT KATTERNA\n\n%MOCHA% lämnade aldrig katthemmet. %HAZEL% fiskar vid dammen. %MISTY% gömmer sig bland träden.\n\nTämj dem med torsken ur kistan.",
-            "UPPDRAG 2 - %SNOW% ÄR FÖRSVUNNEN\n\nIngen har sett henne sedan stormen, och de andra vägrar gå nära fyrkullen.\n\nJag hittade vit päls fastnad vid dammen - och fler tussar österut. Följ dem. Ta med en torsk hon inte kan motstå.",
+            "UPPDRAG 2 - %SNOW% ÄR FÖRSVUNNEN\n\nBorta sedan stormen. De andra vägrar gå nära MÖRKA SKOGEN i väster. De säger att de gamla katternas spöken går där.\n\nFölj de vita tussarna från dammen. Var inte rädd för spökena - de saknar bara sin föreståndare.",
             "UPPDRAG 3 - EN FÅNGST UR DAMMEN\n\nSätt sadeln på en katt och vada ut i dammen tillsammans.\n\nEn sadlad katt fångar torsk alldeles själv. Låt den fiska din nästa måltid!",
             "UPPDRAG 4 - RID TILL FYREN\n\nFölj grusvägen söderut och rid upp för fyrkullen.\n\nNågot användbart väntar i kistan högst upp i tornet.",
             "UPPDRAG 5 - DET NEDGRÄVDA SPARANDET\n\nJag litade aldrig på banker. Det jag sparade grävde katterna ner - de gräver bättre än jag någonsin gjorde.\n\nEn katt med RYGGSÄCK minns var. Ge en katt en ryggsäck och låt den gräva.",
@@ -299,13 +299,15 @@ def build_structures(outdir, t, disp, cats):
     for y in (0, 1, 2, 3):                                                     # bakdörren (söder) kvar
         s.set(3, y, 5, "minecraft:air")
     s.box(3, 2, 3, 3, 3, 3, "minecraft:air")
-    for y in range(0, 13):                                                     # stege från golvet, norrväggen
-        s.set(3, y, 2, "minecraft:ladder", {"facing_direction": 3})
+    # STEGEN PÅ ÖSTRA innerväggen — norringången carvade bort stegens gamla
+    # stödvägg och stegar utan block bakom poppar av (genomspelningen fann det)
+    for y in range(0, 13):
+        s.set(4, y, 3, "minecraft:ladder", {"facing_direction": 4})
     s.box(0, 13, 0, 6, 13, 6, "minecraft:spruce_planks")                       # plattform
-    s.set(3, 13, 2, "minecraft:air")                                           # stegluckan
+    s.set(4, 13, 3, "minecraft:air")                                           # stegluckan
     # översta stegpinnen SIST — plattformsboxen skrev annars över den och man
     # slog i huvudet strax under luckan (Xbox-rapport #2)
-    s.set(3, 13, 2, "minecraft:ladder", {"facing_direction": 3})
+    s.set(4, 13, 3, "minecraft:ladder", {"facing_direction": 4})
     s.box(0, 14, 0, 6, 14, 6, "minecraft:oak_fence", hollow=True)              # räcke
     s.set(3, 14, 3, "minecraft:glowstone")                                     # ljuset
     s.set(3, 15, 3, "minecraft:lantern", {"hanging": False})
@@ -317,6 +319,14 @@ def build_structures(outdir, t, disp, cats):
         item(3, "minecraft:salmon", 1),      # "en silverfisk" — nyckeln till gåtan
     ]))
     s.emit(f"{st}/lighthouse.mcstructure")
+
+    # MÖRKEKEN: hög stam, bred tät krona — skogens byggsten
+    s = Struct(7, 9, 7)
+    for y in range(0, 6):
+        s.set(3, y, 3, "minecraft:dark_oak_log", {"pillar_axis": "y"})
+    s.box(0, 4, 0, 6, 6, 6, "minecraft:dark_oak_leaves", {"persistent_bit": True, "update_bit": False})
+    s.box(1, 7, 1, 5, 7, 5, "minecraft:dark_oak_leaves", {"persistent_bit": True, "update_bit": False})
+    s.emit(f"{st}/darktree.mcstructure")
 
     # EKEN: stam + lövkrona (persistent så den inte vissnar)
     s = Struct(5, 8, 5)
@@ -379,22 +389,40 @@ def build_commands(cats, disp):
     for tx, tz in ((13, 32), (-12, 36)):
         c.append(f"structure load haven:tree {tx} {g+1} {tz}")
         c.append(("sleep", 1))
-    # MAJA/SNOW ÄR FÖRSVUNNEN: jordkula på kullens baksida + pälsspår dit.
-    # Kulan byggs EFTER kullterrasserna (fyller mot slänten) och FÖRE katterna.
-    c.append(f"fill -2 {g+1} 60 2 {g+4} 64 dirt")
-    c.append(f"fill -2 {g+4} 60 2 {g+4} 64 grass_block")
-    c.append(f"fill -1 {g+1} 61 1 {g+2} 63 air")        # grottinteriör 3x2x3
-    c.append(f"fill 0 {g+1} 64 0 {g+2} 65 air")         # mynning mot söder
-    c.append(f"setblock -1 {g+1} 61 hay_block")
-    c.append(f'setblock 1 {g+1} 61 lantern ["hanging"=false]')
-    c.append(f"setblock 0 {g+1} 61 mjau:kattbadd")       # hennes gömställe
+    # MAJA/SNOW ÄR FÖRSVUNNEN: mörk skog i väster, spökkatter, jordkula i
+    # en glänta. Pälstussar leder från dammen in mellan träden.
+    for tx, tz in ((-34, 32), (-28, 31), (-21, 33), (-15, 34), (-35, 40),
+                   (-29, 39), (-22, 40), (-16, 42), (-33, 47), (-20, 47),
+                   (-15, 50), (-31, 54), (-25, 55), (-18, 56), (-34, 60),
+                   (-27, 61), (-21, 60)):
+        c.append(f"structure load haven:darktree {tx} {g+1} {tz}")
+        c.append(("sleep", 1))
+    for wx, wz in ((-18, 35), (-25, 41), (-31, 49), (-17, 50), (-28, 57)):
+        c.append(f"setblock {wx} {f} {wz} web")
+    # jordkulan i gläntan, mynning mot öster (dit spåret leder)
+    c.append(f"fill -29 {g+1} 45 -24 {g+4} 49 dirt")
+    c.append(f"fill -29 {g+4} 45 -24 {g+4} 49 grass_block")
+    c.append(f"fill -28 {g+1} 46 -26 {g+2} 48 air")
+    c.append(f"fill -25 {g+1} 47 -24 {g+2} 47 air")
+    c.append(f"setblock -28 {g+1} 46 hay_block")
+    c.append(f'setblock -26 {g+1} 46 soul_lantern ["hanging"=false]')
+    c.append(f"setblock -27 {g+1} 46 mjau:kattbadd")
     c.append(("sleep", 2))
-    # vita pälstussar: dammen -> österut runt kullen -> mynningen
-    # tussarna ligger i MARKPLAN (x>=11 eller z>=67) — terrasserna är högre
-    for wx, wz in ((14, 14), (12, 22), (13, 30), (12, 38), (12, 46),
-                   (12, 52), (11, 58), (8, 67), (4, 67), (1, 67)):
+    # vita pälstussar: dammen -> västerut -> in i skogen -> mynningen
+    for wx, wz in ((14, 14), (10, 18), (4, 22), (-3, 26), (-9, 30),
+                   (-14, 34), (-18, 38), (-21, 42), (-23, 45)):
         c.append(f"setblock {wx} {f} {wz} white_carpet")
+    # själslyktor som kusliga vägmärken
+    c.append(f'setblock -15 {f} 36 soul_lantern ["hanging"=false]')
+    c.append(f'setblock -22 {f} 44 soul_lantern ["hanging"=false]')
     c.append(("sleep", 2))
+    # spökkatterna: de gamla katternas andar, namnlösa ("???"), ofarliga
+    for sx, sz in ((-20, 40), (-30, 52), (-16, 55)):
+        c.append(f'summon mjau:spokkatt "???" {sx} {f} {sz}')
+        c.append(("sleep", 1))
+        c.append(f"event entity @e[type=mjau:spokkatt,x={sx},y={f},z={sz},r=8] mjau:grow_up")
+    c.append(f"testfor @e[type=mjau:spokkatt,x=-20,y={f},z=40,r=40]")
+    c.append(("sleep", 1))
     # hemliga källaren: rum under huset, schakt upp till golvcellen under
     # kartongen (världs-x5,z9) — kartongen laddas ovanpå och döljer hålet
     c.append(f"structure load haven:cellar 1 {g-3} 8")   # helt under huset, ovanpå bedrock
@@ -422,8 +450,8 @@ def build_commands(cats, disp):
     c.append(f"testforblock 0 {g+19} 56 glowstone")    # fyrljuset
     c.append(("sleep", 2))
     # katterna: namngivna (persistenta), vuxna, otama — att hitta dem är uppdraget
-    spots = {"misty": (-9, f), "hazel": (16, f), "mocha": (0, f + 1), "snow": (0, f)}
-    zs = {"misty": 33, "hazel": 8, "mocha": 13, "snow": 62}
+    spots = {"misty": (-9, f), "hazel": (16, f), "mocha": (0, f + 1), "snow": (-27, f)}
+    zs = {"misty": 33, "hazel": 8, "mocha": 13, "snow": 47}
     for src, (x, y) in spots.items():
         c.append(f'summon mjau:{cats[src]} "{disp[src]}" {x} {y} {zs[src]}')
         c.append(("sleep", 1))

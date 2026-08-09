@@ -47,6 +47,9 @@ pkill -x bedrock_server 2>/dev/null; sleep 1
 rm -f "$LOG"
 cd "$SRV"
 { until grep -q "Server started" "$LOG" 2>/dev/null; do sleep 2; done
+  # GameTest läcker tickingareas i den beständiga testvärlden — taket är ~10
+  # per värld, och när kvoten är full nekas "Failed to spawn test structure".
+  echo "tickingarea remove_all"; sleep 2
   echo "gametest run mjau:interakt"
   echo "gametest run mjau:vagn"
   echo "gametest run mjau:ritual"

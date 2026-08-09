@@ -134,7 +134,7 @@ PY
     echo "testforblock 17 -61 7 water"; sleep 1
     echo "testforblock 2 -59 8 mjau:kattlucka"; sleep 1
     echo "testforblock -2 -42 56 chest"; sleep 1
-    echo "testforblock 0 -50 55 ladder"; sleep 1
+    echo "testforblock 1 -50 56 ladder"; sleep 1
     echo "testfor @e[type=mjau:misty,x=-9,y=-60,z=33,r=80]"; sleep 1
     # kistprovet: slå sönder startkistan (i SMOKE-kopian, inte skeppade filen)
     # — bara riktiga, accepterade föremål trillar ut som item-entiteter.
@@ -159,6 +159,14 @@ PY
   ERRS=$(grep -iE "error|failed" "$SLOG" | grep -cv "errorMessage=(null)")
   [ "$ERRS" -eq 0 ] && ok "inga fel i serverloggen" || bad "$ERRS fel-rader i serverloggen ($SLOG)"
   rm -rf "$SMOKE"
+fi
+
+echo
+echo "[4/4] Genomspelning: simulerad spelare spelar alla uppdrag (~4 min)"
+if "$SRC/tools/cathaven-playthrough" 2>&1 | sed 's/^/  /' | tail -12 && [ ${PIPESTATUS[0]} -eq 0 ]; then
+  ok "alla kapitel avklarade"
+else
+  bad "genomspelningen föll"
 fi
 
 echo

@@ -461,6 +461,10 @@ if ! grep -q "^level-name=Kattest" "$SRV/server.properties" 2>/dev/null; then
   FAIL=0
 fi
 
+# FÄRSK värld varje körning: GameTest-instanser och gamla summons ackumuleras
+# i chunkdatan och fällde till slut strukturspawnen ("Failed to spawn test
+# structure" efter ~20 körningar). level.dat behålls — den bär gtst-flaggan.
+rm -rf "$WORLD/db"
 rm -rf "$WORLD/behavior_packs" "$WORLD/resource_packs"
 mkdir -p "$WORLD/behavior_packs" "$WORLD/resource_packs"
 cp -r "$SRC/PurrfectCompanions_BP" "$WORLD/behavior_packs/"

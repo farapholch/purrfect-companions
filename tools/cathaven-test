@@ -173,6 +173,7 @@ PY
     echo "testforblock 0 -56 12 air"; sleep 1
     echo "testforblock -52 -60 65 dark_oak_fence"; sleep 1
     echo "testfor @e[type=mjau:vakthund]"; sleep 1
+    echo "scriptevent mjau:test_fest"; sleep 3
     echo "testfor @e[type=mjau:misty,x=-9,y=-60,z=33,r=80]"; sleep 1
     # kistprovet: slå sönder startkistan (i SMOKE-kopian, inte skeppade filen)
     # — bara riktiga, accepterade föremål trillar ut som item-entiteter.
@@ -189,6 +190,7 @@ PY
   FB=$(grep -c 'found the block' "$SLOG")
   [ "$FB" -ge 11 ] && ok "alla $FB/11 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft, buren)" || bad "bara $FB/11 nyckelblock i den paketerade världen"
   grep -qE "Found (Vakthunden|The Guard Dog)" "$SLOG" && ok "vakthunden vaktar kulan (persistent, namngiven)" || bad "vakthunden saknas i den paketerade världen"
+  grep -q "KATTMASTARE-festen firad" "$SLOG" && ok "kattmästar-festen avfyrar (scriptevent-kroken)" || bad "festen avfyrade inte"
   grep -q "Found Misty" "$SLOG" && ok "Misty överlevde paketeringen (namngiven, persistent)" || bad "Misty saknas i den paketerade världen"
   DROP=$(awk '/Block placed/{m=1; next} m && /Found /{f=1} END{print f+0}' "$SLOG")
   if [ "$DROP" -ge 1 ]; then

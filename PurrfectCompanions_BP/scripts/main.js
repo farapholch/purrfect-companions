@@ -5,7 +5,7 @@
 // (midnatt, tick 17000–19000). Då kommer Midnight — kolsvart, med ögon
 // av bärnsten. En Midnight inom 48 block räcker: ritualen är en
 // hälsning, inte en fabrik.
-import { world, system } from "@minecraft/server";
+import { world, system, ItemStack } from "@minecraft/server";
 
 const MIDNIGHT = "mjau:midnight";
 
@@ -70,7 +70,7 @@ function give(pl, id) {
   if (hasAward(pl, id)) return;
   try { pl.setDynamicProperty("mjau_achv_" + id, true); } catch { }
   try { pl.addTag("mjau_achv_" + id); } catch { }   // taggar syns ÖVER paketgränser
-  awarded.set(pl.id + ":" + id, true);
+  try { awarded.set(pl.id + ":" + id, true); } catch { }
   try {
     pl.onScreenDisplay.setTitle(
       { rawtext: [{ text: "🏆 " }, { translate: "mjau.achv." + id }] },
@@ -100,6 +100,39 @@ function rapportera(pl) {
   rt.push({ text: "\n§e" + n + "/" + ACHV_ORDER.length });
   try { pl.sendMessage({ rawtext: rt }); pl.playSound("mob.cat.meow"); } catch { }
 }
+
+// KATTMÄSTAR-FESTEN: alla tio utmärkelser -> engångsfest med fyrverkeri,
+// guldkronan i handen och hjärtan över alla tämjda katter i närheten.
+function fest(pl) {
+  give(pl, "kattmastare");
+  const d = world.getDimension("overworld");
+  try { pl.getComponent("minecraft:inventory").container.addItem(new ItemStack("mjau:krona_gold", 1)); } catch { }
+  let L = { x: 0, y: -60, z: 12 };
+  try { L = pl.location; } catch { }
+  let skott = 0;
+  const kanon = system.runInterval(() => {
+    skott++;
+    if (skott > 6) { system.clearRun(kanon); return; }
+    try {
+      d.spawnEntity("minecraft:fireworks_rocket", {
+        x: L.x + (Math.random() - 0.5) * 10, y: L.y, z: L.z + (Math.random() - 0.5) * 10 });
+    } catch { }
+    try { d.playSound("mob.cat.meow", L); } catch { }
+  }, 15);
+  try {
+    for (const c of d.getEntities({ families: ["mjaukatt"], location: L, maxDistance: 16 }))
+      d.spawnParticle("minecraft:heart_particle", { x: c.location.x, y: c.location.y + 0.8, z: c.location.z });
+  } catch { }
+  console.warn("[mjau] KATTMASTARE-festen firad");
+}
+
+// testkrok: /scriptevent mjau:test_fest fran konsolen avfyrar festen (röktestet)
+try {
+  system.afterEvents.scriptEventReceive.subscribe(ev => {
+    if (ev.id !== "mjau:test_fest") return;
+    try { fest(world.getAllPlayers()[0]); } catch { console.warn("[mjau] fest-test föll"); }
+  });
+} catch { }
 
 // VAKTHUNDEN: den som fäller hunden vid Majas kula befriar henne
 try {
@@ -193,6 +226,7 @@ system.runInterval(() => {
         c.location.y - L.y, c.location.z - L.z) < 2.5);
       if (nara) { rapportTyst.set(pl.id, system.currentTick + 600); rapportera(pl); }
     }
+    if (!hasAward(pl, "kattmastare") && ACHV_ORDER.every(id => hasAward(pl, id))) fest(pl);
     } catch { }
   }
 }, 40);

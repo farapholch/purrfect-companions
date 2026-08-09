@@ -115,3 +115,5 @@ mjau.achv.befriaren=The Liberator
 mjau.achv.befriaren.sub=The guard dog is beaten, the cat is free
 entity.mjau:vakthund.name=Guard Dog
 entity.vakthund.name=Guard Dog
+mjau.achv.kattmastare=Cat Master
+mjau.achv.kattmastare.sub=All ten quests complete!

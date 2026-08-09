@@ -106,10 +106,14 @@ try {
   world.afterEvents.entityDie.subscribe(ev => {
     if (ev.deadEntity?.typeId !== "mjau:vakthund") return;
     const p = ev.deadEntity.location;
+    let fick = 0;
     for (const pl of world.getAllPlayers()) {
-      const dx = pl.location.x - p.x, dz = pl.location.z - p.z;
-      if (dx * dx + dz * dz < 24 * 24) give(pl, "befriaren");
+      try {
+        const dx = pl.location.x - p.x, dz = pl.location.z - p.z;
+        if (dx * dx + dz * dz < 24 * 24) { give(pl, "befriaren"); fick++; }
+      } catch { }
     }
+    console.warn("[mjau] vakthunden fälld — Befriaren till " + fick + " spelare");
   });
 } catch { }
 
@@ -139,6 +143,7 @@ system.runInterval(() => {
       hundSedd = true; hundPlats = hundar[0].location;
     } else if (hundSedd && hundPlats) {
       hundSedd = false;
+      console.warn("[mjau] vakan: hunden borta — delar ut Befriaren");
       for (const pl of world.getAllPlayers()) {
         try {
           const dx = pl.location.x - hundPlats.x, dz = pl.location.z - hundPlats.z;

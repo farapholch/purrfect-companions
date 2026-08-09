@@ -159,9 +159,8 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
     return done("vakthunden gick inte att besegra med svard", false);
   ok("VAKTHUNDEN besegrad i strid");
   await test.idle(60);   // achievement-loopen gar var 40:e tick
-  try {
-    if (!p.getDynamicProperty("mjau_achv_befriaren")) return done("Befriaren delades inte ut", false);
-  } catch { }
+  // dynamic properties är per-paket — taggen är den globala kvittensen
+  if (!p.hasTag("mjau_achv_befriaren")) return done("Befriaren delades inte ut", false);
   ok("achievementet Befriaren utdelat");
   // bryt burens framsida och tamj Maja
   for (const [bx, by, bz] of [[-52, -60, 67], [-52, -59, 67]]) {

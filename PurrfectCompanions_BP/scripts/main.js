@@ -69,6 +69,7 @@ function hasAward(pl, id) {
 function give(pl, id) {
   if (hasAward(pl, id)) return;
   try { pl.setDynamicProperty("mjau_achv_" + id, true); } catch { }
+  try { pl.addTag("mjau_achv_" + id); } catch { }   // taggar syns ÖVER paketgränser
   awarded.set(pl.id + ":" + id, true);
   try {
     pl.onScreenDisplay.setTitle(

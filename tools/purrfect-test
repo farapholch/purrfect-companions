@@ -333,17 +333,32 @@ for cname,ctrl in _ac["animation_controllers"].items():
         if "blend_transition" not in st:
             bad.append(f"{cname}: tillstånd '{sname}' saknar blend_transition — hård övergång fladdrar")
 
-# --- kattluckan: en dörr man ska kunna gå igenom -------------------------
-# Den definierades som en solid 16³ opaque-kub fast modellen är en gles karm:
-# opaque på en icke-fylld modell cullar grannytorna (luckan ser trasig ut) och
-# en full kollisionslåda gör att varken katt eller spelare kan passera. Live-
-# testet placerar bara blocket, det går aldrig IGENOM det.
+# --- glesa blockmodeller får ALDRIG vara opaque --------------------------
+# opaque säger åt spelet att blocket fyller hela kuben -> grannblockens ytor
+# cullas. På en gles modell (kattlucka-karm, 5px hög kattbädd...) blir
+# resultatet "gropar i golvet"/trasiga väggar runt blocket. 2.6.1 fixade bara
+# kattluckan; Xbox-speltestet 2026-08-09 hittade samma sjuka i ALLA möbler
+# ("allt ligger nertryckt i golvet"). Kolla varje blocks geometri mot 16³.
+_geos={}
+for _gf in glob.glob(f"{SRC}/PurrfectCompanions_RP/models/**/*.json", recursive=True):
+    for _g in json.load(open(_gf)).get("minecraft:geometry",[]):
+        _cubes=[c for b in _g["bones"] for c in b.get("cubes",[])]
+        if not _cubes: continue
+        _full=any(tuple(c["size"])==(16,16,16) and c["origin"][1]==0 for c in _cubes)
+        _geos[_g["description"]["identifier"]]=_full
+for _bf in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/blocks/*.json")):
+    _bc=json.load(open(_bf))["minecraft:block"]["components"]
+    _bid=os.path.basename(_bf)[:-5]
+    _rm=_bc.get("minecraft:material_instances",{}).get("*",{}).get("render_method")
+    _gid=_bc.get("minecraft:geometry")
+    if isinstance(_gid,dict): _gid=_gid.get("identifier")
+    if _rm=="opaque" and not _geos.get(_gid,False):
+        bad.append(f"{_bid}: render_method 'opaque' på gles modell ({_gid}) — "
+                   f"grannytor cullas, ser ut som en grop (använd alpha_test)")
+# kattluckan är dessutom en dörr: kollisionslåda = ingen kan gå igenom
 _kl=f"{SRC}/PurrfectCompanions_BP/blocks/kattlucka.json"
 if os.path.exists(_kl):
     _klc=json.load(open(_kl))["minecraft:block"]["components"]
-    if _klc.get("minecraft:material_instances",{}).get("*",{}).get("render_method")=="opaque":
-        bad.append("kattlucka: render_method 'opaque' på gles karm-modell — "
-                   "grannytor cullas och luckan ser trasig ut (använd alpha_test)")
     if _klc.get("minecraft:collision_box") is not False:
         bad.append("kattlucka: har kollisionslåda — då kan man inte gå igenom "
                    "kattdörren (sätt collision_box: false)")

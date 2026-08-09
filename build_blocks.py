@@ -193,7 +193,9 @@ def build():
             "description": {"identifier": f"mjau:{bid}", "menu_category": {"category": "nature"}},
             "components": {
                 "minecraft:geometry": f"geometry.{bid}",
-                "minecraft:material_instances": {"*": {"texture": f"pc_{bid}", "render_method": "opaque"}},
+                # opaque på gles modell cullar grannblockens ytor -> "grop i golvet"
+                # (2.6.1-läxan för kattluckan, gällde förstås ALLA glesa modeller)
+                "minecraft:material_instances": {"*": {"texture": f"pc_{bid}", "render_method": "alpha_test"}},
                 "minecraft:collision_box": {"origin": [-8, 0, -8], "size": [16, h, 16]},
                 "minecraft:selection_box": {"origin": [-8, 0, -8], "size": [16, h, 16]},
                 "minecraft:destructible_by_mining": {"seconds_to_destroy": 0.4},

@@ -12,7 +12,7 @@
       "minecraft:material_instances": {
         "*": {
           "texture": "pc_garnnystan",
-          "render_method": "opaque"
+          "render_method": "alpha_test"
         }
       },
       "minecraft:collision_box": {

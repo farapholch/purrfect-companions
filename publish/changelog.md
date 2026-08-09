@@ -1,3 +1,16 @@
+## 2.7.1 — The furniture rises from the floor
+
+Found within hours by an Xbox playtest of Cat Haven: every piece of
+furniture — beds, bowls, the scratching post, the cardboard box, even
+the fish pond — appeared to sink into a pit in the floor. A custom
+block that does not fill its whole cube must not claim to; the game
+believes the claim and culls the faces of every neighbouring block.
+The cat door learned this exact lesson in 2.6.1 — now it covers every
+sparse model, and a test makes sure the lesson stays learned.
+
+Cat Haven also gained proper double doors on the shelter and a
+lighthouse entrance at ground level. The climb is still yours.
+
 ## 2.7.0 — The old cats tell of a fifth
 
 These notes will not explain this update. The caretaker's handbook in

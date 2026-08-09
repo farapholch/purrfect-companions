@@ -45,6 +45,7 @@ TEXTS = {
     "public": {
         "world": "Cat Haven",
         "welcome_sign": "Cat Haven\nThe shelter\nneeds a new\ncaretaker!",
+        "den_clue": "Still warm...\npaw prints go\ndeeper into the\nsouthwest woods",
         "start_sign": "Start here:\nread the book\nin the chest\ninside ->",
         "chest_sign": "The handbook\nis in here!",
         "diary_title": "The Old Caretaker's Diary",
@@ -70,6 +71,7 @@ TEXTS = {
     "private": {
         "world": "Kattgården",
         "welcome_sign": "Kattgården\nKatthemmet\nbehöver en ny\nföreståndare!",
+        "den_clue": "Ännu varm...\ntassavtryck mot\nsydväst, djupt\nin i skogen",
         "start_sign": "Börja här:\nläs handboken\ni kistan\ndärinne ->",
         "chest_sign": "Handboken\nligger häri!",
         "diary_title": "Gamla föreståndarens dagbok",
@@ -291,6 +293,12 @@ def build_structures(outdir, t, disp, cats):
     s.entity_at(0, 0, 0, sign_entity(t["welcome_sign"]))
     s.emit(f"{st}/welcome.mcstructure")
 
+    # LEDTRÅDSSKYLTEN i gamla kulan: Maja har flyttat (vänd mot ingången i öster)
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 12})
+    s.entity_at(0, 0, 0, sign_entity(t["den_clue"]))
+    s.emit(f"{st}/denclue.mcstructure")
+
     # BÖRJA HÄR-skylten: spelaren ska aldrig behöva undra vad nästa steg är
     s = Struct(1, 1, 1)
     s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 8})
@@ -454,7 +462,26 @@ def build_commands(cats, disp):
     c.append(f"fill -43 {g+1} 47 -42 {g+2} 47 air")
     c.append(f"setblock -46 {g+1} 46 hay_block")
     c.append(f'setblock -44 {g+1} 46 soul_lantern ["hanging"=false]')
-    c.append(f"setblock -45 {g+1} 46 mjau:kattbadd")
+    c.append(f"setblock -45 {g+1} 46 white_carpet")     # varm sovgrop, nyss lämnad
+    c.append(f"structure load haven:denclue -45 {g+1} 47")
+    c.append(("sleep", 2))
+    # NYA KULAN: Maja har flyttat djupt åt SYDVÄST — lövtäckt, smal ingång i
+    # söder (bortvänd från spåret), ingen lykta utanför. Barnen hittade den
+    # gamla för lätt (Xbox-rapport 2026-08-09) — nu krävs riktigt letande.
+    c.append(f"fill -54 {g+1} 64 -49 {g+4} 68 dirt")
+    c.append(f"fill -54 {g+4} 64 -49 {g+4} 68 grass_block")
+    c.append(f'fill -54 {g+5} 64 -49 {g+5} 68 oak_leaves ["persistent_bit"=true]')
+    c.append(f"fill -53 {g+1} 65 -50 {g+2} 67 air")
+    c.append(f"fill -52 {g+1} 68 -52 {g+2} 68 air")
+    c.append(f"setblock -53 {g+1} 65 hay_block")
+    c.append(f'setblock -51 {g+1} 66 soul_lantern ["hanging"=false]')
+    c.append(f"setblock -52 {g+1} 66 mjau:kattbadd")
+    c.append(("sleep", 2))
+    # ETT enda tassavtryck halvvägs — resten är upp till letaren
+    c.append(f"setblock -49 {f} 58 white_carpet")
+    # FALSKT spår åt nordost, slutar vid en spökkatt-glänta
+    for wx, wz in ((-38, 52), (-36, 56), (-35, 60)):
+        c.append(f"setblock {wx} {f} {wz} white_carpet")
     c.append(("sleep", 2))
     # vita pälstussar: dammen -> västerut -> BRON -> in i skogen -> mynningen
     for wx, wz in ((14, 14), (8, 20), (0, 26), (-8, 32), (-14, 38),
@@ -472,11 +499,11 @@ def build_commands(cats, disp):
         c.append(f"setblock {dx} {f} {dz} deadbush")
     for wx, wz in ((-49, 41), (-36, 44), (-42, 58)):
         c.append(f"setblock {wx} {f} {wz} web")
-    for tx, tz in ((-55, 44), (-31, 57), (-44, 36)):
+    for tx, tz in ((-55, 44), (-31, 57), (-44, 36), (-58, 63), (-57, 58), (-50, 70)):
         c.append(f"structure load haven:darktree {tx} {g+1} {tz}")
         c.append(("sleep", 1))
     # fladdermöss mellan stammarna
-    for bx, bz in ((-40, 45), (-35, 52), (-46, 38)):
+    for bx, bz in ((-40, 45), (-35, 52), (-52, 70)):
         c.append(f"summon minecraft:bat {bx} {f+2} {bz}")
     c.append(("sleep", 2))
     # spökkatterna: de gamla katternas andar, namnlösa ("???"), ofarliga
@@ -529,8 +556,8 @@ def build_commands(cats, disp):
     c.append(f"testforblock 0 {g+20} 56 glowstone")    # fyrljuset (höjt ur huvudhöjd)
     c.append(("sleep", 2))
     # katterna: namngivna (persistenta), vuxna, otama — att hitta dem är uppdraget
-    spots = {"misty": (-9, f), "hazel": (16, f), "mocha": (0, f + 1), "snow": (-45, f)}
-    zs = {"misty": 33, "hazel": 8, "mocha": 13, "snow": 47}
+    spots = {"misty": (-9, f), "hazel": (16, f), "mocha": (0, f + 1), "snow": (-52, f)}
+    zs = {"misty": 33, "hazel": 8, "mocha": 13, "snow": 66}
     for src, (x, y) in spots.items():
         c.append(f'summon mjau:{cats[src]} "{disp[src]}" {x} {y} {zs[src]}')
         c.append(("sleep", 1))

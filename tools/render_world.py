@@ -228,6 +228,8 @@ def main():
                      area=((-12, 12), (-62, -38)), scale=10)
     render_slice(vox, custom, f"{OUT}/den.png", "x", 46,
                  area=((-50, -35), (-64, -52)), scale=10)
+    render_slice(vox, custom, f"{OUT}/den2.png", "x", 66,
+                 area=((-58, -45), (-64, -52)), scale=10)
     render_slice(vox, custom, f"{OUT}/cellar.png", "x", 10,
                  area=((-8, 8), (-66, -54)), scale=10)
     print(f"vyer -> {OUT}/")

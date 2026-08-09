@@ -139,9 +139,10 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   if (near("mjau:spokkatt", -40, 48, 35).length < 2) return done("spokkatterna saknas i skogen", false);
   if (B(-20, -61, 45) !== "minecraft:oak_planks") return done("bron over floden saknas", false);
   if (B(-20, -61, 40) !== "minecraft:water") return done("floden saknas", false);
-  if (B(-44, -60, 46) !== "minecraft:soul_lantern") return done("sjalslyktan i kulan saknas", false);
-  if (B(-45, -60, 46) !== "mjau:kattbadd") return done("Majas badd i kulan saknas", false);
-  const snow = near("mjau:snow", -45, 47, 20)[0];
+  if (B(-44, -60, 46) !== "minecraft:soul_lantern") return done("sjalslyktan i gamla kulan saknas", false);
+  if (B(-45, -60, 46) !== "minecraft:white_carpet") return done("tussen i gamla kulan saknas", false);
+  if (B(-52, -60, 66) !== "mjau:kattbadd") return done("Majas badd i NYA kulan saknas", false);
+  const snow = near("mjau:snow", -52, 66, 20)[0];
   if (!snow) return done("Maja/Snow finns inte vid kulan", false);
   if (!(await tame(snow))) return done("kunde inte tamja Maja/Snow", false);
   ok("KAPITEL 2 OK - Maja hittad i kulan och tamd");

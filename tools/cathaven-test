@@ -166,6 +166,10 @@ PY
     echo "testforblock 1 -50 56 ladder"; sleep 1
     echo "testforblock -1 -59 8 wooden_door"; sleep 1
     echo "testforblock -1 -58 8 wooden_door"; sleep 1
+    # dubbelgolvsvakten: hollow-boxens bottenplan la en gång ett extra golv på
+    # -59 ("en extra rad av golv") — mittencellen ska vara LUFT, valvet öppet
+    echo "testforblock 2 -59 12 air"; sleep 1
+    echo "testforblock 0 -56 12 air"; sleep 1
     echo "testfor @e[type=mjau:misty,x=-9,y=-60,z=33,r=80]"; sleep 1
     # kistprovet: slå sönder startkistan (i SMOKE-kopian, inte skeppade filen)
     # — bara riktiga, accepterade föremål trillar ut som item-entiteter.
@@ -179,7 +183,7 @@ PY
   cp /tmp/cathaven-props.bak "$PROPS"
   grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" || bad "paketen laddades INTE ur världen"
   FB=$(grep -c 'found the block' "$SLOG")
-  [ "$FB" -ge 8 ] && ok "alla $FB/8 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna)" || bad "bara $FB/8 nyckelblock i den paketerade världen"
+  [ "$FB" -ge 10 ] && ok "alla $FB/10 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft)" || bad "bara $FB/10 nyckelblock i den paketerade världen"
   grep -q "Found Misty" "$SLOG" && ok "Misty överlevde paketeringen (namngiven, persistent)" || bad "Misty saknas i den paketerade världen"
   DROP=$(awk '/Block placed/{m=1; next} m && /Found /{f=1} END{print f+0}' "$SLOG")
   if [ "$DROP" -ge 1 ]; then

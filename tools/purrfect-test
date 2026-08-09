@@ -338,6 +338,14 @@ for cname,ctrl in _ac["animation_controllers"].items():
         # — det är den "fladdriga" animationen mellan stå/gå/sitt/sov.
         if "blend_transition" not in st:
             bad.append(f"{cname}: tillstånd '{sname}' saknar blend_transition — hård övergång fladdrar")
+    # HYSTERESIS: in-tröskeln till walking måste vara HÖGRE än ut-tröskeln —
+    # samma värde åt båda hållen vippar tillståndet vid stopp (benfladder)
+    import re as _re
+    _conds=json.dumps(_ac["animation_controllers"])
+    _in=[float(m) for m in _re.findall(r"walking[^}]*?move_speed > ([0-9.]+)", _conds)]
+    _ut=[float(m) for m in _re.findall(r"standing[^}]*?move_speed <= ([0-9.]+)", _conds)]
+    if _in and _ut and min(_in) <= max(_ut):
+        bad.append(f"{cname}: gå-tröskeln in ({min(_in)}) måste vara > ut ({max(_ut)}) — annars fladdrar stoppet")
 
 # --- glesa blockmodeller får ALDRIG vara opaque --------------------------
 # opaque säger åt spelet att blocket fyller hela kuben -> grannblockens ytor

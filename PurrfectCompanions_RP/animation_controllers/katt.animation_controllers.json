@@ -18,7 +18,7 @@
               "sitting": "query.is_sitting && query.modified_move_speed <= 0.05"
             },
             {
-              "walking": "query.modified_move_speed > 0.05"
+              "walking": "query.modified_move_speed > 0.12"
             }
           ]
         },
@@ -34,10 +34,10 @@
               "sleeping": "q.is_sleeping"
             },
             {
-              "sitting": "query.is_sitting && query.modified_move_speed <= 0.05"
+              "sitting": "query.is_sitting && query.modified_move_speed <= 0.02"
             },
             {
-              "standing": "query.modified_move_speed <= 0.05"
+              "standing": "query.modified_move_speed <= 0.02"
             }
           ]
         },
@@ -52,7 +52,7 @@
               "sleeping": "q.is_sleeping"
             },
             {
-              "walking": "query.modified_move_speed > 0.05"
+              "walking": "query.modified_move_speed > 0.12"
             },
             {
               "standing": "!query.is_sitting"
@@ -66,7 +66,7 @@
           ],
           "transitions": [
             {
-              "walking": "q.modified_move_speed > 0.05"
+              "walking": "q.modified_move_speed > 0.12"
             },
             {
               "standing": "!q.is_sleeping"

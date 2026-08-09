@@ -198,6 +198,11 @@ def build_structures(outdir, t, disp, cats):
     s.box(0, 1, 0, 12, 4, 9, "minecraft:oak_planks", hollow=True)             # väggar
     for cx, cz in ((0, 0), (0, 9), (12, 0), (12, 9)):                          # knutar
         s.box(cx, 1, cz, cx, 4, cz, "minecraft:oak_log", {"pillar_axis": "y"})
+    # URGRÖPNING: hollow-boxen har SEX sidor — bottenplanet la ett extra golv
+    # på y1 (världens -59: möblerna sattes där och omringades av plank i samma
+    # nivå = "GROPARNA") och topplanet ett innertak på y4 som gömde ljus-
+    # kronorna. Xbox-rapport: "en extra rad av golv i huset".
+    s.box(1, 1, 1, 11, 4, 8, "minecraft:air")
     # SADELTAK av grantrappor: nock längs huslängden, lutning mot fram- och
     # baksida (speltest-önskemål: "riktigt lutande tak")
     for i in range(4):
@@ -233,10 +238,9 @@ def build_structures(outdir, t, disp, cats):
     for bx, name in beds:                                                      # namnskyltarna (block
         s.set(bx, 2, 8, "minecraft:wall_sign", {"facing_direction": 2})        # entities kräver struktur)
         s.entity_at(bx, 2, 8, sign_entity(name))
-    # INREDNINGEN placeras via setblock i build_commands — strukturplacerade
-    # custom-block renderas nedsjunkna på klienten ("groparna", bekräftat på
-    # Xbox 2026-08-09 även efter palettversions-fixen). Kommandoplacering är
-    # bevisat felfri (utomhusbädden, kulans bädd).
+    # INREDNINGEN placeras via setblock i build_commands. OBS: "groparna" var
+    # aldrig ett klientrenderingsfel — det var hollow-boxens extra golvplan
+    # (urgröpningen ovan). Kommandoplacering behålls: bevisat felfri.
     # skylten sitter på väggens INSIDA (cell z1) — i väggplanet (z0) åt den
     # upp fönstrets nedre glasruta ("fönster verkar saknas", Xbox-rapport)
     s.set(2, 2, 1, "minecraft:wall_sign", {"facing_direction": 3})             # "handboken häri!"
@@ -460,6 +464,21 @@ def build_commands(cats, disp):
     c.append(f'setblock -17 {f} 45 soul_lantern ["hanging"=false]')
     c.append(f'setblock -31 {f} 46 soul_lantern ["hanging"=false]')
     c.append(("sleep", 2))
+    # läskig skogsbotten: podsol i sjok + döda buskar + extra vävar + tätare
+    for px1, pz1, px2, pz2 in ((-50, 33, -44, 39), (-42, 44, -35, 52),
+                               (-48, 55, -42, 60), (-34, 36, -30, 42)):
+        c.append(f"fill {px1} {g} {pz1} {px2} {g} {pz2} podzol replace grass_block")
+    for dx, dz in ((-47, 37), (-39, 45), (-34, 53), (-44, 53), (-31, 41)):
+        c.append(f"setblock {dx} {f} {dz} deadbush")
+    for wx, wz in ((-49, 41), (-36, 44), (-42, 58)):
+        c.append(f"setblock {wx} {f} {wz} web")
+    for tx, tz in ((-55, 44), (-31, 57), (-44, 36)):
+        c.append(f"structure load haven:darktree {tx} {g+1} {tz}")
+        c.append(("sleep", 1))
+    # fladdermöss mellan stammarna
+    for bx, bz in ((-40, 45), (-35, 52), (-46, 38)):
+        c.append(f"summon minecraft:bat {bx} {f+2} {bz}")
+    c.append(("sleep", 2))
     # spökkatterna: de gamla katternas andar, namnlösa ("???"), ofarliga
     for sx, sz in ((-38, 40), (-48, 52), (-34, 55)):
         c.append(f'summon mjau:spokkatt "???" {sx} {f} {sz}')
@@ -566,6 +585,9 @@ def postprocess_level_dat(world_dir, world_name):
     version, root = nbt.read_level_dat(f"{world_dir}/level.dat")
     d = root.v
     d["LevelName"] = S(world_name)
+    d["Time"] = V(nbt.TAG_LONG, 14500)      # ankomst i skymningsmörker
+    d["rainLevel"] = V(nbt.TAG_FLOAT, 1.0)  # ...och regn. Dystert.
+    d["rainTime"] = I(9000)
     d["Difficulty"] = I(1)              # easy — familjevänligt men levande
     d["commandsEnabled"] = B(0)         # fusk av i den skeppade världen
     d["GameType"] = I(0)                # survival

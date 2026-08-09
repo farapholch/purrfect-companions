@@ -29,7 +29,13 @@ def S(v):  return V(nbt.TAG_STRING, v)
 def C(d):  return V(nbt.TAG_COMPOUND, d)
 def L(tag, items): return V(nbt.TAG_LIST, (tag, items))
 
-BLOCK_VERSION = 18168865   # samma som gametest-arenan (laddaren uppgraderar)
+# Blockpalettens version MÅSTE matcha serverns riktiga (1.26.40 = 18491392).
+# Med gametest-arenans gamla 1.21-stämpel renderade CUSTOM-block placerade via
+# structure load nedsjunkna ("groparna") — vanilla-block uppgraderas av spelets
+# schemakedja, custom-block har ingen och lämnas i odefinierat läge. Bevisat på
+# Xbox 2026-08-09: samma kattbädd — perfekt via spelarplacering, grop via
+# struktur. setblock/spelare stämplar aktuell version, därav skillnaden.
+BLOCK_VERSION = 18491392
 SRV = "/opt/bds/server"
 GROUND = -61               # översta solida blocket i FLAT (verifieras i bygget)
 FLOOR = GROUND + 1         # fötterna/golvnivån
@@ -50,10 +56,11 @@ TEXTS = {
         "book_author": "The Old Caretaker",
         "book_pages": [
             "Welcome to Cat Haven!\n\nI am too old to care for the shelter now. The four cats still live in these hills - they just need someone to trust again.\n\nEverything you need is in this chest.",
-            "TASK 1 - FIND THE CATS\n\n%MOCHA% never left the shelter. %HAZEL% fishes by the pond. %MISTY% hides among the trees. %SNOW% wanders the lighthouse road.\n\nTame them with the cod from this chest.",
-            "TASK 2 - A CATCH FROM THE POND\n\nPut the saddle on a cat and wade into the pond together.\n\nA saddled cat catches cod all by itself. Let it fish your next meal!",
-            "TASK 3 - RIDE TO THE LIGHTHOUSE\n\nFollow the gravel road south and ride to the top of the lighthouse hill.\n\nSomething useful waits in the chest at the top of the tower.",
-            "TASK 4 - THE BURIED SAVINGS\n\nI never trusted banks. What I saved, the cats buried - they bury better than I ever did.\n\nA cat wearing a BACKPACK remembers where. Give one a backpack and let it dig.",
+            "TASK 1 - MEET THE CATS\n\n%MOCHA% never left the shelter. %HAZEL% fishes by the pond. %MISTY% hides among the trees.\n\nTame them with the cod from this chest.",
+            "TASK 2 - %SNOW% IS MISSING\n\nShe has not been seen since the storm, and the others will not go near the lighthouse hill.\n\nI found white fur snagged by the pond - and more tufts leading east. Follow them. Bring a cod she cannot resist.",
+            "TASK 3 - A CATCH FROM THE POND\n\nPut the saddle on a cat and wade into the pond together.\n\nA saddled cat catches cod all by itself. Let it fish your next meal!",
+            "TASK 4 - RIDE TO THE LIGHTHOUSE\n\nFollow the gravel road south and ride to the top of the lighthouse hill.\n\nSomething useful waits in the chest at the top of the tower.",
+            "TASK 5 - THE BURIED SAVINGS\n\nI never trusted banks. What I saved, the cats buried - they bury better than I ever did.\n\nA cat wearing a BACKPACK remembers where. Give one a backpack and let it dig.",
             "The beds inside carry the cats' names. Cat treats cheer them up when their tails droop - the recipe is sugar, wheat and cod.\n\nTake good care of them.\n\nAnd mind the boxes. Some hide more than dust.\n\n- The Old Caretaker",
             "One more thing, if you will believe an old man.\n\nThe cats used to tell of a FIFTH - black as the gap between the stars, with eyes of amber.\n\nShe shows herself only to those who leave a silver fish on a cat's bed while the moon stands at its highest.",
         ],
@@ -72,10 +79,11 @@ TEXTS = {
         "book_author": "Gamla föreståndaren",
         "book_pages": [
             "Välkommen till Kattgården!\n\nJag är för gammal för att sköta katthemmet nu. De fyra katterna bor kvar i kullarna - de behöver bara någon att lita på igen.\n\nAllt du behöver ligger i den här kistan.",
-            "UPPDRAG 1 - HITTA KATTERNA\n\n%MOCHA% lämnade aldrig katthemmet. %HAZEL% fiskar vid dammen. %MISTY% gömmer sig bland träden. %SNOW% strövar på fyrvägen.\n\nTämj dem med torsken ur kistan.",
-            "UPPDRAG 2 - EN FÅNGST UR DAMMEN\n\nSätt sadeln på en katt och vada ut i dammen tillsammans.\n\nEn sadlad katt fångar torsk alldeles själv. Låt den fiska din nästa måltid!",
-            "UPPDRAG 3 - RID TILL FYREN\n\nFölj grusvägen söderut och rid upp för fyrkullen.\n\nNågot användbart väntar i kistan högst upp i tornet.",
-            "UPPDRAG 4 - DET NEDGRÄVDA SPARANDET\n\nJag litade aldrig på banker. Det jag sparade grävde katterna ner - de gräver bättre än jag någonsin gjorde.\n\nEn katt med RYGGSÄCK minns var. Ge en katt en ryggsäck och låt den gräva.",
+            "UPPDRAG 1 - MÖT KATTERNA\n\n%MOCHA% lämnade aldrig katthemmet. %HAZEL% fiskar vid dammen. %MISTY% gömmer sig bland träden.\n\nTämj dem med torsken ur kistan.",
+            "UPPDRAG 2 - %SNOW% ÄR FÖRSVUNNEN\n\nIngen har sett henne sedan stormen, och de andra vägrar gå nära fyrkullen.\n\nJag hittade vit päls fastnad vid dammen - och fler tussar österut. Följ dem. Ta med en torsk hon inte kan motstå.",
+            "UPPDRAG 3 - EN FÅNGST UR DAMMEN\n\nSätt sadeln på en katt och vada ut i dammen tillsammans.\n\nEn sadlad katt fångar torsk alldeles själv. Låt den fiska din nästa måltid!",
+            "UPPDRAG 4 - RID TILL FYREN\n\nFölj grusvägen söderut och rid upp för fyrkullen.\n\nNågot användbart väntar i kistan högst upp i tornet.",
+            "UPPDRAG 5 - DET NEDGRÄVDA SPARANDET\n\nJag litade aldrig på banker. Det jag sparade grävde katterna ner - de gräver bättre än jag någonsin gjorde.\n\nEn katt med RYGGSÄCK minns var. Ge en katt en ryggsäck och låt den gräva.",
             "Sängarna därinne bär katternas namn. Kattgodis piggar upp dem när svansen hänger - receptet är socker, vete och torsk.\n\nTa väl hand om dem.\n\nOch se upp med lådorna. Vissa gömmer mer än damm.\n\n- Gamla föreståndaren",
             "En sak till, om du tror en gammal man.\n\nKatterna berättade om en FEMTE - svart som mellanrummet mellan stjärnorna, med ögon av bärnsten.\n\nHon visar sig bara för den som lämnar en silverfisk på en kattbädd när månen står som högst.",
         ],
@@ -359,6 +367,22 @@ def build_commands(cats, disp):
     for tx, tz in ((13, 32), (-12, 36)):
         c.append(f"structure load haven:tree {tx} {g+1} {tz}")
         c.append(("sleep", 1))
+    # MAJA/SNOW ÄR FÖRSVUNNEN: jordkula på kullens baksida + pälsspår dit.
+    # Kulan byggs EFTER kullterrasserna (fyller mot slänten) och FÖRE katterna.
+    c.append(f"fill -2 {g+1} 60 2 {g+4} 64 dirt")
+    c.append(f"fill -2 {g+4} 60 2 {g+4} 64 grass_block")
+    c.append(f"fill -1 {g+1} 61 1 {g+2} 63 air")        # grottinteriör 3x2x3
+    c.append(f"fill 0 {g+1} 64 0 {g+2} 65 air")         # mynning mot söder
+    c.append(f"setblock -1 {g+1} 61 hay_block")
+    c.append(f'setblock 1 {g+1} 61 lantern ["hanging"=false]')
+    c.append(f"setblock 0 {g+1} 61 mjau:kattbadd")       # hennes gömställe
+    c.append(("sleep", 2))
+    # vita pälstussar: dammen -> österut runt kullen -> mynningen
+    # tussarna ligger i MARKPLAN (x>=11 eller z>=67) — terrasserna är högre
+    for wx, wz in ((14, 14), (12, 22), (13, 30), (12, 38), (12, 46),
+                   (12, 52), (11, 58), (8, 67), (4, 67), (1, 67)):
+        c.append(f"setblock {wx} {f} {wz} white_carpet")
+    c.append(("sleep", 2))
     # hemliga källaren: rum under huset, schakt upp till golvcellen under
     # kartongen (världs-x5,z9) — kartongen laddas ovanpå och döljer hålet
     c.append(f"structure load haven:cellar 1 {g-3} 8")   # helt under huset, ovanpå bedrock
@@ -384,8 +408,8 @@ def build_commands(cats, disp):
     c.append(f"testforblock 0 {g+19} 56 glowstone")    # fyrljuset
     c.append(("sleep", 2))
     # katterna: namngivna (persistenta), vuxna, otama — att hitta dem är uppdraget
-    spots = {"misty": (-9, f), "hazel": (16, f), "mocha": (0, f + 1), "snow": (5, f)}
-    zs = {"misty": 33, "hazel": 8, "mocha": 13, "snow": 42}
+    spots = {"misty": (-9, f), "hazel": (16, f), "mocha": (0, f + 1), "snow": (0, f)}
+    zs = {"misty": 33, "hazel": 8, "mocha": 13, "snow": 62}
     for src, (x, y) in spots.items():
         c.append(f'summon mjau:{cats[src]} "{disp[src]}" {x} {y} {zs[src]}')
         c.append(("sleep", 1))

@@ -63,7 +63,7 @@ const awarded = new Map();
 
 function hasAward(pl, id) {
   try { if (pl.getDynamicProperty("mjau_achv_" + id)) return true; } catch { }
-  return awarded.get(pl.id + ":" + id) === true;
+  try { return awarded.get(pl.id + ":" + id) === true; } catch { return false; }
 }
 
 function give(pl, id) {
@@ -140,14 +140,18 @@ system.runInterval(() => {
     } else if (hundSedd && hundPlats) {
       hundSedd = false;
       for (const pl of world.getAllPlayers()) {
-        const dx = pl.location.x - hundPlats.x, dz = pl.location.z - hundPlats.z;
-        if (dx * dx + dz * dz < 32 * 32) give(pl, "befriaren");
+        try {
+          const dx = pl.location.x - hundPlats.x, dz = pl.location.z - hundPlats.z;
+          if (dx * dx + dz * dz < 32 * 32) give(pl, "befriaren");
+        } catch { }
       }
       hundPlats = null;
     }
   } catch { }
 
   for (const pl of world.getAllPlayers()) {
+    if (!pl) continue;   // gametest-miljön kan lämna trasiga spelarposter
+    try {
     if (tamed.length >= 1) give(pl, "forsta_vannen");
     if (tamed.length >= 4) give(pl, "hela_flocken");
     try {
@@ -184,6 +188,7 @@ system.runInterval(() => {
         c.location.y - L.y, c.location.z - L.z) < 2.5);
       if (nara) { rapportTyst.set(pl.id, system.currentTick + 600); rapportera(pl); }
     }
+    } catch { }
   }
 }, 40);
 

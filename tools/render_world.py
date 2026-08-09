@@ -46,7 +46,9 @@ VANILLA = {
     "hay_block": (220, 190, 60), "white_carpet": (235, 235, 235),
     "poppy": (220, 40, 40), "dandelion": (250, 220, 60),
     "dark_oak_log": (60, 46, 26), "dark_oak_leaves": (35, 60, 25),
-    "web": (240, 240, 240), "soul_lantern": (80, 220, 255), "air": None,
+    "web": (240, 240, 240), "soul_lantern": (80, 220, 255),
+    "spruce_stairs": (100, 74, 42), "light_gray_wool": (180, 180, 175),
+    "black_wool": (25, 25, 30), "pink_wool": (240, 140, 170), "air": None,
 }
 
 def _custom_colors():
@@ -97,7 +99,7 @@ def build_voxels():
 
     vox = {}
     g = bw.GROUND
-    for x in range(-45, 45):            # FLAT-terräng i spelområdet
+    for x in range(-60, 45):            # FLAT-terräng i spelområdet
         for z in range(-10, 95):
             vox[(x, g, z)] = "minecraft:grass_block"
             vox[(x, g - 1, z)] = "minecraft:dirt"
@@ -216,7 +218,7 @@ def main():
     custom = _custom_colors()
     vox = build_voxels()
     print(f"{len(vox)} voxlar")
-    render_topdown(vox, custom, f"{OUT}/overview.png")
+    render_topdown(vox, custom, f"{OUT}/overview.png", area=((-60, 45), (-10, 95)), scale=5)
     # klipp vid MÖBELPLANET (-59): skyltarna på -58 skymmer annars bäddarna
     render_topdown(vox, custom, f"{OUT}/interior.png", ymax=-59,
                    area=((-10, 10), (5, 20)), scale=14)
@@ -224,8 +226,8 @@ def main():
                      area=((-12, 12), (-62, -50)), scale=10)
     render_elevation(vox, custom, f"{OUT}/lighthouse.png", "z", range(40, 66),
                      area=((-12, 12), (-62, -38)), scale=10)
-    render_slice(vox, custom, f"{OUT}/den.png", "z", 0,
-                 area=((44, 70), (-64, -50)), scale=10)
+    render_slice(vox, custom, f"{OUT}/den.png", "x", 46,
+                 area=((-50, -35), (-64, -52)), scale=10)
     render_slice(vox, custom, f"{OUT}/cellar.png", "x", 10,
                  area=((-8, 8), (-66, -54)), scale=10)
     print(f"vyer -> {OUT}/")

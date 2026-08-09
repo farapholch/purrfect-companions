@@ -189,12 +189,31 @@ def build_structures(outdir, t, disp, cats):
     st = f"{outdir}/structures/haven"
 
     # KATTHEMMET: 13 bred (x), 7 hög, 10 djup (z). Dörröppning mot söder (z=0).
-    s = Struct(13, 7, 10)
+    s = Struct(13, 10, 10)
     s.box(0, 0, 0, 12, 0, 9, "minecraft:spruce_planks")                       # golv
     s.box(0, 1, 0, 12, 4, 9, "minecraft:oak_planks", hollow=True)             # väggar
     for cx, cz in ((0, 0), (0, 9), (12, 0), (12, 9)):                          # knutar
         s.box(cx, 1, cz, cx, 4, cz, "minecraft:oak_log", {"pillar_axis": "y"})
-    s.box(0, 5, 0, 12, 5, 9, "minecraft:spruce_planks")                       # tak
+    # SADELTAK av grantrappor: nock längs huslängden, lutning mot fram- och
+    # baksida (speltest-önskemål: "riktigt lutande tak")
+    for i in range(4):
+        s.box(0, 5 + i, i, 12, 5 + i, i, "minecraft:spruce_stairs",
+              {"upside_down_bit": False, "weirdo_direction": 2})               # framsluttning
+        s.box(0, 5 + i, 9 - i, 12, 5 + i, 9 - i, "minecraft:spruce_stairs",
+              {"upside_down_bit": False, "weirdo_direction": 3})               # baksluttning
+    s.box(0, 9, 4, 12, 9, 5, "minecraft:spruce_planks")                        # nock
+    # gavlarna fylls med plank...
+    for i in range(4):
+        for gx in (0, 12):
+            s.box(gx, 5 + i, i + 1, gx, 5 + i, 8 - i, "minecraft:oak_planks")
+    # ...och får varsitt KATTANSIKTE i ull (öron, ögon, rosa nos) — kattloggan
+    for gx in (0, 12):
+        for z in range(1, 9):  s.set(gx, 5, z, "minecraft:light_gray_wool")
+        s.set(gx, 5, 4, "minecraft:pink_wool"); s.set(gx, 5, 5, "minecraft:pink_wool")
+        for z in range(2, 8):  s.set(gx, 6, z, "minecraft:light_gray_wool")
+        s.set(gx, 6, 3, "minecraft:black_wool"); s.set(gx, 6, 6, "minecraft:black_wool")
+        s.set(gx, 7, 3, "minecraft:black_wool"); s.set(gx, 7, 4, "minecraft:light_gray_wool")
+        s.set(gx, 7, 5, "minecraft:light_gray_wool"); s.set(gx, 7, 6, "minecraft:black_wool")
     for wx in (2, 4, 8, 10):                                                   # fönster
         s.set(wx, 2, 0, "minecraft:glass_pane"); s.set(wx, 3, 0, "minecraft:glass_pane")
         s.set(wx, 2, 9, "minecraft:glass_pane"); s.set(wx, 3, 9, "minecraft:glass_pane")
@@ -204,18 +223,16 @@ def build_structures(outdir, t, disp, cats):
     for dx in (5, 6):                                                          # dörröppning
         s.set(dx, 1, 0, "minecraft:air"); s.set(dx, 2, 0, "minecraft:air")
     s.set(8, 1, 0, "mjau:kattlucka")                                           # kattdörr i väggen
-    for lx, lz in ((3, 4), (9, 4)):                                            # lyktor i taket
-        s.set(lx, 4, lz, "minecraft:lantern", {"hanging": True})
+    for lx, lz in ((3, 4), (9, 4)):                                            # ljuskronor från nocken
+        s.set(lx, 8, lz, "minecraft:lantern", {"hanging": True})
     beds = ((2, disp["misty"]), (4, disp["hazel"]), (8, disp["mocha"]), (10, disp["snow"]))
-    for bx, name in beds:                                                      # sängar + namnskylt
-        s.set(bx, 1, 8, "mjau:kattbadd")
-        s.set(bx, 2, 8, "minecraft:wall_sign", {"facing_direction": 2})
+    for bx, name in beds:                                                      # namnskyltarna (block
+        s.set(bx, 2, 8, "minecraft:wall_sign", {"facing_direction": 2})        # entities kräver struktur)
         s.entity_at(bx, 2, 8, sign_entity(name))
-    s.set(2, 1, 5, "mjau:matskal"); s.set(3, 1, 5, "mjau:matskal")             # matskålar
-    s.set(1, 1, 6, "mjau:kattoa")                                              # kattlåda
-    s.set(11, 1, 6, "mjau:stallning")                                          # klösställning
-    s.set(6, 1, 5, "mjau:garnnystan")                                          # garnnystan
-    s.set(11, 1, 1, "mjau:kartong")                                            # kartongen
+    # INREDNINGEN placeras via setblock i build_commands — strukturplacerade
+    # custom-block renderas nedsjunkna på klienten ("groparna", bekräftat på
+    # Xbox 2026-08-09 även efter palettversions-fixen). Kommandoplacering är
+    # bevisat felfri (utomhusbädden, kulans bädd).
     s.set(2, 2, 0, "minecraft:wall_sign", {"facing_direction": 3})             # "handboken häri!"
     s.entity_at(2, 2, 0, sign_entity(t["chest_sign"]))
     s.set(2, 1, 1, "minecraft:chest", {"facing_direction": 5})                 # startkistan
@@ -278,8 +295,7 @@ def build_structures(outdir, t, disp, cats):
     for y in (1, 2):
         s.box(0, y, 0, 10, y, 10, "minecraft:stone_bricks")        # ram...
         s.box(1, y, 1, 9, y, 9, "minecraft:water", {"liquid_depth": 0})  # ...vatten
-    s.set(0, 3, 5, "mjau:fiskdamm")
-    s.emit(f"{st}/pond.mcstructure")
+    s.emit(f"{st}/pond.mcstructure")   # fiskdammsblocket sätts via kommando
 
     # FYREN: 7×7-bas, 5×5-torn med röda band, stege upp, belönings­kista i topp.
     # Ingången går i MARKNIVÅ genom sockeln (buggrapport från Xbox: öppningen
@@ -309,8 +325,10 @@ def build_structures(outdir, t, disp, cats):
     # slog i huvudet strax under luckan (Xbox-rapport #2)
     s.set(4, 13, 3, "minecraft:ladder", {"facing_direction": 4})
     s.box(0, 14, 0, 6, 14, 6, "minecraft:oak_fence", hollow=True)              # räcke
-    s.set(3, 14, 3, "minecraft:glowstone")                                     # ljuset
-    s.set(3, 15, 3, "minecraft:lantern", {"hanging": False})
+    # ljuset ETT steg högre — glowstone på y14 satt i huvudhöjd bredvid
+    # takluckan och man slog i skallen när man klev upp (Xbox-rapport)
+    s.set(3, 15, 3, "minecraft:glowstone")                                     # ljuset
+    s.set(3, 16, 3, "minecraft:lantern", {"hanging": False})
     s.set(1, 14, 3, "minecraft:chest", {"facing_direction": 5})                # belöningen
     s.entity_at(1, 14, 3, chest_entity([
         item(0, "mjau:rustning_netherit", 1),
@@ -345,7 +363,7 @@ def build_commands(cats, disp):
     c.append("gamerule domobspawning false")
     c.append("gamerule keepinventory true")
     c.append("gamerule sendcommandfeedback true")
-    c.append(f"tickingarea add -40 {g-4} -20 40 {g+30} 90 bygge")
+    c.append(f"tickingarea add -58 {g-4} -20 40 {g+30} 92 bygge")
     c.append(("sleep", 4))
     c.append(f"testforblock 0 {g} 0 grass_block")      # verifiera marknivån
     # kullar för fyren: terrasser en katt kan kliva upp för
@@ -389,39 +407,48 @@ def build_commands(cats, disp):
     for tx, tz in ((13, 32), (-12, 36)):
         c.append(f"structure load haven:tree {tx} {g+1} {tz}")
         c.append(("sleep", 1))
-    # MAJA/SNOW ÄR FÖRSVUNNEN: mörk skog i väster, spökkatter, jordkula i
-    # en glänta. Pälstussar leder från dammen in mellan träden.
-    for tx, tz in ((-34, 32), (-28, 31), (-21, 33), (-15, 34), (-35, 40),
-                   (-29, 39), (-22, 40), (-16, 42), (-33, 47), (-20, 47),
-                   (-15, 50), (-31, 54), (-25, 55), (-18, 56), (-34, 60),
-                   (-27, 61), (-21, 60)):
+    # MAJA/SNOW ÄR FÖRSVUNNEN: mörk skog LÅNGT i väster, bakom en flod med
+    # en enda bro — svårare att nå (speltest-önskemål). Spökkatter vaktar.
+    # floden: 4 bred, 2 djup, rinner N-S mellan byn och skogen
+    c.append(f"fill -22 {g-1} -6 -19 {g} 92 air")
+    c.append(("sleep", 2))
+    c.append(f"fill -22 {g-1} -6 -19 {g} 92 water")
+    c.append(("sleep", 2))
+    # bron: enda överfarten, i liv med gräset
+    c.append(f"fill -22 {g} 45 -19 {g} 45 oak_planks")
+    c.append(("sleep", 1))
+    for tx, tz in ((-52, 32), (-46, 31), (-39, 33), (-33, 34), (-53, 40),
+                   (-47, 39), (-40, 40), (-34, 42), (-51, 47), (-38, 47),
+                   (-33, 50), (-49, 54), (-43, 55), (-36, 56), (-52, 60),
+                   (-45, 61), (-39, 60)):
         c.append(f"structure load haven:darktree {tx} {g+1} {tz}")
         c.append(("sleep", 1))
-    for wx, wz in ((-18, 35), (-25, 41), (-31, 49), (-17, 50), (-28, 57)):
+    for wx, wz in ((-36, 35), (-43, 41), (-49, 49), (-35, 50), (-46, 57)):
         c.append(f"setblock {wx} {f} {wz} web")
     # jordkulan i gläntan, mynning mot öster (dit spåret leder)
-    c.append(f"fill -29 {g+1} 45 -24 {g+4} 49 dirt")
-    c.append(f"fill -29 {g+4} 45 -24 {g+4} 49 grass_block")
-    c.append(f"fill -28 {g+1} 46 -26 {g+2} 48 air")
-    c.append(f"fill -25 {g+1} 47 -24 {g+2} 47 air")
-    c.append(f"setblock -28 {g+1} 46 hay_block")
-    c.append(f'setblock -26 {g+1} 46 soul_lantern ["hanging"=false]')
-    c.append(f"setblock -27 {g+1} 46 mjau:kattbadd")
+    c.append(f"fill -47 {g+1} 45 -42 {g+4} 49 dirt")
+    c.append(f"fill -47 {g+4} 45 -42 {g+4} 49 grass_block")
+    c.append(f"fill -46 {g+1} 46 -44 {g+2} 48 air")
+    c.append(f"fill -43 {g+1} 47 -42 {g+2} 47 air")
+    c.append(f"setblock -46 {g+1} 46 hay_block")
+    c.append(f'setblock -44 {g+1} 46 soul_lantern ["hanging"=false]')
+    c.append(f"setblock -45 {g+1} 46 mjau:kattbadd")
     c.append(("sleep", 2))
-    # vita pälstussar: dammen -> västerut -> in i skogen -> mynningen
-    for wx, wz in ((14, 14), (10, 18), (4, 22), (-3, 26), (-9, 30),
-                   (-14, 34), (-18, 38), (-21, 42), (-23, 45)):
+    # vita pälstussar: dammen -> västerut -> BRON -> in i skogen -> mynningen
+    for wx, wz in ((14, 14), (8, 20), (0, 26), (-8, 32), (-14, 38),
+                   (-17, 43), (-24, 46), (-30, 47), (-35, 48), (-40, 48)):
         c.append(f"setblock {wx} {f} {wz} white_carpet")
-    # själslyktor som kusliga vägmärken
-    c.append(f'setblock -15 {f} 36 soul_lantern ["hanging"=false]')
-    c.append(f'setblock -22 {f} 44 soul_lantern ["hanging"=false]')
+    # själslyktor som kusliga vägmärken: en vid bron, en i skogsbrynet
+    c.append(f'setblock -17 {f} 45 soul_lantern ["hanging"=false]')
+    c.append(f'setblock -31 {f} 46 soul_lantern ["hanging"=false]')
     c.append(("sleep", 2))
     # spökkatterna: de gamla katternas andar, namnlösa ("???"), ofarliga
-    for sx, sz in ((-20, 40), (-30, 52), (-16, 55)):
+    for sx, sz in ((-38, 40), (-48, 52), (-34, 55)):
         c.append(f'summon mjau:spokkatt "???" {sx} {f} {sz}')
         c.append(("sleep", 1))
         c.append(f"event entity @e[type=mjau:spokkatt,x={sx},y={f},z={sz},r=8] mjau:grow_up")
-    c.append(f"testfor @e[type=mjau:spokkatt,x=-20,y={f},z=40,r=40]")
+    c.append(f"testfor @e[type=mjau:spokkatt,x=-38,y={f},z=40,r=40]")
+    c.append(f"testforblock -20 {g} 45 oak_planks")     # bron finns
     c.append(("sleep", 1))
     # hemliga källaren: rum under huset, schakt upp till golvcellen under
     # kartongen (världs-x5,z9) — kartongen laddas ovanpå och döljer hålet
@@ -431,6 +458,21 @@ def build_commands(cats, disp):
     c.append(f'fill 5 {g-1} 9 5 {f} 9 ladder ["facing_direction"=2]')
     c.append(("sleep", 1))
     c.append(f"testforblock 2 {g-2} 12 chest")          # källarkistan
+    # INREDNINGEN (plan B mot groparna): kommandoplacerade custom-block —
+    # strukturvägen ger nedsjunken klientrendering, kommandovägen är felfri
+    for bx in (2, 4, 8, 10):
+        c.append(f"setblock {bx-6} {f+1} 16 mjau:kattbadd")
+    c.append(f"setblock -4 {f+1} 13 mjau:matskal")
+    c.append(f"setblock -3 {f+1} 13 mjau:matskal")
+    c.append(f"setblock -5 {f+1} 14 mjau:kattoa")
+    c.append(f"setblock 5 {f+1} 14 mjau:stallning")
+    c.append(f"setblock 0 {f+1} 13 mjau:garnnystan")
+    c.append(f"setblock 5 {f+1} 9 mjau:kartong")
+    c.append(f"setblock 12 {g+1} 7 mjau:fiskdamm")
+    c.append(("sleep", 2))
+    c.append(f"testforblock -4 {f+1} 16 mjau:kattbadd")  # sängraden på plats
+    c.append(f"testforblock 6 {f+5} 12 pink_wool")       # kattnosen på gaveln
+    c.append(f"testforblock 0 {f+9} 12 spruce_planks")   # taknocken
     c.append(f"structure load haven:welcome 1 {f} 1")
     c.append(("sleep", 1))
     c.append(f"structure load haven:startsign -2 {f} 1")
@@ -447,10 +489,10 @@ def build_commands(cats, disp):
     c.append(f"testforblock -1 {f+1} 8 wooden_door")   # pardörren
     c.append(f"testforblock 12 {g+1} 7 mjau:fiskdamm") # dammen (ramkanten)
     c.append(f"testforblock 17 {g} 7 water")           # vattnet i dammen
-    c.append(f"testforblock 0 {g+19} 56 glowstone")    # fyrljuset
+    c.append(f"testforblock 0 {g+20} 56 glowstone")    # fyrljuset (höjt ur huvudhöjd)
     c.append(("sleep", 2))
     # katterna: namngivna (persistenta), vuxna, otama — att hitta dem är uppdraget
-    spots = {"misty": (-9, f), "hazel": (16, f), "mocha": (0, f + 1), "snow": (-27, f)}
+    spots = {"misty": (-9, f), "hazel": (16, f), "mocha": (0, f + 1), "snow": (-45, f)}
     zs = {"misty": 33, "hazel": 8, "mocha": 13, "snow": 47}
     for src, (x, y) in spots.items():
         c.append(f'summon mjau:{cats[src]} "{disp[src]}" {x} {y} {zs[src]}')

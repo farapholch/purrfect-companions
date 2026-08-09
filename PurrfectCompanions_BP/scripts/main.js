@@ -86,7 +86,10 @@ system.runInterval(() => {
   let cats;
   try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
   if (catHavenWorld === null) {
-    try { catHavenWorld = d.getBlock({ x: 0, y: -42, z: 56 })?.typeId === "minecraft:glowstone"; }
+    try {
+      catHavenWorld = d.getBlock({ x: 0, y: -41, z: 56 })?.typeId === "minecraft:glowstone" ||
+                      d.getBlock({ x: 0, y: -42, z: 56 })?.typeId === "minecraft:glowstone";
+    }
     catch { catHavenWorld = null; }   // chunk oladdad — fråga igen nästa varv
   }
   const tamed = cats.filter(c => { try { return c.getProperty("mjau:tam") === 1; } catch { return false; } });

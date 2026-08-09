@@ -1,3 +1,17 @@
+## 2.8.1 — A river to cross, a roof worth having
+
+The dark forest moved farther west — and now a river runs the length
+of the valley between you and it, with a single plank bridge as the
+only way across. The fur tufts know the way; a soul lantern marks the
+crossing. The shelter finally looks like a home: a real pitched spruce
+roof, lanterns hung from the ridge beam, and a cat's face — ears, eyes
+and a pink nose — built into each gable in wool.
+
+Under the hood, the stubborn "furniture sunk in pits" rendering bug is
+finally, definitively fixed (furniture is placed the way that provably
+renders right), and the lighthouse lamp moved up a block so nobody
+bumps their head stepping onto the platform.
+
 ## 2.8.0 — The dark forest, and the ghosts of the old cats
 
 The search for the missing cat got teeth. She is no longer resting

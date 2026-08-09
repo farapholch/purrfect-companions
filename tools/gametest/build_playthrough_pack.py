@@ -133,13 +133,15 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   ok("KAPITEL 1 OK - tre katter tamda");
 
   // KAPITEL 2 — pälsspåret till Maja i mörka skogen
-  for (const [x, z] of [[14, 14], [-9, 30], [-23, 45]]) {
+  for (const [x, z] of [[14, 14], [-14, 38], [-35, 48]]) {
     if (B(x, -60, z) !== "minecraft:white_carpet") return done(`palstuss saknas vid ${x},${z}`, false);
   }
-  if (near("mjau:spokkatt", -23, 48, 35).length < 2) return done("spokkatterna saknas i skogen", false);
-  if (B(-26, -60, 46) !== "minecraft:soul_lantern") return done("sjalslyktan i kulan saknas", false);
-  if (B(-27, -60, 46) !== "mjau:kattbadd") return done("Majas badd i kulan saknas", false);
-  const snow = near("mjau:snow", -27, 47, 20)[0];
+  if (near("mjau:spokkatt", -40, 48, 35).length < 2) return done("spokkatterna saknas i skogen", false);
+  if (B(-20, -61, 45) !== "minecraft:oak_planks") return done("bron over floden saknas", false);
+  if (B(-20, -61, 40) !== "minecraft:water") return done("floden saknas", false);
+  if (B(-44, -60, 46) !== "minecraft:soul_lantern") return done("sjalslyktan i kulan saknas", false);
+  if (B(-45, -60, 46) !== "mjau:kattbadd") return done("Majas badd i kulan saknas", false);
+  const snow = near("mjau:snow", -45, 47, 20)[0];
   if (!snow) return done("Maja/Snow finns inte vid kulan", false);
   if (!(await tame(snow))) return done("kunde inte tamja Maja/Snow", false);
   ok("KAPITEL 2 OK - Maja hittad i kulan och tamd");
@@ -172,7 +174,7 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
     if (B(1, y, 56) !== "minecraft:ladder") return done(`stegen saknas vid y=${y}`, false);
   }
   if (B(-2, -42, 56) !== "minecraft:chest") return done("belonings-kistan i fyrtoppen saknas", false);
-  if (B(0, -42, 56) !== "minecraft:glowstone") return done("fyrljuset saknas", false);
+  if (B(0, -41, 56) !== "minecraft:glowstone") return done("fyrljuset saknas", false);
   ok("KAPITEL 4 OK - fyringang, stege hela vagen, beloning pa plats");
 
   // KAPITEL 5 — ryggsäckskatten gräver (hon följer ägaren — sök vid spelaren)

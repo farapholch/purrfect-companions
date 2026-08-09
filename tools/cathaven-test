@@ -53,7 +53,10 @@ for w in worlds:
     _, root = nbt.read_level_dat(p); os.unlink(p)
     d = root.v
     want = "Kattgården" if fam else "Cat Haven"
-    if d["LevelName"].v != want: bad.append(f"{os.path.basename(w)}: LevelName '{d['LevelName'].v}' != '{want}'")
+    # världsnamnet bär versionen ("Kattgården 2.7.2") — två identiska namn i
+    # världslistan fick speltestet att öppna FEL kopia
+    if not d["LevelName"].v.startswith(want) or d["LevelName"].v == want:
+        bad.append(f"{os.path.basename(w)}: LevelName '{d['LevelName'].v}' ska vara '{want} <version>'")
     if d["GameType"].v != 0: bad.append(f"{os.path.basename(w)}: GameType != survival")
     if d["commandsEnabled"].v != 0: bad.append(f"{os.path.basename(w)}: fusk är PÅ i skeppad värld")
     # inbäddade paket: UUID/version i world_*_packs.json måste matcha manifesten

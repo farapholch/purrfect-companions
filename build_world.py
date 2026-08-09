@@ -238,6 +238,12 @@ def build_structures(outdir, t, disp, cats):
     ]))
     s.emit(f"{st}/cellar.mcstructure")
 
+    # KATTSKYLTEN vid entrén: ASCII-katt ("rolig kattskylt", önskemål från Xbox)
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 8})
+    s.entity_at(0, 0, 0, sign_entity("/\\_/\\\n( o.o )\n > ^ <\nmjau!"))
+    s.emit(f"{st}/catsign.mcstructure")
+
     # VÄLKOMSTSKYLT vid spawn (egen liten struktur, vänd mot norr=spelaren)
     s = Struct(1, 1, 1)
     s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 8})
@@ -265,13 +271,21 @@ def build_structures(outdir, t, disp, cats):
     for y in range(2, 13):
         band = "minecraft:red_concrete" if y in (5, 9) else "minecraft:white_concrete"
         s.box(1, y, 1, 5, y, 5, band, hollow=True)
-    for y in (0, 1, 2, 3):                                                     # ingång i marknivå (söder)
+    # INGÅNGEN VETTER MOT NORR — det är därifrån vägen kommer (Xbox-rapport:
+    # spelaren möttes av en blank sockel; söderöppningen satt på baksidan).
+    for z in (0, 1):                                                           # tunnel genom sockeln
+        s.set(3, 0, z, "minecraft:air"); s.set(3, 1, z, "minecraft:air")
+    s.set(3, 2, 1, "minecraft:air"); s.set(3, 3, 1, "minecraft:air")           # valv i tornväggen
+    for y in (0, 1, 2, 3):                                                     # bakdörren (söder) kvar
         s.set(3, y, 5, "minecraft:air")
     s.box(3, 2, 3, 3, 3, 3, "minecraft:air")
-    for y in range(0, 14):                                                     # stege från golvet, norrväggen
+    for y in range(0, 13):                                                     # stege från golvet, norrväggen
         s.set(3, y, 2, "minecraft:ladder", {"facing_direction": 3})
     s.box(0, 13, 0, 6, 13, 6, "minecraft:spruce_planks")                       # plattform
     s.set(3, 13, 2, "minecraft:air")                                           # stegluckan
+    # översta stegpinnen SIST — plattformsboxen skrev annars över den och man
+    # slog i huvudet strax under luckan (Xbox-rapport #2)
+    s.set(3, 13, 2, "minecraft:ladder", {"facing_direction": 3})
     s.box(0, 14, 0, 6, 14, 6, "minecraft:oak_fence", hollow=True)              # räcke
     s.set(3, 14, 3, "minecraft:glowstone")                                     # ljuset
     s.set(3, 15, 3, "minecraft:lantern", {"hanging": False})
@@ -326,6 +340,25 @@ def build_commands(cats, disp):
     c.append(f'setblock -1 {f+1} 8 wooden_door ["direction"=3,"door_hinge_bit"=false]')
     c.append(f'setblock 0 {f+1} 8 wooden_door ["direction"=3,"door_hinge_bit"=true]')
     c.append(("sleep", 1))
+    # trappsteg framför pardörren — golvet ligger ett block över marken
+    # ("dörren sitter i fel höjd", Xbox-rapport)
+    c.append(f'setblock -1 {g} 7 oak_stairs ["upside_down_bit"=false,"weirdo_direction"=2]')
+    c.append(f'setblock 0 {g} 7 oak_stairs ["upside_down_bit"=false,"weirdo_direction"=2]')
+    # kattskylten vid entrén
+    c.append(f"structure load haven:catsign 2 {f} 6")
+    c.append(("sleep", 1))
+    # dekor längs fyrvägen: lyktstolpar + blommor + två extra ekar
+    for lx, lz in ((10, 12), (7, 20), (10, 28), (7, 36), (10, 44)):
+        c.append(f"setblock {lx} {f} {lz} oak_fence")
+        c.append(f'setblock {lx} {f+1} {lz} lantern ["hanging"=false]')
+    for px, pz in ((6, 10), (11, 18), (6, 26), (11, 34), (5, 44)):
+        c.append(f"setblock {px} {f} {pz} poppy")
+    for dx, dz in ((10, 15), (7, 31), (12, 41)):
+        c.append(f"setblock {dx} {f} {dz} dandelion")
+    c.append(("sleep", 2))
+    for tx, tz in ((13, 32), (-12, 36)):
+        c.append(f"structure load haven:tree {tx} {g+1} {tz}")
+        c.append(("sleep", 1))
     # hemliga källaren: rum under huset, schakt upp till golvcellen under
     # kartongen (världs-x5,z9) — kartongen laddas ovanpå och döljer hålet
     c.append(f"structure load haven:cellar 1 {g-3} 8")   # helt under huset, ovanpå bedrock
@@ -461,9 +494,8 @@ def build(variant, outdir):
     # 3) städa världen och packa .mcworld med RENA paket (utan strukturerna)
     shutil.rmtree(f"{wdir}/behavior_packs/PurrfectCompanions_BP")
     shutil.copytree(f"{packdir}/PurrfectCompanions_BP", f"{wdir}/behavior_packs/PurrfectCompanions_BP")
-    postprocess_level_dat(wdir, t["world"])
-
     ver = ".".join(map(str, bp["version"]))
+    postprocess_level_dat(wdir, f'{t["world"]} {ver}')
     os.makedirs(outdir, exist_ok=True)
     suffix = "-familj" if variant == "private" else ""
     slug = "kattgarden" if variant == "private" else "cat-haven"

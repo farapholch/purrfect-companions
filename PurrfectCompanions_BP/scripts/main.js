@@ -79,6 +79,27 @@ function give(pl, id) {
   try { pl.playSound("random.levelup"); } catch { }
 }
 
+// PROGRESS-RAPPORTEN: smyg intill en tämjd katt så "berättar" den i chatten
+// vilka uppdrag som är klara. Den hemliga nian visas som ??? tills den tagits.
+const ACHV_ORDER = ["forsta_vannen", "hela_flocken", "ryttaren", "fiskarkatten",
+                    "fyrvaktaren", "skattgravaren", "lados_hemlighet",
+                    "ur_morkret", "alla_hemma"];
+const rapportTyst = new Map();   // spelar-id -> tick då nästa rapport tillåts
+
+function rapportera(pl) {
+  const rt = [{ translate: "mjau.progress.title" }];
+  let n = 0;
+  for (const id of ACHV_ORDER) {
+    const har = hasAward(pl, id);
+    if (har) n++;
+    rt.push({ text: "\n" + (har ? "§a✔ §r" : "§8◻ §7") });
+    rt.push(har || id !== "ur_morkret" ? { translate: "mjau.achv." + id }
+                                       : { text: "???" });
+  }
+  rt.push({ text: "\n§e" + n + "/9" });
+  try { pl.sendMessage({ rawtext: rt }); pl.playSound("mob.cat.meow"); } catch { }
+}
+
 let catHavenWorld = null;   // fyrljuset på känd plats = vi är i Cat Haven
 
 system.runInterval(() => {
@@ -86,8 +107,11 @@ system.runInterval(() => {
   let cats;
   try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
   if (catHavenWorld === null) {
+    // signaturen måste ligga vid SPAWN (laddad från sekund ett) — fyrljuset
+    // var 55 block bort och doktorn väntade tills någon råkade gå dit
     try {
-      catHavenWorld = d.getBlock({ x: 0, y: -41, z: 56 })?.typeId === "minecraft:glowstone" ||
+      catHavenWorld = d.getBlock({ x: 2, y: -59, z: 8 })?.typeId === "mjau:kattlucka" ||
+                      d.getBlock({ x: 0, y: -41, z: 56 })?.typeId === "minecraft:glowstone" ||
                       d.getBlock({ x: 0, y: -42, z: 56 })?.typeId === "minecraft:glowstone";
     }
     catch { catHavenWorld = null; }   // chunk oladdad — fråga igen nästa varv
@@ -125,6 +149,12 @@ system.runInterval(() => {
         if (hemma >= 4) give(pl, "alla_hemma");
       }
     }
+    if (pl.isSneaking && (rapportTyst.get(pl.id) || 0) <= system.currentTick) {
+      const L = pl.location;
+      const nara = tamed.some(c => Math.hypot(c.location.x - L.x,
+        c.location.y - L.y, c.location.z - L.z) < 2.5);
+      if (nara) { rapportTyst.set(pl.id, system.currentTick + 600); rapportera(pl); }
+    }
   }
 }, 40);
 
@@ -140,7 +170,7 @@ const MOBLER = [
   [-4, -59, 13], [-3, -59, 13],                                // matskålarna
   [-5, -59, 14], [5, -59, 14], [0, -59, 13], [5, -59, 9],      // låda/ställning/nystan/kartong
   [12, -60, 7],                                                // fiskdammen
-  [-45, -60, 46],                                              // Majas bädd i kulan
+  [-52, -60, 66],                                              // Majas bädd i nya kulan
 ];
 let moblerLagda = false;
 

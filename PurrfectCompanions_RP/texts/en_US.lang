@@ -113,3 +113,5 @@ mjau.achv.alla_hemma.sub=The whole clowder, back at the shelter
 mjau.progress.title=🐾 The cat's report — quests:
 mjau.achv.befriaren=The Liberator
 mjau.achv.befriaren.sub=The guard dog is beaten, the cat is free
+entity.mjau:vakthund.name=Guard Dog
+entity.vakthund.name=Guard Dog

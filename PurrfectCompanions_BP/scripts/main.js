@@ -112,6 +112,8 @@ try {
   });
 } catch { }
 
+let hundSedd = false, hundPlats = null;   // vakthunds-vakans minne
+
 let catHavenWorld = null;   // fyrljuset på känd plats = vi är i Cat Haven
 
 system.runInterval(() => {
@@ -129,6 +131,20 @@ system.runInterval(() => {
     catch { catHavenWorld = null; }   // chunk oladdad — fråga igen nästa varv
   }
   const tamed = cats.filter(c => { try { return c.getProperty("mjau:tam") === 1; } catch { return false; } });
+  // vakthunds-vakan: syns hunden en tick och är borta nästa har någon fällt den
+  try {
+    const hundar = d.getEntities({ type: "mjau:vakthund" });
+    if (hundar.length > 0) {
+      hundSedd = true; hundPlats = hundar[0].location;
+    } else if (hundSedd && hundPlats) {
+      hundSedd = false;
+      for (const pl of world.getAllPlayers()) {
+        const dx = pl.location.x - hundPlats.x, dz = pl.location.z - hundPlats.z;
+        if (dx * dx + dz * dz < 32 * 32) give(pl, "befriaren");
+      }
+      hundPlats = null;
+    }
+  } catch { }
 
   for (const pl of world.getAllPlayers()) {
     if (tamed.length >= 1) give(pl, "forsta_vannen");

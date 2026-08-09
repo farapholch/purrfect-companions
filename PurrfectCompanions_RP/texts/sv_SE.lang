@@ -113,3 +113,5 @@ mjau.achv.alla_hemma.sub=Hela flocken, tillbaka på katthemmet
 mjau.progress.title=🐾 Kattens rapport — uppdrag:
 mjau.achv.befriaren=Befriaren
 mjau.achv.befriaren.sub=Vakthunden besegrad — katten är fri
+entity.mjau:vakthund.name=Vakthund
+entity.vakthund.name=Vakthund

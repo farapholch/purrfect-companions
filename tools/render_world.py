@@ -122,7 +122,7 @@ def build_voxels():
                         vox.pop((ox + x, oy + y, oz + z), None)
                     else:
                         vox[(ox + x, oy + y, oz + z)] = name
-    for cmd in bw.build_commands(cats, disp):
+    for cmd in bw.build_commands(cats, disp, "Vakthunden"):
         if isinstance(cmd, tuple): continue
         m = re.match(r"structure load haven:(\S+) (-?\d+) (-?\d+) (-?\d+)", cmd)
         if m:

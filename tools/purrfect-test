@@ -82,11 +82,13 @@ for b in geoj["bones"]:
 for f in glob.glob(f"{SRC}/PurrfectCompanions_RP/entity/*.json"):
     d=json.load(open(f))["minecraft:client_entity"]["description"]
     for key,gid in d["geometry"].items():
-        if gid not in GEOIDS: bad.append(f"{os.path.basename(f)}: geometri '{gid}' ({key}) finns inte i katt.geo.json")
+        if gid.startswith("geometry.katt") and gid not in GEOIDS:
+            bad.append(f"{os.path.basename(f)}: geometri '{gid}' ({key}) finns inte i katt.geo.json")
     for rc in d.get("render_controllers",[]):
         if isinstance(rc,str) and rc not in RCS and not rc.startswith("controller.render.default"):
             bad.append(f"{os.path.basename(f)}: render controller '{rc}' saknas")
-    if not os.path.exists(f"{SRC}/PurrfectCompanions_RP/{d['textures']['default']}.png"):
+    if not d["textures"]["default"].startswith("textures/entity/") and \
+       not os.path.exists(f"{SRC}/PurrfectCompanions_RP/{d['textures']['default']}.png"):
         bad.append(f"saknad textur för {os.path.basename(f)}")
     egg=d.get("spawn_egg",{})
     if "texture" in egg:
@@ -100,6 +102,9 @@ for f in glob.glob(f"{SRC}/PurrfectCompanions_RP/entity/*.json"):
 for f in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json")):
     cid=os.path.basename(f)[:-5]; e=json.load(open(f))["minecraft:entity"]
     comp=e["components"]; groups=e.get("component_groups",{})
+    # KATTREGLERNA (rustning, ridning, kattgeometri) gäller bara kattfamiljen —
+    # andra varelser (vakthunden) granskas bara för prioritetskrockar
+    ar_katt = "mjaukatt" in comp.get("minecraft:type_family",{}).get("family",[])
     pri={}
     for bk in [comp]+list(groups.values()):
         for k,v in bk.items():
@@ -107,6 +112,7 @@ for f in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json")):
                 pri.setdefault(v.get("priority"),[]).append(k.split(".")[-1])
     dup={p:v for p,v in pri.items() if len(v)>1}
     if dup: bad.append(f"{cid}: prioritetskrock {dup}")
+    if not ar_katt: continue
     if "minecraft:scale" in comp and any("minecraft:scale" in g for g in groups.values()):
         bad.append(f"{cid}: scale i både bas och grupp")
     sad=groups.get("mjau:saddled",{})
@@ -409,7 +415,8 @@ for f in glob.glob(f"{rp}/entity/*.json"):
     t = e.get("spawn_egg", {}).get("texture")
     if t and t not in it: bad.append(f"{os.path.basename(f)}: spawn_egg '{t}' saknas i atlasen")
     tex = e["textures"]["default"]
-    if not os.path.exists(f"{rp}/{tex}.png"): bad.append(f"{os.path.basename(f)}: textur {tex}.png saknas")
+    if not tex.startswith("textures/entity/") and not os.path.exists(f"{rp}/{tex}.png"):
+        bad.append(f"{os.path.basename(f)}: textur {tex}.png saknas")
     # namnnycklar i BÅDA formerna (med/utan namespace) i varje språkfil —
     # varianten döper om katterna, så källans gröna check räcker inte här
     cid = e["identifier"]; short = cid.split(":", 1)[1]

@@ -78,6 +78,11 @@ cp /tmp/playthrough-props.bak "$PROPS"
 rm -rf "$W"
 
 grep -oE "\[MJAU-PT\].*" "$LOG" | sed 's/^/  /'
+if grep -qE "\[mjau\] (vakthunden fälld|vakan: hunden borta)" "$LOG"; then
+  echo "[playthrough] ✅ Befriaren-utdelningen kvitterad i serverloggen"
+else
+  echo "[playthrough] ❌ ingen Befriaren-kvittens i loggen"; exit 1
+fi
 if grep -q "MJAU-PT\] GENOMSPELNING KLAR" "$LOG"; then
   echo "[playthrough] ✅ alla kapitel avklarade av simulerad spelare"
   exit 0

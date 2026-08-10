@@ -462,8 +462,10 @@ def build_commands(cats, disp, dog_name):
         c.append(f'setblock {sx} {f} {sz} oak_log ["pillar_axis"="y"]')
     c.append(("sleep", 1))
     # dammens gröna kant: sockerrör och fler blommor, plus en fiskebänk
+    # OBS: kommandonamnet är "reeds", inte "sugar_cane" (spelnamnet) — det
+    # senare gav "Syntax error: Unexpected 'sugar_cane'" och fällde bygget.
     for cx, cz in ((11, 3), (11, 7), (11, 11)):
-        c.append(f"setblock {cx} {f} {cz} sugar_cane")
+        c.append(f"setblock {cx} {f} {cz} reeds")
     for fx, fz, fl in ((13, 2, "azure_bluet"), (14, 11, "cornflower")):
         c.append(f"setblock {fx} {f} {fz} {fl}")
     c.append(f'setblock 9 {f} 4 oak_stairs ["upside_down_bit"=false,"weirdo_direction"=1]')

@@ -179,8 +179,11 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   ok("KAPITEL 2 OK - vakthunden besegrad, buren bruten, Maja befriad och tamd");
 
   // KAPITEL 3 — sadlad katt fiskar i dammen
-  // tämjda katter FÖLJER ägaren — sök vid spelaren, inte vid dammen
-  const fisk = near("mjau:hazel", p.location.x, p.location.z, 48)[0];
+  // tämjda katter FÖLJER ägaren — sök vid spelaren, inte vid dammen. Radie
+  // 120 (var 48): den större världen (äng/grotta/skogslund) gör att
+  // vakthundsstriden kan sluta riktigt långt bort, och en följande katt
+  // hinner inte alltid vandra ikapp på de få sekunder som gått.
+  const fisk = near("mjau:hazel", p.location.x, p.location.z, 120)[0];
   if (!fisk) return done("fiskekatten forsvann", false);
   if (!(await equip(fisk, "mjau:sadel_brun", "mjau:sadel"))) return done("sadeln gick inte pa", false);
   // ägaren MÅSTE stå vid dammen — annars teleporterar följebeteendet upp
@@ -210,7 +213,7 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   ok("KAPITEL 4 OK - fyringang, stege hela vagen, beloning pa plats");
 
   // KAPITEL 5 — ryggsäckskatten gräver (hon följer ägaren — sök vid spelaren)
-  const grav = near("mjau:mocha", p.location.x, p.location.z, 48)[0];
+  const grav = near("mjau:mocha", p.location.x, p.location.z, 120)[0];  // se kap 3-kommentaren
   if (!grav) return done("gravkatten forsvann", false);
   // hand-vägen (interact + has_equipment-filter) bevisas av sadeln i kap 3;
   // simspelarens interact mot en rörlig katt är flakig, så här triggas

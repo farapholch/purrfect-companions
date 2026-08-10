@@ -157,8 +157,8 @@ PY
   sed -i "s/^level-name=.*/level-name=CatHavenSmoke/" "$PROPS"
   SLOG=/tmp/cathaven-smoke.log
   { sleep 28
-    echo "tickingarea add -20 -70 -10 20 -40 60 rök"; sleep 4
-    echo "tickingarea add -58 -70 60 -45 -40 72 kula"; sleep 4
+    echo "tickingarea add -20 -70 -10 42 -40 60 rök"; sleep 4
+    echo "tickingarea add -58 -70 60 -35 -40 82 kula"; sleep 4
     echo "testforblock -4 -59 9 chest"; sleep 1
     echo "testforblock 12 -60 7 mjau:fiskdamm"; sleep 1
     echo "testforblock 17 -61 7 water"; sleep 1

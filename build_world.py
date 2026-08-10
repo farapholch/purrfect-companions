@@ -580,8 +580,18 @@ def build_commands(cats, disp, dog_name):
     c.append(f"testforblock 0 {g+20} 56 glowstone")    # fyrljuset (höjt ur huvudhöjd)
     c.append(("sleep", 2))
     # katterna: namngivna (persistenta), vuxna, otama — att hitta dem är uppdraget
+    # mocha z=16 (INTE 13): 13 var samma cell som garnnystanet ("mjau:garnnystan"
+    # i samma rad nedan) — katten spawnade bokstavligen INUTI bollen
+    # (Xbox-rapport). z=16 är luckan mellan de mittersta sängarna, tomt golv.
     spots = {"misty": (-9, f), "hazel": (16, f), "mocha": (0, f + 1), "snow": (-52, f)}
-    zs = {"misty": 33, "hazel": 8, "mocha": 13, "snow": 66}
+    zs = {"misty": 33, "hazel": 8, "mocha": 16, "snow": 66}
+    # VAKT: en katt fick en gång exakt samma (x,z) som en möbel och spawnade
+    # inuti den. Möblernas fotavtryck (från setblocken ovan) — inga katt-spots
+    # får träffa någon av dem.
+    FURNITURE_XZ = {(-4, 13), (-3, 13), (-5, 14), (5, 14), (0, 13), (5, 9),
+                    (-4, 16), (-2, 16), (2, 16), (4, 16), (12, 7)}
+    for src, (x, y) in spots.items():
+        assert (x, zs[src]) not in FURNITURE_XZ, f"{src} spawnar i en möbel vid ({x},{zs[src]})"
     for src, (x, y) in spots.items():
         c.append(f'summon mjau:{cats[src]} "{disp[src]}" {x} {y} {zs[src]}')
         c.append(("sleep", 1))

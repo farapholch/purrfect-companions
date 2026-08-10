@@ -125,7 +125,7 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   ok("KAPITEL 0 OK - skyltar och startkista");
 
   // KAPITEL 1 — tämj de tre katterna
-  for (const [type, x, z] of [["mjau:mocha", 0, 13], ["mjau:hazel", 16, 8], ["mjau:misty", -9, 33]]) {
+  for (const [type, x, z] of [["mjau:mocha", 0, 16], ["mjau:hazel", 16, 8], ["mjau:misty", -9, 33]]) {
     const cat = near(type, x, z, 30)[0];
     if (!cat) return done("hittar inte " + type, false);
     if (!(await tame(cat))) return done("kunde inte tamja " + type, false);

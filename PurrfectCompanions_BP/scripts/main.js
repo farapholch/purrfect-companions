@@ -61,6 +61,20 @@ system.runInterval(() => {
 // med Map-reserv om API-nivån saknar dem.
 const awarded = new Map();
 
+// TRIPPELSKATTEN: tre nycklar gömda i äng/grotta/damm-ö/skogslund —
+// har spelaren alla tre samtidigt i väskan är skatten hennes.
+function hasItem(pl, typeId) {
+  try {
+    const inv = pl.getComponent("minecraft:inventory")?.container;
+    if (!inv) return false;
+    for (let i = 0; i < inv.size; i++) {
+      const it = inv.getItem(i);
+      if (it && it.typeId === typeId) return true;
+    }
+  } catch { }
+  return false;
+}
+
 function hasAward(pl, id) {
   try { if (pl.getDynamicProperty("mjau_achv_" + id)) return true; } catch { }
   try { return awarded.get(pl.id + ":" + id) === true; } catch { return false; }
@@ -84,7 +98,7 @@ function give(pl, id) {
 // vilka uppdrag som är klara. Den hemliga nian visas som ??? tills den tagits.
 const ACHV_ORDER = ["forsta_vannen", "befriaren", "hela_flocken", "ryttaren", "fiskarkatten",
                     "fyrvaktaren", "skattgravaren", "lados_hemlighet",
-                    "ur_morkret", "alla_hemma"];
+                    "ur_morkret", "alla_hemma", "trippelskatten"];
 const rapportTyst = new Map();   // spelar-id -> tick då nästa rapport tillåts
 
 function rapportera(pl) {
@@ -225,6 +239,11 @@ system.runInterval(() => {
       const nara = tamed.some(c => Math.hypot(c.location.x - L.x,
         c.location.y - L.y, c.location.z - L.z) < 2.5);
       if (nara) { rapportTyst.set(pl.id, system.currentTick + 600); rapportera(pl); }
+    }
+    if (!hasAward(pl, "trippelskatten") && hasItem(pl, "minecraft:amethyst_shard") &&
+        hasItem(pl, "minecraft:nautilus_shell") && hasItem(pl, "minecraft:rabbit_foot")) {
+      give(pl, "trippelskatten");
+      console.warn("[mjau] Trippelskatten utdelad — alla tre nycklar samlade");
     }
     if (!hasAward(pl, "kattmastare") && ACHV_ORDER.every(id => hasAward(pl, id))) fest(pl);
     } catch { }

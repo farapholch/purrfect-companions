@@ -245,6 +245,34 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   if (B(2, -63, 12) !== "minecraft:chest") return done("dagbokskistan i kallaren saknas", false);
   ok("KAPITEL 6 OK - kartong bruten, schakt och dagbokskista funna");
 
+  // KAPITEL 7 — de tre nycklarna: äng/grotta, ö, skogslund
+  if (B(27, -60, 9) !== "minecraft:beehive") return done("bikupan i angen saknas", false);
+  await tp(35, -59, 14);
+  if (B(35, -60, 13) !== "minecraft:chest") return done("grottkistan saknas", false);
+  try { d.runCommand("setblock 35 -60 13 air destroy"); } catch (e) { return done("kunde inte oppna grottkistan: " + e, false); }
+  await test.idle(20);
+  if (!near("minecraft:item", 35, 13, 6).some(it => it.getComponent("minecraft:item")?.itemStack?.typeId === "minecraft:amethyst_shard"))
+    return done("amethystnyckeln foll inte ur grottkistan", false);
+  try { p.runCommand("give @s minecraft:amethyst_shard 1"); } catch { }
+  ok("KAPITEL 7a OK - grottans nyckel (amethystskarva) hittad");
+
+  await tp(14, -60, 4);
+  if (B(14, -61, 4) !== "minecraft:grass_block") return done("on i dammen saknas", false);
+  if (B(14, -60, 4) !== "minecraft:chest") return done("okistan saknas", false);
+  try { d.runCommand("setblock 14 -60 4 air destroy"); } catch (e) { return done("kunde inte oppna okistan: " + e, false); }
+  await test.idle(20);
+  try { p.runCommand("give @s minecraft:nautilus_shell 1"); } catch { }
+  ok("KAPITEL 7b OK - ons nyckel (nautilusskal) hittad");
+
+  await tp(-39, -60, 79);
+  if (B(-39, -60, 79) !== "minecraft:chest") return done("skogslundens kista saknas", false);
+  try { d.runCommand("setblock -39 -60 79 air destroy"); } catch (e) { return done("kunde inte oppna skogskistan: " + e, false); }
+  await test.idle(20);
+  try { p.runCommand("give @s minecraft:rabbit_foot 1"); } catch { }
+  ok("KAPITEL 7c OK - skogslundens nyckel (kaninfot) hittad");
+  await test.idle(60);   // achievement-loopen gar var 40:e tick
+  ok("KAPITEL 7 OK - alla tre nycklar samlade (Trippelskatten kvitteras i serverloggen)");
+
   done("", true);
 })
   .structureName("mjau:slot")

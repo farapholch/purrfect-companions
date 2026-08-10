@@ -317,6 +317,25 @@ def build_structures(outdir, t, disp, cats):
     s.entity_at(0, 0, 0, sign_entity(t["start_sign"]))
     s.emit(f"{st}/startsign.mcstructure")
 
+    # DE TRE NYCKELKISTORNA (speltest-önskemål: "större värld, fler saker att
+    # göra") — grottan, ön i dammen, den nya skogslunden. Kommandoplacerade
+    # kistor kan inte få innehåll via /setblock, därför egna småstrukturer
+    # (samma mönster som katt-/poolskylten).
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:chest", {"facing_direction": 3})
+    s.entity_at(0, 0, 0, chest_entity([item(0, "minecraft:amethyst_shard", 1)]))
+    s.emit(f"{st}/cavechest.mcstructure")
+
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:chest", {"facing_direction": 3})
+    s.entity_at(0, 0, 0, chest_entity([item(0, "minecraft:nautilus_shell", 1)]))
+    s.emit(f"{st}/islandchest.mcstructure")
+
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:chest", {"facing_direction": 3})
+    s.entity_at(0, 0, 0, chest_entity([item(0, "minecraft:rabbit_foot", 1)]))
+    s.emit(f"{st}/forestchest.mcstructure")
+
     # DAMMEN: 11×11, 2 djup så katten kan simma — stenbotten, ram, vatten.
     # OBS: box(hollow=True) med höjd 1 gör ALLA block till kant (y träffar
     # alltid y0/y1) — därför läggs vattnet EFTER ramen, aldrig tvärtom.
@@ -568,6 +587,58 @@ def build_commands(cats, disp, dog_name):
     c.append(f"testfor @e[type=mjau:spokkatt,x=-38,y={f},z=40,r=40]")
     c.append(f"testforblock -20 {g} 45 oak_planks")     # bron finns
     c.append(("sleep", 1))
+    # ===================================================================
+    # UTÖKNINGEN (speltest-önskemål: "större värld och fler saker att
+    # göra"): äng, grotta, ö i dammen, ny skogslund — knutna ihop av tre
+    # nycklar som tillsammans låser upp utmärkelsen "Trippelskatten".
+    # ===================================================================
+
+    # ÄNGEN öster om huset: vildblommor, bikupor med bin, kaniner
+    # (ingen markfyllning behövs — flat-marken är redan gräs här. Ett
+    # onödigt "fill grass_block->grass_block" gav "0 blocks filled", vilket
+    # build_world.py:s ERROR-grep flaggar som byggfel trots att inget var fel.)
+    _mf = ["poppy", "dandelion", "cornflower", "oxeye_daisy",
+           "azure_bluet", "blue_orchid", "allium", "red_tulip"]
+    # (31-39,13-21) är grottkullens fotavtryck (byggs strax nedan) — inga
+    # blommor/kaniner får hamna där, de skulle begravas i sten.
+    _mspots = [(26, 7), (28, 10), (31, 6), (33, 12), (35, 8), (27, 15),
+               (30, 18), (37, 10), (29, 22), (25, 18), (32, 23), (24, 16)]
+    for i, (mx, mz) in enumerate(_mspots):
+        c.append(f"setblock {mx} {f} {mz} {_mf[i % len(_mf)]}")
+    for hx, hz in ((27, 9), (37, 8)):
+        c.append(f'setblock {hx} {f} {hz} beehive ["direction"=0]')
+        c.append(("sleep", 1))
+        c.append(f"summon minecraft:bee {hx} {f+1} {hz}")
+        c.append(f"summon minecraft:bee {hx} {f+1} {hz}")
+    for rx, rz in ((25, 12), (30, 8), (24, 20)):
+        c.append(f"summon minecraft:rabbit {rx} {f} {rz}")
+    c.append(("sleep", 2))
+    c.append(f"testforblock 27 {f} 9 beehive")
+
+    # GROTTAN: stenkulle med tunnel in till en kristallkammare + nyckelkista
+    c.append(f"fill 31 {f} 13 39 {f+4} 21 stone")
+    c.append(f"fill 35 {f} 17 35 {f+1} 21 air")            # tunnelingång
+    c.append(f"fill 33 {f} 13 37 {f+2} 16 air")             # kammaren
+    c.append(f"fill 33 {f+2} 13 37 {f+2} 13 budding_amethyst")
+    c.append(f"fill 33 {f} 13 33 {f+1} 13 amethyst_block")
+    c.append(f"fill 37 {f} 13 37 {f+1} 13 amethyst_block")
+    c.append(f'setblock 35 {f} 14 soul_lantern ["hanging"=false]')
+    c.append(("sleep", 2))
+    c.append(f"structure load haven:cavechest 35 {f} 13")
+    c.append(("sleep", 1))
+    c.append(f"testforblock 35 {f} 13 chest")
+
+    # NY SKOGSLUND: pälsspår längre in i skogen till en gömd glänta + kista
+    for wx, wz in ((-44, 62), (-42, 68), (-40, 74)):
+        c.append(f"setblock {wx} {f} {wz} white_carpet")
+    c.append(f"setblock -39 {f} 78 hay_block")
+    c.append(f'setblock -38 {f} 78 soul_lantern ["hanging"=false]')
+    c.append(("sleep", 1))
+    c.append(f"structure load haven:forestchest -39 {f} 79")
+    c.append(("sleep", 1))
+    c.append(f"testforblock -39 {f} 79 chest")
+    c.append(("sleep", 1))
+
     # hemliga källaren: rum under huset, schakt upp till golvcellen under
     # kartongen (världs-x5,z9) — kartongen laddas ovanpå och döljer hålet
     c.append(f"structure load haven:cellar 1 {g-3} 8")   # helt under huset, ovanpå bedrock
@@ -597,6 +668,19 @@ def build_commands(cats, disp, dog_name):
     c.append(("sleep", 1))
     c.append(f"structure load haven:pond 12 {g-2} 2")
     c.append(("sleep", 1))
+    # ÖN I DAMMEN: torr ö i dammens nordvästra hörn — MÅSTE läggas EFTER
+    # pond-strukturen (annars laddar dammen sin egen sten/vatten ovanpå och
+    # begraver ön). Hörnet, INTE mitten (17,7): (17,-61,7) är fiskekattens
+    # fasta plats och den befintliga vattenkontrollen — en ö där hade
+    # begravt fiskeuppdraget.
+    c.append(f"fill 13 {g-1} 3 15 {g-1} 5 dirt")
+    c.append(f"fill 13 {g} 3 15 {g} 5 grass_block")
+    c.append(("sleep", 1))
+    c.append(f"structure load haven:islandchest 14 {f} 4")
+    c.append(("sleep", 1))
+    c.append(f"summon minecraft:boat 19 {f} 9")
+    c.append(f"testforblock 14 {g} 4 grass_block")
+    c.append(f"testforblock 17 {g} 7 water")            # dammens fiskeplats orörd
     c.append(f"structure load haven:lighthouse -3 {g+5} 53")
     c.append(("sleep", 2))
     for tx, tz in ((-16, 20), (-12, 27), (-19, 30), (14, 24), (-13, 44), (16, 40)):

@@ -61,8 +61,9 @@ cd "$SRV"
   echo "tickingarea remove_all"; sleep 2
   # hela spelytan måste ticka: byn+vägen respektive skogen+kullen
   echo "tickingarea add -25 -64 -8 20 -40 30 by"; sleep 2
-  echo "tickingarea add -58 -64 28 -10 -40 70 skog"; sleep 2
+  echo "tickingarea add -58 -64 28 -10 -40 82 skog"; sleep 2
   echo "tickingarea add -12 -64 30 20 -40 70 kulle"; sleep 2
+  echo "tickingarea add 20 -64 0 42 -40 26 ang"; sleep 2
   # positionera testets ankarstruktur LÅNGT från spelytan — ramverket bygger
   # struktur + startknapp där kommandot exekverar (spawnen fick en stenknapp
   # rakt över välkomstskylten i första körningen...)

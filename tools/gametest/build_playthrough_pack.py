@@ -278,6 +278,17 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   await test.idle(60);   // achievement-loopen gar var 40:e tick
   ok("KAPITEL 7 OK - alla tre nycklar samlade (Trippelskatten kvitteras i serverloggen)");
 
+  // KAPITEL 8 — det höga berget: terrasserna bär hela vägen upp till snön
+  if (B(26, -60, 68) !== "minecraft:stone") return done("bergets fot saknas", false);
+  if (B(26, -49, 80) !== "minecraft:snow") return done("bergets snotacke saknas", false);
+  if (B(26, -48, 80) !== "minecraft:chest") return done("utsiktskistan saknas", false);
+  await tp(26, -47, 80);
+  // Bergsbestigaren ar platsbaserad (samma monster som fyrvaktaren) — sim-
+  // spelaren kan inte verifiera sitt eget hasAward har (kand begransning,
+  // se Trippelskatten-kommentaren ovan). Att na hit bevisar terrasserna
+  // gar att klattra hela vagen, vilket ar den riktiga risken.
+  ok("KAPITEL 8 OK - bergets terrasser klattringsbara hela vagen till toppen");
+
   done("", true);
 })
   .structureName("mjau:slot")

@@ -158,7 +158,7 @@ PY
   SLOG=/tmp/cathaven-smoke.log
   { sleep 28
     echo "tickingarea add -20 -70 -10 42 -40 60 rök"; sleep 4
-    echo "tickingarea add -58 -70 60 -35 -40 82 kula"; sleep 4
+    echo "tickingarea add -58 -70 60 42 -40 92 kula"; sleep 4
     echo "testforblock -4 -59 9 chest"; sleep 1
     echo "testforblock 12 -60 7 mjau:fiskdamm"; sleep 1
     echo "testforblock 17 -61 7 water"; sleep 1
@@ -178,6 +178,8 @@ PY
     echo "testforblock 35 -60 13 chest"; sleep 1           # grottkistan
     echo "testforblock 14 -61 4 grass_block"; sleep 1      # ön (ej begravd av dammen)
     echo "testforblock -39 -60 79 chest"; sleep 1          # skogslundens kista
+    echo "testforblock 26 -48 80 chest"; sleep 1           # bergstoppens utsiktskista
+    echo "testforblock 26 -49 80 snow"; sleep 1            # bergets snötäcke
     echo "testfor @e[type=mjau:vakthund]"; sleep 1
     echo "scriptevent mjau:test_fest"; sleep 3
     echo "testfor @e[type=mjau:misty,x=-9,y=-60,z=33,r=80]"; sleep 1
@@ -194,7 +196,7 @@ PY
   cp /tmp/cathaven-props.bak "$PROPS"
   grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" || bad "paketen laddades INTE ur världen"
   FB=$(grep -c 'found the block' "$SLOG")
-  [ "$FB" -ge 17 ] && ok "alla $FB/17 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft, buren, lägereld, matta, bikupa, grottkista, ö, skogskista)" || bad "bara $FB/17 nyckelblock i den paketerade världen"
+  [ "$FB" -ge 19 ] && ok "alla $FB/19 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft, buren, lägereld, matta, bikupa, grottkista, ö, skogskista, bergskista, snötäcke)" || bad "bara $FB/19 nyckelblock i den paketerade världen"
   grep -qE "Found (Vakthunden|The Guard Dog)" "$SLOG" && ok "vakthunden vaktar kulan (persistent, namngiven)" || bad "vakthunden saknas i den paketerade världen"
   grep -q "KATTMASTARE-festen firad" "$SLOG" && ok "kattmästar-festen avfyrar (scriptevent-kroken)" || bad "festen avfyrade inte"
   grep -q "Found Misty" "$SLOG" && ok "Misty överlevde paketeringen (namngiven, persistent)" || bad "Misty saknas i den paketerade världen"

@@ -336,6 +336,15 @@ def build_structures(outdir, t, disp, cats):
     s.entity_at(0, 0, 0, chest_entity([item(0, "minecraft:rabbit_foot", 1)]))
     s.emit(f"{st}/forestchest.mcstructure")
 
+    # TOPPKISTAN på det höga berget: kikare (utsiktstema) + diamanter
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:chest", {"facing_direction": 3})
+    s.entity_at(0, 0, 0, chest_entity([
+        item(0, "minecraft:spyglass", 1),
+        item(1, "minecraft:diamond", 2),
+    ]))
+    s.emit(f"{st}/mountainchest.mcstructure")
+
     # DAMMEN: 11×11, 2 djup så katten kan simma — stenbotten, ram, vatten.
     # OBS: box(hollow=True) med höjd 1 gör ALLA block till kant (y träffar
     # alltid y0/y1) — därför läggs vattnet EFTER ramen, aldrig tvärtom.
@@ -637,6 +646,25 @@ def build_commands(cats, disp, dog_name):
     c.append(f"structure load haven:forestchest -39 {f} 79")
     c.append(("sleep", 1))
     c.append(f"testforblock -39 {f} 79 chest")
+    c.append(("sleep", 1))
+
+    # HÖGA BERGET: klättringsbar, terrasserad bergstopp (samma teknik som
+    # fyrkullen, bara mycket högre) söder om ängen — snötäckt topp med en
+    # utsiktskista. Centrum (26,80), radie 12->1 ger 12 nivåer (höjd 12).
+    # Fotavtryck x14-38,z68-92 — klart av äng/grotta (x24-40,z4-23, annan
+    # z), fyrkullen (x-10-10,z46-66, annan x/z) och skogslunden (x<-38).
+    _mtx, _mtz = 26, 80
+    _mradii = list(range(12, 0, -1))
+    for i, r in enumerate(_mradii):
+        y = f + i
+        mat = "snow" if i >= len(_mradii) - 3 else "stone"
+        c.append(f"fill {_mtx-r} {y} {_mtz-r} {_mtx+r} {y} {_mtz+r} {mat}")
+    c.append(("sleep", 2))
+    c.append(f"structure load haven:mountainchest {_mtx} {f+len(_mradii)} {_mtz}")
+    c.append(("sleep", 1))
+    c.append(f"testforblock {_mtx} {f} {_mtz-12} stone")               # basen är berg
+    c.append(f"testforblock {_mtx} {f+len(_mradii)-1} {_mtz} snow")  # toppens snötäcke
+    c.append(f"testforblock {_mtx} {f+len(_mradii)} {_mtz} chest")         # utsiktskistan
     c.append(("sleep", 1))
 
     # hemliga källaren: rum under huset, schakt upp till golvcellen under

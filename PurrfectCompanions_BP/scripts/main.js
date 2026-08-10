@@ -98,7 +98,7 @@ function give(pl, id) {
 // vilka uppdrag som är klara. Den hemliga nian visas som ??? tills den tagits.
 const ACHV_ORDER = ["forsta_vannen", "befriaren", "hela_flocken", "ryttaren", "fiskarkatten",
                     "fyrvaktaren", "skattgravaren", "lados_hemlighet",
-                    "ur_morkret", "alla_hemma", "trippelskatten"];
+                    "ur_morkret", "alla_hemma", "trippelskatten", "bergsbestigaren"];
 const rapportTyst = new Map();   // spelar-id -> tick då nästa rapport tillåts
 
 function rapportera(pl) {
@@ -227,6 +227,7 @@ system.runInterval(() => {
     if (catHavenWorld) {
       const L = pl.location;
       if (L.y > -46 && Math.hypot(L.x - 0, L.z - 56) < 7) give(pl, "fyrvaktaren");
+      if (L.y > -52 && Math.hypot(L.x - 26, L.z - 80) < 5) give(pl, "bergsbestigaren");
       if (L.y < -60.5 && L.x > 0 && L.x < 8 && L.z > 7 && L.z < 14) give(pl, "lados_hemlighet");
       if (tamed.length >= 4) {
         const hemma = tamed.filter(c => c.location.x > -7 && c.location.x < 7 &&

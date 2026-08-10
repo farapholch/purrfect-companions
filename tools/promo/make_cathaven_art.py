@@ -46,6 +46,15 @@ def canvas(w, h):
         for x in range(mx - mr, mx + mr + 1):
             d = ((x - mx) ** 2 + (y - my) ** 2) ** 0.5
             if d <= mr: img[y][x] = (228, 230, 214, 255)
+    px, peak_y, base_y = int(w * 0.50), int(h * 0.30), int(h * 0.76)  # det höga berget
+    half_base = int(w * 0.16)
+    for y in range(peak_y, base_y):
+        t = (y - peak_y) / max(1, base_y - peak_y)
+        half = int(half_base * t)
+        snow = t < 0.22
+        col = (225, 228, 235, 255) if snow else (int(40 + 18 * t), int(42 + 16 * t), int(50 + 14 * t), 255)
+        for x in range(px - half, px + half + 1):
+            if 0 <= x < w: img[y][x] = col
     hy = int(h * 0.72)                                    # kullarna
     for x in range(w):
         ridge = hy - int(h * 0.06 * math.sin(x / w * 3.1) + h * 0.03 * math.sin(x / w * 9.7))
@@ -112,6 +121,32 @@ def cat_sprite(cat, pose, yaw):
     return [[(p[0], p[1], p[2], 0 if near(p) else 255) for p in row] for row in src]
 
 
+def meadow_flowers(img, w, h):
+    """Vildblommor utspridda på ängshöjden, höger om katthemmet."""
+    cols = [(255, 214, 66, 255), (255, 255, 255, 255), (255, 120, 170, 255), (150, 120, 255, 255)]
+    rnd = 9001
+    for i in range(int(w * h // 5200)):
+        rnd = (rnd * 53 + 17) % 65537
+        fx = int(w * 0.24) + rnd % int(w * 0.14)
+        fy = int(h * 0.87) + (rnd // 7) % int(h * 0.06)
+        if 0 <= fy < h and 0 <= fx < w:
+            img[fy][fx] = cols[rnd % len(cols)]
+
+
+def campfire(img, w, h, flicker=0.0):
+    """Mysig eldglöd vid katthemmet — varm kontrast till nattmörkret."""
+    fx, fy = int(w * 0.135), int(h * 0.855)
+    r = max(2, h // 40) + int(1 * flicker)
+    for y in range(fy - r, fy + r + 1):
+        for x in range(fx - r, fx + r + 1):
+            d = ((x - fx) ** 2 + (y - fy) ** 2) ** 0.5
+            if d <= r and 0 <= y < h and 0 <= x < w:
+                f = max(0.0, 1.0 - d / r)
+                p = img[y][x]
+                img[y][x] = (min(255, int(p[0] + 200 * f)), min(255, int(p[1] + 110 * f)),
+                             min(255, int(p[2] + 20 * f)), 255)
+
+
 def cats_row(img, w, h, t=0.35, sizes=None):
     """De fyra katterna i gångcykel längs kullarna."""
     sizes = sizes or [0.30, 0.24, 0.20, 0.26]
@@ -131,7 +166,7 @@ def save_png(path, img, w, h):
 def build_icon():
     w, h = 800, 450
     img = canvas(w, h); lighthouse(img, w, h, beam_deg=192)
-    shelter(img, w, h); cats_row(img, w, h)
+    shelter(img, w, h); meadow_flowers(img, w, h); campfire(img, w, h); cats_row(img, w, h)
     save_png("/tmp/cathaven-world-icon.png", img, w, h)
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i",
                     "/tmp/cathaven-world-icon.png", "-q:v", "3",
@@ -142,7 +177,7 @@ def build_icon():
 def build_hero():
     w, h = 1280, 720
     img = canvas(w, h); lighthouse(img, w, h, beam_deg=192)
-    shelter(img, w, h); cats_row(img, w, h)
+    shelter(img, w, h); meadow_flowers(img, w, h); campfire(img, w, h); cats_row(img, w, h)
     mv.W, mv.H = w, h
     mv.text(img, "CAT HAVEN", w // 2, int(h * 0.10), scale=9)
     mv.text(img, "A READY-MADE WORLD FOR PURRFECT COMPANIONS", w // 2, int(h * 0.24), scale=3,
@@ -159,6 +194,8 @@ def build_gif():
         img = canvas(w, h)
         lighthouse(img, w, h, beam_deg=180 + 50 * math.sin(t * 2 * math.pi))
         shelter(img, w, h)
+        meadow_flowers(img, w, h)
+        campfire(img, w, h, flicker=math.sin(t * 2 * math.pi * 4))
         cats_row(img, w, h, t=t * 2 * math.pi / 3)
         mv.W, mv.H = w, h
         mv.text(img, "CAT HAVEN", w // 2, int(h * 0.10), scale=3)

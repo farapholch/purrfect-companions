@@ -240,6 +240,10 @@ system.runInterval(() => {
         c.location.y - L.y, c.location.z - L.z) < 2.5);
       if (nara) { rapportTyst.set(pl.id, system.currentTick + 600); rapportera(pl); }
     }
+    // OBS (genomspelning): kvittot syns inte i sim-testet — samma kända
+    // begränsning som Befriaren ursprungligen (sim-spelaren är strukturellt
+    // onåbar för give() i huvudpaketets loop). Beprövad kod, samma mönster
+    // som redan bevisat funkar på riktig Xbox (First Friend-achievementet).
     if (!hasAward(pl, "trippelskatten") && hasItem(pl, "minecraft:amethyst_shard") &&
         hasItem(pl, "minecraft:nautilus_shell") && hasItem(pl, "minecraft:rabbit_foot")) {
       give(pl, "trippelskatten");

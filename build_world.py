@@ -447,6 +447,34 @@ def build_commands(cats, disp, dog_name):
     for dx, dz in ((10, 15), (7, 31), (12, 41)):
         c.append(f"setblock {dx} {f} {dz} dandelion")
     c.append(("sleep", 2))
+    # MYSFAKTORN (speltest-önskemål: "fylligare och mysigare"): blomsterrabatt
+    # vid entrén, en bänk, en lägereldsplats väster om huset, damm-grönska och
+    # en välkomstmatta — allt med redan bevisade blocktyper (inga nya NBT-risker).
+    for fx, fz, fl in ((-3, 7, "oxeye_daisy"), (3, 7, "cornflower"),
+                       (-4, 6, "azure_bluet"), (4, 6, "blue_orchid")):
+        c.append(f"setblock {fx} {f} {fz} {fl}")
+    # bänken vid entrén (samma trappsteg-orientering som redan sitter fint)
+    c.append(f'setblock -4 {f} 5 oak_stairs ["upside_down_bit"=false,"weirdo_direction"=2]')
+    c.append(f'setblock -3 {f} 5 oak_stairs ["upside_down_bit"=false,"weirdo_direction"=2]')
+    # lägereldsplatsen: värme och ljus i mörkret, stubbar att sitta på
+    c.append(f"setblock -4 {f} 3 campfire")
+    for sx, sz in ((-5, 3), (-3, 3), (-4, 2)):
+        c.append(f'setblock {sx} {f} {sz} oak_log ["pillar_axis"="y"]')
+    c.append(("sleep", 1))
+    # dammens gröna kant: sockerrör och fler blommor, plus en fiskebänk
+    for cx, cz in ((11, 3), (11, 7), (11, 11)):
+        c.append(f"setblock {cx} {f} {cz} sugar_cane")
+    for fx, fz, fl in ((13, 2, "azure_bluet"), (14, 11, "cornflower")):
+        c.append(f"setblock {fx} {f} {fz} {fl}")
+    c.append(f'setblock 9 {f} 4 oak_stairs ["upside_down_bit"=false,"weirdo_direction"=1]')
+    c.append(f'setblock 9 {f} 5 oak_stairs ["upside_down_bit"=false,"weirdo_direction"=1]')
+    c.append(("sleep", 1))
+    # välkomstmattan strax innanför dörren
+    c.append(f"setblock -1 {f+1} 9 red_carpet")
+    c.append(f"setblock 0 {f+1} 9 red_carpet")
+    c.append(("sleep", 1))
+    c.append(f"testforblock -4 {f} 3 campfire")           # lägerelden brinner
+    c.append(f"testforblock 0 {f+1} 9 red_carpet")         # välkomstmattan ligger
     for tx, tz in ((13, 32), (-12, 36)):
         c.append(f"structure load haven:tree {tx} {g+1} {tz}")
         c.append(("sleep", 1))

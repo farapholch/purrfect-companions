@@ -476,7 +476,7 @@ def build_commands(cats, disp, dog_name):
     c.append("gamerule domobspawning false")
     c.append("gamerule keepinventory true")
     c.append("gamerule sendcommandfeedback true")
-    c.append(f"tickingarea add -58 {g-4} -20 80 {g+30} 92 bygge")   # 80: kattbanan når x=74
+    c.append(f"tickingarea add -58 {g-4} -20 95 {g+30} 92 bygge")   # 95: kattbanan når x=88
     c.append(("sleep", 4))
     c.append(f"testforblock 0 {g} 0 grass_block")      # verifiera marknivån
     # kullar för fyren: terrasser en katt kan kliva upp för
@@ -736,13 +736,18 @@ def build_commands(cats, disp, dog_name):
     c.append(("sleep", 1))
 
     # KATTBANAN: hinderbana av flytande plattformar öster om ängen/grottan
-    # (x>40 är helt obebyggd yta där) — rid katten och hoppa (charged jump,
-    # samma mekanik som redan bär upp fyrkullen) plattform till plattform.
-    # jump_strength=1.2 ger gott om marginal för dessa ~4-block-hopp.
-    # Stegen upp är kommandoplacerad utan väggstöd — samma bevisade knep
-    # som källarschaktets stege (ladder-block kräver inget grannstöd när
-    # det placeras via kommando, bara vid spelarplacering).
-    _pkx0, _pkz0 = 42, 10
+    # — rid katten och hoppa (charged jump, samma mekanik som redan bär upp
+    # fyrkullen) plattform till plattform. jump_strength=1.2 ger gott om
+    # marginal för dessa ~4-block-hopp. Stegen upp är kommandoplacerad utan
+    # väggstöd — samma bevisade knep som källarschaktets stege (ladder-block
+    # kräver inget grannstöd när det placeras via kommando).
+    # Xbox-önskemål: "längre bort" (flyttad från x42 till x56, en egen
+    # grusstig knyter an den till grottan/ängen i stället för att bara stå
+    # där) + "mysigare" (varmt granträ + lyktor + grönska i stället för bar
+    # vit quartz — samma soul_lantern-stil som grottan/skogslunden).
+    c.append(f"fill 41 {f} 10 55 {f} 10 gravel")   # stigen ut till banan
+    c.append(("sleep", 1))
+    _pkx0, _pkz0 = 56, 10
     _pk_platforms = [
         (0, 8, 0), (4, 8, 3), (8, 9, 0), (12, 9, 3),
         (16, 10, 0), (20, 10, 3), (24, 11, 0), (28, 11, 3),
@@ -752,7 +757,14 @@ def build_commands(cats, disp, dog_name):
     for i, (dx, dy, dz) in enumerate(_pk_platforms):
         px, py, pz = _pkx0 + dx, f + dy, _pkz0 + dz
         r = 2 if i == len(_pk_platforms) - 1 else 1
-        c.append(f"fill {px-r} {py} {pz-r} {px+r} {py} {pz+r} quartz_block")
+        c.append(f"fill {px-r} {py} {pz-r} {px+r} {py} {pz+r} spruce_planks")
+        c.append(f'setblock {px-r} {py+1} {pz-r} soul_lantern ["hanging"=false]')
+        c.append(f"setblock {px+r} {py+1} {pz+r} azalea_leaves_flowered")
+        # stödpelare ner till marken (Xbox-rapport: "plattformarna flyger i
+        # luften" — bara luft under dem läste som ett fel, inte som en bana).
+        # startplattformen (i=0) har redan stegen som pelare.
+        if i > 0:
+            c.append(f"fill {px} {f} {pz} {px} {py - 1} {pz} stripped_spruce_log")
     c.append(("sleep", 2))
     c.append(f"structure load haven:parkoursign {_pkx0-2} {f} {_pkz0}")
     c.append(("sleep", 1))
@@ -761,8 +773,8 @@ def build_commands(cats, disp, dog_name):
     _pkfz = _pkz0 + _pk_platforms[-1][2]
     c.append(f"structure load haven:parkourchest {_pkfx} {_pkfy + 1} {_pkfz}")
     c.append(("sleep", 1))
-    c.append(f"testforblock {_pkx0} {f + 8} {_pkz0} quartz_block")     # startplattformen
-    c.append(f"testforblock {_pkfx} {_pkfy} {_pkfz} quartz_block")     # målplattformen
+    c.append(f"testforblock {_pkx0} {f + 8} {_pkz0} spruce_planks")    # startplattformen
+    c.append(f"testforblock {_pkfx} {_pkfy} {_pkfz} spruce_planks")    # målplattformen
     c.append(f"testforblock {_pkfx} {_pkfy + 1} {_pkfz} chest")        # prisskistan
     c.append(("sleep", 1))
 
@@ -811,9 +823,13 @@ def build_commands(cats, disp, dog_name):
     c.append(f'setblock -2 {g+1} -11 hay_block')                     # fågelskrämman
     c.append(f'setblock -2 {g+2} -11 carved_pumpkin ["direction"=2]')
     # redskapsskjulet: enkel bänk under tak, öster om täppan
+    # BUGFIX (Xbox-rapport: "ett lager som ligger uppe på grejerna"): stolparna
+    # låg på {g} (marknivån själv, ersatte gräset) i stället för {f} (en ruta
+    # ovanpå marken, samma konvention som all annan dekor i filen) — taket satt
+    # då en hel ruta för högt och svävade löst ovanför stolptopparna.
     for fx, fz in ((4, -13), (7, -13), (4, -11), (7, -11)):
-        c.append(f"setblock {fx} {g} {fz} oak_fence")
-    c.append(f"fill 3 {g+2} -14 8 {g+2} -10 oak_slab")
+        c.append(f"setblock {fx} {f} {fz} oak_fence")
+    c.append(f"fill 3 {f+1} -14 8 {f+1} -10 oak_slab")
     c.append(f'setblock 5 {g+1} -12 crafting_table')
     c.append(f'setblock 6 {g+1} -12 barrel ["facing_direction"=1]')
     c.append(f'setblock 6 {g+1} -13 barrel ["facing_direction"=1]')

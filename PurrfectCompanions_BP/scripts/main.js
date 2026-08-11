@@ -253,7 +253,7 @@ system.runInterval(() => {
       const L = pl.location;
       if (L.y > -46 && Math.hypot(L.x - 0, L.z - 56) < 7) give(pl, "fyrvaktaren");
       if (L.y > -52 && Math.hypot(L.x - 26, L.z - 80) < 5) give(pl, "bergsbestigaren");
-      if (L.y > -52 && Math.hypot(L.x - 74, L.z - 10) < 4) give(pl, "hinderbanan");
+      if (L.y > -52 && Math.hypot(L.x - 88, L.z - 10) < 4) give(pl, "hinderbanan");
       // FANFAR per band: en liten stund vid varje NY färg, skild från de
       // "riktiga" achievement-titlarna (actionbar i stället för setTitle)
       // — speltest-önskemål: "lite mer belönande".
@@ -346,3 +346,43 @@ system.runInterval(() => {
     console.warn("[mjau] möblerna omlagda i session — groparna läkta");
   }
 }, 100);
+
+// ---------------------------------------------------------------------------
+// KATTUNGAR: en nyfödd kattunge ärver ett namn efter sin förälder ("Baby
+// Maja" osv) i stället för att vara namnlös, och kommer i en hel kull
+// (2-3 ungar) i stället för bara en — speltest-önskemål ("kör kittens!
+// typ baby Maja" / "det ska vara kattungar"), inspirerat av Better
+// Cats-paketets idé om individuella ungar, fast här via namn/antal
+// snarare än nya texturer.
+const CAT_TYPES = ["mjau:misty", "mjau:hazel", "mjau:mocha", "mjau:snow"];
+let spawningLitter = false;   // spärr: kullsyskonen ska bara namnges, inte multipliceras igen
+world.afterEvents.entitySpawn.subscribe(ev => {
+  const baby = ev.entity;
+  try {
+    if (!CAT_TYPES.includes(baby.typeId)) return;
+    if (!baby.getComponent("minecraft:is_baby")) return;
+    if (baby.nameTag) return;   // redan namngiven (t.ex. spelaren hann före)
+    let parentName = null;
+    for (const e of baby.dimension.getEntities({ type: baby.typeId, location: baby.location, maxDistance: 3 })) {
+      if (e.id === baby.id || e.getComponent("minecraft:is_baby")) continue;   // inte en annan unge
+      if (e.nameTag) { parentName = e.nameTag; break; }
+    }
+    if (!parentName) return;
+    baby.nameTag = "Baby " + parentName;
+    if (spawningLitter) return;   // det här ÄR redan ett kullsyskon
+    spawningLitter = true;
+    try {
+      const extra = 1 + Math.floor(Math.random() * 2);   // 1-2 syskon till -> kull på 2-3
+      for (let i = 0; i < extra; i++) {
+        const loc = {
+          x: baby.location.x + (Math.random() - 0.5) * 1.5,
+          y: baby.location.y,
+          z: baby.location.z + (Math.random() - 0.5) * 1.5,
+        };
+        const sib = baby.dimension.spawnEntity(baby.typeId, loc);
+        sib.triggerEvent("minecraft:entity_born");   // samma mekanik som riktig avel (bl.a. slumpad rosett)
+        sib.nameTag = "Baby " + parentName;
+      }
+    } finally { spawningLitter = false; }
+  } catch { }
+});

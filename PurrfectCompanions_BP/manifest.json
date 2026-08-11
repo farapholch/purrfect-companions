@@ -5,9 +5,9 @@
     "description": "Misty, Hazel, Mocha and Snow - tame, ride, breed and dress up four cats.",
     "uuid": "2651bece-1607-4518-b536-6ab252fb7621",
     "version": [
-      2,
-      8,
-      2
+      3,
+      0,
+      20
     ],
     "min_engine_version": [
       1,
@@ -20,9 +20,9 @@
       "type": "data",
       "uuid": "47d7ea7a-7bcb-4776-8da3-1c7dc4ce0ba4",
       "version": [
-        2,
-        8,
-        2
+        3,
+        0,
+        20
       ]
     },
     {
@@ -30,9 +30,9 @@
       "language": "javascript",
       "uuid": "e3aff613-c073-4305-9967-cfd0f5b1f43f",
       "version": [
-        2,
-        8,
-        2
+        3,
+        0,
+        20
       ],
       "entry": "scripts/main.js"
     }
@@ -41,9 +41,9 @@
     {
       "uuid": "f8cbfde9-89c0-4e35-90e3-7bbd1f8fe655",
       "version": [
-        2,
-        8,
-        2
+        3,
+        0,
+        20
       ]
     },
     {

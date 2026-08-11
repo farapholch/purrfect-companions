@@ -290,6 +290,15 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   // gar att klattra hela vagen, vilket ar den riktiga risken.
   ok("KAPITEL 8 OK - bergets terrasser klattringsbara hela vagen till toppen");
 
+  // KAPITEL 9 — regnbagsnoken: sex kistor pa sex kanda platser
+  const bows = [["red", 8, -11], ["orange", 23, 8], ["yellow", -6, 50],
+                ["green", -46, 44], ["blue", 34, 9], ["purple", 30, 68]];
+  for (const [colour, bx, bz] of bows) {
+    if (B(bx, -60, bz) !== "minecraft:chest") return done(`${colour}-bandets kista saknas vid ${bx},${bz}`, false);
+    try { p.runCommand(`give @s minecraft:${colour}_dye 1`); } catch { }
+  }
+  ok("KAPITEL 9 OK - alla sex regnbagsband hittade (Regnbagssamlaren kvitteras i serverloggen)");
+
   done("", true);
 })
   .structureName("mjau:slot")

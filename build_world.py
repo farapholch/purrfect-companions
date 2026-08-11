@@ -349,6 +349,15 @@ def build_structures(outdir, t, disp, cats):
     ]))
     s.emit(f"{st}/mountainchest.mcstructure")
 
+    # REGNBÅGSNÖKEN (speltest-önskemål: "samla saker"-uppdrag): sex färgade
+    # band gömda i platser man redan besöker. Alla sex samtidigt i väskan
+    # ger utmärkelsen Regnbågssamlaren.
+    for colour in ("red", "orange", "yellow", "green", "blue", "purple"):
+        s = Struct(1, 1, 1)
+        s.set(0, 0, 0, "minecraft:chest", {"facing_direction": 3})
+        s.entity_at(0, 0, 0, chest_entity([item(0, f"minecraft:{colour}_dye", 1)]))
+        s.emit(f"{st}/bowchest_{colour}.mcstructure")
+
     # ÄNGSSKYLTEN vid stigens avfart österut (vänd mot vägen i väster)
     s = Struct(1, 1, 1)
     s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 4})
@@ -615,6 +624,8 @@ def build_commands(cats, disp, dog_name):
     c.append(f"testfor @e[type=mjau:spokkatt,x=-38,y={f},z=40,r=40]")
     c.append(f"testforblock -20 {g} 45 oak_planks")     # bron finns
     c.append(("sleep", 1))
+    c.append(f"structure load haven:bowchest_green -46 {f} 44")   # skogens band
+    c.append(("sleep", 1))
     # ===================================================================
     # UTÖKNINGEN (speltest-önskemål: "större värld och fler saker att
     # göra"): äng, grotta, ö i dammen, ny skogslund — knutna ihop av tre
@@ -643,6 +654,8 @@ def build_commands(cats, disp, dog_name):
         c.append(f"summon minecraft:rabbit {rx} {f} {rz}")
     c.append(("sleep", 2))
     c.append(f"testforblock 27 {f} 9 beehive")
+    c.append(f"structure load haven:bowchest_blue 34 {f} 9")   # ängens band
+    c.append(("sleep", 1))
 
     # GROTTAN: stenkulle med tunnel in till en kristallkammare + nyckelkista
     c.append(f"fill 31 {f} 13 39 {f+4} 21 stone")
@@ -680,6 +693,8 @@ def build_commands(cats, disp, dog_name):
         mat = "snow" if i >= len(_mradii) - 3 else "stone"
         c.append(f"fill {_mtx-r} {y} {_mtz-r} {_mtx+r} {y} {_mtz+r} {mat}")
     c.append(("sleep", 2))
+    c.append(f"structure load haven:bowchest_purple {_mtx+4} {f} {_mtz-12}")   # bergsfotens band
+    c.append(("sleep", 1))
     c.append(f"structure load haven:mountainchest {_mtx} {f+len(_mradii)} {_mtz}")
     c.append(("sleep", 1))
     c.append(f"testforblock {_mtx} {f} {_mtz-12} stone")               # basen är berg
@@ -742,6 +757,8 @@ def build_commands(cats, disp, dog_name):
     c.append(f"testforblock -3 {g+1} -13 wheat")
     c.append(f"testforblock 5 {g+1} -12 crafting_table")
     c.append(("sleep", 1))
+    c.append(f"structure load haven:bowchest_red 8 {f} -11")   # täppans band
+    c.append(("sleep", 1))
     c.append(f"structure load haven:pond 12 {g-2} 2")
     c.append(("sleep", 1))
     # ÖN I DAMMEN: torr ö i dammens nordvästra hörn — MÅSTE läggas EFTER
@@ -757,8 +774,12 @@ def build_commands(cats, disp, dog_name):
     c.append(f"summon minecraft:boat 19 {f} 9")
     c.append(f"testforblock 14 {g} 4 grass_block")
     c.append(f"testforblock 17 {g} 7 water")            # dammens fiskeplats orörd
+    c.append(f"structure load haven:bowchest_orange 23 {f} 8")   # dammens band
+    c.append(("sleep", 1))
     c.append(f"structure load haven:lighthouse -3 {g+5} 53")
     c.append(("sleep", 2))
+    c.append(f"structure load haven:bowchest_yellow -6 {f} 50")   # fyrkullens band
+    c.append(("sleep", 1))
     for tx, tz in ((-16, 20), (-12, 27), (-19, 30), (14, 24), (-13, 44), (16, 40)):
         c.append(f"structure load haven:tree {tx} {g+1} {tz}")
         c.append(("sleep", 1))

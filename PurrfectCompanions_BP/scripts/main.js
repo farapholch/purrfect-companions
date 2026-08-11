@@ -229,6 +229,32 @@ system.runInterval(() => {
       const L = pl.location;
       if (L.y > -46 && Math.hypot(L.x - 0, L.z - 56) < 7) give(pl, "fyrvaktaren");
       if (L.y > -52 && Math.hypot(L.x - 26, L.z - 80) < 5) give(pl, "bergsbestigaren");
+      // FANFAR per band: en liten stund vid varje NY färg, skild från de
+      // "riktiga" achievement-titlarna (actionbar i stället för setTitle)
+      // — speltest-önskemål: "lite mer belönande".
+      for (const c2 of ["red", "orange", "yellow", "green", "blue", "purple"]) {
+        const seenKey = "mjau_bow_seen_" + c2;
+        let seen = false;
+        try { seen = !!pl.getDynamicProperty(seenKey); } catch { }
+        if (!seen && hasItem(pl, "minecraft:" + c2 + "_dye")) {
+          try { pl.setDynamicProperty(seenKey, true); } catch { }
+          try {
+            pl.onScreenDisplay.setActionBar({
+              rawtext: [{ text: "🎀 " }, { translate: "mjau.bow." + c2 }]
+            });
+          } catch { }
+          try { pl.playSound("random.levelup", { pitch: 1.6 }); } catch { }
+          try {
+            const L2 = pl.location;
+            for (let i = 0; i < 8; i++)
+              d.spawnParticle("minecraft:totem_particle", {
+                x: L2.x + (Math.random() - 0.5) * 1.2,
+                y: L2.y + 1 + Math.random() * 0.8,
+                z: L2.z + (Math.random() - 0.5) * 1.2,
+              });
+          } catch { }
+        }
+      }
       if (!hasAward(pl, "regnbagssamlaren") &&
           ["red", "orange", "yellow", "green", "blue", "purple"].every(c => hasItem(pl, "minecraft:" + c + "_dye"))) {
         give(pl, "regnbagssamlaren");

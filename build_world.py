@@ -625,6 +625,7 @@ def build_commands(cats, disp, dog_name):
     c.append(f"testforblock -20 {g} 45 oak_planks")     # bron finns
     c.append(("sleep", 1))
     c.append(f"structure load haven:bowchest_green -46 {f} 44")   # skogens band
+    c.append(f"setblock -45 {f} 44 green_wool")                    # syns på håll
     c.append(("sleep", 1))
     # ===================================================================
     # UTÖKNINGEN (speltest-önskemål: "större värld och fler saker att
@@ -655,6 +656,7 @@ def build_commands(cats, disp, dog_name):
     c.append(("sleep", 2))
     c.append(f"testforblock 27 {f} 9 beehive")
     c.append(f"structure load haven:bowchest_blue 34 {f} 9")   # ängens band
+    c.append(f"setblock 35 {f} 9 blue_wool")                    # syns på håll
     c.append(("sleep", 1))
 
     # GROTTAN: stenkulle med tunnel in till en kristallkammare + nyckelkista
@@ -694,6 +696,7 @@ def build_commands(cats, disp, dog_name):
         c.append(f"fill {_mtx-r} {y} {_mtz-r} {_mtx+r} {y} {_mtz+r} {mat}")
     c.append(("sleep", 2))
     c.append(f"structure load haven:bowchest_purple {_mtx+4} {f} {_mtz-12}")   # bergsfotens band
+    c.append(f"setblock {_mtx+5} {f} {_mtz-12} purple_wool")                    # syns på håll
     c.append(("sleep", 1))
     c.append(f"structure load haven:mountainchest {_mtx} {f+len(_mradii)} {_mtz}")
     c.append(("sleep", 1))
@@ -758,6 +761,7 @@ def build_commands(cats, disp, dog_name):
     c.append(f"testforblock 5 {g+1} -12 crafting_table")
     c.append(("sleep", 1))
     c.append(f"structure load haven:bowchest_red 8 {f} -11")   # täppans band
+    c.append(f"setblock 8 {f} -10 red_wool")                    # syns på håll
     c.append(("sleep", 1))
     c.append(f"structure load haven:pond 12 {g-2} 2")
     c.append(("sleep", 1))
@@ -775,10 +779,12 @@ def build_commands(cats, disp, dog_name):
     c.append(f"testforblock 14 {g} 4 grass_block")
     c.append(f"testforblock 17 {g} 7 water")            # dammens fiskeplats orörd
     c.append(f"structure load haven:bowchest_orange 23 {f} 8")   # dammens band
+    c.append(f"setblock 24 {f} 8 orange_wool")                    # syns på håll
     c.append(("sleep", 1))
     c.append(f"structure load haven:lighthouse -3 {g+5} 53")
     c.append(("sleep", 2))
     c.append(f"structure load haven:bowchest_yellow -6 {f} 50")   # fyrkullens band
+    c.append(f"setblock -5 {f} 50 yellow_wool")                    # syns på håll
     c.append(("sleep", 1))
     for tx, tz in ((-16, 20), (-12, 27), (-19, 30), (14, 24), (-13, 44), (16, 40)):
         c.append(f"structure load haven:tree {tx} {g+1} {tz}")

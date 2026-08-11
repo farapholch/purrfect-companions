@@ -175,6 +175,7 @@ PY
     echo "testforblock -4 -60 3 campfire"; sleep 1        # lägerelden
     echo "testforblock 0 -59 9 red_carpet"; sleep 1        # välkomstmattan
     echo "testforblock 27 -60 9 beehive"; sleep 1          # ängens bikupa
+    echo "testforblock 24 -60 15 standing_sign"; sleep 1   # ängsskylten vid stigen
     echo "testforblock 35 -60 13 chest"; sleep 1           # grottkistan
     echo "testforblock 14 -61 4 grass_block"; sleep 1      # ön (ej begravd av dammen)
     echo "testforblock -39 -60 79 chest"; sleep 1          # skogslundens kista
@@ -196,7 +197,7 @@ PY
   cp /tmp/cathaven-props.bak "$PROPS"
   grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" || bad "paketen laddades INTE ur världen"
   FB=$(grep -c 'found the block' "$SLOG")
-  [ "$FB" -ge 19 ] && ok "alla $FB/19 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft, buren, lägereld, matta, bikupa, grottkista, ö, skogskista, bergskista, snötäcke)" || bad "bara $FB/19 nyckelblock i den paketerade världen"
+  [ "$FB" -ge 20 ] && ok "alla $FB/20 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft, buren, lägereld, matta, bikupa, ängsskylt, grottkista, ö, skogskista, bergskista, snötäcke)" || bad "bara $FB/20 nyckelblock i den paketerade världen"
   grep -qE "Found (Vakthunden|The Guard Dog)" "$SLOG" && ok "vakthunden vaktar kulan (persistent, namngiven)" || bad "vakthunden saknas i den paketerade världen"
   grep -q "KATTMASTARE-festen firad" "$SLOG" && ok "kattmästar-festen avfyrar (scriptevent-kroken)" || bad "festen avfyrade inte"
   grep -q "Found Misty" "$SLOG" && ok "Misty överlevde paketeringen (namngiven, persistent)" || bad "Misty saknas i den paketerade världen"

@@ -249,6 +249,7 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   ok("KAPITEL 6 OK - kartong bruten, schakt och dagbokskista funna");
 
   // KAPITEL 7 — de tre nycklarna: äng/grotta, ö, skogslund
+  if (B(24, -60, 15) !== "minecraft:standing_sign") return done("angsskylten vid stigen saknas", false);
   if (B(27, -60, 9) !== "minecraft:beehive") return done("bikupan i angen saknas", false);
   await tp(35, -59, 14);
   if (B(35, -60, 13) !== "minecraft:chest") return done("grottkistan saknas", false);

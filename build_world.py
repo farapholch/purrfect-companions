@@ -47,6 +47,7 @@ TEXTS = {
         "welcome_sign": "Cat Haven\nThe shelter\nneeds a new\ncaretaker!",
         "den_clue": "Still warm...\npaw prints go\ndeeper into the\nsouthwest woods",
         "pool_sign": "CAT POOL\n/\\_/\\ ~\u2248~\n( ^.^ ) splash!\nno dogs allowed",
+        "island_sign": "That dry patch\nin the pond...\ntake the boat\nand look closer",
         "dog_name": "The Guard Dog",
         "silverfish_name": "§bThe Silver Fish",
         "meadow_sign": "THE MEADOW\n& beyond:\ncave, wood\nand a mountain",
@@ -68,7 +69,7 @@ TEXTS = {
             "TASK 3 - A CATCH FROM THE POND\n\nPut the saddle on a cat and wade into the pond together.\n\nA saddled cat catches cod all by itself. Let it fish your next meal!",
             "TASK 4 - RIDE TO THE LIGHTHOUSE\n\nFollow the gravel road south and ride to the top of the lighthouse hill.\n\nSomething useful waits in the chest at the top of the tower.",
             "TASK 5 - THE BURIED SAVINGS\n\nI never trusted banks. What I saved, the cats buried - they bury better than I ever did.\n\nA cat wearing a BACKPACK remembers where. Give one a backpack and let it dig.",
-            "TASK 6 - THREE KEYS, ONE TREASURE\n\nA path leaves the road and runs east, past a meadow loud with bees, into a cave that glitters, and on to a wood hiding one more secret.\n\nThree keys wait in three places. Carry all three at once and see what happens.\n\nAnd past the meadow, a mountain rises with snow on its head. Whatever is waiting at the top is worth the climb.",
+            "TASK 6 - THREE KEYS, ONE TREASURE\n\nA path leaves the road and runs east, past a meadow loud with bees, into a cave that glitters, and on to a wood hiding one more secret. A key waits in each.\n\nBut look again at the pond behind the house - there is a small dry island in it, and something waits there too. That is your third key.\n\nThree keys, three places. Carry all three at once and see what happens.\n\nAnd past the meadow, a mountain rises with snow on its head. Whatever is waiting at the top is worth the climb.",
             "The beds inside carry the cats' names. Cat treats cheer them up when their tails droop - the recipe is sugar, wheat and cod.\n\nTake good care of them.\n\nAnd mind the boxes. Some hide more than dust.\n\n- The Old Caretaker",
             "One more thing, if you will believe an old man.\n\nThe cats used to tell of a FIFTH - black as the gap between the stars, with eyes of amber.\n\nShe shows herself only to those who leave the SILVER FISH from the lighthouse chest on a cat's bed while the moon stands at its highest.",
         ],
@@ -78,6 +79,7 @@ TEXTS = {
         "welcome_sign": "Kattgården\nKatthemmet\nbehöver en ny\nföreståndare!",
         "den_clue": "Ännu varm...\ntassavtryck mot\nsydväst, djupt\nin i skogen",
         "pool_sign": "KATTPOOLEN\n/\\_/\\ ~\u2248~\n( ^.^ ) plask!\ninga hundar!",
+        "island_sign": "Den torra \u00f6n\ni dammen...\nta b\u00e5ten och\ntitta n\u00e4rmare",
         "dog_name": "Vakthunden",
         "silverfish_name": "§bSilverfisken",
         "meadow_sign": "ÄNGEN\n& bortom:\ngrotta, skog\noch ett berg",
@@ -99,7 +101,7 @@ TEXTS = {
             "UPPDRAG 3 - EN FÅNGST UR DAMMEN\n\nSätt sadeln på en katt och vada ut i dammen tillsammans.\n\nEn sadlad katt fångar torsk alldeles själv. Låt den fiska din nästa måltid!",
             "UPPDRAG 4 - RID TILL FYREN\n\nFölj grusvägen söderut och rid upp för fyrkullen.\n\nNågot användbart väntar i kistan högst upp i tornet.",
             "UPPDRAG 5 - DET NEDGRÄVDA SPARANDET\n\nJag litade aldrig på banker. Det jag sparade grävde katterna ner - de gräver bättre än jag någonsin gjorde.\n\nEn katt med RYGGSÄCK minns var. Ge en katt en ryggsäck och låt den gräva.",
-            "UPPDRAG 6 - TRE NYCKLAR, EN SKATT\n\nEn stig lämnar vägen österut, förbi en äng full av surrande bin, in i en glittrande grotta, och vidare till en skog som gömmer en sak till.\n\nTre nycklar väntar på tre platser. Bär alla tre samtidigt och se vad som händer.\n\nOch bortom ängen reser sig ett berg med snö på huvudet. Vad som än väntar på toppen är värt klättringen.",
+            "UPPDRAG 6 - TRE NYCKLAR, EN SKATT\n\nEn stig lämnar vägen österut, förbi en äng full av surrande bin, in i en glittrande grotta, och vidare till en skog som gömmer en sak till. En nyckel väntar i var och en.\n\nMen titta en gång till på dammen bakom huset - där finns en liten torr ö, och något väntar där också. Det är din tredje nyckel.\n\nTre nycklar, tre platser. Bär alla tre samtidigt och se vad som händer.\n\nOch bortom ängen reser sig ett berg med snö på huvudet. Vad som än väntar på toppen är värt klättringen.",
             "Sängarna därinne bär katternas namn. Kattgodis piggar upp dem när svansen hänger - receptet är socker, vete och torsk.\n\nTa väl hand om dem.\n\nOch se upp med lådorna. Vissa gömmer mer än damm.\n\n- Gamla föreståndaren",
             "En sak till, om du tror en gammal man.\n\nKatterna berättade om en FEMTE - svart som mellanrummet mellan stjärnorna, med ögon av bärnsten.\n\nHon visar sig bara för den som lämnar SILVERFISKEN ur fyrens kista på en kattbädd när månen står som högst.",
         ],
@@ -309,6 +311,14 @@ def build_structures(outdir, t, disp, cats):
     s.entity_at(0, 0, 0, sign_entity(t["pool_sign"]))
     s.emit(f"{st}/poolsign.mcstructure")
 
+    # ÖSKYLTEN bredvid poolskylten: speltest visade att ön/nyckeln missas
+    # helt utan en direkt pekpinne (handboken nämnde bara grotta+skog som
+    # "tre platser", dammen saknades helt i alla ledtrådar)
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 4})
+    s.entity_at(0, 0, 0, sign_entity(t["island_sign"]))
+    s.emit(f"{st}/islandsign.mcstructure")
+
     # LEDTRÅDSSKYLTEN i gamla kulan: Maja har flyttat (vänd mot ingången i öster)
     s = Struct(1, 1, 1)
     s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 12})
@@ -493,7 +503,10 @@ def build_commands(cats, disp, dog_name):
     c.append(f"structure load haven:catsign 2 {f} 6")
     # poolskylten på dammens västra strand
     c.append(f"structure load haven:poolsign 11 {f} 5")
+    # öskylten bredvid: pekar ut ön i dammen som en av de tre nyckelplatserna
+    c.append(f"structure load haven:islandsign 11 {f} 4")
     c.append(("sleep", 1))
+    c.append(f"testforblock 11 {f} 4 standing_sign")
     # dekor längs fyrvägen: lyktstolpar + blommor + två extra ekar
     for lx, lz in ((10, 12), (7, 20), (10, 28), (7, 36), (10, 44)):
         c.append(f"setblock {lx} {f} {lz} oak_fence")

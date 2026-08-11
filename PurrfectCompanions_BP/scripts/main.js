@@ -80,6 +80,23 @@ function hasAward(pl, id) {
   try { return awarded.get(pl.id + ":" + id) === true; } catch { return false; }
 }
 
+// Speltest-önskemål ("belöningar för de flesta uppdrag så de blir roligare"):
+// give() gav bara en titel-popup, inget spelaren faktiskt fick i handen.
+// XP åt alla, plus ett fåtal riktiga föremål där uppdraget annars gick
+// tomhänt (trippelskatten hade inget föremål alls kopplat till SJÄLVA
+// utmärkelsen - bara till de tre nyckelkistorna som redan plockats).
+const XP_REWARD = {
+  forsta_vannen: 10, ryttaren: 10, fiskarkatten: 10, ur_morkret: 15,
+  befriaren: 15, fyrvaktaren: 15, skattgravaren: 15, lados_hemlighet: 15,
+  hela_flocken: 20, alla_hemma: 20,
+  trippelskatten: 30, bergsbestigaren: 25, regnbagssamlaren: 25,
+  kattmastare: 50,
+};
+const ITEM_REWARD = {
+  ur_morkret: [{ id: "minecraft:phantom_membrane", n: 2 }],
+  trippelskatten: [{ id: "minecraft:diamond", n: 2 }],
+};
+
 function give(pl, id) {
   if (hasAward(pl, id)) return;
   try { pl.setDynamicProperty("mjau_achv_" + id, true); } catch { }
@@ -92,6 +109,13 @@ function give(pl, id) {
         fadeInDuration: 10, stayDuration: 70, fadeOutDuration: 20 });
   } catch { }
   try { pl.playSound("random.levelup"); } catch { }
+  try { if (XP_REWARD[id]) pl.addExperience(XP_REWARD[id]); } catch { }
+  try {
+    const inv = pl.getComponent("minecraft:inventory")?.container;
+    for (const { id: itemId, n } of ITEM_REWARD[id] ?? []) {
+      inv?.addItem(new ItemStack(itemId, n));
+    }
+  } catch { }
 }
 
 // PROGRESS-RAPPORTEN: smyg intill en tämjd katt så "berättar" den i chatten

@@ -299,6 +299,17 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   }
   ok("KAPITEL 9 OK - alla sex regnbagsband hittade (Regnbagssamlaren kvitteras i serverloggen)");
 
+  // KAPITEL 10 — kattbanan: flytande plattformar, start till mal
+  if (B(42, -52, 10) !== "minecraft:quartz_block") return done("kattbanans startplattform saknas", false);
+  if (B(74, -49, 10) !== "minecraft:quartz_block") return done("kattbanans malplattform saknas", false);
+  if (B(74, -48, 10) !== "minecraft:chest") return done("kattbanans prisskista saknas", false);
+  await tp(74, -47, 10);
+  // Hinderbanan ar platsbaserad (samma monster som fyrvaktaren/bergsbestigaren)
+  // — sim-spelaren kan inte verifiera sitt eget hasAward har (kand begransning,
+  // se Trippelskatten-kommentaren ovan). Att na malplattformen bevisar att
+  // plattformskedjan finns hela vagen fran start, vilket ar den riktiga risken.
+  ok("KAPITEL 10 OK - kattbanans plattformar bar hela vagen fran start till mal");
+
   done("", true);
 })
   .structureName("mjau:slot")

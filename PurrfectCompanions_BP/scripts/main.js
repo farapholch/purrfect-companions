@@ -89,7 +89,7 @@ const XP_REWARD = {
   forsta_vannen: 10, ryttaren: 10, fiskarkatten: 10, ur_morkret: 15,
   befriaren: 15, fyrvaktaren: 15, skattgravaren: 15, lados_hemlighet: 15,
   hela_flocken: 20, alla_hemma: 20,
-  trippelskatten: 30, bergsbestigaren: 25, regnbagssamlaren: 25,
+  trippelskatten: 30, bergsbestigaren: 25, regnbagssamlaren: 25, hinderbanan: 30,
   kattmastare: 50,
 };
 const ITEM_REWARD = {
@@ -123,7 +123,7 @@ function give(pl, id) {
 const ACHV_ORDER = ["forsta_vannen", "befriaren", "hela_flocken", "ryttaren", "fiskarkatten",
                     "fyrvaktaren", "skattgravaren", "lados_hemlighet",
                     "ur_morkret", "alla_hemma", "trippelskatten", "bergsbestigaren",
-                    "regnbagssamlaren"];
+                    "regnbagssamlaren", "hinderbanan"];
 const rapportTyst = new Map();   // spelar-id -> tick då nästa rapport tillåts
 
 function rapportera(pl) {
@@ -253,6 +253,7 @@ system.runInterval(() => {
       const L = pl.location;
       if (L.y > -46 && Math.hypot(L.x - 0, L.z - 56) < 7) give(pl, "fyrvaktaren");
       if (L.y > -52 && Math.hypot(L.x - 26, L.z - 80) < 5) give(pl, "bergsbestigaren");
+      if (L.y > -52 && Math.hypot(L.x - 74, L.z - 10) < 4) give(pl, "hinderbanan");
       // FANFAR per band: en liten stund vid varje NY färg, skild från de
       // "riktiga" achievement-titlarna (actionbar i stället för setTitle)
       // — speltest-önskemål: "lite mer belönande".

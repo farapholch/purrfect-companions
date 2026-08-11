@@ -48,6 +48,7 @@ TEXTS = {
         "den_clue": "Still warm...\npaw prints go\ndeeper into the\nsouthwest woods",
         "pool_sign": "CAT POOL\n/\\_/\\ ~\u2248~\n( ^.^ ) splash!\nno dogs allowed",
         "island_sign": "That dry patch\nin the pond...\ntake the boat\nand look closer",
+        "parkour_sign": "CAT PARKOUR\nRide and jump\nplatform to\nplatform!",
         "dog_name": "The Guard Dog",
         "silverfish_name": "§bThe Silver Fish",
         "meadow_sign": "THE MEADOW\n& beyond:\ncave, wood\nand a mountain",
@@ -80,6 +81,7 @@ TEXTS = {
         "den_clue": "Ännu varm...\ntassavtryck mot\nsydväst, djupt\nin i skogen",
         "pool_sign": "KATTPOOLEN\n/\\_/\\ ~\u2248~\n( ^.^ ) plask!\ninga hundar!",
         "island_sign": "Den torra \u00f6n\ni dammen...\nta b\u00e5ten och\ntitta n\u00e4rmare",
+        "parkour_sign": "KATTBANAN\nRid och hoppa\nplattform till\nplattform!",
         "dog_name": "Vakthunden",
         "silverfish_name": "§bSilverfisken",
         "meadow_sign": "ÄNGEN\n& bortom:\ngrotta, skog\noch ett berg",
@@ -319,6 +321,21 @@ def build_structures(outdir, t, disp, cats):
     s.entity_at(0, 0, 0, sign_entity(t["island_sign"]))
     s.emit(f"{st}/islandsign.mcstructure")
 
+    # KATTBANAN: skylt vid stegens fot + prisskista på målplattformen
+    # (speltest-önskemål: "belöningar för de flesta uppdrag")
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 8})
+    s.entity_at(0, 0, 0, sign_entity(t["parkour_sign"]))
+    s.emit(f"{st}/parkoursign.mcstructure")
+
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:chest", {"facing_direction": 3})
+    s.entity_at(0, 0, 0, chest_entity([
+        item(0, "mjau:vingar_gold", 1),
+        item(1, "minecraft:diamond", 2),
+    ]))
+    s.emit(f"{st}/parkourchest.mcstructure")
+
     # LEDTRÅDSSKYLTEN i gamla kulan: Maja har flyttat (vänd mot ingången i öster)
     s = Struct(1, 1, 1)
     s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 12})
@@ -459,7 +476,7 @@ def build_commands(cats, disp, dog_name):
     c.append("gamerule domobspawning false")
     c.append("gamerule keepinventory true")
     c.append("gamerule sendcommandfeedback true")
-    c.append(f"tickingarea add -58 {g-4} -20 40 {g+30} 92 bygge")
+    c.append(f"tickingarea add -58 {g-4} -20 80 {g+30} 92 bygge")   # 80: kattbanan når x=74
     c.append(("sleep", 4))
     c.append(f"testforblock 0 {g} 0 grass_block")      # verifiera marknivån
     # kullar för fyren: terrasser en katt kan kliva upp för
@@ -716,6 +733,37 @@ def build_commands(cats, disp, dog_name):
     c.append(f"testforblock {_mtx} {f} {_mtz-12} stone")               # basen är berg
     c.append(f"testforblock {_mtx} {f+len(_mradii)-1} {_mtz} snow")  # toppens snötäcke
     c.append(f"testforblock {_mtx} {f+len(_mradii)} {_mtz} chest")         # utsiktskistan
+    c.append(("sleep", 1))
+
+    # KATTBANAN: hinderbana av flytande plattformar öster om ängen/grottan
+    # (x>40 är helt obebyggd yta där) — rid katten och hoppa (charged jump,
+    # samma mekanik som redan bär upp fyrkullen) plattform till plattform.
+    # jump_strength=1.2 ger gott om marginal för dessa ~4-block-hopp.
+    # Stegen upp är kommandoplacerad utan väggstöd — samma bevisade knep
+    # som källarschaktets stege (ladder-block kräver inget grannstöd när
+    # det placeras via kommando, bara vid spelarplacering).
+    _pkx0, _pkz0 = 42, 10
+    _pk_platforms = [
+        (0, 8, 0), (4, 8, 3), (8, 9, 0), (12, 9, 3),
+        (16, 10, 0), (20, 10, 3), (24, 11, 0), (28, 11, 3),
+        (32, 11, 0),   # mål
+    ]
+    c.append(f'fill {_pkx0} {f} {_pkz0} {_pkx0} {f+7} {_pkz0} ladder ["facing_direction"=2]')
+    for i, (dx, dy, dz) in enumerate(_pk_platforms):
+        px, py, pz = _pkx0 + dx, f + dy, _pkz0 + dz
+        r = 2 if i == len(_pk_platforms) - 1 else 1
+        c.append(f"fill {px-r} {py} {pz-r} {px+r} {py} {pz+r} quartz_block")
+    c.append(("sleep", 2))
+    c.append(f"structure load haven:parkoursign {_pkx0-2} {f} {_pkz0}")
+    c.append(("sleep", 1))
+    _pkfx = _pkx0 + _pk_platforms[-1][0]
+    _pkfy = f + _pk_platforms[-1][1]
+    _pkfz = _pkz0 + _pk_platforms[-1][2]
+    c.append(f"structure load haven:parkourchest {_pkfx} {_pkfy + 1} {_pkfz}")
+    c.append(("sleep", 1))
+    c.append(f"testforblock {_pkx0} {f + 8} {_pkz0} quartz_block")     # startplattformen
+    c.append(f"testforblock {_pkfx} {_pkfy} {_pkfz} quartz_block")     # målplattformen
+    c.append(f"testforblock {_pkfx} {_pkfy + 1} {_pkfz} chest")        # prisskistan
     c.append(("sleep", 1))
 
     # hemliga källaren: rum under huset, schakt upp till golvcellen under

@@ -71,7 +71,8 @@ TEXTS = {
             "TASK 4 - RIDE TO THE LIGHTHOUSE\n\nFollow the gravel road south and ride to the top of the lighthouse hill.\n\nSomething useful waits in the chest at the top of the tower.",
             "TASK 5 - THE BURIED SAVINGS\n\nI never trusted banks. What I saved, the cats buried - they bury better than I ever did.\n\nA cat wearing a BACKPACK remembers where. Give one a backpack and let it dig.",
             "TASK 6 - THREE KEYS, ONE TREASURE\n\nA path leaves the road and runs east, past a meadow loud with bees, into a cave that glitters, and on to a wood hiding one more secret. A key waits in each.\n\nBut look again at the pond behind the house - there is a small dry island in it, and something waits there too. That is your third key.\n\nThree keys, three places. Carry all three at once and see what happens.\n\nAnd past the meadow, a mountain rises with snow on its head. Whatever is waiting at the top is worth the climb.",
-            "The beds inside carry the cats' names. Cat treats cheer them up when their tails droop - the recipe is sugar, wheat and cod.\n\nTake good care of them.\n\nAnd mind the boxes. Some hide more than dust.\n\n- The Old Caretaker",
+            "TASK 7 - THE CAT PARKOUR\n\nPast the crystal cave, a gravel path keeps going east to a little wooden course lit by lanterns, floating platform to platform.\n\nRide and jump all the way to the far end. Something is waiting for you there.",
+            "The beds inside carry the cats' names. Cat treats cheer them up when their tails droop - the recipe is sugar, wheat and cod.\n\nTake good care of them.\n\nAnd mind the boxes. Some hide more than dust.\n\nKeep your eyes open as you go, too - six coloured ribbons are hiding in places you already visit. Carry all six at once for a surprise.\n\n- The Old Caretaker",
             "One more thing, if you will believe an old man.\n\nThe cats used to tell of a FIFTH - black as the gap between the stars, with eyes of amber.\n\nShe shows herself only to those who leave the SILVER FISH from the lighthouse chest on a cat's bed while the moon stands at its highest.",
         ],
     },
@@ -104,7 +105,8 @@ TEXTS = {
             "UPPDRAG 4 - RID TILL FYREN\n\nFölj grusvägen söderut och rid upp för fyrkullen.\n\nNågot användbart väntar i kistan högst upp i tornet.",
             "UPPDRAG 5 - DET NEDGRÄVDA SPARANDET\n\nJag litade aldrig på banker. Det jag sparade grävde katterna ner - de gräver bättre än jag någonsin gjorde.\n\nEn katt med RYGGSÄCK minns var. Ge en katt en ryggsäck och låt den gräva.",
             "UPPDRAG 6 - TRE NYCKLAR, EN SKATT\n\nEn stig lämnar vägen österut, förbi en äng full av surrande bin, in i en glittrande grotta, och vidare till en skog som gömmer en sak till. En nyckel väntar i var och en.\n\nMen titta en gång till på dammen bakom huset - där finns en liten torr ö, och något väntar där också. Det är din tredje nyckel.\n\nTre nycklar, tre platser. Bär alla tre samtidigt och se vad som händer.\n\nOch bortom ängen reser sig ett berg med snö på huvudet. Vad som än väntar på toppen är värt klättringen.",
-            "Sängarna därinne bär katternas namn. Kattgodis piggar upp dem när svansen hänger - receptet är socker, vete och torsk.\n\nTa väl hand om dem.\n\nOch se upp med lådorna. Vissa gömmer mer än damm.\n\n- Gamla föreståndaren",
+            "UPPDRAG 7 - KATTBANAN\n\nBortom kristallgrottan fortsätter en grusstig österut till en liten lyktbelyst bana av trä, med plattformar som flyter i luften.\n\nRid och hoppa hela vägen till andra änden. Något väntar på dig där.",
+            "Sängarna därinne bär katternas namn. Kattgodis piggar upp dem när svansen hänger - receptet är socker, vete och torsk.\n\nTa väl hand om dem.\n\nOch se upp med lådorna. Vissa gömmer mer än damm.\n\nHåll ögonen öppna medan du utforskar också - sex färgade band gömmer sig på platser du redan besökt. Bär alla sex samtidigt för en överraskning.\n\n- Gamla föreståndaren",
             "En sak till, om du tror en gammal man.\n\nKatterna berättade om en FEMTE - svart som mellanrummet mellan stjärnorna, med ögon av bärnsten.\n\nHon visar sig bara för den som lämnar SILVERFISKEN ur fyrens kista på en kattbädd när månen står som högst.",
         ],
     },
@@ -468,6 +470,26 @@ def build_structures(outdir, t, disp, cats):
     s.set(2, 7, 2, "minecraft:oak_leaves", {"persistent_bit": True, "update_bit": False})
     s.emit(f"{st}/tree.mcstructure")
 
+    # GRANEN: hög smal stam, avsmalnande koniska lövringar
+    s = Struct(7, 11, 7)
+    for y in range(0, 9):
+        s.set(3, y, 3, "minecraft:spruce_log", {"pillar_axis": "y"})
+    for i, r in enumerate((3, 3, 2, 2, 2, 1, 1)):
+        y = 3 + i
+        s.box(3 - r, y, 3 - r, 3 + r, y, 3 + r, "minecraft:spruce_leaves", {"persistent_bit": True, "update_bit": False})
+    s.set(3, 10, 3, "minecraft:spruce_leaves", {"persistent_bit": True, "update_bit": False})
+    s.emit(f"{st}/sprucetree.mcstructure")
+
+    # BJÖRKEN: ljusare stam, rundare krona — samma grundform som eken men
+    # egen art för variation i skogsramen
+    s = Struct(5, 7, 5)
+    for y in range(0, 5):
+        s.set(2, y, 2, "minecraft:birch_log", {"pillar_axis": "y"})
+    s.box(1, 3, 1, 3, 4, 3, "minecraft:birch_leaves", {"persistent_bit": True, "update_bit": False})
+    s.box(0, 4, 0, 4, 5, 4, "minecraft:birch_leaves", {"persistent_bit": True, "update_bit": False})
+    s.set(2, 6, 2, "minecraft:birch_leaves", {"persistent_bit": True, "update_bit": False})
+    s.emit(f"{st}/birchtree.mcstructure")
+
 # ------------------------------------------------------ serverkommandona ----
 def build_commands(cats, disp, dog_name):
     g, f = GROUND, FLOOR
@@ -500,6 +522,11 @@ def build_commands(cats, disp, dog_name):
     c.append(f"structure load haven:meadowsign 24 {f} 15")
     c.append(("sleep", 1))
     c.append(f"testforblock 24 {f} 15 standing_sign")
+    # lyktstolpar längs ängs-/bergsstigen (samma stil som fyrvägen — speltest-
+    # önskemål: "ännu mer mysig"), den långa sträckan mot berget var mörk
+    for lx, lz in ((27, 25), (27, 40), (27, 55)):
+        c.append(f"setblock {lx} {f} {lz} oak_fence")
+        c.append(f'setblock {lx} {f+1} {lz} lantern ["hanging"=false]')
     # strukturerna (origins = sydvästra hörnet)
     c.append(f"structure load haven:shelter -6 {f} 8")
     c.append(("sleep", 2))
@@ -746,6 +773,10 @@ def build_commands(cats, disp, dog_name):
     # där) + "mysigare" (varmt granträ + lyktor + grönska i stället för bar
     # vit quartz — samma soul_lantern-stil som grottan/skogslunden).
     c.append(f"fill 41 {f} 10 55 {f} 10 gravel")   # stigen ut till banan
+    c.append(f"setblock 45 {f} 11 oak_fence")
+    c.append(f'setblock 45 {f+1} 11 lantern ["hanging"=false]')
+    c.append(f"setblock 50 {f} 9 oak_fence")
+    c.append(f'setblock 50 {f+1} 9 lantern ["hanging"=false]')
     c.append(("sleep", 1))
     _pkx0, _pkz0 = 56, 10
     _pk_platforms = [
@@ -895,6 +926,52 @@ def build_commands(cats, disp, dog_name):
     for src, (x, y) in spots.items():
         c.append(f"testfor @e[type=mjau:{cats[src]},x={x},y={y},z={zs[src]},r=60]")
         c.append(("sleep", 1))
+    # SKOGSRAM: en trädrand runt hela den utforskade ytan (speltest-önskemål:
+    # "mer skog runt om alltihopa i olika former") — ramar in kartan och
+    # döljer var det byggda tar slut. Fyra trädslag varvas för variation,
+    # lagd UTANFÖR allt annat byggt (marginal 3-5 rutor, ingen kollision).
+    # BUGFIX: en enda tickingarea runt HELA ramen (171×130 rutor) slog i
+    # Bedrocks hårda 100-chunks-tak ("ticking area is too large") och fick
+    # kommandot att vägra köras — vilket i sin tur strök ALLA efterföljande
+    # placeringar ("Cannot place blocks outside of the world") för resten
+    # av bygget. Fyra smala remsor (en per kant) istället för en stor ruta
+    # håller varje enskild tickingarea gott under gränsen.
+    _forest_kinds = ["tree", "darktree", "sprucetree", "birchtree"]
+    _fx0, _fx1, _fz0, _fz1 = -63, 98, -24, 96   # ram runt hela kartan
+    c.append(f"tickingarea add -65 {g-4} -26 -61 {g+30} 98 ramvast")
+    c.append(("sleep", 4))
+    c.append(f"tickingarea add 96 {g-4} -26 100 {g+30} 98 ramost")
+    c.append(("sleep", 4))
+    c.append(f"tickingarea add -65 {g-4} -26 100 {g+30} -22 ramnord")
+    c.append(("sleep", 4))
+    c.append(f"tickingarea add -65 {g-4} 94 100 {g+30} 98 ramsyd")
+    c.append(("sleep", 4))
+    _ring = []
+    for rx in range(_fx0, _fx1 + 1, 5):
+        _ring.append((rx, _fz0)); _ring.append((rx, _fz1))
+    for rz in range(_fz0, _fz1 + 1, 5):
+        _ring.append((_fx0, rz)); _ring.append((_fx1, rz))
+    _animal_kinds = ["rabbit", "fox", "sheep"]
+    for i, (tx, tz) in enumerate(_ring):
+        kind = _forest_kinds[i % len(_forest_kinds)]
+        jx = (i * 7) % 5 - 2    # deterministisk "slump": olika offset per träd, samma varje bygge
+        jz = (i * 13) % 5 - 2
+        c.append(f"structure load haven:{kind} {tx + jx} {g + 1} {tz + jz}")
+        # djurliv (speltest-önskemål: "mer kaniner och andra djur som
+        # springer runt längst ut i skogen") — glesare än träden
+        if i % 4 == 0:
+            akind = _animal_kinds[(i // 4) % len(_animal_kinds)]
+            c.append(f"summon minecraft:{akind} {tx + jx} {f} {tz + jz}")
+    c.append(f"structure load haven:sprucetree {_fx0} {g + 1} {_fz0}")   # ojitrad kontrollgran
+    c.append(("sleep", 3))
+    c.append(f"testforblock {_fx0 + 3} {g + 1} {_fz0 + 3} spruce_log")   # stammen sitter lokalt (3,*,3) i strukturen
+    c.append(("sleep", 1))
+    c.append("tickingarea remove ramvast")
+    c.append("tickingarea remove ramost")
+    c.append("tickingarea remove ramnord")
+    c.append("tickingarea remove ramsyd")
+    c.append(("sleep", 2))
+
     c.append(f"setworldspawn 0 {f} 0")
     c.append(("sleep", 1))
     c.append("tickingarea remove bygge")

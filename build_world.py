@@ -714,6 +714,34 @@ def build_commands(cats, disp, dog_name):
     c.append(("sleep", 1))
     c.append(f"structure load haven:startsign -2 {f} 1")
     c.append(("sleep", 1))
+    # GAMLA FÖRESTÅNDARENS TÄPPA: bakom skyltarna (norr om spawn) var det
+    # bara tom gräsmatta (speltest-önskemål: "väldigt tomt bakom där man
+    # startat"). En köksträdgård + redskapsskjul knyter an till dagbokens
+    # gamle föreståndare som "grävde och odlade" i stället för att spara i bank.
+    c.append(f"fill -6 {g} -13 0 {g} -9 farmland")
+    # vattnet MÅSTE ligga en nivå UNDER grödorna (samma knep som dammen) —
+    # på samma nivå ({g+1}) sprider det sig sidledes rakt in i grannodlingarna
+    # och tvättar bort dem (bevisat: "-3,-13 blev vatten, inte gröda").
+    c.append(f"setblock -3 {g} -11 water")
+    c.append(("sleep", 3))
+    for cx in range(-6, 1):
+        for cz in (-13, -12, -10, -9):
+            crop = "wheat" if cz in (-13, -9) else ("carrots" if (cx + cz) % 2 == 0 else "potatoes")
+            c.append(f'setblock {cx} {g+1} {cz} {crop} ["growth"=7]')
+    c.append(("sleep", 2))
+    c.append(f'setblock -2 {g+1} -11 hay_block')                     # fågelskrämman
+    c.append(f'setblock -2 {g+2} -11 carved_pumpkin ["direction"=2]')
+    # redskapsskjulet: enkel bänk under tak, öster om täppan
+    for fx, fz in ((4, -13), (7, -13), (4, -11), (7, -11)):
+        c.append(f"setblock {fx} {g} {fz} oak_fence")
+    c.append(f"fill 3 {g+2} -14 8 {g+2} -10 oak_slab")
+    c.append(f'setblock 5 {g+1} -12 crafting_table')
+    c.append(f'setblock 6 {g+1} -12 barrel ["facing_direction"=1]')
+    c.append(f'setblock 6 {g+1} -13 barrel ["facing_direction"=1]')
+    c.append(("sleep", 1))
+    c.append(f"testforblock -3 {g+1} -13 wheat")
+    c.append(f"testforblock 5 {g+1} -12 crafting_table")
+    c.append(("sleep", 1))
     c.append(f"structure load haven:pond 12 {g-2} 2")
     c.append(("sleep", 1))
     # ÖN I DAMMEN: torr ö i dammens nordvästra hörn — MÅSTE läggas EFTER

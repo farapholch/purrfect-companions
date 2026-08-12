@@ -191,6 +191,10 @@ PY
     echo "testforblock 88 -49 10 spruce_planks"; sleep 1   # kattbanans målplattform
     echo "testforblock 88 -48 10 chest"; sleep 1           # kattbanans prisskista
     echo "testforblock 54 -60 10 standing_sign"; sleep 1   # kattbaneskylten
+    echo "testforblock 61 -62 40 water"; sleep 1           # sjön
+    echo "testforblock 65 -62 46 air"; sleep 1             # sjötunneln
+    echo "testforblock 65 -63 49 chest"; sleep 1           # sjöns skattkista
+    echo "testforblock 61 -60 35 standing_sign"; sleep 1   # sjöskylten
     echo "testfor @e[type=mjau:vakthund]"; sleep 1
     echo "scriptevent mjau:test_fest"; sleep 3
     echo "testfor @e[type=mjau:misty,x=-9,y=-60,z=33,r=80]"; sleep 1
@@ -207,7 +211,7 @@ PY
   cp /tmp/cathaven-props.bak "$PROPS"
   grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" || bad "paketen laddades INTE ur världen"
   FB=$(grep -c 'found the block' "$SLOG")
-  [ "$FB" -ge 30 ] && ok "alla $FB/30 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft, buren, lägereld, matta, bikupa, ängsskylt, grottkista, ö, skogskista, bergskista, snötäcke, 6×regnbågsband, kattbanans start+mål+skylt+kista)" || bad "bara $FB/30 nyckelblock i den paketerade världen"
+  [ "$FB" -ge 34 ] && ok "alla $FB/34 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft, buren, lägereld, matta, bikupa, ängsskylt, grottkista, ö, skogskista, bergskista, snötäcke, 6×regnbågsband, kattbanans start+mål+skylt+kista, sjöns vatten+tunnel+skatt+skylt)" || bad "bara $FB/34 nyckelblock i den paketerade världen"
   grep -qE "Found (Vakthunden|The Guard Dog)" "$SLOG" && ok "vakthunden vaktar kulan (persistent, namngiven)" || bad "vakthunden saknas i den paketerade världen"
   grep -q "KATTMASTARE-festen firad" "$SLOG" && ok "kattmästar-festen avfyrar (scriptevent-kroken)" || bad "festen avfyrade inte"
   grep -q "Found Misty" "$SLOG" && ok "Misty överlevde paketeringen (namngiven, persistent)" || bad "Misty saknas i den paketerade världen"

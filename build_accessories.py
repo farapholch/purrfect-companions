@@ -639,6 +639,13 @@ def build_rest():
             {"weight":10,"set_property":{"mjau:rosett":2}},
             {"weight":10,"set_property":{"mjau:rosett":3}},
             {"weight":10,"set_property":{"mjau:rosett":4}}]})
+        # ...och mer sällan med ett halsband (speltest-önskemål: "bygg alla" —
+        # kitten-trait-idén, varje kull lite unik utöver bara namn+antal)
+        _born.setdefault("sequence",[]).append({"randomize":[
+            {"weight":88},
+            {"weight":4,"set_property":{"mjau:halsband":1}},
+            {"weight":4,"set_property":{"mjau:halsband":2}},
+            {"weight":4,"set_property":{"mjau:halsband":3}}]})
         g["mjau:tamed"]["minecraft:interact"]={"interactions":inter}
         json.dump(d,open(f,"w"),indent=2)
 

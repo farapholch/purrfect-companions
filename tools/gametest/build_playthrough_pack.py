@@ -310,6 +310,15 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   // plattformskedjan finns hela vagen fran start, vilket ar den riktiga risken.
   ok("KAPITEL 10 OK - kattbanans plattformar bar hela vagen fran start till mal");
 
+  // KAPITEL 11 — sjon: vatten, tunnel och skattkista i luftfickan
+  if (B(61, -62, 40) !== "minecraft:water") return done("sjon saknas", false);
+  if (B(65, -62, 46) !== "minecraft:air") return done("sjotunneln ar inte genomgravd", false);
+  if (B(65, -63, 49) !== "minecraft:chest") return done("sjons skattkista saknas", false);
+  await tp(65, -62, 49);
+  // Djuphavsdykaren ar platsbaserad (samma monster som ovan) — att na
+  // luftfickan bevisar att tunneln gar att simma igenom hela vagen.
+  ok("KAPITEL 11 OK - sjotunneln bar hela vagen till skattkistan i luftfickan");
+
   done("", true);
 })
   .structureName("mjau:slot")

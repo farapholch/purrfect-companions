@@ -2,7 +2,7 @@
   "format_version": "1.19.0",
   "minecraft:entity": {
     "description": {
-      "identifier": "mjau:midnight",
+      "identifier": "mjau:aurora",
       "is_spawnable": true,
       "is_summonable": true,
       "is_experimental": false,
@@ -1903,8 +1903,8 @@
           ],
           "breeds_with": [
             {
-              "mate_type": "mjau:midnight",
-              "baby_type": "mjau:midnight",
+              "mate_type": "mjau:aurora",
+              "baby_type": "mjau:aurora",
               "breed_event": {
                 "event": "minecraft:entity_born",
                 "target": "baby"

@@ -53,6 +53,43 @@ system.runInterval(() => {
   }
 }, 40);
 
+// Den andra hemliga katten. Samma regel som Midnight — ingen förklaring i
+// handboken, ingen ledtråd i dialogen. Barnen ska hitta henne genom att
+// bara vara någonstans, inte genom att läsa en instruktion.
+//
+// Ritualen: stå vid bergets topp (samma plats som Bergsbestigaren) mitt i
+// natten. Aurora kommer till dem som klättrar högt när mörkret är som
+// djupast. Till skillnad från Midnight kostar det ingen gåva — bara att
+// vara där. Ett Aurora-fynd inom 48 block räcker.
+const AURORA = "mjau:aurora";
+system.runInterval(() => {
+  const t = world.getTimeOfDay();
+  if (t < 13000 || t > 23000) return;
+  const d = world.getDimension("overworld");
+  let players;
+  try { players = world.getAllPlayers(); } catch { return; }
+  for (const pl of players) {
+    const L = pl.location;
+    if (Math.hypot(L.x - 26, L.z - 80) > 6 || L.y < -50) continue;
+    try {
+      if (d.getEntities({ type: AURORA, location: L, maxDistance: 48 }).length > 0) continue;
+    } catch { continue; }
+    const cat = d.spawnEntity(AURORA, { x: L.x, y: L.y + 1, z: L.z });
+    try { cat.triggerEvent("mjau:grow_up"); } catch { }
+    try { give(pl, "norrsken"); } catch { }
+    try { d.playSound("mob.cat.purreow", L); } catch { }
+    try { d.playSound("random.levelup", L); } catch { }
+    try {
+      for (let i = 0; i < 12; i++)
+        d.spawnParticle("minecraft:end_rod", {
+          x: L.x + (Math.random() - 0.5) * 2,
+          y: L.y + Math.random() * 1.5,
+          z: L.z + (Math.random() - 0.5) * 2,
+        });
+    } catch { }
+  }
+}, 40);
+
 // ---------------------------------------------------------------------------
 // UPPDRAGS-UTMÄRKELSER: titel + fanfar när milstolpar nås. Plattforms-
 // achievements går inte att ge från paket — det här är vårt eget system.
@@ -75,6 +112,37 @@ function hasItem(pl, typeId) {
   return false;
 }
 
+function countItem(pl, typeId) {
+  try {
+    const inv = pl.getComponent("minecraft:inventory")?.container;
+    if (!inv) return 0;
+    let n = 0;
+    for (let i = 0; i < inv.size; i++) {
+      const it = inv.getItem(i);
+      if (it && it.typeId === typeId) n += it.amount;
+    }
+    return n;
+  } catch { return 0; }
+}
+
+// HANDELSPOSTEN: tar bort N st av ett föremål ur spelarens inventarie.
+// Anropas bara efter countItem() redan bekräftat att det finns tillräckligt.
+function consumeItem(pl, typeId, count) {
+  try {
+    const inv = pl.getComponent("minecraft:inventory")?.container;
+    if (!inv) return;
+    let remaining = count;
+    for (let i = 0; i < inv.size && remaining > 0; i++) {
+      const it = inv.getItem(i);
+      if (!it || it.typeId !== typeId) continue;
+      const take = Math.min(remaining, it.amount);
+      remaining -= take;
+      if (take >= it.amount) inv.setItem(i, undefined);
+      else { it.amount -= take; inv.setItem(i, it); }
+    }
+  } catch { }
+}
+
 function hasAward(pl, id) {
   try { if (pl.getDynamicProperty("mjau_achv_" + id)) return true; } catch { }
   try { return awarded.get(pl.id + ":" + id) === true; } catch { return false; }
@@ -90,7 +158,8 @@ const XP_REWARD = {
   befriaren: 15, fyrvaktaren: 15, skattgravaren: 15, lados_hemlighet: 15,
   hela_flocken: 20, alla_hemma: 20,
   trippelskatten: 30, bergsbestigaren: 25, regnbagssamlaren: 25, hinderbanan: 30,
-  kattmastare: 50,
+  djuphavsdykaren: 30, handelsman: 20,
+  kattmastare: 50, norrsken: 40,
 };
 const ITEM_REWARD = {
   ur_morkret: [{ id: "minecraft:phantom_membrane", n: 2 }],
@@ -123,7 +192,7 @@ function give(pl, id) {
 const ACHV_ORDER = ["forsta_vannen", "befriaren", "hela_flocken", "ryttaren", "fiskarkatten",
                     "fyrvaktaren", "skattgravaren", "lados_hemlighet",
                     "ur_morkret", "alla_hemma", "trippelskatten", "bergsbestigaren",
-                    "regnbagssamlaren", "hinderbanan"];
+                    "regnbagssamlaren", "hinderbanan", "djuphavsdykaren", "handelsman"];
 const rapportTyst = new Map();   // spelar-id -> tick då nästa rapport tillåts
 
 function rapportera(pl) {
@@ -254,6 +323,22 @@ system.runInterval(() => {
       if (L.y > -46 && Math.hypot(L.x - 0, L.z - 56) < 7) give(pl, "fyrvaktaren");
       if (L.y > -52 && Math.hypot(L.x - 26, L.z - 80) < 5) give(pl, "bergsbestigaren");
       if (L.y > -52 && Math.hypot(L.x - 88, L.z - 10) < 4) give(pl, "hinderbanan");
+      if (Math.hypot(L.x - 65, L.z - 49) < 3 && L.y < -60) give(pl, "djuphavsdykaren");
+      // HANDELSPOSTEN: lämna in skattletarnas fynd mot en belöning
+      // (speltest-önskemål: "treasure trading post") — sköter sig själv,
+      // ingen separat nedräkning behövs: när varorna är förbrukade sjunker
+      // countItem() under kravet av sig självt tills nästa fynd.
+      if (Math.hypot(L.x - 10, L.z + 11) < 3 && L.y > -62 && L.y < -58 &&
+          countItem(pl, "minecraft:string") >= 3 && countItem(pl, "minecraft:feather") >= 3 &&
+          countItem(pl, "minecraft:diamond") >= 1) {
+        consumeItem(pl, "minecraft:string", 3);
+        consumeItem(pl, "minecraft:feather", 3);
+        consumeItem(pl, "minecraft:diamond", 1);
+        try { pl.getComponent("minecraft:inventory")?.container.addItem(new ItemStack("minecraft:emerald", 5)); } catch { }
+        try { pl.playSound("random.levelup"); } catch { }
+        try { pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.trade.done" }] }); } catch { }
+        give(pl, "handelsman");
+      }
       // FANFAR per band: en liten stund vid varje NY färg, skild från de
       // "riktiga" achievement-titlarna (actionbar i stället för setTitle)
       // — speltest-önskemål: "lite mer belönande".

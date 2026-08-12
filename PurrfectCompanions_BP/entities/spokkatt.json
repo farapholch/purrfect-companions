@@ -2211,6 +2211,40 @@
         "minecraft:horse.jump_strength": {
           "value": 1.8
         }
+      },
+      "mjau:vingkraft": {
+        "minecraft:damage_sensor": {
+          "triggers": [
+            {
+              "cause": "fall",
+              "deals_damage": false
+            }
+          ]
+        }
+      },
+      "mjau:lakarrock": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "regeneration",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
+      },
+      "mjau:kunglig_glod": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "glowing",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
       }
     },
     "events": {
@@ -2619,16 +2653,31 @@
       "mjau:on_vingar_1": {
         "set_property": {
           "mjau:vingar": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:vingkraft"
+          ]
         }
       },
       "mjau:on_vingar_2": {
         "set_property": {
           "mjau:vingar": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:vingkraft"
+          ]
         }
       },
       "mjau:on_vingar_3": {
         "set_property": {
           "mjau:vingar": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:vingkraft"
+          ]
         }
       },
       "mjau:on_horn_1": {
@@ -2749,26 +2798,51 @@
       "mjau:on_doktorsrock_1": {
         "set_property": {
           "mjau:doktorsrock": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:lakarrock"
+          ]
         }
       },
       "mjau:on_batvingar_1": {
         "set_property": {
           "mjau:batvingar": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:vingkraft"
+          ]
         }
       },
       "mjau:on_batvingar_2": {
         "set_property": {
           "mjau:batvingar": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:vingkraft"
+          ]
         }
       },
       "mjau:on_krona_1": {
         "set_property": {
           "mjau:krona": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:kunglig_glod"
+          ]
         }
       },
       "mjau:on_krona_2": {
         "set_property": {
           "mjau:krona": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:kunglig_glod"
+          ]
         }
       },
       "mjau:on_mantel_1": {

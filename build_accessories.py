@@ -526,6 +526,27 @@ def build_rest():
                         "minecraft:movement":{"value":0.68},
                         "minecraft:horse.jump_strength":{"value":1.8}}
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:supermantel")
+                if a in ("vingar","batvingar"):
+                    # VINGKRAFT (speltest-önskemål "bygg alla"): aldrig fallskada,
+                    # oavsett höjd — utökar samma damage_sensor-knep som redan gör
+                    # sadlade/förspända katter fallskadefria, fast permanent.
+                    g["mjau:vingkraft"]={"minecraft:damage_sensor":{"triggers":[
+                        {"cause":"fall","deals_damage":False}]}}
+                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:vingkraft")
+                if a=="doktorsrock":
+                    # LÄKARROCKEN: konstant sakta läkning (regeneration, mycket
+                    # lång varaktighet i praktiken permanent).
+                    g["mjau:lakarrock"]={"minecraft:spell_effects":{"add_effects":[
+                        {"effect":"regeneration","duration":999999,"amplifier":0,
+                         "display_on_screen_animation":False}]}}
+                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:lakarrock")
+                if a=="krona":
+                    # KRONAN: alltid synlig (glowing genom väggar) — kungligt och
+                    # lätt att hitta katten i mörkret.
+                    g["mjau:kunglig_glod"]={"minecraft:spell_effects":{"add_effects":[
+                        {"effect":"glowing","duration":999999,"amplifier":0,
+                         "display_on_screen_animation":False}]}}
+                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:kunglig_glod")
                 if cfg.get("rideable"):
                     # SADEL: ryttare på ryggen. Utesluter vagnläget — två aktiva
                     # rideable-definitioner ger odefinierat beteende.

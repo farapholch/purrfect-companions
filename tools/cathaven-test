@@ -190,11 +190,24 @@ PY
     echo "testforblock 56 -56 10 spruce_planks"; sleep 1   # kattbanans startplattform
     echo "testforblock 113 -53 10 spruce_planks"; sleep 1  # kattbanans målplattform
     echo "testforblock 113 -52 10 chest"; sleep 1          # kattbanans prisskista
-    echo "testforblock 54 -60 10 standing_sign"; sleep 1   # kattbaneskylten
+    echo "testforblock 45 -60 9 standing_sign"; sleep 1    # kattbaneskylten (vid rampfoten)
+    echo "testforblock 53 -57 10 spruce_planks"; sleep 1   # rampens översta steg
     echo "testforblock 61 -62 40 water"; sleep 1           # sjön
     echo "testforblock 65 -62 46 air"; sleep 1             # sjötunneln
     echo "testforblock 65 -63 49 chest"; sleep 1           # sjöns skattkista
     echo "testforblock 61 -60 35 standing_sign"; sleep 1   # sjöskylten
+    echo "testforblock 0 -55 14 spruce_planks"; sleep 1    # vindsloftet
+    echo "testforblock 5 -57 15 ladder"; sleep 1           # gavelstegen till vinden
+    echo "testforblock 3 -54 13 chest"; sleep 1            # vindskistan (netherite)
+    echo "testforblock 20 -60 15 spruce_fence"; sleep 1    # grind A stängd (ängen)
+    echo "testforblock 44 -60 10 spruce_fence"; sleep 1    # grind B stängd (kattbanan)
+    echo "testforblock 65 -62 45 iron_bars"; sleep 1       # grind C stängd (sjögallret)
+    echo "scriptevent mjau:test_grind"; sleep 3            # riv alla grindar
+    echo "testforblock 20 -60 15 air"; sleep 1             # grind A öppen
+    echo "testforblock 44 -60 10 air"; sleep 1             # grind B öppen
+    # grind C kollas INTE med testforblock efter rivning: sjövattnet flödar
+    # in i cellen så fort gallret försvinner (flowing_water, inte air) —
+    # helt rätt beteende i spelet; kvittensen "grind öppnad" täcker C.
     echo "testfor @e[type=mjau:vakthund]"; sleep 1
     echo "scriptevent mjau:test_fest"; sleep 3
     echo "testfor @e[type=mjau:misty,x=-9,y=-60,z=33,r=80]"; sleep 1
@@ -211,7 +224,8 @@ PY
   cp /tmp/cathaven-props.bak "$PROPS"
   grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" || bad "paketen laddades INTE ur världen"
   FB=$(grep -c 'found the block' "$SLOG")
-  [ "$FB" -ge 34 ] && ok "alla $FB/34 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft, buren, lägereld, matta, bikupa, ängsskylt, grottkista, ö, skogskista, bergskista, snötäcke, 6×regnbågsband, kattbanans start+mål+skylt+kista, sjöns vatten+tunnel+skatt+skylt)" || bad "bara $FB/34 nyckelblock i den paketerade världen"
+  [ "$FB" -ge 43 ] && ok "alla $FB/43 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft, buren, lägereld, matta, bikupa, ängsskylt, grottkista, ö, skogskista, bergskista, snötäcke, 6×regnbågsband, kattbanans start+mål+skylt+kista+ramp, sjöns vatten+tunnel+skatt+skylt, vindens loft+stege+kista, 3 grindar stängda + A/B rivna)" || bad "bara $FB/43 nyckelblock i den paketerade världen"
+  grep -q "grind öppnad" "$SLOG" && ok "grindarna rivs av scriptet (test_grind-kroken)" || bad "grind-öppningen avfyrade inte"
   grep -qE "Found (Vakthunden|The Guard Dog)" "$SLOG" && ok "vakthunden vaktar kulan (persistent, namngiven)" || bad "vakthunden saknas i den paketerade världen"
   grep -q "KATTMASTARE-festen firad" "$SLOG" && ok "kattmästar-festen avfyrar (scriptevent-kroken)" || bad "festen avfyrade inte"
   grep -q "Found Misty" "$SLOG" && ok "Misty överlevde paketeringen (namngiven, persistent)" || bad "Misty saknas i den paketerade världen"

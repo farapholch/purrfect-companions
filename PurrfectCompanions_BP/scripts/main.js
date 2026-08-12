@@ -158,7 +158,7 @@ const XP_REWARD = {
   befriaren: 15, fyrvaktaren: 15, skattgravaren: 15, lados_hemlighet: 15,
   hela_flocken: 20, alla_hemma: 20,
   trippelskatten: 30, bergsbestigaren: 25, regnbagssamlaren: 25, hinderbanan: 30,
-  djuphavsdykaren: 30, handelsman: 20,
+  djuphavsdykaren: 30, handelsman: 20, vindskatten: 25,
   kattmastare: 50, norrsken: 40,
 };
 const ITEM_REWARD = {
@@ -242,6 +242,48 @@ try {
   });
 } catch { }
 
+// ---------------------------------------------------------------------------
+// GRINDARNA: världen öppnas stegvis (speltest-önskemål: "låsa ner delar av
+// världen och öppna stegvis när man klarar quests, så storyn blir tydligare").
+// En grind rivs för ALLA så fort NÅGON spelare har klarat förkravet —
+// familjen spelar ihop, ingen grind per person. Redan intjänade uppdrag
+// öppnar grindarna automatiskt vid nästa världstart (kollen går mot
+// dynamic properties som redan ligger i världssparningen). Blocken måste
+// matcha grindfyllningarna i build_world.py.
+const GATES = [
+  { prereq: "fyrvaktaren",
+    blocks: [[20, -60, 15], [20, -59, 15], [20, -60, 16], [20, -59, 16]] },
+  { prereq: "trippelskatten",
+    blocks: [[44, -60, 8], [44, -59, 8], [44, -60, 9], [44, -59, 9], [44, -60, 10],
+             [44, -59, 10], [44, -60, 11], [44, -59, 11], [44, -60, 12], [44, -59, 12]] },
+  { prereq: "hinderbanan",
+    blocks: [[65, -62, 45], [65, -61, 45]] },
+];
+
+function oppnaGrind(d, gt) {
+  for (const [x, y, z] of gt.blocks) {
+    try { d.getBlock({ x, y, z })?.setType("minecraft:air"); } catch { }
+    try { d.spawnParticle("minecraft:end_rod", { x: x + 0.5, y: y + 0.5, z: z + 0.5 }); } catch { }
+  }
+  const [sx, sy, sz] = gt.blocks[0];
+  try { d.playSound("random.levelup", { x: sx, y: sy, z: sz }); } catch { }
+  for (const pl of world.getAllPlayers()) {
+    try { pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.gate.open" }] }); } catch { }
+  }
+  console.warn("[mjau] grind öppnad: " + gt.prereq);
+}
+
+// testkrok: /scriptevent mjau:test_grind river alla grindar (röktestet)
+try {
+  system.afterEvents.scriptEventReceive.subscribe(ev => {
+    if (ev.id !== "mjau:test_grind") return;
+    try {
+      const d = world.getDimension("overworld");
+      for (const gt of GATES) oppnaGrind(d, gt);
+    } catch { console.warn("[mjau] grind-test föll"); }
+  });
+} catch { }
+
 // VAKTHUNDEN: den som fäller hunden vid Majas kula befriar henne
 try {
   world.afterEvents.entityDie.subscribe(ev => {
@@ -275,6 +317,19 @@ system.runInterval(() => {
                       d.getBlock({ x: 0, y: -42, z: 56 })?.typeId === "minecraft:glowstone";
     }
     catch { catHavenWorld = null; }   // chunk oladdad — fråga igen nästa varv
+  }
+  // grindkollen: sentinel-blocket (första blocket i listan) kvar + någon
+  // spelare har förkravet → riv grinden. Billigt: ett getBlock per grind.
+  if (catHavenWorld) {
+    try {
+      const alla = world.getAllPlayers();
+      for (const gt of GATES) {
+        const [sx, sy, sz] = gt.blocks[0];
+        const sb = d.getBlock({ x: sx, y: sy, z: sz });
+        if (!sb || sb.typeId === "minecraft:air") continue;
+        if (alla.some(pl => hasAward(pl, gt.prereq))) oppnaGrind(d, gt);
+      }
+    } catch { }
   }
   const tamed = cats.filter(c => { try { return c.getProperty("mjau:tam") === 1; } catch { return false; } });
   // vakthunds-vakan: syns hunden en tick och är borta nästa har någon fällt den
@@ -324,6 +379,10 @@ system.runInterval(() => {
       if (L.y > -52 && Math.hypot(L.x - 26, L.z - 80) < 5) give(pl, "bergsbestigaren");
       if (L.y > -58 && Math.hypot(L.x - 113, L.z - 10) < 4) give(pl, "hinderbanan");
       if (Math.hypot(L.x - 65, L.z - 49) < 3 && L.y < -60) give(pl, "djuphavsdykaren");
+      // VINDEN: hemlig (utanför ACHV_ORDER, samma tanke som norrsken —
+      // hemligheter ska inte höja kravet för Kattmästare-finalen)
+      if (L.y > -56 && L.y < -50 && L.x > -6 && L.x < 6 && L.z > 12 && L.z < 17)
+        give(pl, "vindskatten");
       // HANDELSPOSTEN: lämna in skattletarnas fynd mot en belöning
       // (speltest-önskemål: "treasure trading post") — sköter sig själv,
       // ingen separat nedräkning behövs: när varorna är förbrukade sjunker

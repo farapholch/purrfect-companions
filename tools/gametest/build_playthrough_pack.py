@@ -319,6 +319,13 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   // luftfickan bevisar att tunneln gar att simma igenom hela vagen.
   ok("KAPITEL 11 OK - sjotunneln bar hela vagen till skattkistan i luftfickan");
 
+  // KAPITEL 12 — vinden: loft, gavelstege och netheriteskatten
+  if (B(0, -55, 14) !== "minecraft:spruce_planks") return done("vindsloftet saknas", false);
+  if (B(5, -57, 15) !== "minecraft:ladder") return done("vindsstegen saknas", false);
+  if (B(3, -54, 13) !== "minecraft:chest") return done("vindskistan saknas", false);
+  await tp(0, -54, 14);
+  ok("KAPITEL 12 OK - vinden nadd, netheriteskatten pa plats under taket");
+
   done("", true);
 })
   .structureName("mjau:slot")

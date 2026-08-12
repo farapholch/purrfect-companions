@@ -51,6 +51,9 @@ TEXTS = {
         "parkour_sign": "CAT PARKOUR\nRide and jump\nplatform to\nplatform!",
         "lake_sign": "THE LAKE\nSomething\nglints below.\nDive down.",
         "trade_sign": "TRADING POST\nBring string,\nfeathers and\na diamond.",
+        "gate_meadow_sign": "CLOSED\nFinish Task 4\nand this path\nwill open",
+        "gate_parkour_sign": "CLOSED\nFinish Task 6\nand this path\nwill open",
+        "gate_lake_sign": "CLOSED\nFinish Task 7\nand the grate\nwill open",
         "dog_name": "The Guard Dog",
         "silverfish_name": "§bThe Silver Fish",
         "meadow_sign": "THE MEADOW\n& beyond:\ncave, wood\nand a mountain",
@@ -62,6 +65,7 @@ TEXTS = {
             "Day 214.\n\nThe backpack cat dug up a diamond today. I laughed until I cried.\n\nI buried nothing. They have their own economy down there.",
             "Day 388.\n\nA fifth cat came with the frost. Black as the space between the stars. She never let me feed her by hand.\n\nMidnight, I called her. The others speak of her still.",
             "Day 401.\n\nCold night. I left a silver fish on a cat bed, and by morning it was gone - and there were two sets of pawprints in the snow.\n\nIf you are reading this: she is still here. Somewhere.",
+            "Day 452.\n\nMy knees no longer like the climb, so my best gear stays where I left it - up under the roof, where the dust settles.\n\nThe cats know the way. Their tower was always the first step.",
         ],
         "book_title": "The Caretaker's Handbook",
         "book_author": "The Old Caretaker",
@@ -89,6 +93,9 @@ TEXTS = {
         "parkour_sign": "KATTBANAN\nRid och hoppa\nplattform till\nplattform!",
         "lake_sign": "SJÖN\nNågot glimmar\ndär nere.\nDyk ner.",
         "trade_sign": "HANDELSPOST\nTa med snöre,\nfjädrar och\nen diamant.",
+        "gate_meadow_sign": "STÄNGT\nKlara uppdrag 4\nså öppnas\nstigen",
+        "gate_parkour_sign": "STÄNGT\nKlara uppdrag 6\nså öppnas\nstigen",
+        "gate_lake_sign": "STÄNGT\nKlara uppdrag 7\nså öppnas\ngallret",
         "dog_name": "Vakthunden",
         "silverfish_name": "§bSilverfisken",
         "meadow_sign": "ÄNGEN\n& bortom:\ngrotta, skog\noch ett berg",
@@ -100,6 +107,7 @@ TEXTS = {
             "Dag 214.\n\nRyggsäckskatten grävde upp en diamant i dag. Jag skrattade tills jag grät.\n\nJag grävde aldrig ner något. De har sin egen ekonomi där nere.",
             "Dag 388.\n\nEn femte katt kom med frosten. Svart som mellanrummet mellan stjärnorna. Hon lät mig aldrig mata henne ur handen.\n\nMidnight kallade jag henne. De andra talar om henne än.",
             "Dag 401.\n\nKall natt. Jag lämnade en silverfisk på en kattbädd, och på morgonen var den borta - och det fanns två rader tassavtryck i snön.\n\nLäser du det här: hon är kvar. Någonstans.",
+            "Dag 452.\n\nMina knän gillar inte klättringen längre, så mina bästa saker ligger kvar där jag lämnade dem - uppe under taket, där dammet samlas.\n\nKatterna kan vägen. Deras torn var alltid första steget.",
         ],
         "book_title": "Föreståndarens handbok",
         "book_author": "Gamla föreståndaren",
@@ -368,6 +376,29 @@ def build_structures(outdir, t, disp, cats):
     s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 4})
     s.entity_at(0, 0, 0, sign_entity(t["trade_sign"]))
     s.emit(f"{st}/tradesign.mcstructure")
+
+    # GRINDSKYLTARNA: en per grind, säger vilket uppdrag som låser upp
+    # (speltest-önskemål: "låsa ner delar av världen och öppna stegvis")
+    for gname in ("gate_meadow_sign", "gate_parkour_sign", "gate_lake_sign"):
+        s = Struct(1, 1, 1)
+        s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 4})
+        s.entity_at(0, 0, 0, sign_entity(t[gname]))
+        s.emit(f"{st}/{gname}.mcstructure")
+
+    # VINDSKISTAN: fullt netherite-set åt spelaren OCH katten (speltest-
+    # önskemål: "en vind på huset ... full set netherite åt katten och åt
+    # en själv, lite svåråtkomlig men inte omöjlig")
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:chest", {"facing_direction": 2})
+    s.entity_at(0, 0, 0, chest_entity([
+        item(0, "minecraft:netherite_helmet", 1),
+        item(1, "minecraft:netherite_chestplate", 1),
+        item(2, "minecraft:netherite_leggings", 1),
+        item(3, "minecraft:netherite_boots", 1),
+        item(4, "minecraft:netherite_sword", 1),
+        item(5, "mjau:rustning_netherit", 1),
+    ]))
+    s.emit(f"{st}/atticchest.mcstructure")
 
     # LEDTRÅDSSKYLTEN i gamla kulan: Maja har flyttat (vänd mot ingången i öster)
     s = Struct(1, 1, 1)
@@ -806,11 +837,11 @@ def build_commands(cats, disp, dog_name):
     # grusstig knyter an den till grottan/ängen i stället för att bara stå
     # där) + "mysigare" (varmt granträ + lyktor + grönska i stället för bar
     # vit quartz — samma soul_lantern-stil som grottan/skogslunden).
-    c.append(f"fill 41 {f} 10 55 {f} 10 gravel")   # stigen ut till banan
+    # stigen NEDSÄNKT i marken ({g}, inte {f}) som alla andra stigar — den
+    # låg en ruta ovanpå gräset och läste som en kant, inte en stig
+    c.append(f"fill 41 {g} 10 46 {g} 10 gravel")
     c.append(f"setblock 45 {f} 11 oak_fence")
     c.append(f'setblock 45 {f+1} 11 lantern ["hanging"=false]')
-    c.append(f"setblock 50 {f} 9 oak_fence")
-    c.append(f'setblock 50 {f+1} 9 lantern ["hanging"=false]')
     c.append(("sleep", 1))
     _pkx0, _pkz0 = 56, 10
     # Xbox-rapport: "fortfarande högt upp i luften ... måste manuellt bygga
@@ -830,15 +861,18 @@ def build_commands(cats, disp, dog_name):
         (37, 8, 3), (42, 6, -3), (47, 8, 3), (52, 6, -3), (57, 7, 0),
     ]
     _PK_HARD_FROM = 9   # index där de smalare plattformarna börjar
-    # Xbox-rapport: "steg delar ligger på backen" — stegen stod helt fritt i
-    # luften utan stöd på någon sida (till skillnad från källarschaktets
-    # stege, som redan har väggar runt sig från rummet den står i). Stockar
-    # på tre sidor (norr/söder/öster) ger stegen ett riktigt fäste oavsett
-    # exakt facing_direction-tolkning; västsidan lämnas öppen eftersom
-    # grusstigen anländer österut (spelaren går in från x<56).
-    for sdx, sdz in ((1, 0), (0, 1), (0, -1)):
-        c.append(f"fill {_pkx0+sdx} {f} {_pkz0+sdz} {_pkx0+sdx} {f+3} {_pkz0+sdz} stripped_spruce_log")
-    c.append(f'fill {_pkx0} {f} {_pkz0} {_pkx0} {f+3} {_pkz0} ladder ["facing_direction"=2]')
+    # INGÅNGEN: bred ridbar ramp av terrasserade steg i stället för stege
+    # (speltest-önskemål: "gör en bättre ingång"). En stege var fel redan i
+    # grunden — banan RIDS, och en katt kan inte klättra stege, så spelaren
+    # tvingades kliva av och lämna katten på marken. Terrass-stegen är samma
+    # bevisade teknik som fyrkullen/berget (katter kliver upp ett block i
+    # taget medan man rider). Solid kil av granplankor, 3 bred (matchar
+    # plattformarna), ett steg per ruta västerifrån där grusstigen anländer.
+    for si, sx in enumerate((47, 49, 51, 53)):
+        c.append(f"fill {sx} {f} 9 {sx+1} {f+si} 11 spruce_planks")
+    for lz in (8, 12):   # lyktstolpar som flankerar rampfoten
+        c.append(f"setblock 46 {f} {lz} oak_fence")
+        c.append(f'setblock 46 {f+1} {lz} lantern ["hanging"=false]')
     for i, (dx, dy, dz) in enumerate(_pk_platforms):
         px, py, pz = _pkx0 + dx, f + dy, _pkz0 + dz
         if i == len(_pk_platforms) - 1:
@@ -853,11 +887,11 @@ def build_commands(cats, disp, dog_name):
             c.append(f"setblock {px+r} {py+1} {pz+r} azalea_leaves_flowered")
         # stödpelare ner till marken (Xbox-rapport: "plattformarna flyger i
         # luften" — bara luft under dem läste som ett fel, inte som en bana).
-        # startplattformen (i=0) har redan stegen som pelare.
-        if i > 0:
-            c.append(f"fill {px} {f} {pz} {px} {py - 1} {pz} stripped_spruce_log")
+        # Även startplattformen: stegen som tidigare agerade pelare är borta.
+        c.append(f"fill {px} {f} {pz} {px} {py - 1} {pz} stripped_spruce_log")
     c.append(("sleep", 2))
-    c.append(f"structure load haven:parkoursign {_pkx0-2} {f} {_pkz0}")
+    # skylten vid rampfoten (gamla platsen x=54 ligger numera INUTI rampen)
+    c.append(f"structure load haven:parkoursign 45 {f} 9")
     c.append(("sleep", 1))
     _pkfx = _pkx0 + _pk_platforms[-1][0]
     _pkfy = f + _pk_platforms[-1][1]
@@ -865,6 +899,7 @@ def build_commands(cats, disp, dog_name):
     c.append(f"structure load haven:parkourchest {_pkfx} {_pkfy + 1} {_pkfz}")
     c.append(("sleep", 1))
     c.append(f"testforblock {_pkx0} {f + 4} {_pkz0} spruce_planks")    # startplattformen
+    c.append(f"testforblock 53 {f + 3} 10 spruce_planks")              # rampens översta steg
     c.append(f"testforblock {_pkfx} {_pkfy} {_pkfz} spruce_planks")    # målplattformen
     c.append(f"testforblock {_pkfx} {_pkfy + 1} {_pkfz} chest")        # prisskistan
     c.append(("sleep", 1))
@@ -892,6 +927,34 @@ def build_commands(cats, disp, dog_name):
     c.append(f"testforblock -4 {f+1} 16 mjau:kattbadd")  # sängraden på plats
     c.append(f"testforblock 6 {f+5} 12 pink_wool")       # kattnosen på gaveln
     c.append(f"testforblock 0 {f+9} 12 spruce_planks")   # taknocken
+
+    # VINDEN (speltest-önskemål: "mer hemliga saker och fler byggnader"):
+    # husets inre är öppet ända upp till nocken — ett loftgolv på f+5 över
+    # BAKRE halvan (z13-16) lämnar entréhalvan katedralöppen med ljuskronorna
+    # synliga (z12). Vägen upp: hoppa på kattornet (5,f+1,14), klättra
+    # gavelstegen (f+2..f+4) och upp genom luckhålet i loftet — hittbart men
+    # inte uppenbart; dagboken i källaren fick en ledtrådssida. OBS takgeometrin:
+    # baksluttningens trappor ligger på y6@z16, y7@z15, y8@z14 — därför står
+    # man bara upprätt på z13-14, möblerna på z15 är låg dekor, och kistan
+    # ligger på z13 (en kista under en trappa på y7 kan inte öppnas).
+    # OBS stegen på z15, INTE z14: östväggens fönster sitter i just z14-
+    # kolumnen (glasrutor på de två nedre höjderna) och stegar fäster inte
+    # i glas — de poppade av vid första blockuppdateringen. z15 är massiv ek.
+    c.append(f"fill -5 {f+5} 13 5 {f+5} 16 spruce_planks")
+    c.append(f"setblock 5 {f+5} 15 air")                     # luckhålet över stegen
+    c.append(f'fill 5 {f+2} 15 5 {f+4} 15 ladder ["facing_direction"=4]')
+    c.append(("sleep", 1))
+    c.append(f"structure load haven:atticchest 3 {f+6} 13")
+    c.append(f"setblock -3 {f+6} 15 mjau:kattbadd")
+    c.append(f"setblock 0 {f+6} 15 mjau:garnnystan")
+    c.append(f'setblock -5 {f+6} 14 soul_lantern ["hanging"=false]')
+    c.append(f"setblock 2 {f+6} 15 web")                     # vindsdamm
+    c.append(f"setblock -5 {f+6} 15 web")
+    c.append(("sleep", 1))
+    c.append(f"testforblock 0 {f+5} 14 spruce_planks")   # loftgolvet
+    c.append(f"testforblock 5 {f+3} 15 ladder")          # gavelstegen
+    c.append(f"testforblock 3 {f+6} 13 chest")           # vindskistan
+    c.append(("sleep", 1))
     c.append(f"structure load haven:welcome 1 {f} 1")
     c.append(("sleep", 1))
     c.append(f"structure load haven:startsign -2 {f} 1")
@@ -1020,6 +1083,25 @@ def build_commands(cats, disp, dog_name):
     c.append(f"testforblock {_lx-4} {g-1} {_lz} water")     # sjön finns
     c.append(f"testforblock {_lx} {g-1} {_lz+6} air")       # tunneln är genomgrävd
     c.append(f"testforblock {_lx} {g-2} {_lz+9} chest")     # kistan i luftfickan
+    c.append(("sleep", 1))
+
+    # GRINDARNA (speltest-önskemål: "låsa ner delar av världen och öppna
+    # stegvis när man klarar quests, så storyn blir tydligare"). Tre grindar
+    # i story-kedja: ängsstigen (öppnas av fyrvaktaren/uppdrag 4), kattbanans
+    # stig (trippelskatten/uppdrag 6) och sjötunnelns galler (hinderbanan/
+    # uppdrag 7). Skriptet i main.js river dem när NÅGON spelare har klarat
+    # förkravet. Koordinaterna här MÅSTE matcha GATES-listan i main.js.
+    # Byn, dammen, mörka skogen och fyrvägen är alltid öppna.
+    c.append(f"fill 20 {f} 15 20 {f+1} 16 spruce_fence")     # grind A: ängsstigen
+    c.append(f"structure load haven:gate_meadow_sign 19 {f} 17")
+    c.append(f"fill 44 {f} 8 44 {f+1} 12 spruce_fence")      # grind B: kattbanestigen
+    c.append(f"structure load haven:gate_parkour_sign 43 {f} 13")
+    c.append(f"fill {_lx} {g-2} {_lz+5} {_lx} {g-1} {_lz+5} iron_bars")  # grind C: sjögallret
+    c.append(f"structure load haven:gate_lake_sign {_lx-2} {f} {_lz-5}")
+    c.append(("sleep", 2))
+    c.append(f"testforblock 20 {f} 15 spruce_fence")
+    c.append(f"testforblock 44 {f} 10 spruce_fence")
+    c.append(f"testforblock {_lx} {g-2} {_lz+5} iron_bars")
     c.append(("sleep", 1))
 
     # SKOGSRAM: en trädrand runt hela den utforskade ytan (speltest-önskemål:
@@ -1189,6 +1271,42 @@ def build(variant, outdir):
     zf.write(icon, "world_icon.jpeg")
     zf.close()
     print(f"värld: {out} ({os.path.getsize(out)//1024} KB)")
+
+    # VÄRLDSMALL (.mctemplate) — speltest-önskemål: "att man kan återskapa
+    # världen". En .mcworld importeras som EN spelbar kopia; en mall dyker
+    # i stället upp under "Skapa ny värld" och kan återskapas färsk hur
+    # många gånger som helst utan att filen behöver skickas om. Samma
+    # zip-innehåll + template-manifest i roten. UUID:erna är deterministiska
+    # (uuid5 av variantnamnet) så en ny version ERSÄTTER den gamla mallen i
+    # spelet i stället för att lägga en dublett bredvid.
+    import uuid as _uuid
+    tman = {
+        "format_version": 2,
+        "header": {
+            "name": t["world"],
+            "description": f'{t["world"]} v{ver}',
+            "uuid": str(_uuid.uuid5(_uuid.NAMESPACE_URL, f"mjau:worldtemplate:{variant}:header")),
+            "version": bp["version"],
+            "base_game_version": [1, 26, 40],
+            "lock_template_options": False,
+        },
+        "modules": [{
+            "type": "world_template",
+            "uuid": str(_uuid.uuid5(_uuid.NAMESPACE_URL, f"mjau:worldtemplate:{variant}:module")),
+            "version": bp["version"],
+        }],
+    }
+    tout = f"{outdir}/purrfect-{slug}-v{ver}{suffix}.mctemplate"
+    if os.path.exists(tout): os.remove(tout)
+    zf = zipfile.ZipFile(tout, "w", zipfile.ZIP_DEFLATED)
+    for dirpath, _, files in os.walk(wdir):
+        for fn in files:
+            p = os.path.join(dirpath, fn)
+            zf.write(p, os.path.relpath(p, wdir))
+    zf.write(icon, "world_icon.jpeg")
+    zf.writestr("manifest.json", json.dumps(tman, indent=2))
+    zf.close()
+    print(f"mall: {tout} ({os.path.getsize(tout)//1024} KB)")
     for p in problems: print(f"PROBLEM: {p}")
     return out, problems
 

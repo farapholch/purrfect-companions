@@ -73,7 +73,7 @@ TEXTS = {
             "TASK 4 - RIDE TO THE LIGHTHOUSE\n\nFollow the gravel road south and ride to the top of the lighthouse hill.\n\nSomething useful waits in the chest at the top of the tower.",
             "TASK 5 - THE BURIED SAVINGS\n\nI never trusted banks. What I saved, the cats buried - they bury better than I ever did.\n\nA cat wearing a BACKPACK remembers where. Give one a backpack and let it dig.",
             "TASK 6 - THREE KEYS, ONE TREASURE\n\nA path leaves the road and runs east, past a meadow loud with bees, into a cave that glitters, and on to a wood hiding one more secret. A key waits in each.\n\nBut look again at the pond behind the house - there is a small dry island in it, and something waits there too. That is your third key.\n\nThree keys, three places. Carry all three at once and see what happens.\n\nAnd past the meadow, a mountain rises with snow on its head. Whatever is waiting at the top is worth the climb.",
-            "TASK 7 - THE CAT PARKOUR\n\nPast the crystal cave, a gravel path keeps going east to a little wooden course lit by lanterns, floating platform to platform.\n\nRide and jump all the way to the far end. Something is waiting for you there.",
+            "TASK 7 - THE CAT PARKOUR\n\nPast the crystal cave, a gravel path keeps going east to a little wooden course lit by lanterns, floating platform to platform.\n\nRide and jump all the way to the far end. The last few jumps are wide and the platforms are narrow - take a run-up. Something is waiting for you there.",
             "TASK 8 - THE DEEP LAKE\n\nEast of everything else, past the meadow and the mountain, a lake hides more than fish. Dive to the bottom and swim through the tunnel - hold your breath.\n\nSomething waits in the dark at the far end.",
             "TASK 9 - THE TRADING POST\n\nA backpack cat's finds pile up fast. There is a barrel behind the house, east of the garden, that will take three string, three feathers and a diamond off your hands - and give something back.",
             "The beds inside carry the cats' names. Cat treats cheer them up when their tails droop - the recipe is sugar, wheat and cod.\n\nTake good care of them.\n\nAnd mind the boxes. Some hide more than dust.\n\nKeep your eyes open as you go, too - six coloured ribbons are hiding in places you already visit. Carry all six at once for a surprise.\n\n- The Old Caretaker",
@@ -111,7 +111,7 @@ TEXTS = {
             "UPPDRAG 4 - RID TILL FYREN\n\nFölj grusvägen söderut och rid upp för fyrkullen.\n\nNågot användbart väntar i kistan högst upp i tornet.",
             "UPPDRAG 5 - DET NEDGRÄVDA SPARANDET\n\nJag litade aldrig på banker. Det jag sparade grävde katterna ner - de gräver bättre än jag någonsin gjorde.\n\nEn katt med RYGGSÄCK minns var. Ge en katt en ryggsäck och låt den gräva.",
             "UPPDRAG 6 - TRE NYCKLAR, EN SKATT\n\nEn stig lämnar vägen österut, förbi en äng full av surrande bin, in i en glittrande grotta, och vidare till en skog som gömmer en sak till. En nyckel väntar i var och en.\n\nMen titta en gång till på dammen bakom huset - där finns en liten torr ö, och något väntar där också. Det är din tredje nyckel.\n\nTre nycklar, tre platser. Bär alla tre samtidigt och se vad som händer.\n\nOch bortom ängen reser sig ett berg med snö på huvudet. Vad som än väntar på toppen är värt klättringen.",
-            "UPPDRAG 7 - KATTBANAN\n\nBortom kristallgrottan fortsätter en grusstig österut till en liten lyktbelyst bana av trä, med plattformar som flyter i luften.\n\nRid och hoppa hela vägen till andra änden. Något väntar på dig där.",
+            "UPPDRAG 7 - KATTBANAN\n\nBortom kristallgrottan fortsätter en grusstig österut till en liten lyktbelyst bana av trä, med plattformar som flyter i luften.\n\nRid och hoppa hela vägen till andra änden. De sista hoppen är breda och plattformarna smala - ta sats. Något väntar på dig där.",
             "UPPDRAG 8 - DEN DJUPA SJÖN\n\nÖster om allt annat, förbi ängen och berget, gömmer en sjö mer än fisk. Dyk till botten och simma genom tunneln - håll andan.\n\nNågot väntar i mörkret vid andra änden.",
             "UPPDRAG 9 - HANDELSPOSTEN\n\nEn ryggsäckskatts fynd hopar sig fort. Det finns en tunna bakom huset, öster om täppan, som tar emot tre snören, tre fjädrar och en diamant - och ger något tillbaka.",
             "Sängarna därinne bär katternas namn. Kattgodis piggar upp dem när svansen hänger - receptet är socker, vete och torsk.\n\nTa väl hand om dem.\n\nOch se upp med lådorna. Vissa gömmer mer än damm.\n\nHåll ögonen öppna medan du utforskar också - sex färgade band gömmer sig på platser du redan besökt. Bär alla sex samtidigt för en överraskning.\n\n- Gamla föreståndaren",
@@ -529,7 +529,10 @@ def build_commands(cats, disp, dog_name):
     c.append("gamerule domobspawning false")
     c.append("gamerule keepinventory true")
     c.append("gamerule sendcommandfeedback true")
-    c.append(f"tickingarea add -58 {g-4} -20 95 {g+30} 92 bygge")   # 95: kattbanan når x=88
+    # BUGFIX: 128 gav 13 x-chunk (floor(-58/16)=-4 till floor(128/16)=8) x
+    # 8 z-chunk = 104 - över 100-taket igen (skogsramen har egna remsor,
+    # den här behöver bara nå kattbanans nya mål, inte hela ramen).
+    c.append(f"tickingarea add -58 {g-4} -20 120 {g+30} 92 bygge")   # 120: kattbanan når x=113
     c.append(("sleep", 4))
     c.append(f"testforblock 0 {g} 0 grass_block")      # verifiera marknivån
     # kullar för fyren: terrasser en katt kan kliva upp för
@@ -810,11 +813,23 @@ def build_commands(cats, disp, dog_name):
     c.append(f'setblock 50 {f+1} 9 lantern ["hanging"=false]')
     c.append(("sleep", 1))
     _pkx0, _pkz0 = 56, 10
+    # Xbox-rapport: "fortfarande högt upp i luften ... måste manuellt bygga
+    # en stege" — hela banan sänkt (max f+8 i stället för f+11, snart f+14)
+    # så stegen upp blir kort och känns som en trappa, inte en byggarbets-
+    # plats. Svårigheten i förlängningen kommer från större hopp och
+    # smalare plattformar i stället för mer höjd.
     _pk_platforms = [
-        (0, 8, 0), (4, 8, 3), (8, 9, 0), (12, 9, 3),
-        (16, 10, 0), (20, 10, 3), (24, 11, 0), (28, 11, 3),
-        (32, 11, 0),   # mål
+        (0, 4, 0), (4, 4, 3), (8, 5, 0), (12, 5, 3),
+        (16, 6, 0), (20, 6, 3), (24, 7, 0), (28, 7, 3),
+        (32, 7, 0),
+        # SVÅRARE FORTSÄTTNING (speltest-önskemål: "utöka och gör svårare") -
+        # större hopp (5 rutor i stället för 4) och smalare plattformar
+        # (radie 0 = en enda ruta i stället för 3x3, se radie-logiken nedan)
+        # för de fem sista. Höjden guppar i stället för att fortsätta stiga.
+        # Gamla målet (index 8) är nu bara en vanlig mellanplattform.
+        (37, 8, 3), (42, 6, -3), (47, 8, 3), (52, 6, -3), (57, 7, 0),
     ]
+    _PK_HARD_FROM = 9   # index där de smalare plattformarna börjar
     # Xbox-rapport: "steg delar ligger på backen" — stegen stod helt fritt i
     # luften utan stöd på någon sida (till skillnad från källarschaktets
     # stege, som redan har väggar runt sig från rummet den står i). Stockar
@@ -822,14 +837,20 @@ def build_commands(cats, disp, dog_name):
     # exakt facing_direction-tolkning; västsidan lämnas öppen eftersom
     # grusstigen anländer österut (spelaren går in från x<56).
     for sdx, sdz in ((1, 0), (0, 1), (0, -1)):
-        c.append(f"fill {_pkx0+sdx} {f} {_pkz0+sdz} {_pkx0+sdx} {f+7} {_pkz0+sdz} stripped_spruce_log")
-    c.append(f'fill {_pkx0} {f} {_pkz0} {_pkx0} {f+7} {_pkz0} ladder ["facing_direction"=2]')
+        c.append(f"fill {_pkx0+sdx} {f} {_pkz0+sdz} {_pkx0+sdx} {f+3} {_pkz0+sdz} stripped_spruce_log")
+    c.append(f'fill {_pkx0} {f} {_pkz0} {_pkx0} {f+3} {_pkz0} ladder ["facing_direction"=2]')
     for i, (dx, dy, dz) in enumerate(_pk_platforms):
         px, py, pz = _pkx0 + dx, f + dy, _pkz0 + dz
-        r = 2 if i == len(_pk_platforms) - 1 else 1
+        if i == len(_pk_platforms) - 1:
+            r = 2
+        elif i >= _PK_HARD_FROM:
+            r = 0   # smalast möjliga - en enda ruta, ingen marginal vid landning
+        else:
+            r = 1
         c.append(f"fill {px-r} {py} {pz-r} {px+r} {py} {pz+r} spruce_planks")
-        c.append(f'setblock {px-r} {py+1} {pz-r} soul_lantern ["hanging"=false]')
-        c.append(f"setblock {px+r} {py+1} {pz+r} azalea_leaves_flowered")
+        if r >= 1:   # ingen plats för hörndekor på en 1x1-ruta
+            c.append(f'setblock {px-r} {py+1} {pz-r} soul_lantern ["hanging"=false]')
+            c.append(f"setblock {px+r} {py+1} {pz+r} azalea_leaves_flowered")
         # stödpelare ner till marken (Xbox-rapport: "plattformarna flyger i
         # luften" — bara luft under dem läste som ett fel, inte som en bana).
         # startplattformen (i=0) har redan stegen som pelare.
@@ -843,7 +864,7 @@ def build_commands(cats, disp, dog_name):
     _pkfz = _pkz0 + _pk_platforms[-1][2]
     c.append(f"structure load haven:parkourchest {_pkfx} {_pkfy + 1} {_pkfz}")
     c.append(("sleep", 1))
-    c.append(f"testforblock {_pkx0} {f + 8} {_pkz0} spruce_planks")    # startplattformen
+    c.append(f"testforblock {_pkx0} {f + 4} {_pkz0} spruce_planks")    # startplattformen
     c.append(f"testforblock {_pkfx} {_pkfy} {_pkfz} spruce_planks")    # målplattformen
     c.append(f"testforblock {_pkfx} {_pkfy + 1} {_pkfz} chest")        # prisskistan
     c.append(("sleep", 1))
@@ -1012,14 +1033,14 @@ def build_commands(cats, disp, dog_name):
     # av bygget. Fyra smala remsor (en per kant) istället för en stor ruta
     # håller varje enskild tickingarea gott under gränsen.
     _forest_kinds = ["tree", "darktree", "sprucetree", "birchtree"]
-    _fx0, _fx1, _fz0, _fz1 = -63, 98, -24, 96   # ram runt hela kartan
+    _fx0, _fx1, _fz0, _fz1 = -63, 125, -24, 96   # ram runt hela kartan (125: kattbanan når x=113)
     c.append(f"tickingarea add -65 {g-4} -26 -61 {g+30} 98 ramvast")
     c.append(("sleep", 4))
-    c.append(f"tickingarea add 96 {g-4} -26 100 {g+30} 98 ramost")
+    c.append(f"tickingarea add 123 {g-4} -26 127 {g+30} 98 ramost")
     c.append(("sleep", 4))
-    c.append(f"tickingarea add -65 {g-4} -26 100 {g+30} -22 ramnord")
+    c.append(f"tickingarea add -65 {g-4} -26 127 {g+30} -22 ramnord")
     c.append(("sleep", 4))
-    c.append(f"tickingarea add -65 {g-4} 94 100 {g+30} 98 ramsyd")
+    c.append(f"tickingarea add -65 {g-4} 94 127 {g+30} 98 ramsyd")
     c.append(("sleep", 4))
     _ring = []
     for rx in range(_fx0, _fx1 + 1, 5):

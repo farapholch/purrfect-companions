@@ -322,7 +322,7 @@ system.runInterval(() => {
       const L = pl.location;
       if (L.y > -46 && Math.hypot(L.x - 0, L.z - 56) < 7) give(pl, "fyrvaktaren");
       if (L.y > -52 && Math.hypot(L.x - 26, L.z - 80) < 5) give(pl, "bergsbestigaren");
-      if (L.y > -52 && Math.hypot(L.x - 88, L.z - 10) < 4) give(pl, "hinderbanan");
+      if (L.y > -58 && Math.hypot(L.x - 113, L.z - 10) < 4) give(pl, "hinderbanan");
       if (Math.hypot(L.x - 65, L.z - 49) < 3 && L.y < -60) give(pl, "djuphavsdykaren");
       // HANDELSPOSTEN: lämna in skattletarnas fynd mot en belöning
       // (speltest-önskemål: "treasure trading post") — sköter sig själv,

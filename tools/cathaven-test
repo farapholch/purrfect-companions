@@ -157,7 +157,7 @@ PY
   sed -i "s/^level-name=.*/level-name=CatHavenSmoke/" "$PROPS"
   SLOG=/tmp/cathaven-smoke.log
   { sleep 28
-    echo "tickingarea add -58 -70 -10 95 -40 60 rök"; sleep 4
+    echo "tickingarea add -58 -70 -10 120 -40 60 rök"; sleep 4
     echo "tickingarea add -58 -70 60 42 -40 92 kula"; sleep 4
     echo "testforblock -4 -59 9 chest"; sleep 1
     echo "testforblock 12 -60 7 mjau:fiskdamm"; sleep 1
@@ -187,9 +187,9 @@ PY
     echo "testforblock -39 -60 79 chest"; sleep 1          # skogslundens kista
     echo "testforblock 26 -48 80 chest"; sleep 1           # bergstoppens utsiktskista
     echo "testforblock 26 -49 80 snow"; sleep 1            # bergets snötäcke
-    echo "testforblock 56 -52 10 spruce_planks"; sleep 1   # kattbanans startplattform
-    echo "testforblock 88 -49 10 spruce_planks"; sleep 1   # kattbanans målplattform
-    echo "testforblock 88 -48 10 chest"; sleep 1           # kattbanans prisskista
+    echo "testforblock 56 -56 10 spruce_planks"; sleep 1   # kattbanans startplattform
+    echo "testforblock 113 -53 10 spruce_planks"; sleep 1  # kattbanans målplattform
+    echo "testforblock 113 -52 10 chest"; sleep 1          # kattbanans prisskista
     echo "testforblock 54 -60 10 standing_sign"; sleep 1   # kattbaneskylten
     echo "testforblock 61 -62 40 water"; sleep 1           # sjön
     echo "testforblock 65 -62 46 air"; sleep 1             # sjötunneln

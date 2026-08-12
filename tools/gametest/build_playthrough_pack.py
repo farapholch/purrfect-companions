@@ -300,10 +300,10 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   ok("KAPITEL 9 OK - alla sex regnbagsband hittade (Regnbagssamlaren kvitteras i serverloggen)");
 
   // KAPITEL 10 — kattbanan: flytande plattformar, start till mal
-  if (B(56, -52, 10) !== "minecraft:spruce_planks") return done("kattbanans startplattform saknas", false);
-  if (B(88, -49, 10) !== "minecraft:spruce_planks") return done("kattbanans malplattform saknas", false);
-  if (B(88, -48, 10) !== "minecraft:chest") return done("kattbanans prisskista saknas", false);
-  await tp(88, -47, 10);
+  if (B(56, -56, 10) !== "minecraft:spruce_planks") return done("kattbanans startplattform saknas", false);
+  if (B(113, -53, 10) !== "minecraft:spruce_planks") return done("kattbanans malplattform saknas", false);
+  if (B(113, -52, 10) !== "minecraft:chest") return done("kattbanans prisskista saknas", false);
+  await tp(113, -51, 10);
   // Hinderbanan ar platsbaserad (samma monster som fyrvaktaren/bergsbestigaren)
   // — sim-spelaren kan inte verifiera sitt eget hasAward har (kand begransning,
   // se Trippelskatten-kommentaren ovan). Att na malplattformen bevisar att

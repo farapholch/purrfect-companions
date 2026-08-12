@@ -784,6 +784,14 @@ def build_commands(cats, disp, dog_name):
         (16, 10, 0), (20, 10, 3), (24, 11, 0), (28, 11, 3),
         (32, 11, 0),   # mål
     ]
+    # Xbox-rapport: "steg delar ligger på backen" — stegen stod helt fritt i
+    # luften utan stöd på någon sida (till skillnad från källarschaktets
+    # stege, som redan har väggar runt sig från rummet den står i). Stockar
+    # på tre sidor (norr/söder/öster) ger stegen ett riktigt fäste oavsett
+    # exakt facing_direction-tolkning; västsidan lämnas öppen eftersom
+    # grusstigen anländer österut (spelaren går in från x<56).
+    for sdx, sdz in ((1, 0), (0, 1), (0, -1)):
+        c.append(f"fill {_pkx0+sdx} {f} {_pkz0+sdz} {_pkx0+sdx} {f+7} {_pkz0+sdz} stripped_spruce_log")
     c.append(f'fill {_pkx0} {f} {_pkz0} {_pkx0} {f+7} {_pkz0} ladder ["facing_direction"=2]')
     for i, (dx, dy, dz) in enumerate(_pk_platforms):
         px, py, pz = _pkx0 + dx, f + dy, _pkz0 + dz

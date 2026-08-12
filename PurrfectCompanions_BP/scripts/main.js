@@ -348,6 +348,25 @@ system.runInterval(() => {
 }, 100);
 
 // ---------------------------------------------------------------------------
+// MANTELNS STJÄRNGNISTER: speltest-fråga ("kommer det stjärnor när man
+// flyger?") — manteln gav bara fart+hopp, inget att SE. En katt med mantel
+// lämnar nu ett litet stjärnspår så länge den är i luften (charged jump).
+// Egen snabb loop (var 3:e tick) — huvudloopen (40 tick) är för gles för
+// att fånga ett hopp, som är över på under en sekund.
+system.runInterval(() => {
+  const d = world.getDimension("overworld");
+  let cats;
+  try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
+  for (const c of cats) {
+    try {
+      if (c.getProperty("mjau:mantel") > 0 && !c.isOnGround) {
+        d.spawnParticle("minecraft:end_rod", { x: c.location.x, y: c.location.y + 0.3, z: c.location.z });
+      }
+    } catch { }
+  }
+}, 3);
+
+// ---------------------------------------------------------------------------
 // KATTUNGAR: en nyfödd kattunge ärver ett namn efter sin förälder ("Baby
 // Maja" osv) i stället för att vara namnlös, och kommer i en hel kull
 // (2-3 ungar) i stället för bara en — speltest-önskemål ("kör kittens!

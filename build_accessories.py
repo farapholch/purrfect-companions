@@ -547,6 +547,26 @@ def build_rest():
                         {"effect":"glowing","duration":999999,"amplifier":0,
                          "display_on_screen_animation":False}]}}
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:kunglig_glod")
+                # ÖVRIGA SUPERKRAFTER (speltest-önskemål: "jag vill fortsätta" —
+                # samma effektmönster (spell_effects, mycket lång varaktighet i
+                # praktiken permanent), en distinkt vanilla-effekt per plagg.
+                _EXTRA_POWERS={
+                    "keps":("mjau:kepskraft","jump_boost"),
+                    "halsduk":("mjau:halsdukvarme","fire_resistance"),
+                    "glasogon":("mjau:glasogonskarpa","resistance"),
+                    "tossor":("mjau:tossorfart","speed"),
+                    "halsband":("mjau:halsbandssken","absorption"),
+                    "rosett":("mjau:rosettmod","strength"),
+                    "horn":("mjau:hornsvavning","slow_falling"),
+                    "haxhatt":("mjau:haxbrygd","water_breathing"),
+                    "tomteluva":("mjau:tomtegava","health_boost"),
+                }
+                if a in _EXTRA_POWERS:
+                    _grp,_eff=_EXTRA_POWERS[a]
+                    g[_grp]={"minecraft:spell_effects":{"add_effects":[
+                        {"effect":_eff,"duration":999999,"amplifier":0,
+                         "display_on_screen_animation":False}]}}
+                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append(_grp)
                 if cfg.get("rideable"):
                     # SADEL: ryttare på ryggen. Utesluter vagnläget — två aktiva
                     # rideable-definitioner ger odefinierat beteende.

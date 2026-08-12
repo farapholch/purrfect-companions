@@ -2245,6 +2245,114 @@
             }
           ]
         }
+      },
+      "mjau:kepskraft": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "jump_boost",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
+      },
+      "mjau:halsdukvarme": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "fire_resistance",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
+      },
+      "mjau:glasogonskarpa": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "resistance",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
+      },
+      "mjau:tossorfart": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "speed",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
+      },
+      "mjau:halsbandssken": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "absorption",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
+      },
+      "mjau:rosettmod": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "strength",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
+      },
+      "mjau:hornsvavning": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "slow_falling",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
+      },
+      "mjau:haxbrygd": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "water_breathing",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
+      },
+      "mjau:tomtegava": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "health_boost",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
       }
     },
     "events": {
@@ -2459,41 +2567,81 @@
       "mjau:on_keps_1": {
         "set_property": {
           "mjau:keps": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:kepskraft"
+          ]
         }
       },
       "mjau:on_keps_2": {
         "set_property": {
           "mjau:keps": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:kepskraft"
+          ]
         }
       },
       "mjau:on_keps_3": {
         "set_property": {
           "mjau:keps": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:kepskraft"
+          ]
         }
       },
       "mjau:on_keps_4": {
         "set_property": {
           "mjau:keps": 4
+        },
+        "add": {
+          "component_groups": [
+            "mjau:kepskraft"
+          ]
         }
       },
       "mjau:on_halsduk_1": {
         "set_property": {
           "mjau:halsduk": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:halsdukvarme"
+          ]
         }
       },
       "mjau:on_halsduk_2": {
         "set_property": {
           "mjau:halsduk": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:halsdukvarme"
+          ]
         }
       },
       "mjau:on_halsduk_3": {
         "set_property": {
           "mjau:halsduk": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:halsdukvarme"
+          ]
         }
       },
       "mjau:on_halsduk_4": {
         "set_property": {
           "mjau:halsduk": 4
+        },
+        "add": {
+          "component_groups": [
+            "mjau:halsdukvarme"
+          ]
         }
       },
       "mjau:on_ryggsack_1": {
@@ -2529,36 +2677,71 @@
       "mjau:on_glasogon_1": {
         "set_property": {
           "mjau:glasogon": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:glasogonskarpa"
+          ]
         }
       },
       "mjau:on_glasogon_2": {
         "set_property": {
           "mjau:glasogon": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:glasogonskarpa"
+          ]
         }
       },
       "mjau:on_glasogon_3": {
         "set_property": {
           "mjau:glasogon": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:glasogonskarpa"
+          ]
         }
       },
       "mjau:on_tossor_1": {
         "set_property": {
           "mjau:tossor": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:tossorfart"
+          ]
         }
       },
       "mjau:on_tossor_2": {
         "set_property": {
           "mjau:tossor": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:tossorfart"
+          ]
         }
       },
       "mjau:on_tossor_3": {
         "set_property": {
           "mjau:tossor": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:tossorfart"
+          ]
         }
       },
       "mjau:on_tossor_4": {
         "set_property": {
           "mjau:tossor": 4
+        },
+        "add": {
+          "component_groups": [
+            "mjau:tossorfart"
+          ]
         }
       },
       "mjau:on_vagn_1": {
@@ -2618,36 +2801,71 @@
       "mjau:on_halsband_1": {
         "set_property": {
           "mjau:halsband": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:halsbandssken"
+          ]
         }
       },
       "mjau:on_halsband_2": {
         "set_property": {
           "mjau:halsband": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:halsbandssken"
+          ]
         }
       },
       "mjau:on_halsband_3": {
         "set_property": {
           "mjau:halsband": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:halsbandssken"
+          ]
         }
       },
       "mjau:on_rosett_1": {
         "set_property": {
           "mjau:rosett": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:rosettmod"
+          ]
         }
       },
       "mjau:on_rosett_2": {
         "set_property": {
           "mjau:rosett": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:rosettmod"
+          ]
         }
       },
       "mjau:on_rosett_3": {
         "set_property": {
           "mjau:rosett": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:rosettmod"
+          ]
         }
       },
       "mjau:on_rosett_4": {
         "set_property": {
           "mjau:rosett": 4
+        },
+        "add": {
+          "component_groups": [
+            "mjau:rosettmod"
+          ]
         }
       },
       "mjau:on_vingar_1": {
@@ -2683,16 +2901,31 @@
       "mjau:on_horn_1": {
         "set_property": {
           "mjau:horn": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:hornsvavning"
+          ]
         }
       },
       "mjau:on_horn_2": {
         "set_property": {
           "mjau:horn": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:hornsvavning"
+          ]
         }
       },
       "mjau:on_horn_3": {
         "set_property": {
           "mjau:horn": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:hornsvavning"
+          ]
         }
       },
       "mjau:on_rustning_1": {
@@ -2778,21 +3011,41 @@
       "mjau:on_haxhatt_1": {
         "set_property": {
           "mjau:haxhatt": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:haxbrygd"
+          ]
         }
       },
       "mjau:on_haxhatt_2": {
         "set_property": {
           "mjau:haxhatt": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:haxbrygd"
+          ]
         }
       },
       "mjau:on_tomteluva_1": {
         "set_property": {
           "mjau:tomteluva": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:tomtegava"
+          ]
         }
       },
       "mjau:on_tomteluva_2": {
         "set_property": {
           "mjau:tomteluva": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:tomtegava"
+          ]
         }
       },
       "mjau:on_doktorsrock_1": {

@@ -348,23 +348,47 @@ system.runInterval(() => {
 }, 100);
 
 // ---------------------------------------------------------------------------
-// MANTELNS STJÄRNGNISTER: speltest-fråga ("kommer det stjärnor när man
-// flyger?") — manteln gav bara fart+hopp, inget att SE. En katt med mantel
-// lämnar nu ett litet stjärnspår så länge den är i luften (charged jump).
-// Egen snabb loop (var 3:e tick) — huvudloopen (40 tick) är för gles för
-// att fånga ett hopp, som är över på under en sekund.
+// SUPERKRAFTS-EFFEKTER I LUFTEN: speltest-fråga ("kommer det stjärnor när
+// man flyger?", "får vi animeringar med de andra superkrafterna också?").
+// Skiljer på STIGANDE (mantelns laddade hopp — stjärnor, "jag hoppar högt!")
+// och FALLANDE (vingar/batvingar/horn — glitter, "jag landar mjukt!") via
+// lodrät hastighet. Egen snabb loop (var 3:e tick) — huvudloopen (40 tick)
+// är för gles för att fånga ett hopp, som är över på under en sekund.
 system.runInterval(() => {
   const d = world.getDimension("overworld");
   let cats;
   try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
   for (const c of cats) {
     try {
-      if (c.getProperty("mjau:mantel") > 0 && !c.isOnGround) {
+      if (c.isOnGround) continue;
+      let vy = 0;
+      try { vy = c.getVelocity().y; } catch { }
+      if (vy > 0 && c.getProperty("mjau:mantel") > 0) {
         d.spawnParticle("minecraft:end_rod", { x: c.location.x, y: c.location.y + 0.3, z: c.location.z });
+      }
+      if (vy < 0 && (c.getProperty("mjau:vingar") > 0 || c.getProperty("mjau:batvingar") > 0 || c.getProperty("mjau:horn") > 0)) {
+        d.spawnParticle("minecraft:totem_particle", { x: c.location.x, y: c.location.y + 0.5, z: c.location.z });
       }
     } catch { }
   }
 }, 3);
+
+// LÄKARROCKENS HJÄRTAN: samma fråga som ovan — konstant läkning hade inget
+// att se. Långsammare loop (var 60:e tick / 3s) eftersom effekten är
+// permanent, inte ett kort ögonblick som hoppet — ett hjärta då och då
+// räcker för att visa att det pågår utan att spamma.
+system.runInterval(() => {
+  const d = world.getDimension("overworld");
+  let cats;
+  try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
+  for (const c of cats) {
+    try {
+      if (c.getProperty("mjau:doktorsrock") > 0) {
+        d.spawnParticle("minecraft:heart_particle", { x: c.location.x, y: c.location.y + 0.8, z: c.location.z });
+      }
+    } catch { }
+  }
+}, 60);
 
 // ---------------------------------------------------------------------------
 // KATTUNGAR: en nyfödd kattunge ärver ett namn efter sin förälder ("Baby

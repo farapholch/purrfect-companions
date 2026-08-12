@@ -2203,6 +2203,14 @@
             }
           ]
         }
+      },
+      "mjau:supermantel": {
+        "minecraft:movement": {
+          "value": 0.68
+        },
+        "minecraft:horse.jump_strength": {
+          "value": 1.8
+        }
       }
     },
     "events": {
@@ -2766,21 +2774,41 @@
       "mjau:on_mantel_1": {
         "set_property": {
           "mjau:mantel": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:supermantel"
+          ]
         }
       },
       "mjau:on_mantel_2": {
         "set_property": {
           "mjau:mantel": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:supermantel"
+          ]
         }
       },
       "mjau:on_mantel_3": {
         "set_property": {
           "mjau:mantel": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:supermantel"
+          ]
         }
       },
       "mjau:on_mantel_4": {
         "set_property": {
           "mjau:mantel": 4
+        },
+        "add": {
+          "component_groups": [
+            "mjau:supermantel"
+          ]
         }
       },
       "mjau:on_matad": {

@@ -463,7 +463,9 @@ def build_rest():
 
     # entiteter: properties, events, interaktioner
     for f in sorted(glob.glob(f"{BP}/entities/*.json")):
-        d=json.load(open(f)); e=d["minecraft:entity"]; g=e["component_groups"]; ev=e["events"]
+        d=json.load(open(f)); e=d["minecraft:entity"]
+        if "component_groups" not in e: continue   # inte en klädbar katt (t.ex. vakthund.json)
+        g=e["component_groups"]; ev=e["events"]
         # client_sync ÄR NÖDVÄNDIG: utan den finns propertyn bara på servern och
         # render controllers (som körs på klienten) kan inte läsa query.property
         # → plaggen sätts på men syns aldrig. Ridning fungerade ändå, eftersom den
@@ -513,6 +515,17 @@ def build_rest():
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append(f"mjau:armored_{i}")
                     ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).extend(
                         [f"mjau:armored_{j}" for j in (1,2,3,4) if j!=i]+["mjau:armored"])
+                if a=="mantel":
+                    # SUPERKRAFTER (speltest-önskemål): manteln är inte bara stil —
+                    # en ridd katt blir snabbare och hoppar högre (samma charged-
+                    # jump-mekanik som redan bär katten upp fyrkullen/kattbanan,
+                    # bara starkare). Alla fyra färger ger samma kraft — manteln
+                    # är kraften, färgen är bara stilen. Ingen mutual exclusion
+                    # behövs mellan färgerna (samma grupp läggs bara till igen).
+                    g["mjau:supermantel"]={
+                        "minecraft:movement":{"value":0.68},
+                        "minecraft:horse.jump_strength":{"value":1.8}}
+                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:supermantel")
                 if cfg.get("rideable"):
                     # SADEL: ryttare på ryggen. Utesluter vagnläget — två aktiva
                     # rideable-definitioner ger odefinierat beteende.

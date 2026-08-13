@@ -1,0 +1,185 @@
+#!/bin/bash
+# Testar Stjärnhamnen: bygger båda varianterna från källan, kontrollerar det
+# paketerade artefaktet statiskt och bootar det i servern.
+#
+# Motsvarigheten till cathaven-test. Byggets egna testforblock bevisar att
+# blocken FINNS — det här steget fångar sådant bygget inte kan se: trasig
+# level.dat, fel paket-UUID:n, strukturer som läckt in i skeppade BP,
+# familjenamn i den publika filen, klippta skyltrader, och framför allt att
+# man faktiskt kan TA SIG FRAM (utkiken var oåtkomlig i tre versioner utan
+# att något test märkte det).
+set -u
+# EN Bedrock-server åt gången — vänta på låset i stället för att krocka.
+# Ärftligt: barnprocesserna (build_spaceworld.py ×2) tar inte låset igen.
+if [ "${BDS_LOCK_HELD:-}" != "1" ]; then
+  exec 9>/tmp/bds.lock; flock -w 1200 9 || { echo "kunde inte ta serverlåset"; exit 1; }
+  export BDS_LOCK_HELD=1
+fi
+SRC=/opt/purrfect-companions
+SRV=/opt/bds/server
+OUT=/tmp/hamn-test-out
+FAIL=0
+ok(){ echo "  ✅ $1"; }
+bad(){ echo "  ❌ $1"; FAIL=1; }
+
+echo "=== Stjärnhamnen-test $(date '+%F %H:%M') ==="
+
+echo
+echo "[1/3] Bygger båda varianterna (2 serverbyggen, ~3 min)"
+rm -rf "$OUT"
+for V in public private; do
+  if python3 "$SRC/build_spaceworld.py" "$V" "$OUT" > /tmp/hamn-test-$V.txt 2>&1; then
+    ok "variant $V: byggd + byggverifierad (kupol, korridor, hangar, utkik, 4 katter)"
+  else
+    sed 's/^/    /' /tmp/hamn-test-$V.txt | tail -6
+    bad "variant $V föll i bygget"
+  fi
+done
+
+echo
+echo "[2/3] Statisk kontroll av paketen"
+STAT=$(python3 - "$OUT" <<'PY'
+import glob, json, os, sys, tempfile, zipfile
+sys.path.insert(0, "/opt/purrfect-companions/tools/gametest")
+import nbt
+bad = []
+varldar = sorted(glob.glob(f"{sys.argv[1]}/*.mcworld"))
+if len(varldar) != 2: bad.append(f"väntade 2 världar, hittade {len(varldar)}")
+for w in varldar:
+    z = zipfile.ZipFile(w); namn = z.namelist(); fam = "familj" in w
+    with tempfile.NamedTemporaryFile(suffix=".dat", delete=False) as tf:
+        tf.write(z.read("level.dat")); p = tf.name
+    _, root = nbt.read_level_dat(p); os.unlink(p)
+    d = root.v
+    vill = "Stjärnhamnen" if fam else "Star Harbour"
+    # världsnamnet bär versionen — två identiska namn i listan fick
+    # speltestet att öppna FEL kopia (samma läxa som Cat Haven)
+    if not d["LevelName"].v.startswith(vill) or d["LevelName"].v == vill:
+        bad.append(f"{os.path.basename(w)}: LevelName '{d['LevelName'].v}' ska vara '{vill} <version>'")
+    if d["GameType"].v != 0: bad.append(f"{os.path.basename(w)}: GameType != survival")
+    if d["commandsEnabled"].v != 0: bad.append(f"{os.path.basename(w)}: fusk är PÅ i skeppad värld")
+    # inbäddade paket: UUID/version måste matcha manifesten
+    for sort, pack in (("behavior", "PurrfectCompanions_BP"), ("resource", "PurrfectCompanions_RP")):
+        ref = json.loads(z.read(f"world_{sort}_packs.json"))[0]
+        man = json.loads(z.read(f"{sort}_packs/{pack}/manifest.json"))["header"]
+        if ref["pack_id"] != man["uuid"]: bad.append(f"{os.path.basename(w)}: {sort}-UUID matchar inte")
+        if ref["version"] != man["version"]: bad.append(f"{os.path.basename(w)}: {sort}-version matchar inte")
+    if any("/structures/" in n for n in namn):
+        bad.append(f"{os.path.basename(w)}: byggstrukturer har läckt in i skeppat BP")
+    if "world_icon.jpeg" not in namn:
+        bad.append(f"{os.path.basename(w)}: world_icon.jpeg saknas")
+    elif z.read("world_icon.jpeg")[:2] != b"\xff\xd8":
+        bad.append(f"{os.path.basename(w)}: world_icon.jpeg är inte en JPEG")
+    # EGEN ikon: Stjärnhamnen ärvde Cat Havens och båda såg likadana ut
+    elif os.path.exists("/tmp/cathaven-world-icon.jpeg") and \
+         z.read("world_icon.jpeg") == open("/tmp/cathaven-world-icon.jpeg", "rb").read():
+        bad.append(f"{os.path.basename(w)}: använder Cat Havens ikon, inte sin egen")
+    # familjenamn får ALDRIG finnas i den publika världen
+    if not fam:
+        blob = b" ".join(z.read(n) for n in namn if n.endswith((".json", ".lang")))
+        for privat in (b"vinda", b"vilma", b"lillen", b"maja"):
+            if privat in blob.lower():
+                bad.append(f"{os.path.basename(w)}: privat namn '{privat.decode()}' i publik värld")
+# loggboken och skyltarna: parse:a byggstrukturerna och kontrollera innehållet.
+# Skyltrader över ~15 tecken KLIPPS i spelet.
+for variant, titel in (("public", "The Harbourmaster's Log"), ("private", "Hamnmästarens loggbok")):
+    bocker = skyltar = 0
+    for p in glob.glob(f"/tmp/hamn-buildbp-{variant}/structures/hamn/*.mcstructure"):
+        data = open(p, "rb").read()
+        root, _ = nbt._read(data, 3 + len("".encode()), nbt.TAG_COMPOUND)
+        pos = root.v["structure"].v["palette"].v["default"].v["block_position_data"].v
+        for entry in pos.values():
+            be = entry.v["block_entity_data"].v
+            if be["id"].v == "Chest":
+                for it in be["Items"].v[1]:
+                    if it.v["Name"].v == "minecraft:written_book":
+                        tag = it.v["tag"].v
+                        if tag["title"].v == titel and len(tag["pages"].v[1]) >= 5: bocker += 1
+            if be["id"].v == "Sign":
+                txt = be["FrontText"].v["Text"].v
+                if txt: skyltar += 1
+                for rad in txt.split("\n"):
+                    if len(rad) > 15:
+                        bad.append(f"{variant}: skyltrad '{rad}' är {len(rad)} tecken — klipps i spelet")
+    if bocker != 1: bad.append(f"{variant}: loggboken saknas/fel titel i startkistan")
+    if skyltar < 8: bad.append(f"{variant}: bara {skyltar}/8 skyltar med text (4 platsskyltar + 4 kattnamn)")
+print("\n".join(bad))
+PY
+)
+if [ -n "$STAT" ]; then echo "$STAT" | while read -r l; do bad "$l"; done; FAIL=1
+else ok "level.dat, paket-UUID:n, egen ikon, inga läckta strukturer, inga privata namn publikt, loggbok + skyltar"; fi
+
+echo
+echo "[3/3] Bootar den paketerade publika världen (~1 min)"
+W=$(ls "$OUT"/purrfect-star-harbour-*.mcworld 2>/dev/null | head -1)
+if [ -z "$W" ]; then bad "ingen publik .mcworld att boota"; else
+  SMOKE="$SRV/worlds/StarHarbourSmoke"
+  rm -rf "$SMOKE"; mkdir -p "$SMOKE"
+  ( cd "$SMOKE" && unzip -qq "$W" )
+  # skeppad värld har fusk AV — slå på i testkopian så konsolen kan verifiera
+  python3 - "$SMOKE" <<'PY'
+import sys
+sys.path.insert(0, "/opt/purrfect-companions/tools/gametest")
+import nbt
+v, root = nbt.read_level_dat(f"{sys.argv[1]}/level.dat")
+root.v["commandsEnabled"] = nbt.Val(nbt.TAG_BYTE, 1)
+nbt.write_level_dat(f"{sys.argv[1]}/level.dat", v, root)
+PY
+  pkill -9 -x bedrock_server 2>/dev/null; sleep 2
+  PROPS="$SRV/server.properties"; cp "$PROPS" /tmp/hamn-props.bak
+  sed -i "s/^level-name=.*/level-name=StarHarbourSmoke/" "$PROPS"
+  SLOG=/tmp/hamn-smoke.log
+  { sleep 28
+    echo "tickingarea add -20 -70 -20 60 -20 40 station"; sleep 4
+    # KUPOLEN
+    echo "testforblock 0 -52 0 glass"; sleep 1            # kupoltaket
+    echo "testforblock -3 -60 3 chest"; sleep 1           # startkistan
+    echo "testforblock -8 -60 -8 mjau:kattbadd"; sleep 1  # kattbäddarna
+    echo "testforblock 0 -61 0 sea_lantern"; sleep 1      # navet
+    # KORRIDOREN
+    echo "testforblock 21 -57 0 sea_lantern"; sleep 1     # takbelysningen
+    echo "testforblock 14 -60 -2 chest"; sleep 1          # bladfack: blått
+    echo "testforblock 32 -60 2 chest"; sleep 1           # bladfack: grönt
+    # HANGAREN
+    echo "testforblock 47 -59 0 chest"; sleep 1           # skyttelns lastrum
+    echo "testforblock 45 -57 0 glass"; sleep 1           # cockpitfönstret
+    echo "testforblock 39 -57 -12 blackstone"; sleep 1    # jaktplan 1, vingpanel
+    echo "testforblock 39 -57 12 blackstone"; sleep 1     # jaktplan 2, vingpanel
+    echo "testforblock 36 -60 -12 chest"; sleep 1         # bladfack: rött
+    # UTKIKEN — vägen dit, inte bara att däcket finns
+    echo "testforblock 0 -52 17 ladder"; sleep 1          # servicestegen i schaktet
+    echo "testforblock 0 -45 17 air"; sleep 1             # luckan i däcksgolvet
+    echo "testforblock 0 -45 16 quartz_block"; sleep 1    # däcket
+    echo "testforblock 4 -44 19 chest"; sleep 1           # bladfack: lila
+    # KATTERNA + kistprovet
+    echo "testfor @e[type=mjau:misty,x=-6,y=-60,z=6,r=40]"; sleep 1
+    echo "setblock -3 -60 3 air destroy"; sleep 2
+    echo "testfor @e[type=item,x=-3,y=-60,z=3,r=8]"; sleep 1
+    echo "tickingarea remove station"; sleep 1
+    echo "stop"; sleep 8
+  } | ( cd "$SRV" && LD_LIBRARY_PATH=. ./bedrock_server ) > "$SLOG" 2>&1
+  pkill -9 -x bedrock_server 2>/dev/null
+  cp /tmp/hamn-props.bak "$PROPS"
+  grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" \
+    || bad "paketen laddades INTE ur världen"
+  FB=$(grep -c 'found the block' "$SLOG")
+  [ "$FB" -ge 16 ] && ok "alla $FB/16 nyckelblock finns (kupol, startkista, bäddar, nav, korridorljus, 4 bladfack, skyttel, cockpit, 2 jaktplan, stege, lucka, däck)" \
+    || bad "bara $FB/16 nyckelblock i den paketerade världen"
+  grep -q "Found " "$SLOG" && ok "katterna överlevde paketeringen (namngivna, persistenta)" \
+    || bad "katterna saknas i den paketerade världen"
+  # kistprovet: bara riktiga, accepterade föremål trillar ut som item-entiteter.
+  # Vägrar Minecraft NBT:n (fel format, okänt id) blir golvet tomt.
+  # Leta efter LOGGBOKENS namn specifikt — den bär den känsligaste NBT:n
+  # (titel, författare, sidlista). Trillar den ut är resten med säkerhet ok.
+  if grep -q "The Harbourmaster's Log" "$SLOG"; then
+    ok "kistföremålen är riktiga — loggboken trillade ut vid kistprovet"
+  else
+    bad "kistprovet: loggboken föll inte ur kistan — NBT-innehållet avvisades?"
+  fi
+  grep -cE "ERROR" "$SLOG" | grep -q '^0$' && ok "inga fel i serverloggen" \
+    || bad "$(grep -c ERROR "$SLOG") fel-rader i serverloggen ($SLOG)"
+fi
+
+echo
+if [ "$FAIL" -eq 0 ]; then echo "=== STJÄRNHAMNEN GRÖNT ==="; exit 0; fi
+echo "=== FEL HITTADE ==="; exit 1

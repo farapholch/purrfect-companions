@@ -1,0 +1,56 @@
+#!/bin/bash
+# Laddar upp den PUBLIKA Cat Haven-världen till CurseForge (Worlds-projektet).
+# Motsvarigheten till purrfect-ship --curseforge, fast för världen i stället
+# för add-onet. Skapad 2026-08-13.
+#
+# VIKTIGT: kör ALDRIG det här utan att Pelle uttryckligen bett om en release
+# i stunden — se minnesnoteringen curseforge-upload-blocked. Skriptet har
+# medvetet ingen version-guard; hela ansvaret ligger på att vänta på hans ord.
+#
+# Användning:  cathaven-ship            # laddar upp .mcworld
+#              cathaven-ship --template # laddar upp .mctemplate i stället
+set -u
+SRC=/opt/purrfect-companions
+OUT=/tmp/cathaven-test-out
+CF_TOKEN_FILE=$SRC/.curseforge-token
+CF_PROJECT=$(tr -d '[:space:]' < "$SRC/.curseforge-cathaven-id")
+CHANGELOG=$SRC/publish/cathaven-changelog.md
+KIND="mcworld"
+[ "${1:-}" = "--template" ] && KIND="mctemplate"
+
+FILE=$(ls "$OUT"/purrfect-cat-haven-*."$KIND" 2>/dev/null | head -1)
+if [ -z "$FILE" ]; then
+  echo "❌ ingen publik .$KIND i $OUT — kör tools/cathaven-test först"; exit 1
+fi
+VER=$(basename "$FILE" | sed -E 's/.*-v([0-9.]+)\..*/\1/')
+echo "📦 $(basename "$FILE") (v$VER, $(du -k "$FILE" | cut -f1) KB)"
+
+# publika världen får ALDRIG innehålla familjenamnen — samma spärr som
+# publish_site.sh. Billig försäkring innan filen går ut publikt.
+if unzip -qq -p "$FILE" 2>/dev/null | grep -qiE "vinda|vilma|lillen"; then
+  echo "❌ AVBRYTER: privata kattnamn i den publika filen"; exit 1
+fi
+
+METAFILE=/tmp/cathaven-cf-meta.json
+python3 - "$VER" "$KIND" "$CHANGELOG" "$METAFILE" <<'PYMETA'
+import json, sys
+ver, kind, clog, out = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+label = "Cat Haven" if kind == "mcworld" else "Cat Haven (world template)"
+meta = {"changelog": open(clog, encoding="utf-8").read(),
+        "changelogType": "markdown",
+        "displayName": f"{label} {ver}",
+        "releaseType": "release"}
+# gameVersions utelämnas medvetet — Bedrock-projekt avvisar fältet
+# ("Invalid game version ID ... belongs to an invalid game"), se purrfect-ship.
+json.dump(meta, open(out, "w", encoding="utf-8"))
+print(f"   metadata: {len(meta['changelog'])} tecken changelog")
+PYMETA
+
+echo "☁️  laddar upp till CurseForge-projekt $CF_PROJECT ..."
+RESP=$(curl -s --max-time 180 -X POST \
+  -H "X-Api-Token: $(cat $CF_TOKEN_FILE)" \
+  -F "metadata=<$METAFILE" -F "file=@$FILE" \
+  "https://bedrock.curseforge.com/api/projects/$CF_PROJECT/upload-file")
+echo "   svar: $RESP"
+echo "$RESP" | grep -q '"id"' && echo "✅ uppladdad till CurseForge" \
+  || { echo "❌ CurseForge-uppladdning misslyckades"; exit 1; }

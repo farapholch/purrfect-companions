@@ -79,7 +79,7 @@ TEXTS = {
             "TASK 6 - THREE KEYS, ONE TREASURE\n\nA path leaves the road and runs east, past a meadow loud with bees, into a cave that glitters, and on to a wood hiding one more secret. A key waits in each.\n\nBut look again at the pond behind the house - there is a small dry island in it, and something waits there too. That is your third key.\n\nThree keys, three places. Carry all three at once and see what happens.\n\nAnd past the meadow, a mountain rises with snow on its head. Whatever is waiting at the top is worth the climb.",
             "TASK 7 - THE CAT PARKOUR\n\nPast the crystal cave, a gravel path keeps going east to a little wooden course lit by lanterns, floating platform to platform.\n\nRide and jump all the way to the far end. The last few jumps are wide and the platforms are narrow - take a run-up. Something is waiting for you there.",
             "TASK 8 - THE DEEP LAKE\n\nEast of everything else, past the meadow and the mountain, a lake hides more than fish. Dive to the bottom and swim through the tunnel - hold your breath.\n\nSomething waits in the dark at the far end.",
-            "TASK 9 - THE TRADING POST\n\nA backpack cat's finds pile up fast. There is a barrel behind the house, east of the garden, that will take three string, three feathers and a diamond off your hands - and give something back.",
+            "TASK 9 - THE TRADING POST\n\nA backpack cat's finds pile up fast. There is a barrel behind the house, east of the garden, that will take three string, three feathers and a diamond off your hands - and give something back.\n\nThe first trade brings out my old CAPE. Put it on a cat and go for a ride - you will see why I kept it.",
             "The beds inside carry the cats' names. Cat treats cheer them up when their tails droop - the recipe is sugar, wheat and cod.\n\nTake good care of them.\n\nAnd mind the boxes. Some hide more than dust.\n\nKeep your eyes open as you go, too - six coloured ribbons are hiding in places you already visit. Carry all six at once for a surprise.\n\n- The Old Caretaker",
             "One more thing, if you will believe an old man.\n\nThe cats used to tell of a FIFTH - black as the gap between the stars, with eyes of amber.\n\nShe shows herself only to those who leave the SILVER FISH from the lighthouse chest on a cat's bed while the moon stands at its highest.",
         ],
@@ -121,7 +121,7 @@ TEXTS = {
             "UPPDRAG 6 - TRE NYCKLAR, EN SKATT\n\nEn stig lämnar vägen österut, förbi en äng full av surrande bin, in i en glittrande grotta, och vidare till en skog som gömmer en sak till. En nyckel väntar i var och en.\n\nMen titta en gång till på dammen bakom huset - där finns en liten torr ö, och något väntar där också. Det är din tredje nyckel.\n\nTre nycklar, tre platser. Bär alla tre samtidigt och se vad som händer.\n\nOch bortom ängen reser sig ett berg med snö på huvudet. Vad som än väntar på toppen är värt klättringen.",
             "UPPDRAG 7 - KATTBANAN\n\nBortom kristallgrottan fortsätter en grusstig österut till en liten lyktbelyst bana av trä, med plattformar som flyter i luften.\n\nRid och hoppa hela vägen till andra änden. De sista hoppen är breda och plattformarna smala - ta sats. Något väntar på dig där.",
             "UPPDRAG 8 - DEN DJUPA SJÖN\n\nÖster om allt annat, förbi ängen och berget, gömmer en sjö mer än fisk. Dyk till botten och simma genom tunneln - håll andan.\n\nNågot väntar i mörkret vid andra änden.",
-            "UPPDRAG 9 - HANDELSPOSTEN\n\nEn ryggsäckskatts fynd hopar sig fort. Det finns en tunna bakom huset, öster om täppan, som tar emot tre snören, tre fjädrar och en diamant - och ger något tillbaka.",
+            "UPPDRAG 9 - HANDELSPOSTEN\n\nEn ryggsäckskatts fynd hopar sig fort. Det finns en tunna bakom huset, öster om täppan, som tar emot tre snören, tre fjädrar och en diamant - och ger något tillbaka.\n\nFörsta bytet plockar fram min gamla MANTEL. Sätt den på en katt och rid ut - då förstår du varför jag behöll den.",
             "Sängarna därinne bär katternas namn. Kattgodis piggar upp dem när svansen hänger - receptet är socker, vete och torsk.\n\nTa väl hand om dem.\n\nOch se upp med lådorna. Vissa gömmer mer än damm.\n\nHåll ögonen öppna medan du utforskar också - sex färgade band gömmer sig på platser du redan besökt. Bär alla sex samtidigt för en överraskning.\n\n- Gamla föreståndaren",
             "En sak till, om du tror en gammal man.\n\nKatterna berättade om en FEMTE - svart som mellanrummet mellan stjärnorna, med ögon av bärnsten.\n\nHon visar sig bara för den som lämnar SILVERFISKEN ur fyrens kista på en kattbädd när månen står som högst.",
         ],
@@ -944,7 +944,13 @@ def build_commands(cats, disp, dog_name):
     c.append(f"setblock 5 {f+5} 15 air")                     # luckhålet över stegen
     c.append(f'fill 5 {f+2} 15 5 {f+4} 15 ladder ["facing_direction"=4]')
     c.append(("sleep", 1))
-    c.append(f"structure load haven:atticchest 3 {f+6} 13")
+    # Xbox-rapport: "man kunde ta kistan på vinden från golvet" — kistan låg
+    # på z13, loftets YTTERSTA rad mot den öppna entréhalvan (z9-12 saknar
+    # golv hela vägen upp till nocken). Flyttad till z14, en rad längre in,
+    # så det inte går att nå den från den öppna halvan. z15+ går inte:
+    # baksluttningens trappa på f+7 skulle ligga direkt ovanpå kistan och
+    # då går den inte att öppna alls.
+    c.append(f"structure load haven:atticchest 0 {f+6} 14")
     c.append(f"setblock -3 {f+6} 15 mjau:kattbadd")
     c.append(f"setblock 0 {f+6} 15 mjau:garnnystan")
     c.append(f'setblock -5 {f+6} 14 soul_lantern ["hanging"=false]')
@@ -953,7 +959,7 @@ def build_commands(cats, disp, dog_name):
     c.append(("sleep", 1))
     c.append(f"testforblock 0 {f+5} 14 spruce_planks")   # loftgolvet
     c.append(f"testforblock 5 {f+3} 15 ladder")          # gavelstegen
-    c.append(f"testforblock 3 {f+6} 13 chest")           # vindskistan
+    c.append(f"testforblock 0 {f+6} 14 chest")           # vindskistan
     c.append(("sleep", 1))
     c.append(f"structure load haven:welcome 1 {f} 1")
     c.append(("sleep", 1))

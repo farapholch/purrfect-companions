@@ -198,7 +198,7 @@ PY
     echo "testforblock 61 -60 35 standing_sign"; sleep 1   # sjöskylten
     echo "testforblock 0 -55 14 spruce_planks"; sleep 1    # vindsloftet
     echo "testforblock 5 -57 15 ladder"; sleep 1           # gavelstegen till vinden
-    echo "testforblock 3 -54 13 chest"; sleep 1            # vindskistan (netherite)
+    echo "testforblock 0 -54 14 chest"; sleep 1            # vindskistan (netherite)
     echo "testforblock 20 -60 15 spruce_fence"; sleep 1    # grind A stängd (ängen)
     echo "testforblock 44 -60 10 spruce_fence"; sleep 1    # grind B stängd (kattbanan)
     echo "testforblock 65 -62 45 iron_bars"; sleep 1       # grind C stängd (sjögallret)

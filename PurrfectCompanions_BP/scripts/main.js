@@ -390,12 +390,24 @@ system.runInterval(() => {
       if (Math.hypot(L.x - 10, L.z + 11) < 3 && L.y > -62 && L.y < -58 &&
           countItem(pl, "minecraft:string") >= 3 && countItem(pl, "minecraft:feather") >= 3 &&
           countItem(pl, "minecraft:diamond") >= 1) {
+        // FÖRSTA bytet ger MANTELN (speltest-fråga: "finns det en supermantel
+        // i världen?" — nej, den var enda superkraften som bara gick att
+        // crafta). Efterföljande byten ger smaragder som förut, så posten
+        // förblir användbar när skattletarna gräver upp mer.
+        const forstaBytet = !hasAward(pl, "handelsman");
         consumeItem(pl, "minecraft:string", 3);
         consumeItem(pl, "minecraft:feather", 3);
         consumeItem(pl, "minecraft:diamond", 1);
-        try { pl.getComponent("minecraft:inventory")?.container.addItem(new ItemStack("minecraft:emerald", 5)); } catch { }
+        try {
+          const inv = pl.getComponent("minecraft:inventory")?.container;
+          inv?.addItem(new ItemStack(forstaBytet ? "mjau:mantel_lila" : "minecraft:emerald", forstaBytet ? 1 : 5));
+        } catch { }
         try { pl.playSound("random.levelup"); } catch { }
-        try { pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.trade.done" }] }); } catch { }
+        try {
+          pl.onScreenDisplay.setActionBar({
+            rawtext: [{ translate: forstaBytet ? "mjau.trade.mantel" : "mjau.trade.done" }]
+          });
+        } catch { }
         give(pl, "handelsman");
       }
       // FANFAR per band: en liten stund vid varje NY färg, skild från de

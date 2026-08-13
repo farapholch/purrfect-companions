@@ -190,6 +190,49 @@ gt.registerAsync("mjau", "vagn", async (test) => {
   .structureName("mjau:arena")
   .maxTicks(2400);
 
+// SATESHOJD PER KATTSTORLEK. Xbox-rapport: "man sitter pa huvudet ibland,
+// Maja verkar ha det problemet". Katterna har OLIKA skala (mocha 0.85,
+// misty/hazel 1.0, snow/Maja 1.15) men sitspositionen ar hardkodad till
+// samma varde i alla. Fragan matningen svarar pa: skalar Bedrock sjalv
+// sitspositionen med minecraft:scale, eller ligger den fast i block?
+// Ryggens topp i modellen ar y=9 enheter = 0.5625 block vid skala 1.0.
+gt.registerAsync("mjau", "sate", async (test) => {
+  const p = test.spawnSimulatedPlayer({ x: 20, y: 2, z: 18 }, "GTSate");
+  await test.idle(20);
+  const rader = [];
+  for (const [typ, skala] of [["mjau:mocha", 0.85], ["mjau:misty", 1.0], ["mjau:snow", 1.15]]) {
+    const cat = test.spawn(typ, { x: 20, y: 2, z: 21 });
+    await test.idle(10);
+    // genvag forbi filterkedjan: den testas redan av "interakt"-testet
+    cat.triggerEvent("mjau:on_tame");
+    await test.idle(5);
+    cat.triggerEvent("mjau:on_sadel_1");
+    await test.idle(10);
+    for (let i = 0; i < 8; i++) {
+      p.teleport({ x: cat.location.x + 1, y: cat.location.y, z: cat.location.z });
+      await test.idle(5);
+      p.interactWithEntity(cat);
+      await test.idle(10);
+      if (p.getComponent("minecraft:riding")?.entityRidingOn) break;
+    }
+    if (!p.getComponent("minecraft:riding")?.entityRidingOn)
+      return done(test, `kunde inte sitta upp pa ${typ}`, false);
+    const up = p.location.y - cat.location.y;
+    const rygg = 0.5625 * skala;          // ryggens topp vid den har skalan
+    rader.push(`${typ} skala=${skala} up=${up.toFixed(3)} rygg=${rygg.toFixed(3)} diff=${(up - rygg).toFixed(3)}`);
+    console.warn(`[MJAU-GT] sate ${typ}: skala=${skala} up=${up.toFixed(3)} ryggtopp=${rygg.toFixed(3)} diff=${(up - rygg).toFixed(3)}`);
+    try { p.stopRiding(); } catch { }
+    await test.idle(5);
+    try { cat.remove(); } catch { }
+    await test.idle(5);
+  }
+  // Ingen FAIL an: forsta korningen ar en MATNING som avgor om sitsen maste
+  // skalas per katt. Assertion sats nar facit finns (se raderna ovan).
+  done(test, "sateshojd matt for alla tre kattstorlekar: " + rader.join(" | "), true);
+})
+  .structureName("mjau:arena")
+  .maxTicks(2400);
+
 gt.registerAsync("mjau", "ritual", async (test) => {
   // DEN HEMLIGA FEMTE KATTEN: en lax pa en kattbadd vid midnatt => Midnight.
   // Skriptet i skeppade BP:t skannar var 40:e tick — vanta in det.

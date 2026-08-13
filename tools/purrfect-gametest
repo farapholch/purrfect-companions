@@ -53,11 +53,12 @@ cd "$SRV"
   echo "gametest run mjau:interakt"
   echo "gametest run mjau:vagn"
   echo "gametest run mjau:ritual"
-  # vänta tills ALLA tre testen avgjorts
+  echo "gametest run mjau:sate"
+  # vänta tills ALLA fyra testen avgjorts
   for i in $(seq 1 80); do
     N=$(grep -cE "MJAU-GT\] (PASS|FAIL)" "$LOG" 2>/dev/null)
     grep -q "failed to create context" "$LOG" && break
-    [ "${N:-0}" -ge 3 ] && break
+    [ "${N:-0}" -ge 4 ] && break
     sleep 3
   done
   echo "stop"; sleep 5; } | LD_LIBRARY_PATH=. ./bedrock_server > "$LOG" 2>&1
@@ -65,8 +66,8 @@ pkill -9 -x bedrock_server 2>/dev/null
 
 grep -oE "\[MJAU-GT\].*" "$LOG" | sed 's/^/  /'
 PASSN=$(grep -c "MJAU-GT\] PASS" "$LOG")
-if [ "$PASSN" -ge 3 ] && ! grep -q "MJAU-GT\] FAIL" "$LOG"; then
-  echo "[gametest] ✅ PASS ($PASSN/3) — rida+styra, vagnen och midnattsritualen"
+if [ "$PASSN" -ge 4 ] && ! grep -q "MJAU-GT\] FAIL" "$LOG"; then
+  echo "[gametest] ✅ PASS ($PASSN/4) — rida+styra, vagnen, midnattsritualen och sateshojden"
   exit 0
 fi
 echo "[gametest] ❌ FAIL (logg: $LOG)"

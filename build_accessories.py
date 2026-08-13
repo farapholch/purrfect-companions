@@ -395,8 +395,18 @@ def build_rest():
     gmap={"default":"geometry.katt","empty":"geometry.katt.empty"}
     for a,cfg in ACC.items():
         for i in cfg["colors"]: gmap[f"{a}{i}"]=f"geometry.katt.{a}{i}"
+    # SÄKERHETSFIX 2026-08-13: loopen tog ALLA RP-entiteter och tvingade på dem
+    # kattgeometrin — vakthunden (varg-geometri, varg-textur) renderades som en
+    # katt. Bara klädbara katter ska röras; de känns igen på att deras
+    # BP-motsvarighet har mjau:saddled (dvs. kan bära plagg).
+    _katter=set()
+    for bf in glob.glob(f"{BP}/entities/*.json"):
+        be=json.load(open(bf))["minecraft:entity"]
+        if "mjau:saddled" in be.get("component_groups",{}):
+            _katter.add(be["description"]["identifier"])
     for f in glob.glob(f"{RP}/entity/*.json"):
         d=json.load(open(f)); desc=d["minecraft:client_entity"]["description"]
+        if desc.get("identifier") not in _katter: continue   # t.ex. vakthunden
         desc["geometry"]=gmap
         desc["render_controllers"]=["controller.render.katt"]+[f"controller.render.katt_{a}" for a in ACC]
         # animationer: gångcykel, svanssvaj, huvudet följer spelaren, hopkurad sittpose
@@ -411,7 +421,14 @@ def build_rest():
         json.dump(d,open(f,"w"),indent=2)
 
     # föremål, ikoner, recept, språk
-    for f in glob.glob(f"{BP}/items/*.json")+glob.glob(f"{BP}/recipes/*.json"): os.remove(f)
+    # SÄKERHETSFIX 2026-08-13: raderade tidigare ALLA items/*.json och
+    # recipes/*.json — även möblernas (kattbadd, matskal, fiskdamm ...) som
+    # ägs av build_blocks.py. Ett fristående körning slog alltså ut åtta
+    # orelaterade recept. Nu raderas bara det HÄR skriptet självt återskapar.
+    _mina = {f"{a}_{slug}" for a, cfg in ACC.items() for slug, _ in cfg["colors"].values()} | {"godis"}
+    for d_ in (f"{BP}/items", f"{BP}/recipes"):
+        for f in glob.glob(f"{d_}/*.json"):
+            if os.path.splitext(os.path.basename(f))[0] in _mina: os.remove(f)
     for f in glob.glob(f"{RP}/textures/items/pc_*.png"):
         if not any(f.endswith(f"pc_{c}.png") for c in ("misty","hazel","mocha","snow")): os.remove(f)
     it=json.load(open(f"{RP}/textures/item_texture.json"))
@@ -456,7 +473,13 @@ def build_rest():
     lang.append("action.interact.mount=Mount")
     # Bedrock bygger avstigningsprompten som action.hint.exit.<entity-id>; utan
     # egna nycklar visas den råa nyckeln på skärmen.
-    for c in ("misty","hazel","mocha","snow"):
+    # SÄKERHETSFIX 2026-08-13: listan var hårdkodad till de fyra grundkatterna,
+    # så de hemliga (midnight, aurora) och spökkatten tappade sina hint-rader
+    # varje gång generatorn kördes. Härleds nu ur BP-filerna i stället.
+    for _bf in sorted(glob.glob(f"{BP}/entities/*.json")):
+        _be=json.load(open(_bf))["minecraft:entity"]
+        if "mjau:saddled" not in _be.get("component_groups",{}): continue
+        c=_be["description"]["identifier"].split(":")[-1]
         lang.append(f"action.hint.exit.mjau:{c}=Dismount")
         lang.append(f"action.hint.exit.{c}=Dismount")
     json.dump(it,open(f"{RP}/textures/item_texture.json","w"),indent=2)  # skrivs om: godis-ikonen tillkom efter första dumpen
@@ -657,12 +680,19 @@ def build_rest():
     # konsol inte hamnar i fallback igen.
     for pack in ("PurrfectCompanions_BP","PurrfectCompanions_RP"):
         json.dump(["en_US","sv_SE"],open(f"{BASE}/{pack}/texts/languages.json","w"))
+    # SÄKERHETSFIX 2026-08-13: sv_SE.lang KOPIERADES tidigare rakt av från
+    # en_US, vilket raderade ALLA svenska rader skriptet inte äger — hela
+    # achievement-listan (Trippelskatten, Kattbanemästaren ...) blev engelsk.
+    # Nu behandlas filerna var för sig: bara plagg-/hint-raderna byts ut,
+    # allt annat står kvar som det är. (Plaggnamnen är engelska även i
+    # sv_SE — familjevarianten döper om dem via variants.private.json.)
     for pack in ("PurrfectCompanions_BP","PurrfectCompanions_RP"):
-        lp=f"{BASE}/{pack}/texts/en_US.lang"
-        keep=[l for l in open(lp).read().rstrip("\n").split("\n")
-              if not l.startswith(("item.mjau:","action."))]
-        open(lp,"w").write("\n".join(dict.fromkeys(keep+lang))+"\n")
-        shutil.copyfile(lp,f"{BASE}/{pack}/texts/sv_SE.lang")
+        for spr in ("en_US","sv_SE"):
+            lp=f"{BASE}/{pack}/texts/{spr}.lang"
+            if not os.path.exists(lp): shutil.copyfile(f"{BASE}/{pack}/texts/en_US.lang", lp)
+            keep=[l for l in open(lp).read().rstrip("\n").split("\n")
+                  if not l.startswith(("item.mjau:","action."))]
+            open(lp,"w").write("\n".join(dict.fromkeys(keep+lang))+"\n")
     return len(lang), len(inter)
 
 if __name__ == "__main__":

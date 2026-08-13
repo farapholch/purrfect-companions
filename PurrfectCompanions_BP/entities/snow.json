@@ -1991,14 +1991,6 @@
       },
       "mjau:carted": {
         "minecraft:is_saddled": {},
-        "minecraft:damage_sensor": {
-          "triggers": [
-            {
-              "cause": "fall",
-              "deals_damage": false
-            }
-          ]
-        },
         "minecraft:input_ground_controlled": {},
         "minecraft:movement": {
           "value": 0.43
@@ -2033,6 +2025,14 @@
                 0.562,
                 -0.22
               ]
+            }
+          ]
+        },
+        "minecraft:damage_sensor": {
+          "triggers": [
+            {
+              "cause": "fall",
+              "deals_damage": false
             }
           ]
         },
@@ -2437,6 +2437,174 @@
                 "weight": 10,
                 "set_property": {
                   "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
                 }
               }
             ]
@@ -2959,17 +3127,17 @@
         },
         "add": {
           "component_groups": [
-            "mjau:armored_1",
-            "mjau:pansarkur"
+            "mjau:pansarkur",
+            "mjau:armored_1"
           ]
         },
         "remove": {
           "component_groups": [
+            "mjau:pansarkur",
             "mjau:armored_2",
             "mjau:armored_3",
             "mjau:armored_4",
-            "mjau:armored",
-            "mjau:pansarkur"
+            "mjau:armored"
           ]
         }
       },
@@ -2979,17 +3147,17 @@
         },
         "add": {
           "component_groups": [
-            "mjau:armored_2",
-            "mjau:pansarkur"
+            "mjau:pansarkur",
+            "mjau:armored_2"
           ]
         },
         "remove": {
           "component_groups": [
+            "mjau:pansarkur",
             "mjau:armored_1",
             "mjau:armored_3",
             "mjau:armored_4",
-            "mjau:armored",
-            "mjau:pansarkur"
+            "mjau:armored"
           ]
         }
       },
@@ -2999,17 +3167,17 @@
         },
         "add": {
           "component_groups": [
-            "mjau:armored_3",
-            "mjau:pansarkur"
+            "mjau:pansarkur",
+            "mjau:armored_3"
           ]
         },
         "remove": {
           "component_groups": [
+            "mjau:pansarkur",
             "mjau:armored_1",
             "mjau:armored_2",
             "mjau:armored_4",
-            "mjau:armored",
-            "mjau:pansarkur"
+            "mjau:armored"
           ]
         }
       },
@@ -3019,17 +3187,17 @@
         },
         "add": {
           "component_groups": [
-            "mjau:armored_4",
-            "mjau:pansarkur"
+            "mjau:pansarkur",
+            "mjau:armored_4"
           ]
         },
         "remove": {
           "component_groups": [
+            "mjau:pansarkur",
             "mjau:armored_1",
             "mjau:armored_2",
             "mjau:armored_3",
-            "mjau:armored",
-            "mjau:pansarkur"
+            "mjau:armored"
           ]
         }
       },

@@ -19,7 +19,7 @@ LOG=/tmp/cathaven-playthrough.log
 SERVER_MOD="2.10.0-beta"
 GAMETEST_MOD="1.0.0-beta"
 
-MCWORLD=$(ls /tmp/cathaven-test-out/purrfect-cat-haven-*.mcworld 2>/dev/null | head -1)
+MCWORLD=$(ls /tmp/cathaven-test-out/cat-haven-*.mcworld 2>/dev/null | head -1)
 [ -n "$MCWORLD" ] || { echo "[playthrough] ❌ ingen byggd publik värld (kör cathaven-test först)"; exit 1; }
 
 echo "[playthrough] förbereder engångsvärld ur $(basename "$MCWORLD")"

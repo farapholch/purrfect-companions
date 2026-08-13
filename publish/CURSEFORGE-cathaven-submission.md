@@ -34,6 +34,6 @@ Use the top of `publish/changelog.md` ("Cat Haven — a world to move into") plu
   `build_world.py` (genereras av `tools/promo/make_cathaven_art.py`).
 
 ## Fil
-`purrfect-cat-haven-v<VER>.mcworld` — byggs med `python3 build_world.py public /tmp`
+`cat-haven-v<VER>.mcworld` — byggs med `python3 build_world.py public /tmp`
 (testas med `cathaven-test`). Versionen följer alltid add-onets version;
 loggboken `.shipped.tsv` använder varianterna `world-public`/`world-private`.

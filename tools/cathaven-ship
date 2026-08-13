@@ -18,7 +18,7 @@ CHANGELOG=$SRC/publish/cathaven-changelog.md
 KIND="mcworld"
 [ "${1:-}" = "--template" ] && KIND="mctemplate"
 
-FILE=$(ls "$OUT"/purrfect-cat-haven-*."$KIND" 2>/dev/null | head -1)
+FILE=$(ls "$OUT"/cat-haven-*."$KIND" 2>/dev/null | head -1)
 if [ -z "$FILE" ]; then
   echo "❌ ingen publik .$KIND i $OUT — kör tools/cathaven-test först"; exit 1
 fi

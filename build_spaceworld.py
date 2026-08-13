@@ -37,10 +37,14 @@ TEXTS = {
         "dome_sign": "THE DOME\nRead the log\nin the chest\ninside ->",
         "hangar_sign": "HANGAR\nThe shuttle\nnever flew\nagain",
         "deck_sign": "OBSERVATION\nThe stars are\nclosest here.\nLook up.",
+        # vägvisarna vid de tre dörrarna — den röda tråden genom stationen
+        "way_corridor": "TASK 2\nTHE BLADES\nthrough here ->",
+        "way_hangar": "TASK 3\nTHE HANGAR\nthrough here ->",
+        "way_tower": "TASK 4\nUP THE TOWER\nladder inside",
         "book_pages": [
             "Welcome to Star Harbour!\n\nThe station has been dark a long time. Its cats are still aboard - they know the corridors better than I ever did.\n\nEverything you need is in this chest.",
             "TASK 1 - WAKE THE STATION\n\nFour cats sleep aboard: one in the dome, one in the corridor, one in the hangar, one on the observation deck.\n\nTame them with the cod from this chest.",
-            "TASK 2 - THE BLADES\n\nThe harbour kept four energy blades, one of each colour, locked in different bays.\n\nThey cut, and they light your way. Find them all.",
+            "TASK 2 - THE BLADES\n\nThe harbour kept four energy blades, one of each colour, locked in different bays.\n\nHold one and it swings like a sword - it cuts harder than iron.\n\nOr tame a cat, hold the blade and press Equip: the cat carries it and fights beside you.",
             "TASK 3 - THE HANGAR\n\nThe shuttle in the hangar never flew again. Something worth keeping is still strapped in the hold.\n\nThe two spear-fighters beside it are older still. Nobody remembers who flew them.",
             "TASK 4 - THE OBSERVATION DECK\n\nClimb to the top of the station and look out at the dark.\n\nStanding there is its own reward - but not the only one.",
             "The beds carry the cats' names. Cat treats cheer them up when their tails droop - sugar, wheat and cod.\n\nMind the bays. The harbour kept more than blades.\n\n- The Harbourmaster",
@@ -55,10 +59,13 @@ TEXTS = {
         "dome_sign": "KUPOLEN\nLäs loggboken\ni kistan\ndärinne ->",
         "hangar_sign": "HANGAREN\nSkytteln\nflög aldrig\nmer",
         "deck_sign": "UTKIKEN\nStjärnorna är\nnärmast här.\nTitta upp.",
+        "way_corridor": "UPPDRAG 2\nBLADEN\nhär framme ->",
+        "way_hangar": "UPPDRAG 3\nHANGAREN\nhär framme ->",
+        "way_tower": "UPPDRAG 4\nUPP I TORNET\nstege därinne",
         "book_pages": [
             "Välkommen till Stjärnhamnen!\n\nStationen har varit mörk länge. Katterna är kvar ombord - de kan korridorerna bättre än jag någonsin gjorde.\n\nAllt du behöver ligger i den här kistan.",
             "UPPDRAG 1 - VÄCK STATIONEN\n\nFyra katter sover ombord: en i kupolen, en i korridoren, en i hangaren, en på utkiken.\n\nTämj dem med torsken ur kistan.",
-            "UPPDRAG 2 - BLADEN\n\nHamnen förvarade fyra energisvärd, ett i varje färg, inlåsta i olika fack.\n\nDe skär, och de lyser upp vägen. Hitta alla.",
+            "UPPDRAG 2 - BLADEN\n\nHamnen förvarade fyra energisvärd, ett i varje färg, inlåsta i olika fack.\n\nHåll ett i handen så svingas det som ett svärd - det hugger hårdare än järn.\n\nEller tämj en katt, håll bladet och tryck Utrusta: katten bär det och slåss vid din sida.",
             "UPPDRAG 3 - HANGAREN\n\nSkytteln i hangaren flög aldrig mer. Något värt att behålla sitter fastspänt i lastrummet.\n\nDe två spjutjaktarna bredvid är ännu äldre. Ingen minns vem som flög dem.",
             "UPPDRAG 4 - UTKIKEN\n\nKlättra högst upp i stationen och se ut i mörkret.\n\nAtt stå där är belöning nog - men inte den enda.",
             "Bäddarna bär katternas namn. Kattgodis piggar upp dem när svansen hänger - socker, vete och torsk.\n\nSe upp med facken. Hamnen förvarade mer än blad.\n\n- Hamnmästaren",
@@ -90,7 +97,10 @@ def build_structures(outdir, t, disp, cats):
     for namn, txt, riktning in (("welcome", t["welcome_sign"], 8),
                                 ("dome", t["dome_sign"], 8),
                                 ("hangar", t["hangar_sign"], 4),
-                                ("deck", t["deck_sign"], 12)):
+                                ("deck", t["deck_sign"], 12),
+                                ("waycorridor", t["way_corridor"], 4),
+                                ("wayhangar", t["way_hangar"], 4),
+                                ("waytower", t["way_tower"], 0)):
         s = Struct(1, 1, 1)
         s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": riktning})
         s.entity_at(0, 0, 0, sign_entity(txt))
@@ -127,15 +137,23 @@ def build_commands(cats, disp):
     c.append("gamerule domobspawning false")
     c.append("gamerule keepinventory true")
     c.append("gamerule sendcommandfeedback true")
+    # evig natt: i tomrummet är stjärnhimlen hela kulissen, och en soluppgång
+    # tog bort precis den rymdkänsla världen bygger på
+    c.append("gamerule dodaylightcycle false")
     c.append(f"tickingarea add -40 {G-4} -40 60 {G+40} 60 bygge")
     c.append(("sleep", 4))
-    c.append(f"testforblock 0 {G} 0 grass_block")     # marknivån
 
     # ---------------------------------------------------------------- KUPOLEN
     # Stationens hjärta: rund glaskupol över ett quartzgolv. Kupolen byggs som
     # terrasserade ringar (samma teknik som berget i Cat Haven) — Bedrock har
     # inget "fill sphere", och handlagda ringar ger full kontroll på höjden.
     c.append(f"fill -12 {G} -12 12 {G} 12 quartz_block")           # golvplattan
+    c.append(("sleep", 2))
+    c.append(f"testforblock 4 {G} 4 quartz_block")   # golvet finns i tomrummet
+    # VÄGGARNA i marknivå. Glasskalotten började först på F+5, så kupolen var
+    # ett tak på ingenting — stationen stod vidöppen ut mot rymden.
+    c.append(f"fill -12 {F} -12 12 {F+4} 12 glass hollow")
+    c.append(f"fill -11 {F} -11 11 {F+4} 11 air")                  # innanmätet
     for i, r in enumerate((12, 11, 9, 6)):
         y = F + 5 + i
         c.append(f"fill {-r} {y} {-r} {r} {y} {r} glass hollow")
@@ -243,6 +261,7 @@ def build_commands(cats, disp):
     # att loggboken ber en klättra dit. Bygget verifierade bara att blocken
     # FANNS, aldrig att man kom fram — samma klass av fel som Cat Havens
     # genomspelningstest finns till för att fånga.
+    c.append(f"fill -2 {G} 12 2 {G} 18 quartz_block")   # golv under tornfoten
     c.append(f"fill -2 {F} 14 2 {F+14} 18 iron_block")
     c.append(f"fill -1 {F} 15 1 {F+14} 17 air")
     c.append(f'fill 0 {F} 17 0 {F+15} 17 ladder ["facing_direction"=2]')
@@ -260,6 +279,37 @@ def build_commands(cats, disp):
     c.append(f"testforblock 0 {F+8} 17 ladder")                    # stegen i schaktet
     c.append(f"testforblock 0 {F+15} 17 air")                      # luckan är öppen
     c.append(f"testforblock 4 {F+16} 19 chest")
+
+    # ------------------------------------------------------------ ÖPPNINGARNA
+    # Kupolen, korridoren, hangaren och tornschaktet byggdes som fyra SLUTNA
+    # lådor. "fill ... hollow" lägger även gavlarna, och ingen skar upp dem
+    # igen — så två av katterna, båda jaktplanen och hela utkiken låg bakom
+    # järnväggar. Speltestet på Xbox: "det gick inte att nå fram till katterna"
+    # och "jag såg inga jaktplan alls".
+    #
+    # Dörrarna karvas HÄR, efter att alla skal är byggda: korridoren fyller
+    # x=12 och hangaren x=34, så en öppning gjord tidigare hade murats igen.
+    c.append(f"fill 12 {F} -1 12 {F+2} 1 air")          # kupol -> korridor
+    c.append(f"fill 34 {F} -1 34 {F+2} 1 air")          # korridor -> hangar
+    # kupolvägg (z=12), gluggen mellan husen (z=13) och schaktets gavel (z=14)
+    # låg som tre solida lager i rad — kort förbindelsegång rakt igenom
+    c.append(f"fill -2 {F} 12 2 {F+3} 14 iron_block")
+    c.append(f"fill -1 {F} 12 1 {F+2} 14 air")
+    c.append(("sleep", 2))
+    c.append(f"testforblock 12 {F+1} 0 air")            # dörren står öppen
+    c.append(f"testforblock 34 {F+1} 0 air")
+    c.append(f"testforblock 0 {F+1} 13 air")
+    c.append(f"testforblock 0 {F+1} 15 air")            # inne i schaktet
+    c.append(f"testforblock -12 {F+1} 0 glass")         # ...och väggen finns
+    c.append(("sleep", 1))
+
+    # VÄGVISARNA: den röda tråden. Loggboken numrerar uppdragen, men i världen
+    # fanns inget som sa åt vilket håll nästa uppdrag låg.
+    c.append(f"structure load hamn:waycorridorsign 11 {F} 3")
+    c.append(f"structure load hamn:wayhangarsign 32 {F} -2")
+    c.append(f"structure load hamn:waytowersign 2 {F} 11")
+    c.append(("sleep", 1))
+    c.append(f"testforblock 11 {F} 3 standing_sign")
 
     # ---------------------------------------------------------------- KATTERNA
     spots = {"misty": (-6, 6), "hazel": (24, 0), "mocha": (46, 8), "snow": (0, 16)}
@@ -326,13 +376,28 @@ def build(variant, outdir):
     json.dump([{"pack_id": rp["uuid"], "version": rp["version"]}],
               open(f"{wdir}/world_resource_packs.json", "w"))
 
+    # TOMRUMSVÄRLD. Stationen byggdes på FLAT-generatorns standardlager och
+    # stod därför på en gräsmatta under blå himmel — "det känns inte som en
+    # rymdstation, det är gräs överallt". Marken går inte att städa bort i
+    # efterhand: Bedrock genererar nya gräs-chunks så fort spelaren närmar sig
+    # kanten, så horisonten hade varit grön hur mycket vi än fyllde med luft.
+    # Lösningen är att generera världen UTAN lager alls. FlatWorldLayers sätts
+    # innan bygget, och chunk-databasen slängs så allt redan genererat görs om.
+    bw.run_server_build(world_name, [("sleep", 2)], f"/tmp/hamn-gen-{variant}.log")
+    version, root = nbt.read_level_dat(f"{wdir}/level.dat")
+    root.v["FlatWorldLayers"] = S(
+        '{"biome_id":1,"block_layers":[],"encoding_version":6,"preset_id":null,'
+        '"structure_options":null,"world_version":"version.post_1_18"}\n')
+    nbt.write_level_dat(f"{wdir}/level.dat", version, root)
+    shutil.rmtree(f"{wdir}/db", ignore_errors=True)
+
     log = bw.run_server_build(world_name, build_commands(cats, disp), f"/tmp/hamn-build-{variant}.log")
     problems = []
     hittade = log.count("found the block")
     katter = log.count("Found ")
     fel = [l.strip() for l in log.splitlines()
            if "Syntax error" in l or "Unknown block" in l or "ERROR" in l][:8]
-    if hittade < 14: problems.append(f"bara {hittade}/14 kontrollblock hittades")
+    if hittade < 20: problems.append(f"bara {hittade}/20 kontrollblock hittades")
     if katter < 4: problems.append(f"bara {katter}/4 katter verifierade")
     for e in fel: problems.append(f"serverfel: {e}")
 

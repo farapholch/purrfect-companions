@@ -2555,6 +2555,12 @@
       "mjau:bladbararen": {
         "minecraft:attack": {
           "damage": 7
+        },
+        "minecraft:behavior.owner_hurt_by_target": {
+          "priority": 13
+        },
+        "minecraft:behavior.owner_hurt_target": {
+          "priority": 18
         }
       }
     },
@@ -3091,6 +3097,230 @@
                 }
               }
             ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
+                }
+              }
+            ]
           }
         ]
       },
@@ -3144,7 +3374,8 @@
             "mjau:sittable",
             "mjau:carted",
             "mjau:jagar",
-            "mjau:fri"
+            "mjau:fri",
+            "mjau:bladbararen"
           ]
         }
       },
@@ -3162,7 +3393,8 @@
             "mjau:sittable",
             "mjau:carted",
             "mjau:jagar",
-            "mjau:fri"
+            "mjau:fri",
+            "mjau:bladbararen"
           ]
         }
       },
@@ -3180,7 +3412,8 @@
             "mjau:sittable",
             "mjau:carted",
             "mjau:jagar",
-            "mjau:fri"
+            "mjau:fri",
+            "mjau:bladbararen"
           ]
         }
       },
@@ -3378,7 +3611,8 @@
             "mjau:sittable",
             "mjau:saddled",
             "mjau:jagar",
-            "mjau:fri"
+            "mjau:fri",
+            "mjau:bladbararen"
           ]
         }
       },
@@ -3396,7 +3630,8 @@
             "mjau:sittable",
             "mjau:saddled",
             "mjau:jagar",
-            "mjau:fri"
+            "mjau:fri",
+            "mjau:bladbararen"
           ]
         }
       },
@@ -3414,7 +3649,8 @@
             "mjau:sittable",
             "mjau:saddled",
             "mjau:jagar",
-            "mjau:fri"
+            "mjau:fri",
+            "mjau:bladbararen"
           ]
         }
       },

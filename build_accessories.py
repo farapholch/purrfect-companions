@@ -9,7 +9,7 @@ Varje plagg är en EGEN liten geometri (inte inbakad i kattmodellen) — annars
 exploderar antalet kombinationer. Läget styrs av entity properties, så alla
 plagg är oberoende av varandra.
 """
-import json, shutil, zlib, struct, glob, os
+import copy, json, shutil, zlib, struct, glob, os
 
 BASE = "/opt/purrfect-companions"; BP = f"{BASE}/PurrfectCompanions_BP"; RP = f"{BASE}/PurrfectCompanions_RP"
 TEX = 256
@@ -607,7 +607,37 @@ def build_rest():
                     # den blir en riktig stridskompis utan att bli absurd.
                     # Räckvidden lämnas orörd: katten ska fortfarande behöva
                     # gå fram, inte plocka mål på håll.
-                    g["mjau:bladbararen"]={"minecraft:attack":{"damage":7}}
+                    #
+                    # Skadan RÄCKTE INTE. Katternas enda måltavlor är kaniner
+                    # och höns (mjau:jagar, vanlig kattbeteende), så de sju
+                    # skadepoängen kom aldrig till användning mot något
+                    # farligt — "kan man slåss med svärden? eller katterna?"
+                    # var alltså ett nej för kattens del. En beväpnad katt får
+                    # därför riktiga stridsbeteenden: den går emellan när du
+                    # blir angripen, hjälper till mot det du slår på, och
+                    # tar zombier/skelett/spindlar/creepers som kommer nära.
+                    # Bara 8 blocks räckvidd — den ska försvara dig, inte
+                    # rusa iväg och dö i mörkret.
+                    # Gruppen får BARA komponenter som ingen annan grupp har.
+                    # Ett försök att utöka mjau:jagars måltavlor genom att
+                    # kopiera hela gruppen föll: två grupper kan inte båda
+                    # definiera nearest_attackable_target/stalk/melee_attack —
+                    # den ena skriver tyst över den andra, och vilken som vinner
+                    # beror på i vilken ordning grupperna råkar ligga. Den
+                    # statiska kontrollen fångade det.
+                    #
+                    # Kvar blir vargmodellen, som är den rätta ändå: katten
+                    # slår tillbaka mot det som angriper DIG, och hjälper till
+                    # mot det du själv slår på. Anfallet utförs av jagars
+                    # melee_attack (prio 8), som redan finns. 13 och 18 är de
+                    # lägsta lediga prioriteterna (1-12 är upptagna).
+                    #
+                    # Katten jagar fortfarande kaniner på prio 6, så mitt i en
+                    # kaninjakt går försvaret före först när jakten släpper.
+                    g["mjau:bladbararen"]={
+                        "minecraft:attack":{"damage":7},
+                        "minecraft:behavior.owner_hurt_by_target":{"priority":13},
+                        "minecraft:behavior.owner_hurt_target":{"priority":18}}
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:bladbararen")
                 if a in ("vingar","batvingar"):
                     # VINGKRAFT (speltest-önskemål "bygg alla"): aldrig fallskada,
@@ -661,7 +691,7 @@ def build_rest():
                     ev[evn]["add"]={"component_groups":["mjau:saddled"]}
                     # jagar + fri måste av när riddjuret sätts — annars styr
                     # katten sig själv under ryttaren (sköts av statisk check)
-                    ev[evn]["remove"]={"component_groups":["mjau:sittable","mjau:carted","mjau:jagar","mjau:fri"]}
+                    ev[evn]["remove"]={"component_groups":["mjau:sittable","mjau:carted","mjau:jagar","mjau:fri","mjau:bladbararen"]}
                 if cfg.get("seats"):
                     # VAGN: seat 0 I vagnen (styrbar som en släde), seat 1 på ryggen
                     # för en vän. Egen grupp med egna styr-/lastkomponenter; sadel-
@@ -681,7 +711,7 @@ def build_rest():
                             "interact_text":"action.interact.ride",
                             "seats":[{"position":cfg["seats"][0]},{"position":cfg["seats"][1]}]}}
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:carted")
-                    ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).extend(["mjau:sittable","mjau:saddled","mjau:jagar","mjau:fri"])
+                    ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).extend(["mjau:sittable","mjau:saddled","mjau:jagar","mjau:fri","mjau:bladbararen"])
                 inter.append(entry(f"mjau:{a}_{slug}",evn,cfg["sound"]))   # namnrymd krävs för EGNA föremål
         inter.append(entry("saddle","mjau:on_sadel_1","saddle"))
         # SPINNA/MATA: godis på tam katt höjer humöret

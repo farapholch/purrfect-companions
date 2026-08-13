@@ -127,6 +127,68 @@ system.runInterval(() => {
 }, 40);
 
 // ---------------------------------------------------------------------------
+// ENERGISVÄRDENS EFFEKTER. Bladet var bara ett föremål med ett skadevärde:
+// "jag vet inte hur de funkar mer än att de sitter fast på kattens rygg".
+// Nu syns det att det lever. Gnistorna är EGNA partiklar (mjau:blad_*) i
+// resurspaketet, en per färg, så ett blått blad gnistrar blått.
+//
+// Två bärare, två uttryck:
+//   spelaren — gnistor kring handen medan bladet hålls fram
+//   katten   — ett glesare spår kring ryggen
+// Katten läses via entitetsegenskapen mjau:energisvard (0 = inget blad,
+// 1-4 = färgen) — samma egenskap som geometrin styrs av, så det finns inget
+// eget register att hålla synkat.
+const BLAD_PARTIKEL = {
+  "mjau:energisvard_bla": "mjau:blad_bla",
+  "mjau:energisvard_gron": "mjau:blad_gron",
+  "mjau:energisvard_rod": "mjau:blad_rod",
+  "mjau:energisvard_lila": "mjau:blad_lila",
+};
+const BLAD_FARG_NR = ["", "mjau:blad_bla", "mjau:blad_gron",
+                      "mjau:blad_rod", "mjau:blad_lila"];
+
+function heldItem(pl) {
+  try {
+    const inv = pl.getComponent("minecraft:inventory")?.container;
+    return inv ? inv.getItem(pl.selectedSlotIndex) : undefined;
+  } catch { return undefined; }
+}
+
+function gnistra(d, partikel, x, y, z, spridning, antal) {
+  for (let i = 0; i < antal; i++) {
+    try {
+      d.spawnParticle(partikel, {
+        x: x + (Math.random() - 0.5) * spridning,
+        y: y + (Math.random() - 0.5) * spridning,
+        z: z + (Math.random() - 0.5) * spridning,
+      });
+    } catch { }
+  }
+}
+
+system.runInterval(() => {
+  const d = world.getDimension("overworld");
+  try {
+    for (const pl of world.getAllPlayers()) {
+      const it = heldItem(pl);
+      const p = it && BLAD_PARTIKEL[it.typeId];
+      if (!p) continue;
+      const L = pl.location;
+      gnistra(d, p, L.x, L.y + 1.3, L.z, 1.1, 3);
+    }
+  } catch { }
+  try {
+    for (const c of d.getEntities({ families: ["mjaukatt"] })) {
+      let nr = 0;
+      try { nr = c.getProperty("mjau:energisvard") ?? 0; } catch { continue; }
+      if (!nr) continue;
+      const L = c.location;
+      gnistra(d, BLAD_FARG_NR[nr], L.x, L.y + 0.6, L.z, 0.7, 1);
+    }
+  } catch { }
+}, 5);
+
+// ---------------------------------------------------------------------------
 // UPPDRAGS-UTMÄRKELSER: titel + fanfar när milstolpar nås. Plattforms-
 // achievements går inte att ge från paket — det här är vårt eget system.
 // Texterna är translate-nycklar (mjau.achv.*) i språkfilerna, så familje-

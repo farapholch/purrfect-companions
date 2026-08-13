@@ -151,6 +151,35 @@ PY
     echo "testforblock 0 -45 17 air"; sleep 1             # luckan i däcksgolvet
     echo "testforblock 0 -45 16 quartz_block"; sleep 1    # däcket
     echo "testforblock 4 -44 19 chest"; sleep 1           # bladfack: lila
+    # GÅNGVÄGEN. Det HÄR är felet testet missade: alla nyckelblock fanns, men
+    # kupolen, korridoren, hangaren och tornet var fyra slutna lådor ("fill
+    # ... hollow" lägger gavlarna med). Två katter och båda jaktplanen låg
+    # bakom järnväggar. Speltest på Xbox: "det gick inte att nå fram till
+    # katterna", "jag såg inga jaktplan alls".
+    #
+    # Vi provar hela promenaden ruta för ruta: två blocks fri höjd (fötter
+    # -60, huvud -59) längs varje sträcka. En vägg var som helst på vägen
+    # faller ut som ett saknat luftblock.
+    for X in 8 10 12 14 16 20 24 28 30 32 34 36; do   # kupol -> in i hangaren
+      echo "testforblock $X -60 0 air"; echo "testforblock $X -59 0 air"; sleep 1
+    done
+    for Z in 2 4 6 8; do                              # norrut förbi skytteln
+      echo "testforblock 36 -60 $Z air"; echo "testforblock 36 -59 $Z air"; sleep 1
+    done
+    for X in 38 40 42 44 46; do                       # sista biten fram till Mocha
+      echo "testforblock $X -60 8 air"; echo "testforblock $X -59 8 air"; sleep 1
+    done
+    for Z in 8 10 12 13 14 15 16; do                  # kupol -> tornfot
+      echo "testforblock 0 -60 $Z air"; echo "testforblock 0 -59 $Z air"; sleep 1
+    done
+    # VÄGVISARNA vid de tre dörrarna — den röda tråden
+    echo "testforblock 11 -60 3 standing_sign"; sleep 1
+    echo "testforblock 32 -60 -2 standing_sign"; sleep 1
+    echo "testforblock 2 -60 11 standing_sign"; sleep 1
+    # TOMRUMMET: inte ett grässtrå i hela världen
+    echo "testforblock 20 -61 20 air"; sleep 1
+    echo "testforblock -20 -61 -20 air"; sleep 1
+    echo "testforblock 0 -64 25 air"; sleep 1
     # KATTERNA + kistprovet
     echo "testfor @e[type=mjau:misty,x=-6,y=-60,z=6,r=40]"; sleep 1
     echo "setblock -3 -60 3 air destroy"; sleep 2
@@ -163,8 +192,8 @@ PY
   grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" \
     || bad "paketen laddades INTE ur världen"
   FB=$(grep -c 'found the block' "$SLOG")
-  [ "$FB" -ge 16 ] && ok "alla $FB/16 nyckelblock finns (kupol, startkista, bäddar, nav, korridorljus, 4 bladfack, skyttel, cockpit, 2 jaktplan, stege, lucka, däck)" \
-    || bad "bara $FB/16 nyckelblock i den paketerade världen"
+  [ "$FB" -ge 78 ] && ok "alla $FB/78 kontroller: nyckelblock, hela gångvägen kupol->korridor->hangar->torn, vägvisarna och tomrummet runt om" \
+    || bad "bara $FB/78 kontroller i den paketerade världen — se $SLOG för vilket block som fattas"
   grep -q "Found " "$SLOG" && ok "katterna överlevde paketeringen (namngivna, persistenta)" \
     || bad "katterna saknas i den paketerade världen"
   # kistprovet: bara riktiga, accepterade föremål trillar ut som item-entiteter.

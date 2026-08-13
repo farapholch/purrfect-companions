@@ -65,10 +65,15 @@ def rymden(w, h):
     return img
 
 
-def stationen(img, w, h):
-    """Kupolen med lysande fönsterband, på en pelare — sedd på håll."""
+def stationen(img, w, h, r_f=0.20):
+    """Kupolen med lysande fönsterband, på en pelare — sedd på håll.
+
+    r_f är kupolens radie som andel av höjden. Ikonen (800×450) vill ha den
+    liten så stjärnfältet får plats; hjältebilden i 16:9 blir mest tom rymd
+    med samma värde, så den skruvar upp den.
+    """
     cx, cy = int(w * 0.60), int(h * 0.46)
-    r = int(h * 0.20)
+    r = int(h * r_f)
     # kupolens glaskalott
     for y in range(cy - r, cy + 1):
         for x in range(cx - r, cx + r + 1):
@@ -139,5 +144,29 @@ def build_icon():
     print(f"ikon: {OUT_JPEG} (800x450)")
 
 
+def build_promo():
+    """Projektlogga + hjältebild för CurseForge-inskickningen.
+
+    Samma scen som ikonen, omritad i de mått CurseForge vill ha: 512×512 för
+    projektloggan och 1280×720 för galleriet. Allt är uttryckt i andelar av
+    w/h, så kompositionen håller i både kvadrat och bredbild.
+    """
+    for namn, w, h, r_f in (("logo", 512, 512, 0.22), ("hero", 1280, 720, 0.30)):
+        img = rymden(w, h)
+        stationen(img, w, h, r_f)
+        jaktplan(img, w, h, 0.30, 0.30, 0.20)
+        jaktplan(img, w, h, 0.84, 0.62, 0.14)
+        src = art.cat_sprite("misty", mv.walk_pose(0.35), yaw=42)
+        # y = kupolens centrum, dvs plattans överkant. mv.paste ankrar nära
+        # sprajtens fot: drar man av halva höjden svävar katten inne i kupolen
+        mv.paste(img, src, 240, 240, int(w * 0.615), int(h * 0.46), int(h * 0.17))
+        ut = f"{BASE}/publish/starharbour-{namn}.png"
+        art.save_png(ut, img, w, h)
+        print(f"{namn}: {ut} ({w}x{h})")
+
+
 if __name__ == "__main__":
-    build_icon()
+    if "--promo" in sys.argv:
+        build_promo()
+    else:
+        build_icon()

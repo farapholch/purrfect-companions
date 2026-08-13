@@ -1098,15 +1098,25 @@ def build_commands(cats, disp, dog_name):
     # uppdrag 7). Skriptet i main.js river dem när NÅGON spelare har klarat
     # förkravet. Koordinaterna här MÅSTE matcha GATES-listan i main.js.
     # Byn, dammen, mörka skogen och fyrvägen är alltid öppna.
-    c.append(f"fill 20 {f} 15 20 {f+1} 16 spruce_fence")     # grind A: ängsstigen
-    c.append(f"structure load haven:gate_meadow_sign 19 {f} 17")
-    c.append(f"fill 44 {f} 8 44 {f+1} 12 spruce_fence")      # grind B: kattbanestigen
-    c.append(f"structure load haven:gate_parkour_sign 43 {f} 13")
+    # Xbox-önskemål: staketen på 2 block gick att hoppa över med en katts
+    # laddade hopp. Nu MURAR på 5 block (laddat hopp ger ~2-3), breda nog att
+    # läsa som en riktig grindmur i stället för ett hopphinder: stenram med
+    # stockportstolpar, lykta på krönet. Höjd/bredd MÅSTE matcha GATES-listan
+    # i main.js — den river exakt de här blocken.
+    for gx0, gx1, gz0, gz1, namn in ((20, 20, 12, 19, "A"), (44, 44, 5, 15, "B")):
+        c.append(f"fill {gx0} {f} {gz0} {gx1} {f+4} {gz1} stone_bricks")
+        # portstolpar i stock ger muren en tydlig mitt = "här ska man igenom"
+        cz = (gz0 + gz1) // 2
+        for dz in (-1, 1):
+            c.append(f'fill {gx0} {f} {cz+dz} {gx1} {f+4} {cz+dz} stripped_spruce_log ["pillar_axis"="y"]')
+        c.append(f'setblock {gx0} {f+5} {cz} lantern ["hanging"=false]')
+    c.append(f"structure load haven:gate_meadow_sign 19 {f} 20")
+    c.append(f"structure load haven:gate_parkour_sign 43 {f} 16")
     c.append(f"fill {_lx} {g-2} {_lz+5} {_lx} {g-1} {_lz+5} iron_bars")  # grind C: sjögallret
     c.append(f"structure load haven:gate_lake_sign {_lx-2} {f} {_lz-5}")
     c.append(("sleep", 2))
-    c.append(f"testforblock 20 {f} 15 spruce_fence")
-    c.append(f"testforblock 44 {f} 10 spruce_fence")
+    c.append(f"testforblock 20 {f+4} 15 stone_bricks")     # murkrönet, grind A
+    c.append(f"testforblock 44 {f+4} 10 stone_bricks")     # murkrönet, grind B
     c.append(f"testforblock {_lx} {g-2} {_lz+5} iron_bars")
     c.append(("sleep", 1))
 

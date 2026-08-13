@@ -199,12 +199,12 @@ PY
     echo "testforblock 0 -55 14 spruce_planks"; sleep 1    # vindsloftet
     echo "testforblock 5 -57 15 ladder"; sleep 1           # gavelstegen till vinden
     echo "testforblock 0 -54 14 chest"; sleep 1            # vindskistan (netherite)
-    echo "testforblock 20 -60 15 spruce_fence"; sleep 1    # grind A stängd (ängen)
-    echo "testforblock 44 -60 10 spruce_fence"; sleep 1    # grind B stängd (kattbanan)
+    echo "testforblock 20 -56 15 stone_bricks"; sleep 1    # mur A stängd (ängen)
+    echo "testforblock 44 -56 10 stone_bricks"; sleep 1    # mur B stängd (kattbanan)
     echo "testforblock 65 -62 45 iron_bars"; sleep 1       # grind C stängd (sjögallret)
     echo "scriptevent mjau:test_grind"; sleep 3            # riv alla grindar
-    echo "testforblock 20 -60 15 air"; sleep 1             # grind A öppen
-    echo "testforblock 44 -60 10 air"; sleep 1             # grind B öppen
+    echo "testforblock 20 -56 15 air"; sleep 1             # mur A riven
+    echo "testforblock 44 -56 10 air"; sleep 1             # mur B riven
     # grind C kollas INTE med testforblock efter rivning: sjövattnet flödar
     # in i cellen så fort gallret försvinner (flowing_water, inte air) —
     # helt rätt beteende i spelet; kvittensen "grind öppnad" täcker C.

@@ -250,22 +250,36 @@ try {
 // öppnar grindarna automatiskt vid nästa världstart (kollen går mot
 // dynamic properties som redan ligger i världssparningen). Blocken måste
 // matcha grindfyllningarna i build_world.py.
+// Boxar i stället for handlistade block: murarna ar 5 block hoga och upp
+// till 11 breda sedan staketen (2 block) visade sig ga att hoppa over med en
+// katts laddade hopp. y-toppen tar aven med lyktan pa kronet, sa den inte
+// blir hangande i luften nar muren rivs. MASTE matcha fill-kommandona i
+// build_world.py.
 const GATES = [
-  { prereq: "fyrvaktaren",
-    blocks: [[20, -60, 15], [20, -59, 15], [20, -60, 16], [20, -59, 16]] },
-  { prereq: "trippelskatten",
-    blocks: [[44, -60, 8], [44, -59, 8], [44, -60, 9], [44, -59, 9], [44, -60, 10],
-             [44, -59, 10], [44, -60, 11], [44, -59, 11], [44, -60, 12], [44, -59, 12]] },
-  { prereq: "hinderbanan",
-    blocks: [[65, -62, 45], [65, -61, 45]] },
+  { prereq: "fyrvaktaren",    x: 20, y0: -60, y1: -55, z0: 12, z1: 19 },
+  { prereq: "trippelskatten", x: 44, y0: -60, y1: -55, z0: 5,  z1: 15 },
+  { prereq: "hinderbanan",    x: 65, y0: -62, y1: -61, z0: 45, z1: 45 },
 ];
 
+function gateBlocks(gt) {
+  const out = [];
+  for (let y = gt.y0; y <= gt.y1; y++)
+    for (let z = gt.z0; z <= gt.z1; z++) out.push([gt.x, y, z]);
+  return out;
+}
+
 function oppnaGrind(d, gt) {
-  for (const [x, y, z] of gt.blocks) {
+  const rutor = gateBlocks(gt);
+  for (const [x, y, z] of rutor) {
     try { d.getBlock({ x, y, z })?.setType("minecraft:air"); } catch { }
-    try { d.spawnParticle("minecraft:end_rod", { x: x + 0.5, y: y + 0.5, z: z + 0.5 }); } catch { }
   }
-  const [sx, sy, sz] = gt.blocks[0];
+  // partiklar bara på murens mitt — en per ruta blev en vägg av gnistor när
+  // muren växte från 4 till upp till 66 block
+  const mz = Math.floor((gt.z0 + gt.z1) / 2);
+  for (let y = gt.y0; y <= gt.y1; y++) {
+    try { d.spawnParticle("minecraft:end_rod", { x: gt.x + 0.5, y: y + 0.5, z: mz + 0.5 }); } catch { }
+  }
+  const [sx, sy, sz] = rutor[0];
   try { d.playSound("random.levelup", { x: sx, y: sy, z: sz }); } catch { }
   for (const pl of world.getAllPlayers()) {
     try { pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.gate.open" }] }); } catch { }
@@ -318,14 +332,13 @@ system.runInterval(() => {
     }
     catch { catHavenWorld = null; }   // chunk oladdad — fråga igen nästa varv
   }
-  // grindkollen: sentinel-blocket (första blocket i listan) kvar + någon
-  // spelare har förkravet → riv grinden. Billigt: ett getBlock per grind.
+  // grindkollen: sentinel-rutan (murens nedre hörn) kvar + någon spelare har
+  // förkravet → riv muren. Billigt: ett getBlock per grind, inte per ruta.
   if (catHavenWorld) {
     try {
       const alla = world.getAllPlayers();
       for (const gt of GATES) {
-        const [sx, sy, sz] = gt.blocks[0];
-        const sb = d.getBlock({ x: sx, y: sy, z: sz });
+        const sb = d.getBlock({ x: gt.x, y: gt.y0, z: gt.z0 });
         if (!sb || sb.typeId === "minecraft:air") continue;
         if (alla.some(pl => hasAward(pl, gt.prereq))) oppnaGrind(d, gt);
       }

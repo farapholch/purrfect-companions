@@ -24,8 +24,12 @@ OUT_PNG = "/tmp/starharbour-world-icon.png"
 OUT_JPEG = "/tmp/starharbour-world-icon.jpeg"
 
 
-def rymden(w, h):
-    """Djup rymd: nästan svart gradient, tätt stjärnfält, en planet i kanten."""
+def rymden(w, h, blink=None):
+    """Djup rymd: nästan svart gradient, tätt stjärnfält, en planet i kanten.
+
+    blink är fasen 0..1 i teaserns loop. Var sjunde stjärna andas i takt med
+    den; resten står still, annars blinkar hela himlen som en julgran.
+    """
     mv.W, mv.H = w, h
     top, bot = (6, 6, 18), (18, 14, 40)
     img = [[(top[0] + (bot[0] - top[0]) * y // h,
@@ -45,6 +49,10 @@ def rymden(w, h):
         rnd = (rnd * 75 + 74) % 65537
         sy = rnd % h
         c = 140 + rnd % 110
+        if blink is not None and rnd % 7 == 0:
+            # egen fas per stjärna, annars pulserar de i kör
+            fas = (rnd % 360) / 360.0
+            c = int(c * (0.55 + 0.45 * (0.5 + 0.5 * math.sin(2 * math.pi * (blink + fas)))))
         img[sy][sx] = (c, c, min(255, c + 30), 255)
         if rnd % 11 == 0 and 0 < sx < w - 1 and 0 < sy < h - 1:   # några ljusare
             for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
@@ -65,7 +73,7 @@ def rymden(w, h):
     return img
 
 
-def stationen(img, w, h, r_f=0.20):
+def stationen(img, w, h, r_f=0.20, puls=None):
     """Kupolen med lysande fönsterband, på en pelare — sedd på håll.
 
     r_f är kupolens radie som andel av höjden. Ikonen (800×450) vill ha den
@@ -94,9 +102,13 @@ def stationen(img, w, h, r_f=0.20):
     # lysande fönsterband i pelaren
     for i in range(3):
         yy = cy + int(h * 0.09) + i * int(h * 0.10)
+        # banden tänds ett i taget nerifrån i teasern (puls=None => alla lyser)
+        k = 1.0 if puls is None else 0.35 + 0.65 * (0.5 + 0.5 * math.sin(
+            2 * math.pi * (puls - i / 3.0)))
+        band = (int(255 * k), int(226 * k), int(140 * k), 255)
         for x in range(cx - int(r * 0.18), cx + int(r * 0.18)):
             if 0 <= yy < h and 0 <= x < w:
-                img[yy][x] = (255, 226, 140, 255)
+                img[yy][x] = band
 
 
 def jaktplan(img, w, h, cx_f, cy_f, storlek):
@@ -165,8 +177,40 @@ def build_promo():
         print(f"{namn}: {ut} ({w}x{h})")
 
 
+def build_gif():
+    """Loopande teaser, samma format som Cat Havens (480×270, 12 fps).
+
+    Loopen är sömlös för att allt som rör sig antingen är periodiskt (stjärnor,
+    fönsterband, gångcykeln) eller startar och slutar UTANFÖR bild — de två
+    jaktplanen korsar rutan åt var sitt håll och syns aldrig hoppa tillbaka.
+    """
+    w, h, frames = 480, 270, 36
+    os.makedirs("/tmp/starharbour-gif", exist_ok=True)
+    for f in range(frames):
+        t = f / frames
+        img = rymden(w, h, blink=t)
+        # jaktplanen FÖRE stationen: banorna korsar kupolen och pelaren, och
+        # ritas de sist flyger de rakt igenom stationen mitt i loopen
+        jaktplan(img, w, h, -0.20 + 1.40 * t, 0.24, 0.17)      # vänster → höger
+        jaktplan(img, w, h, 1.18 - 1.40 * t, 0.70, 0.12)       # höger → vänster
+        stationen(img, w, h, 0.26, puls=t)
+        src = art.cat_sprite("misty", mv.walk_pose(t * 2 * math.pi), yaw=42)
+        mv.paste(img, src, 240, 240, int(w * 0.615), int(h * 0.46), int(h * 0.17))
+        mv.W, mv.H = w, h
+        mv.text(img, "STAR HARBOUR", w // 2, int(h * 0.09), scale=2)
+        art.save_png(f"/tmp/starharbour-gif/f{f:03d}.png", img, w, h)
+    ut = f"{BASE}/publish/starharbour-teaser.gif"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", "12",
+                    "-i", "/tmp/starharbour-gif/f%03d.png",
+                    "-vf", "split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer",
+                    "-loop", "0", ut], check=True)
+    print(f"teaser: {ut}")
+
+
 if __name__ == "__main__":
     if "--promo" in sys.argv:
         build_promo()
+    elif "--gif" in sys.argv:
+        build_gif()
     else:
         build_icon()

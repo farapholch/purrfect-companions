@@ -42,7 +42,10 @@ linje som med Midnight i Cat Haven. Att avslöja ritualen tar bort hela poängen
 ## Logo & galleri
 - Logo: `starharbour-logo.png` (512×512)
 - Galleri/hjältebild: `starharbour-hero.png` (1280×720)
-- Båda genereras med `python3 tools/promo/make_harbour_art.py --promo` och ligger
+- Rörligt: `starharbour-teaser.gif` (480×270, loopande — två jaktplan passerar
+  bakom stationen, fönsterbanden tänds nerifrån, stjärnorna andas).
+  Byggs med `make_harbour_art.py --gif`
+- Bilderna genereras med `python3 tools/promo/make_harbour_art.py --promo` och ligger
   i `publish/` — de laddas upp till purrfect.pelleops.se och går att spara ner
   därifrån i webbläsaren
 - **Riktiga in-game-screenshots saknas** — de måste tas på Xbox eller i klienten

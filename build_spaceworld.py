@@ -336,9 +336,11 @@ def build(variant, outdir):
     os.makedirs(outdir, exist_ok=True)
     suffix = "-familj" if variant == "private" else ""
     slug = "stjarnhamnen" if variant == "private" else "star-harbour"
-    icon = "/tmp/cathaven-world-icon.jpeg"
+    # EGEN ikon — Stjärnhamnen ärvde Cat Havens och båda världarna såg
+    # likadana ut i världslistan
+    icon = "/tmp/starharbour-world-icon.jpeg"
     if not os.path.exists(icon):
-        subprocess.run([sys.executable, f"{BASE}/tools/promo/make_cathaven_art.py", "icon"],
+        subprocess.run([sys.executable, f"{BASE}/tools/promo/make_harbour_art.py"],
                        check=True, capture_output=True)
 
     for kind in ("mcworld", "mctemplate"):

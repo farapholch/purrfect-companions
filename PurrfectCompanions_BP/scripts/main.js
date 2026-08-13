@@ -90,6 +90,42 @@ system.runInterval(() => {
   }
 }, 40);
 
+// Den TREDJE hemliga katten — Nova. Samma tystnadsregel som Midnight och
+// Aurora: ingen förklaring i handboken, ingen ledtråd i dialogen.
+//
+// Ritualen är en ANNAN sorts gåta än de tidigare: inte en plats och inte en
+// gåva, utan att SAMLA. Bär alla fyra energisvärdsfärgerna samtidigt så kommer
+// hon. Loggboken i Stjärnhamnen antyder det på sista sidan ("hon svarar bara
+// den som bär alla fyra färgerna samtidigt") utan att säga vad som händer.
+const NOVA = "mjau:nova";
+const BLAD = ["mjau:energisvard_bla", "mjau:energisvard_gron",
+              "mjau:energisvard_rod", "mjau:energisvard_lila"];
+system.runInterval(() => {
+  const d = world.getDimension("overworld");
+  let players;
+  try { players = world.getAllPlayers(); } catch { return; }
+  for (const pl of players) {
+    if (!BLAD.every(b => hasItem(pl, b))) continue;
+    const L = pl.location;
+    try {
+      if (d.getEntities({ type: NOVA, location: L, maxDistance: 64 }).length > 0) continue;
+    } catch { continue; }
+    const cat = d.spawnEntity(NOVA, { x: L.x, y: L.y + 1, z: L.z });
+    try { cat.triggerEvent("mjau:grow_up"); } catch { }
+    try { give(pl, "stjarnfodd"); } catch { }
+    try { d.playSound("mob.cat.purreow", L); } catch { }
+    try { d.playSound("random.levelup", L); } catch { }
+    try {
+      for (let i = 0; i < 16; i++)
+        d.spawnParticle("minecraft:end_rod", {
+          x: L.x + (Math.random() - 0.5) * 2.5,
+          y: L.y + Math.random() * 2,
+          z: L.z + (Math.random() - 0.5) * 2.5,
+        });
+    } catch { }
+  }
+}, 40);
+
 // ---------------------------------------------------------------------------
 // UPPDRAGS-UTMÄRKELSER: titel + fanfar när milstolpar nås. Plattforms-
 // achievements går inte att ge från paket — det här är vårt eget system.
@@ -159,7 +195,7 @@ const XP_REWARD = {
   hela_flocken: 20, alla_hemma: 20,
   trippelskatten: 30, bergsbestigaren: 25, regnbagssamlaren: 25, hinderbanan: 30,
   djuphavsdykaren: 30, handelsman: 20, vindskatten: 25,
-  kattmastare: 50, norrsken: 40,
+  kattmastare: 50, norrsken: 40, stjarnfodd: 40,
 };
 const ITEM_REWARD = {
   ur_morkret: [{ id: "minecraft:phantom_membrane", n: 2 }],
@@ -532,7 +568,7 @@ system.runInterval(() => {
       if (c.isOnGround) continue;
       let vy = 0;
       try { vy = c.getVelocity().y; } catch { }
-      if (vy > 0 && c.getProperty("mjau:mantel") > 0) {
+      if (vy > 0 && (c.getProperty("mjau:mantel") > 0 || c.getProperty("mjau:rymdmantel") > 0)) {
         d.spawnParticle("minecraft:end_rod", { x: c.location.x, y: c.location.y + 0.3, z: c.location.z });
       }
       if (vy < 0 && (c.getProperty("mjau:vingar") > 0 || c.getProperty("mjau:batvingar") > 0 || c.getProperty("mjau:horn") > 0)) {

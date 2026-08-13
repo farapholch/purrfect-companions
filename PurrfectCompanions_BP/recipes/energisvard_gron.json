@@ -1,0 +1,35 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:energisvard_gron"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "G",
+      "G",
+      "I"
+    ],
+    "key": {
+      "G": {
+        "item": "minecraft:emerald"
+      },
+      "I": {
+        "item": "minecraft:iron_ingot"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:emerald"
+      },
+      {
+        "item": "minecraft:iron_ingot"
+      }
+    ],
+    "result": {
+      "item": "mjau:energisvard_gron"
+    }
+  }
+}

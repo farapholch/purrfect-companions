@@ -169,6 +169,24 @@
           "default": 0,
           "client_sync": true
         },
+        "mjau:energisvard": {
+          "type": "int",
+          "range": [
+            0,
+            4
+          ],
+          "default": 0,
+          "client_sync": true
+        },
+        "mjau:rymdmantel": {
+          "type": "int",
+          "range": [
+            0,
+            2
+          ],
+          "default": 0,
+          "client_sync": true
+        },
         "mjau:tam": {
           "type": "int",
           "range": [
@@ -1811,6 +1829,174 @@
                       "test": "has_equipment",
                       "domain": "hand",
                       "subject": "other",
+                      "value": "mjau:energisvard_bla"
+                    }
+                  ]
+                },
+                "event": "mjau:on_energisvard_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_netherite",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:energisvard_gron"
+                    }
+                  ]
+                },
+                "event": "mjau:on_energisvard_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_netherite",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:energisvard_rod"
+                    }
+                  ]
+                },
+                "event": "mjau:on_energisvard_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_netherite",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:energisvard_lila"
+                    }
+                  ]
+                },
+                "event": "mjau:on_energisvard_4",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_netherite",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:rymdmantel_stjarna"
+                    }
+                  ]
+                },
+                "event": "mjau:on_rymdmantel_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:rymdmantel_tomrum"
+                    }
+                  ]
+                },
+                "event": "mjau:on_rymdmantel_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
                       "value": "saddle"
                     }
                   ]
@@ -2353,6 +2539,18 @@
             }
           ]
         }
+      },
+      "mjau:bladsken": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "night_vision",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
       }
     },
     "events": {
@@ -2437,6 +2635,118 @@
                 "weight": 10,
                 "set_property": {
                   "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
                 }
               }
             ]
@@ -3324,6 +3634,66 @@
       "mjau:on_mantel_4": {
         "set_property": {
           "mjau:mantel": 4
+        },
+        "add": {
+          "component_groups": [
+            "mjau:supermantel"
+          ]
+        }
+      },
+      "mjau:on_energisvard_1": {
+        "set_property": {
+          "mjau:energisvard": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:bladsken"
+          ]
+        }
+      },
+      "mjau:on_energisvard_2": {
+        "set_property": {
+          "mjau:energisvard": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:bladsken"
+          ]
+        }
+      },
+      "mjau:on_energisvard_3": {
+        "set_property": {
+          "mjau:energisvard": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:bladsken"
+          ]
+        }
+      },
+      "mjau:on_energisvard_4": {
+        "set_property": {
+          "mjau:energisvard": 4
+        },
+        "add": {
+          "component_groups": [
+            "mjau:bladsken"
+          ]
+        }
+      },
+      "mjau:on_rymdmantel_1": {
+        "set_property": {
+          "mjau:rymdmantel": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:supermantel"
+          ]
+        }
+      },
+      "mjau:on_rymdmantel_2": {
+        "set_property": {
+          "mjau:rymdmantel": 2
         },
         "add": {
           "component_groups": [

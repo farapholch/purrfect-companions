@@ -65,7 +65,13 @@
         "mantel1": "geometry.katt.mantel1",
         "mantel2": "geometry.katt.mantel2",
         "mantel3": "geometry.katt.mantel3",
-        "mantel4": "geometry.katt.mantel4"
+        "mantel4": "geometry.katt.mantel4",
+        "energisvard1": "geometry.katt.energisvard1",
+        "energisvard2": "geometry.katt.energisvard2",
+        "energisvard3": "geometry.katt.energisvard3",
+        "energisvard4": "geometry.katt.energisvard4",
+        "rymdmantel1": "geometry.katt.rymdmantel1",
+        "rymdmantel2": "geometry.katt.rymdmantel2"
       },
       "spawn_egg": {
         "texture": "pc_snow",
@@ -90,7 +96,9 @@
         "controller.render.katt_doktorsrock",
         "controller.render.katt_batvingar",
         "controller.render.katt_krona",
-        "controller.render.katt_mantel"
+        "controller.render.katt_mantel",
+        "controller.render.katt_energisvard",
+        "controller.render.katt_rymdmantel"
       ],
       "animations": {
         "walk": "animation.katt.walk",

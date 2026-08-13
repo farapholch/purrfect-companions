@@ -2,12 +2,12 @@
   "format_version": "1.10.0",
   "minecraft:client_entity": {
     "description": {
-      "identifier": "mjau:spokkatt",
+      "identifier": "mjau:nova",
       "materials": {
-        "default": "entity_alphablend"
+        "default": "entity_alphatest"
       },
       "textures": {
-        "default": "textures/entity/spokkatt"
+        "default": "textures/entity/nova"
       },
       "geometry": {
         "default": "geometry.katt",

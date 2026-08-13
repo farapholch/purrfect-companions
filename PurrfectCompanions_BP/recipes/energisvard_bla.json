@@ -1,0 +1,35 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:energisvard_bla"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "G",
+      "G",
+      "I"
+    ],
+    "key": {
+      "G": {
+        "item": "minecraft:lapis_lazuli"
+      },
+      "I": {
+        "item": "minecraft:iron_ingot"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:lapis_lazuli"
+      },
+      {
+        "item": "minecraft:iron_ingot"
+      }
+    ],
+    "result": {
+      "item": "mjau:energisvard_bla"
+    }
+  }
+}

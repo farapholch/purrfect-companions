@@ -389,6 +389,48 @@
       "textures": [
         "Texture.default"
       ]
+    },
+    "controller.render.katt_energisvard": {
+      "arrays": {
+        "geometries": {
+          "Array.energisvard": [
+            "Geometry.empty",
+            "Geometry.energisvard1",
+            "Geometry.energisvard2",
+            "Geometry.energisvard3",
+            "Geometry.energisvard4"
+          ]
+        }
+      },
+      "geometry": "Array.energisvard[query.property('mjau:energisvard')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_rymdmantel": {
+      "arrays": {
+        "geometries": {
+          "Array.rymdmantel": [
+            "Geometry.empty",
+            "Geometry.rymdmantel1",
+            "Geometry.rymdmantel2"
+          ]
+        }
+      },
+      "geometry": "Array.rymdmantel[query.property('mjau:rymdmantel')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
     }
   }
 }

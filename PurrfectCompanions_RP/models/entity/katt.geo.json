@@ -3882,6 +3882,354 @@
           ]
         }
       ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.energisvard1",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -0.6,
+                10,
+                2
+              ],
+              "size": [
+                1.2,
+                9,
+                1.2
+              ],
+              "uv": [
+                0,
+                211
+              ]
+            },
+            {
+              "origin": [
+                -0.7,
+                7,
+                2
+              ],
+              "size": [
+                1.4,
+                3,
+                1.4
+              ],
+              "uv": [
+                6,
+                211
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.energisvard2",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -0.6,
+                10,
+                2
+              ],
+              "size": [
+                1.2,
+                9,
+                1.2
+              ],
+              "uv": [
+                16,
+                211
+              ]
+            },
+            {
+              "origin": [
+                -0.7,
+                7,
+                2
+              ],
+              "size": [
+                1.4,
+                3,
+                1.4
+              ],
+              "uv": [
+                22,
+                211
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.energisvard3",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -0.6,
+                10,
+                2
+              ],
+              "size": [
+                1.2,
+                9,
+                1.2
+              ],
+              "uv": [
+                32,
+                211
+              ]
+            },
+            {
+              "origin": [
+                -0.7,
+                7,
+                2
+              ],
+              "size": [
+                1.4,
+                3,
+                1.4
+              ],
+              "uv": [
+                38,
+                211
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.energisvard4",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -0.6,
+                10,
+                2
+              ],
+              "size": [
+                1.2,
+                9,
+                1.2
+              ],
+              "uv": [
+                48,
+                211
+              ]
+            },
+            {
+              "origin": [
+                -0.7,
+                7,
+                2
+              ],
+              "size": [
+                1.4,
+                3,
+                1.4
+              ],
+              "uv": [
+                54,
+                211
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.rymdmantel1",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.4,
+                4,
+                5.2
+              ],
+              "size": [
+                6.8,
+                6,
+                0.6
+              ],
+              "uv": [
+                64,
+                211
+              ]
+            },
+            {
+              "origin": [
+                -3.3,
+                9.6,
+                -5.6
+              ],
+              "size": [
+                6.6,
+                1,
+                0.6
+              ],
+              "uv": [
+                80,
+                211
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.rymdmantel2",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.4,
+                4,
+                5.2
+              ],
+              "size": [
+                6.8,
+                6,
+                0.6
+              ],
+              "uv": [
+                96,
+                211
+              ]
+            },
+            {
+              "origin": [
+                -3.3,
+                9.6,
+                -5.6
+              ],
+              "size": [
+                6.6,
+                1,
+                0.6
+              ],
+              "uv": [
+                112,
+                211
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

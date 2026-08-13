@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:rymdmantel_stjarna",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_rymdmantel_stjarna"
+      },
+      "minecraft:display_name": {
+        "value": "Star Cloak (Starlight)"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

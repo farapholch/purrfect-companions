@@ -2,7 +2,7 @@
   "format_version": "1.19.0",
   "minecraft:entity": {
     "description": {
-      "identifier": "mjau:hazel",
+      "identifier": "mjau:nova",
       "is_spawnable": true,
       "is_summonable": true,
       "is_experimental": false,
@@ -2089,8 +2089,8 @@
           ],
           "breeds_with": [
             {
-              "mate_type": "mjau:hazel",
-              "baby_type": "mjau:hazel",
+              "mate_type": "mjau:nova",
+              "baby_type": "mjau:nova",
               "breed_event": {
                 "event": "minecraft:entity_born",
                 "target": "baby"

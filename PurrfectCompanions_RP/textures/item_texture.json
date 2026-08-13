@@ -176,6 +176,24 @@
     "pc_mantel_svart": {
       "textures": "textures/items/pc_mantel_svart"
     },
+    "pc_energisvard_bla": {
+      "textures": "textures/items/pc_energisvard_bla"
+    },
+    "pc_energisvard_gron": {
+      "textures": "textures/items/pc_energisvard_gron"
+    },
+    "pc_energisvard_rod": {
+      "textures": "textures/items/pc_energisvard_rod"
+    },
+    "pc_energisvard_lila": {
+      "textures": "textures/items/pc_energisvard_lila"
+    },
+    "pc_rymdmantel_stjarna": {
+      "textures": "textures/items/pc_rymdmantel_stjarna"
+    },
+    "pc_rymdmantel_tomrum": {
+      "textures": "textures/items/pc_rymdmantel_tomrum"
+    },
     "pc_godis": {
       "textures": "textures/items/pc_godis"
     }

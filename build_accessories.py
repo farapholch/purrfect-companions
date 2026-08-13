@@ -224,6 +224,40 @@ ACC = {
        key={"W":{"item":mat},"S":{"item":"minecraft:string"}},
        unlock=[{"item":mat},{"item":"minecraft:string"}]),
    mats={1:"minecraft:red_wool",2:"minecraft:blue_wool",3:"minecraft:purple_wool",4:"minecraft:black_wool"}),
+
+ # RYMDTEMAT (speltest-önskemål). Medvetet EGNA namn och former, inte lånade
+ # från någon film: projektet ligger publikt på CurseForge och ska inte luta
+ # sig mot någon annans varumärke. UV-slottarna ligger i det enda helt fria
+ # texturbandet (v211-223) — kolliderande UV ger sönderrenderade plagg.
+ "energisvard": dict(label="Energy Blade", bone="body", sound="armor.equip_netherite",
+   # riktigt vapen i handen, inte bara ett plagg — 8 skada ligger mellan
+   # diamant (7) och netherit (8), och 800 hållbarhet är i netheritklass
+   weapon=dict(damage=8, durability=800),
+   uv={1:(0,211),2:(16,211),3:(32,211),4:(48,211)},
+   colors={1:("bla",(96,180,255)),2:("gron",(120,240,140)),
+           3:("rod",(255,90,80)),4:("lila",(190,120,255))},
+   names={1:"Blue",2:"Green",3:"Red",4:"Purple"},
+   # bladet står upp ur ett fäste på ryggen; smala kuber så UV-avtrycket
+   # ryms i bandet (blad 4.8x10.2, fäste 5.6x4.4 sida vid sida)
+   cubes=[([-0.6,10,2],[1.2,9,1.2],(0,0)),
+          ([-0.7,7,2],[1.4,3,1.4],(6,0))],
+   recipe=lambda mat: dict(pattern=["G","G","I"],
+       key={"G":{"item":mat},"I":{"item":"minecraft:iron_ingot"}},
+       unlock=[{"item":mat},{"item":"minecraft:iron_ingot"}]),
+   mats={1:"minecraft:lapis_lazuli",2:"minecraft:emerald",
+         3:"minecraft:redstone",4:"minecraft:amethyst_shard"}),
+
+ "rymdmantel": dict(label="Star Cloak", bone="body", sound="armor.equip_leather",
+   uv={1:(64,211),2:(96,211)},
+   colors={1:("stjarna",(110,150,235)),2:("tomrum",(38,34,58))},
+   names={1:"Starlight",2:"Void"},
+   cubes=[([-3.4,4,5.2],[6.8,6,0.6],(0,0)),
+          ([-3.3,9.6,-5.6],[6.6,1,0.6],(16,0))],
+   recipe=lambda mat: dict(pattern=["S S","WWW","WGW"],
+       key={"W":{"item":mat},"S":{"item":"minecraft:string"},
+            "G":{"item":"minecraft:glowstone_dust"}},
+       unlock=[{"item":mat},{"item":"minecraft:glowstone_dust"}]),
+   mats={1:"minecraft:light_blue_wool",2:"minecraft:black_wool"}),
 }
 
 # ---------------------------------------------------------------- hjälpare
@@ -441,9 +475,22 @@ def build_rest():
             icon(a,col,f"{RP}/textures/items/{tex}.png")
             it["texture_data"][tex]={"textures":f"textures/items/{tex}"}
             nm=f"{cfg['label']} ({cfg['names'][i]})"
+            comps={"minecraft:icon":{"texture":tex},
+                   "minecraft:display_name":{"value":nm},
+                   "minecraft:max_stack_size":1}
+            # VAPEN (speltest-önskemål: "gör så man kan slåss med svärden"):
+            # plaggen är annars bara något man sätter PÅ katten. Energisvärdet
+            # är dessutom ett riktigt vapen i handen — hand_equipped får det
+            # att renderas som ett verktyg i stället för en platt ikon.
+            # Högerklick på katten sätter det ändå på den (interact-filtret
+            # läser handen), så båda användningarna funkar sida vid sida.
+            if cfg.get("weapon"):
+                comps["minecraft:hand_equipped"]=True
+                comps["minecraft:damage"]={"value":cfg["weapon"]["damage"]}
+                comps["minecraft:durability"]={"max_durability":cfg["weapon"]["durability"]}
+                comps["minecraft:enchantable"]={"value":10,"slot":"sword"}
             json.dump({"format_version":"1.20.50","minecraft:item":{"description":{"identifier":ident,
-              "menu_category":{"category":"equipment"}},"components":{"minecraft:icon":{"texture":tex},
-              "minecraft:display_name":{"value":nm},"minecraft:max_stack_size":1}}},
+              "menu_category":{"category":"equipment"}},"components":comps}},
               open(f"{BP}/items/{a}_{slug}.json","w"),indent=2)
             r=cfg["recipe"](cfg["mats"][i])
             json.dump({"format_version":"1.20.10","minecraft:recipe_shaped":{
@@ -538,7 +585,7 @@ def build_rest():
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append(f"mjau:armored_{i}")
                     ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).extend(
                         [f"mjau:armored_{j}" for j in (1,2,3,4) if j!=i]+["mjau:armored"])
-                if a=="mantel":
+                if a in ("mantel","rymdmantel"):
                     # SUPERKRAFTER (speltest-önskemål): manteln är inte bara stil —
                     # en ridd katt blir snabbare och hoppar högre (samma charged-
                     # jump-mekanik som redan bär katten upp fyrkullen/kattbanan,
@@ -582,6 +629,7 @@ def build_rest():
                     "rosett":("mjau:rosettmod","strength"),
                     "horn":("mjau:hornsvavning","slow_falling"),
                     "haxhatt":("mjau:haxbrygd","water_breathing"),
+                    "energisvard":("mjau:bladsken","night_vision"),
                     "tomteluva":("mjau:tomtegava","health_boost"),
                 }
                 if a in _EXTRA_POWERS:

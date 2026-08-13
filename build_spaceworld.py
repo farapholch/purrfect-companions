@@ -236,14 +236,19 @@ def build_commands(cats, disp):
     c.append(f"testforblock 45 {F+3} 0 glass")
 
     # -------------------------------------------------------------- UTKIKEN
-    # Torn upp från kupolen, terrasserad trappa runt (ridbar, samma läxa som
-    # kattbanans ramp: en stege stänger ute katten man rider på).
+    # Torn upp från kupolen med servicestege i schaktet.
+    # BUGFIX: första försöket la "trappsteg" på SAMMA z-spann varje nivå —
+    # en solid stapel, inte en trappa. Schaktet saknade dessutom stege och
+    # däcksgolvet förseglade toppen, så utkiken gick inte att nå alls trots
+    # att loggboken ber en klättra dit. Bygget verifierade bara att blocken
+    # FANNS, aldrig att man kom fram — samma klass av fel som Cat Havens
+    # genomspelningstest finns till för att fånga.
     c.append(f"fill -2 {F} 14 2 {F+14} 18 iron_block")
     c.append(f"fill -1 {F} 15 1 {F+14} 17 air")
-    for i in range(14):
-        c.append(f"fill -4 {F+i} {14+i//4} -3 {F+i} {18-i//4} quartz_stairs")
+    c.append(f'fill 0 {F} 17 0 {F+15} 17 ladder ["facing_direction"=2]')
     c.append(("sleep", 3))
     c.append(f"fill -6 {F+15} 12 6 {F+15} 20 quartz_block")        # däcket
+    c.append(f"setblock 0 {F+15} 17 air")                          # lucka upp ur schaktet
     c.append(f"fill -6 {F+16} 12 6 {F+18} 20 glass hollow")
     c.append(f"fill -5 {F+16} 13 5 {F+18} 19 air")
     c.append(f"setblock 0 {F+18} 16 sea_lantern")
@@ -252,6 +257,8 @@ def build_commands(cats, disp):
     c.append(f"structure load hamn:blade_lila 4 {F+16} 19")
     c.append(("sleep", 1))
     c.append(f"testforblock 0 {F+15} 16 quartz_block")
+    c.append(f"testforblock 0 {F+8} 17 ladder")                    # stegen i schaktet
+    c.append(f"testforblock 0 {F+15} 17 air")                      # luckan är öppen
     c.append(f"testforblock 4 {F+16} 19 chest")
 
     # ---------------------------------------------------------------- KATTERNA
@@ -325,7 +332,7 @@ def build(variant, outdir):
     katter = log.count("Found ")
     fel = [l.strip() for l in log.splitlines()
            if "Syntax error" in l or "Unknown block" in l or "ERROR" in l][:8]
-    if hittade < 12: problems.append(f"bara {hittade}/12 kontrollblock hittades")
+    if hittade < 14: problems.append(f"bara {hittade}/14 kontrollblock hittades")
     if katter < 4: problems.append(f"bara {katter}/4 katter verifierade")
     for e in fel: problems.append(f"serverfel: {e}")
 

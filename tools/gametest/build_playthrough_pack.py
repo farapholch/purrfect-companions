@@ -69,6 +69,18 @@ function ok(m) { console.warn("[MJAU-PT] " + m); }
 gt.registerAsync("mjau", "genomspelning", async (test) => {
   const d = world.getDimension("overworld");
   const B = (x, y, z) => { try { return d.getBlock({ x, y, z })?.typeId; } catch { return undefined; } };
+  // Chunkarna laddar inte alltid klart innan vi frågar — paketet har vuxit
+  // (20 plagg, 8 kattentiteter) och söket föll på ETT försök, med olika katt
+  // varje körning. Boot-testet bevisar oberoende att katterna FINNS i den
+  // skeppade världen, så det här är laddningstajming, inte innehållsfel.
+  const nearRetry = async (type, x, z, r, forsok = 25) => {
+    for (let i = 0; i < forsok; i++) {
+      const f = near(type, x, z, r);
+      if (f.length) return f;
+      await test.idle(10);
+    }
+    return [];
+  };
   const near = (type, x, z, r) => {
     try { return d.getEntities({ type, location: { x, y: -60, z }, maxDistance: r }); }
     catch { return []; }
@@ -126,7 +138,7 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
 
   // KAPITEL 1 — tämj de tre katterna
   for (const [type, x, z] of [["mjau:mocha", 0, 16], ["mjau:hazel", 16, 8], ["mjau:misty", -9, 33]]) {
-    const cat = near(type, x, z, 30)[0];
+    const cat = (await nearRetry(type, x, z, 30))[0];
     if (!cat) return done("hittar inte " + type, false);
     if (!(await tame(cat))) return done("kunde inte tamja " + type, false);
   }
@@ -136,7 +148,7 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   for (const [x, z] of [[14, 14], [-14, 38], [-35, 48]]) {
     if (B(x, -60, z) !== "minecraft:white_carpet") return done(`palstuss saknas vid ${x},${z}`, false);
   }
-  if (near("mjau:spokkatt", -40, 48, 35).length < 2) return done("spokkatterna saknas i skogen", false);
+  if ((await nearRetry("mjau:spokkatt", -40, 48, 35)).length < 2) return done("spokkatterna saknas i skogen", false);
   if (B(-20, -61, 45) !== "minecraft:oak_planks") return done("bron over floden saknas", false);
   if (B(-20, -61, 40) !== "minecraft:water") return done("floden saknas", false);
   if (B(-44, -60, 46) !== "minecraft:soul_lantern") return done("sjalslyktan i gamla kulan saknas", false);

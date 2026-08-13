@@ -49,16 +49,13 @@
           ],
           "transitions": [
             {
-              "standing": "q.is_saddled"
-            },
-            {
               "sleeping": "q.is_sleeping && !q.is_saddled"
             },
             {
               "walking": "query.modified_move_speed > 0.12"
             },
             {
-              "standing": "!query.is_sitting"
+              "standing": "q.is_saddled || !query.is_sitting"
             }
           ]
         },
@@ -69,13 +66,10 @@
           ],
           "transitions": [
             {
-              "standing": "q.is_saddled"
-            },
-            {
               "walking": "q.modified_move_speed > 0.12"
             },
             {
-              "standing": "!q.is_sleeping"
+              "standing": "q.is_saddled || !q.is_sleeping"
             }
           ]
         }

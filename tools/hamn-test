@@ -111,7 +111,7 @@ else ok "level.dat, paket-UUID:n, egen ikon, inga läckta strukturer, inga priva
 
 echo
 echo "[3/3] Bootar den paketerade publika världen (~1 min)"
-W=$(ls "$OUT"/purrfect-star-harbour-*.mcworld 2>/dev/null | head -1)
+W=$(ls "$OUT"/star-harbour-*.mcworld 2>/dev/null | head -1)
 if [ -z "$W" ]; then bad "ingen publik .mcworld att boota"; else
   SMOKE="$SRV/worlds/StarHarbourSmoke"
   rm -rf "$SMOKE"; mkdir -p "$SMOKE"
@@ -178,6 +178,63 @@ PY
   fi
   grep -cE "ERROR" "$SLOG" | grep -q '^0$' && ok "inga fel i serverloggen" \
     || bad "$(grep -c ERROR "$SLOG") fel-rader i serverloggen ($SLOG)"
+fi
+
+# SÖKVÄGSLÄNGD: Mod Mate packar upp världen till en djup Windows-katalog och
+# döper målmappen efter FILNAMNET. 2026-08-13 föll exakt en fil av 287 i
+# överföringen — animation_controllers/katt.animation_controllers.json, den
+# längsta sökvägen i paketet — vid 256 tecken. Kattgården på 254 klarade sig.
+# Windows MAX_PATH är 260 men flera API:er ger upp redan runt 255.
+PATHCHK=$(python3 - "$OUT" <<'PYPATH'
+import glob, os, sys, zipfile
+# Xbox-sökvägen ur Mod Mates logg, med användarnamnet som prefix
+PREFIX = (r"Q:\Users\UserMgr7\AppData\Local\Packages"
+          r"\Microsoft.MinecraftUWPConsole_8wekyb3d8bbwe\LocalState\games"
+          r"\com.mojang\minecraftWorlds" + "\\")
+GRANS = 250          # marginal mot ~255 där WinRT-skrivningen började falla
+varst = []
+for w in glob.glob(f"{sys.argv[1]}/*.mcworld"):
+    mapp = os.path.basename(w).rsplit(".", 1)[0]
+    for n in zipfile.ZipFile(w).namelist():
+        full = PREFIX + mapp + "\\" + n.replace("/", "\\")
+        varst.append((len(full), os.path.basename(w), n))
+varst.sort(reverse=True)
+langd, fil, post = varst[0]
+if langd > GRANS:
+    print(f"FÖR LÅNG SÖKVÄG: {langd} tecken ({fil} -> {post}) — Mod Mate tappar filen runt 255")
+else:
+    print(f"OK {langd}")
+PYPATH
+)
+case "$PATHCHK" in
+  OK*) ok "längsta sökväg ${PATHCHK#OK } tecken — under Mod Mates praktiska gräns" ;;
+  *)   bad "$PATHCHK" ;;
+esac
+
+# EXTRA: addon vs inbäddade paket måste vara BITIDENTISKA.
+# 2026-08-13 skilde de sig åt (en tom katalog följde med i .mcaddon men inte
+# i .mcworld) — samma UUID + samma version + olika innehåll är precis det
+# felläge som ger "packs failed to load" på Xbox. Ingen kontroll såg det:
+# versionskontrollen jämför bara mot loggboken över skeppade versioner.
+ADDON=$(ls -t /tmp/purrfect-companions-v*-familj.mcaddon 2>/dev/null | head -1)
+if [ -n "$ADDON" ]; then
+  AV=$(basename "$ADDON" | sed -E 's/.*-v([0-9.]+)-familj.*/\1/')
+  WV=$(ls "$OUT"/stjarnhamnen-v*-familj.mcworld 2>/dev/null | head -1 | sed -E 's/.*-v([0-9.]+)-familj.*/\1/')
+  if [ "$AV" != "$WV" ]; then
+    ok "hoppar över paketjämförelsen (addon v$AV, värld v$WV — olika versioner, ingen krock möjlig)"
+  else
+    rm -rf /tmp/hamn-packcmp && mkdir -p /tmp/hamn-packcmp/a /tmp/hamn-packcmp/v
+    ( cd /tmp/hamn-packcmp/a && unzip -qq "$ADDON" )
+    ( cd /tmp/hamn-packcmp/v && unzip -qq "$(ls "$OUT"/stjarnhamnen-v*-familj.mcworld | head -1)" )
+    PACKFAIL=0
+    for P in BP RP; do
+      diff -rq "/tmp/hamn-packcmp/a/PurrfectCompanions_$P" \
+               "$(ls -d /tmp/hamn-packcmp/v/*/PurrfectCompanions_$P | head -1)" >/dev/null 2>&1 || PACKFAIL=1
+    done
+    [ "$PACKFAIL" -eq 0 ] \
+      && ok "addonets paket är bitidentiska med världens inbäddade (samma UUID+version kräver samma innehåll)" \
+      || bad "addon v$AV och världens inbäddade paket SKILJER SIG — samma UUID+version med olika innehåll vägrar ladda på Xbox"
+  fi
 fi
 
 echo

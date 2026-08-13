@@ -138,7 +138,7 @@ else ok "level.dat, paket-UUID:n, inga läckta strukturer, inga privata namn pub
 
 echo
 echo "[3/3] Bootar den paketerade publika världen (~1 min)"
-W=$(ls "$OUT"/purrfect-cat-haven-*.mcworld 2>/dev/null | head -1)
+W=$(ls "$OUT"/cat-haven-*.mcworld 2>/dev/null | head -1)
 if [ -z "$W" ]; then bad "ingen publik .mcworld att boota"; else
   SMOKE="$SRV/worlds/CatHavenSmoke"
   rm -rf "$SMOKE"; mkdir -p "$SMOKE"

@@ -1273,7 +1273,7 @@ def build(variant, outdir):
     os.makedirs(outdir, exist_ok=True)
     suffix = "-familj" if variant == "private" else ""
     slug = "kattgarden" if variant == "private" else "cat-haven"
-    out = f"{outdir}/purrfect-{slug}-v{ver}{suffix}.mcworld"
+    out = f"{outdir}/{slug}-v{ver}{suffix}.mcworld"
     if os.path.exists(out): os.remove(out)
     icon = "/tmp/cathaven-world-icon.jpeg"                # världslistans bild
     if not os.path.exists(icon):
@@ -1312,7 +1312,7 @@ def build(variant, outdir):
             "version": bp["version"],
         }],
     }
-    tout = f"{outdir}/purrfect-{slug}-v{ver}{suffix}.mctemplate"
+    tout = f"{outdir}/{slug}-v{ver}{suffix}.mctemplate"
     if os.path.exists(tout): os.remove(tout)
     zf = zipfile.ZipFile(tout, "w", zipfile.ZIP_DEFLATED)
     for dirpath, _, files in os.walk(wdir):

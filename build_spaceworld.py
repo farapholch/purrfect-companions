@@ -351,7 +351,7 @@ def build(variant, outdir):
                        check=True, capture_output=True)
 
     for kind in ("mcworld", "mctemplate"):
-        out = f"{outdir}/purrfect-{slug}-v{ver}{suffix}.{kind}"
+        out = f"{outdir}/{slug}-v{ver}{suffix}.{kind}"
         if os.path.exists(out): os.remove(out)
         zf = zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED)
         for dirpath, _, files in os.walk(wdir):

@@ -233,14 +233,18 @@ ACC = {
    # riktigt vapen i handen, inte bara ett plagg — 8 skada ligger mellan
    # diamant (7) och netherit (8), och 800 hållbarhet är i netheritklass
    weapon=dict(damage=8, durability=800),
-   uv={1:(0,211),2:(16,211),3:(32,211),4:(48,211)},
+   uv={1:(0,211),2:(20,211),3:(40,211),4:(60,211)},
    colors={1:("bla",(96,180,255)),2:("gron",(120,240,140)),
            3:("rod",(255,90,80)),4:("lila",(190,120,255))},
    names={1:"Blue",2:"Green",3:"Red",4:"Purple"},
-   # bladet står upp ur ett fäste på ryggen; smala kuber så UV-avtrycket
-   # ryms i bandet (blad 4.8x10.2, fäste 5.6x4.4 sida vid sida)
-   cubes=[([-0.6,10,2],[1.2,9,1.2],(0,0)),
-          ([-0.7,7,2],[1.4,3,1.4],(6,0))],
+   # SILUETTEN ska läsa som ett svärd även i en enda färg (målaren ger hela
+   # plagget samma kulör): smalt blad, tydlig parerstång, avsmalnande spets.
+   # Första versionen var en enkel stolpe och såg ut som ett rör.
+   # UV-avtrycken läggs sida vid sida och ryms i det fria bandet v211-223.
+   cubes=[([-0.5,7,2.1],[1,2,1],(0,0)),          # grepp
+          ([-1.5,9,2.1],[3,0.8,1],(5,0)),        # parerstång
+          ([-0.4,9.8,2.25],[0.8,8,0.7],(14,0)),  # blad
+          ([-0.25,17.8,2.32],[0.5,1.2,0.45],(18,0))],   # spets
    recipe=lambda mat: dict(pattern=["G","G","I"],
        key={"G":{"item":mat},"I":{"item":"minecraft:iron_ingot"}},
        unlock=[{"item":mat},{"item":"minecraft:iron_ingot"}]),
@@ -248,7 +252,7 @@ ACC = {
          3:"minecraft:redstone",4:"minecraft:amethyst_shard"}),
 
  "rymdmantel": dict(label="Star Cloak", bone="body", sound="armor.equip_leather",
-   uv={1:(64,211),2:(96,211)},
+   uv={1:(88,211),2:(120,211)},
    colors={1:("stjarna",(110,150,235)),2:("tomrum",(38,34,58))},
    names={1:"Starlight",2:"Void"},
    cubes=[([-3.4,4,5.2],[6.8,6,0.6],(0,0)),
@@ -596,6 +600,15 @@ def build_rest():
                         "minecraft:movement":{"value":0.68},
                         "minecraft:horse.jump_strength":{"value":1.8}}
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:supermantel")
+                if a=="energisvard":
+                    # BEVÄPNAD KATT (speltest-önskemål): bladet är inte bara
+                    # dekor på ryggen — en katt som bär det slår hårdare när
+                    # den jagar. 3 -> 7 skada, i nivå med ett järnsvärd, så
+                    # den blir en riktig stridskompis utan att bli absurd.
+                    # Räckvidden lämnas orörd: katten ska fortfarande behöva
+                    # gå fram, inte plocka mål på håll.
+                    g["mjau:bladbararen"]={"minecraft:attack":{"damage":7}}
+                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:bladbararen")
                 if a in ("vingar","batvingar"):
                     # VINGKRAFT (speltest-önskemål "bygg alla"): aldrig fallskada,
                     # oavsett höjd — utökar samma damage_sensor-knep som redan gör

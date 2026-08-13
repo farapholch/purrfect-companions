@@ -2551,6 +2551,11 @@
             }
           ]
         }
+      },
+      "mjau:bladbararen": {
+        "minecraft:attack": {
+          "damage": 7
+        }
       }
     },
     "events": {
@@ -2635,6 +2640,118 @@
                 "weight": 10,
                 "set_property": {
                   "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
                 }
               }
             ]
@@ -3647,6 +3764,7 @@
         },
         "add": {
           "component_groups": [
+            "mjau:bladbararen",
             "mjau:bladsken"
           ]
         }
@@ -3657,6 +3775,7 @@
         },
         "add": {
           "component_groups": [
+            "mjau:bladbararen",
             "mjau:bladsken"
           ]
         }
@@ -3667,6 +3786,7 @@
         },
         "add": {
           "component_groups": [
+            "mjau:bladbararen",
             "mjau:bladsken"
           ]
         }
@@ -3677,6 +3797,7 @@
         },
         "add": {
           "component_groups": [
+            "mjau:bladbararen",
             "mjau:bladsken"
           ]
         }

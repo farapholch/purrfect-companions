@@ -41,7 +41,7 @@ TEXTS = {
             "Welcome to Star Harbour!\n\nThe station has been dark a long time. Its cats are still aboard - they know the corridors better than I ever did.\n\nEverything you need is in this chest.",
             "TASK 1 - WAKE THE STATION\n\nFour cats sleep aboard: one in the dome, one in the corridor, one in the hangar, one on the observation deck.\n\nTame them with the cod from this chest.",
             "TASK 2 - THE BLADES\n\nThe harbour kept four energy blades, one of each colour, locked in different bays.\n\nThey cut, and they light your way. Find them all.",
-            "TASK 3 - THE SHUTTLE\n\nThe shuttle in the hangar never flew again. Something worth keeping is still strapped in the hold.",
+            "TASK 3 - THE HANGAR\n\nThe shuttle in the hangar never flew again. Something worth keeping is still strapped in the hold.\n\nThe two spear-fighters beside it are older still. Nobody remembers who flew them.",
             "TASK 4 - THE OBSERVATION DECK\n\nClimb to the top of the station and look out at the dark.\n\nStanding there is its own reward - but not the only one.",
             "The beds carry the cats' names. Cat treats cheer them up when their tails droop - sugar, wheat and cod.\n\nMind the bays. The harbour kept more than blades.\n\n- The Harbourmaster",
             "One more thing, before the lights went out.\n\nThe cats spoke of one who was not born here - fur like the space between stars, and light caught in it.\n\nShe answers only to someone who carries all four colours at once.",
@@ -59,7 +59,7 @@ TEXTS = {
             "Välkommen till Stjärnhamnen!\n\nStationen har varit mörk länge. Katterna är kvar ombord - de kan korridorerna bättre än jag någonsin gjorde.\n\nAllt du behöver ligger i den här kistan.",
             "UPPDRAG 1 - VÄCK STATIONEN\n\nFyra katter sover ombord: en i kupolen, en i korridoren, en i hangaren, en på utkiken.\n\nTämj dem med torsken ur kistan.",
             "UPPDRAG 2 - BLADEN\n\nHamnen förvarade fyra energisvärd, ett i varje färg, inlåsta i olika fack.\n\nDe skär, och de lyser upp vägen. Hitta alla.",
-            "UPPDRAG 3 - SKYTTELN\n\nSkytteln i hangaren flög aldrig mer. Något värt att behålla sitter fastspänt i lastrummet.",
+            "UPPDRAG 3 - HANGAREN\n\nSkytteln i hangaren flög aldrig mer. Något värt att behålla sitter fastspänt i lastrummet.\n\nDe två spjutjaktarna bredvid är ännu äldre. Ingen minns vem som flög dem.",
             "UPPDRAG 4 - UTKIKEN\n\nKlättra högst upp i stationen och se ut i mörkret.\n\nAtt stå där är belöning nog - men inte den enda.",
             "Bäddarna bär katternas namn. Kattgodis piggar upp dem när svansen hänger - socker, vete och torsk.\n\nSe upp med facken. Hamnen förvarade mer än blad.\n\n- Hamnmästaren",
             "En sak till, innan ljuset slocknade.\n\nKatterna talade om en som inte föddes här - päls som mellanrummet mellan stjärnorna, och ljus fångat i den.\n\nHon svarar bara den som bär alla fyra färgerna samtidigt.",
@@ -202,6 +202,32 @@ def build_commands(cats, disp):
     c.append(f"fill 52 {F+1} 2 53 {F+2} 3 blackstone")
     c.append(f"fill 44 {F+3} -3 50 {F+3} 3 glass")                 # cockpitfönster
     c.append(("sleep", 2))
+
+    # SPJUTJAKTARNA: två små jaktplan parkerade på var sin sida om skytteln.
+    # Klassisk sci-fi-siluett — klotformad kabin mellan två höga, platta
+    # vingpaneler — men EGEN design och eget namn, av samma skäl som resten av
+    # temat: världen ligger publikt och ska inte låna någon annans varumärke.
+    for cz in (-9, 9):
+        cx = 39
+        # kabinen: liten kub med avfasade hörn + fönsterband
+        c.append(f"fill {cx-1} {F+2} {cz-1} {cx+1} {F+4} {cz+1} blackstone")
+        c.append(f"fill {cx-1} {F+3} {cz-1} {cx-1} {F+3} {cz+1} gray_stained_glass")
+        # vingpanelerna: 5 breda, 7 höga, en ruta tjocka — hörnen borttagna
+        # så rektangeln läser som en sexkant
+        for dz in (-3, 3):
+            pz = cz + dz
+            c.append(f"fill {cx-2} {F} {pz} {cx+2} {F+6} {pz} blackstone")
+            for corner_y, corner_x in ((F, cx-2), (F, cx+2), (F+6, cx-2), (F+6, cx+2)):
+                c.append(f"setblock {corner_x} {corner_y} {pz} air")
+        # bommarna som håller vingarna
+        for dz in (-2, 2):
+            c.append(f"setblock {cx} {F+3} {cz+dz} polished_blackstone")
+    c.append(("sleep", 2))
+    c.append(f"testforblock 39 {F+3} -12 blackstone")   # vingpanel, jaktplan 1
+    c.append(f"testforblock 39 {F+3} 12 blackstone")    # vingpanel, jaktplan 2
+    c.append(f"testforblock 38 {F+3} -9 gray_stained_glass")   # kabinfönster
+    c.append(("sleep", 1))
+
     c.append(f"structure load hamn:shuttlechest 47 {F+1} 0")
     c.append(f"structure load hamn:hangarsign 38 {F} 6")
     c.append(f"structure load hamn:blade_rod 36 {F} -12")
@@ -299,7 +325,7 @@ def build(variant, outdir):
     katter = log.count("Found ")
     fel = [l.strip() for l in log.splitlines()
            if "Syntax error" in l or "Unknown block" in l or "ERROR" in l][:8]
-    if hittade < 9: problems.append(f"bara {hittade}/9 kontrollblock hittades")
+    if hittade < 12: problems.append(f"bara {hittade}/12 kontrollblock hittades")
     if katter < 4: problems.append(f"bara {katter}/4 katter verifierade")
     for e in fel: problems.append(f"serverfel: {e}")
 

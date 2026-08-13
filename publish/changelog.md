@@ -1,3 +1,22 @@
+## 3.12.1 — The rider on the head, for the last time
+
+A saddled cat no longer plays its sitting or sleeping pose. Those poses
+tilt the body back sixteen degrees and drop it — the sleeping one flattens
+the cat completely — while the rider stays on a fixed seat point. The cat
+sank away, the head swung up, and you ended up perched on it.
+
+It only happened **sometimes** because the cat had to be nearly stationary
+and still carrying its sitting flag from before it was saddled. Mount a cat
+that has been walking around and you would never see it.
+
+2.6.2 fixed this same symptom once before, but that was a different cause
+(the seat's forward axis pointed the wrong way). This time the seat was
+innocent: a simulated rider measured the seat height on all three cat sizes,
+and Bedrock scales it correctly with the cat — 0.078, 0.162 and 0.246 blocks
+on a 0.85, 1.0 and 1.15 scale cat, proportional to the last decimal. That
+measurement now runs on every build, so if the seat ever drifts apart
+between the small, normal and large cats, the tests will say so.
+
 ## 3.0.0 — The big one: night arrival, real achievements, and THE floor fix
 
 A major release that gathers everything since 2.8.1 — thank you for the

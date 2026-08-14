@@ -215,7 +215,7 @@ system.runInterval(() => {
   const d = world.getDimension("overworld");
   let skepp;
   try { skepp = d.getEntities({ families: ["spjutjaktare"] }); } catch { return; }
-  for (const s of skepp) {
+  for (const s of skepp) try {
     let ryttare = [];
     try { ryttare = s.getComponent("minecraft:rideable")?.getRiders() ?? []; } catch { continue; }
     if (!ryttare.length) continue;
@@ -227,8 +227,74 @@ system.runInterval(() => {
     if (upp && vy > 0.6) continue;
     if (ner && vy < -0.6) continue;
     try { s.applyImpulse({ x: 0, y: upp ? 0.10 : -0.10, z: 0 }); } catch { }
-  }
+  } catch { }
 }, 2);
+
+// INGEN KATT, INGEN FLYGNING. Stjärnhamnen är en kattstation, och skeppen
+// ska inte gå att köra ensam. Kravet är inte ett osynligt villkor utan en
+// STOL: kliver du i utan katt letar skeppet upp en TAM katt inom 10 block och
+// sätter den i navigatörsstolen. Finns ingen sådan får du två sekunder på
+// dig, sedan står du på plattan igen.
+//
+// Kontrollen utgår från SPELAREN, inte från skeppet: vägen via skeppets
+// getRiders() gav en åkande vars typeId inte matchade "minecraft:player".
+//
+// EJ TÄCKT AV TESTERNA, och det går inte att åtgärda härifrån: en simulerad
+// spelare syns som `undefined` i world.getAllPlayers() sett från ett vanligt
+// skriptpaket (samma sak som fick Aurora-loopen att krascha). Speltestet kan
+// alltså aldrig bevisa varken utkastningen eller att katten sätter sig — bara
+// att stolarna finns och att addRider fungerar. Resten måste provas på konsol.
+const SKEPP_ID = "mjau:spjutjaktare";
+const KATTLOS = new Map();          // spelarnamn -> antal varv utan katt
+
+system.runInterval(() => {
+  const d = world.getDimension("overworld");
+  let spelare;
+  try { spelare = world.getAllPlayers(); } catch { return; }
+  for (const pl of spelare) try {
+    if (!pl) continue;
+    let fordon;
+    try { fordon = pl.getComponent("minecraft:riding")?.entityRidingOn; } catch { continue; }
+    if (!fordon || fordon.typeId !== SKEPP_ID) { KATTLOS.delete(pl.name); continue; }
+
+    // Sitter det redan en katt i skeppet? Frågan ställs från kattens håll:
+    // katten vet vad den åker på.
+    let narliggande = [];
+    try {
+      narliggande = d.getEntities({ families: ["mjaukatt"], location: fordon.location,
+                                    maxDistance: 12 });
+    } catch { }
+    const ombord = narliggande.some(c => {
+      try { return c.getComponent("minecraft:riding")?.entityRidingOn?.id === fordon.id; }
+      catch { return false; }
+    });
+    if (ombord) { KATTLOS.delete(pl.name); continue; }
+
+    const tam = narliggande.find(c => {
+      try { return c.getProperty("mjau:tam") === 1; } catch { return false; }
+    });
+    if (tam) {
+      try {
+        fordon.getComponent("minecraft:rideable")?.addRider(tam);
+        KATTLOS.delete(pl.name);
+        continue;
+      } catch { }
+    }
+
+    // Egen räknare: varvet körs var 5:e tick, så 8 varv = 2 sekunder. Nåden
+    // finns för att katten ska hinna ifatt innan man kastas av.
+    const varv = (KATTLOS.get(pl.name) ?? 0) + 1;
+    KATTLOS.set(pl.name, varv);
+    if (varv === 1) {
+      try { pl.onScreenDisplay.setActionBar({ translate: "mjau.skepp.behovkatt" }); } catch { }
+    } else if (varv >= 8) {
+      try { fordon.getComponent("minecraft:rideable")?.ejectRiders(); } catch { }
+      try { pl.onScreenDisplay.setActionBar({ translate: "mjau.skepp.utankatt" }); } catch { }
+      try { d.playSound("note.bass", fordon.location); } catch { }
+      KATTLOS.delete(pl.name);
+    }
+  } catch { }
+}, 5);
 
 const STATION = { x: 20, z: 0 };      // mitt på stationen
 const PLATTAN = { x: 65, y: -60, z: 0 };
@@ -239,7 +305,7 @@ system.runInterval(() => {
   const d = world.getDimension("overworld");
   let skepp;
   try { skepp = d.getEntities({ families: ["spjutjaktare"] }); } catch { return; }
-  for (const s of skepp) {
+  for (const s of skepp) try {
     let L;
     try { L = s.location; } catch { continue; }
     const dx = L.x - STATION.x, dz = L.z - STATION.z;
@@ -259,7 +325,7 @@ system.runInterval(() => {
         try { r.onScreenDisplay.setActionBar({ translate: "mjau.skepp.varning" }); } catch { }
       }
     }
-  }
+  } catch { }
 }, 20);
 
 // ---------------------------------------------------------------------------

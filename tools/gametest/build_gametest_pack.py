@@ -262,10 +262,36 @@ gt.registerAsync("mjau", "ritual", async (test) => {
 // skiljer ett fordon fran en staty — att man kommer OMBORD, och att skeppet
 // FLYTTAR SIG nar ryttaren gasar.
 gt.registerAsync("mjau", "skepp", async (test) => {
+  // stada bort skepp som blivit kvar fran en tidigare (fallen) korning —
+  // annars vaxer de i antal och stor bade matningar och skriptets loop
+  try {
+    for (const g of test.getDimension().getEntities({ type: "mjau:spjutjaktare" })) g.remove();
+  } catch { }
+  await test.idle(5);
   const skepp = test.spawn("mjau:spjutjaktare", { x: 20, y: 2, z: 20 });
   await test.idle(10);
   const p = test.spawnSimulatedPlayer({ x: 21, y: 2, z: 20 }, "GTSkepp");
   await test.idle(20);
+
+  // NAVIGATORSSTOLEN. Kravet "ingen katt, ingen flygning" gar INTE att prova
+  // harifran: en simulerad spelare syns som undefined i world.getAllPlayers()
+  // sett fran ett vanligt skriptpaket, sa skriptets kattkontroll ser aldrig
+  // vare sig piloten eller att den satt sig. Det testet kan bevisa ar att
+  // stolen finns och att en katt gar att satta i den — utan det spelar regeln
+  // ingen roll. Sjalva utkastningen maste provas pa riktig konsol.
+  const katt = test.spawn("mjau:misty", { x: 22, y: 2, z: 20 });
+  await test.idle(5);
+  katt.triggerEvent("mjau:on_tame");
+  await test.idle(10);
+  let kattIStol = false;
+  try {
+    skepp.getComponent("minecraft:rideable").addRider(katt);
+    await test.idle(10);
+    kattIStol = katt.getComponent("minecraft:riding")?.entityRidingOn?.id === skepp.id;
+  } catch (e) { console.warn("[MJAU-GT] skepp: addRider kastade " + e); }
+  console.warn(`[MJAU-GT] skepp: katt i navigatorsstolen = ${kattIStol}`);
+  if (!kattIStol) return done(test, "katten gick inte att satta i navigatorsstolen", false);
+
   let ombord = false;
   for (let i = 0; i < 10 && !ombord; i++) {
     p.teleport({ x: skepp.location.x + 1, y: skepp.location.y, z: skepp.location.z });
@@ -275,7 +301,9 @@ gt.registerAsync("mjau", "skepp", async (test) => {
     ombord = !!p.getComponent("minecraft:riding")?.entityRidingOn;
   }
   if (!ombord) return done(test, "skeppet gick inte att sitta i (rideable/seats?)", false);
-  console.warn("[MJAU-GT] skepp: ombord");
+  await test.idle(20);
+  if (!p.getComponent("minecraft:riding")?.entityRidingOn)
+    return done(test, "piloten satt inte kvar", false);
 
   // FRAMAT. Korta pass med hemflytt emellan: forsta forsoket lat skeppet gasa
   // i 2,5 s — det flog 45 block, alltsa RAKT UT ur arenan (40x40), och nasta
@@ -316,7 +344,7 @@ gt.registerAsync("mjau", "skepp", async (test) => {
     return done(test, `skeppet ror sig inte: bara ${sidled.toFixed(2)} block pa 0,75 s`, false);
   if (lyft < 1)
     return done(test, `hojdrodret biter inte: impuls 1.0 gav ${lyft.toFixed(2)} block`, false);
-  done(test, `skepp: ombord, ${sidled.toFixed(2)} block sidled, impuls lyfter ${lyft.toFixed(2)} block (knapparna gar ej att simulera)`, true);
+  done(test, `skepp: katt i navigatorsstolen, ${sidled.toFixed(2)} block sidled, impuls lyfter ${lyft.toFixed(2)} block (knapparna gar ej att simulera)`, true);
 })
   .structureName("mjau:arena")
   .maxTicks(2400);

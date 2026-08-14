@@ -133,10 +133,15 @@ def bp_entitet():
                 "minecraft:horse.jump_strength": {"value": 1.6},
                 "minecraft:can_power_jump": {},
                 "minecraft:input_ground_controlled": {},
+                # TVA sitsar: piloten framme, katten i navigatorsstolen.
+                # Kravet "man ska behova ha katt med sig for att flyga" losas
+                # inte med ett osynligt villkor utan med en stol — katten aker
+                # med, och det syns.
                 "minecraft:rideable": {
-                    "seat_count": 1, "family_types": ["player"],
+                    "seat_count": 2, "family_types": ["player", "mjaukatt"],
                     "interact_text": "action.interact.ride",
-                    "seats": [{"position": [0.0, 1.35, 0.0]}]},
+                    "seats": [{"position": [0.0, 1.35, 0.2]},
+                              {"position": [0.0, 1.30, -0.85]}]},
                 "minecraft:persistent": {},
                 "minecraft:nameable": {},
                 "minecraft:behavior.look_at_player": {"priority": 9,

@@ -254,6 +254,72 @@ gt.registerAsync("mjau", "ritual", async (test) => {
 })
   .structureName("mjau:arena")
   .maxTicks(2400);
+
+// SPJUTJAKTAREN GAR ATT FLYGA. "Kan man kora rymdskeppen?" var nej — de var
+// byggda av block. Nu ar de en entitet, och just den fragan gar bara att
+// besvara genom att faktiskt satta sig i och gasa: komponentlistan ser
+// rimlig ut aven nar den inte fungerar. Testet mater de tva sakerna som
+// skiljer ett fordon fran en staty — att man kommer OMBORD, och att skeppet
+// FLYTTAR SIG nar ryttaren gasar.
+gt.registerAsync("mjau", "skepp", async (test) => {
+  const skepp = test.spawn("mjau:spjutjaktare", { x: 20, y: 2, z: 20 });
+  await test.idle(10);
+  const p = test.spawnSimulatedPlayer({ x: 21, y: 2, z: 20 }, "GTSkepp");
+  await test.idle(20);
+  let ombord = false;
+  for (let i = 0; i < 10 && !ombord; i++) {
+    p.teleport({ x: skepp.location.x + 1, y: skepp.location.y, z: skepp.location.z });
+    await test.idle(5);
+    p.interactWithEntity(skepp);
+    await test.idle(10);
+    ombord = !!p.getComponent("minecraft:riding")?.entityRidingOn;
+  }
+  if (!ombord) return done(test, "skeppet gick inte att sitta i (rideable/seats?)", false);
+  console.warn("[MJAU-GT] skepp: ombord");
+
+  // FRAMAT. Korta pass med hemflytt emellan: forsta forsoket lat skeppet gasa
+  // i 2,5 s — det flog 45 block, alltsa RAKT UT ur arenan (40x40), och nasta
+  // avlasning small med "Entity being invalid".
+  try { skepp.teleport({ x: 20, y: 4, z: 20 }); } catch { }
+  await test.idle(5);
+  const a0 = { ...skepp.location };
+  p.moveRelative(0, 1);
+  await test.idle(15);
+  const b0 = { ...skepp.location };
+  try { p.stopMoving(); } catch { }
+  await test.idle(5);
+  const sidled = Math.hypot(b0.x - a0.x, b0.z - a0.z);
+  console.warn(`[MJAU-GT] skepp: ${sidled.toFixed(2)} block sidled pa 0,75 s`);
+
+  // HOJDMEKANIKEN. Skriptets hojdroder lyfter skeppet med applyImpulse nar
+  // ryttaren hoppar respektive smyger. Sjalva knapptrycken gar INTE att
+  // simulera: en ridande SimulatedPlayer rapporterar varken isJumping,
+  // isSneaking eller blickvinkel — allt lag kvar pa 0/false hur vi an satte
+  // dem (setRotation, lookAtLocation, isSneaking=true). Det testet DAREMOT
+  // kan bevisa ar att sjalva lyftet biter pa den har entiteten; utan det
+  // spelar knapparna ingen roll. Aterstoden maste provas pa riktig konsol.
+  let lyft = 0;
+  try {
+    skepp.teleport({ x: 20, y: 8, z: 20 });
+    await test.idle(5);
+    const y0 = skepp.location.y;
+    skepp.applyImpulse({ x: 0, y: 1.0, z: 0 });
+    await test.idle(10);
+    lyft = skepp.location.y - y0;
+  } catch (e) { console.warn("[MJAU-GT] skepp: applyImpulse kastade " + e); }
+  console.warn(`[MJAU-GT] skepp: lyft av impuls 1.0 = ${lyft.toFixed(2)} block`);
+
+  try { p.stopMoving(); p.stopRiding(); } catch { }
+  await test.idle(5);
+  try { skepp.remove(); } catch { }
+  if (sidled < 3)
+    return done(test, `skeppet ror sig inte: bara ${sidled.toFixed(2)} block pa 0,75 s`, false);
+  if (lyft < 1)
+    return done(test, `hojdrodret biter inte: impuls 1.0 gav ${lyft.toFixed(2)} block`, false);
+  done(test, `skepp: ombord, ${sidled.toFixed(2)} block sidled, impuls lyfter ${lyft.toFixed(2)} block (knapparna gar ej att simulera)`, true);
+})
+  .structureName("mjau:arena")
+  .maxTicks(2400);
 ''')
 
 # Arena: 7x5x7-struktur, stengolv, resten luft. GameTest kräver en struktur

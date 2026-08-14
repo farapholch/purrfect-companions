@@ -1,0 +1,24 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "mjau:spjutjaktare",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/entity/spjutjaktare"
+      },
+      "geometry": {
+        "default": "geometry.spjutjaktare"
+      },
+      "spawn_egg": {
+        "base_colour": "#26262f",
+        "overlay_colour": "#82c8f0"
+      },
+      "render_controllers": [
+        "controller.render.default"
+      ]
+    }
+  }
+}

@@ -69,6 +69,7 @@ system.runInterval(() => {
   let players;
   try { players = world.getAllPlayers(); } catch { return; }
   for (const pl of players) {
+    if (!pl) continue;                 // getAllPlayers kan ge tomma platser
     const L = pl.location;
     if (Math.hypot(L.x - 26, L.z - 80) > 6 || L.y < -50) continue;
     try {
@@ -187,6 +188,79 @@ system.runInterval(() => {
     }
   } catch { }
 }, 5);
+
+// ---------------------------------------------------------------------------
+// SPJUTJAKTARENS HEMVÄNDNING. Stjärnhamnen svävar i tomrum: flyger man rakt
+// ut finns ingen mark att landa på och ingen väg tillbaka. Skeppet hålls
+// därför i koppel — en varning vid 60 block från stationen, och vid 85 (eller
+// under y=-110) sätts det tillbaka på landningsplattan utanför hangaren.
+//
+// Kontrollen bryr sig inte om VARFÖR skeppet hamnade utanför, bara att det
+// gjorde det, så den räddar lika bra ett barn som flög fel som ett skepp
+// någon knuffat. Ryttaren följer med i teleporten.
+// HÖJDRODRET. Mätning med simulerad spelare: input_ground_controlled styr
+// BARA i sidled — skeppet flög 12,8 block på 0,75 s men rörde sig 0,00 block
+// i höjd. Ett skepp som varken stiger eller sjunker är en hiss utan knappar,
+// så höjden läggs på här i stället.
+//
+// Styrningen är HOPPA = upp, SMYGA = ner. Första försöket lät nosens vinkel
+// styra, men en ryttares blickriktning gick inte att läsa alls i testet
+// (pitch=0 oavsett setRotation och lookAtLocation) — en kontroll som inte går
+// att mäta går heller inte att lova att den fungerar.
+//
+// Farten begränsas till ±0.6 block/tick: applyImpulse ADDERAR, så utan tak
+// hade två sekunders hopp skickat skeppet ut i rymden. Uppmätt: impuls 1.0
+// lyfter skeppet 10 block, så 0.10 är ungefär ett block per knapptryck.
+system.runInterval(() => {
+  const d = world.getDimension("overworld");
+  let skepp;
+  try { skepp = d.getEntities({ families: ["spjutjaktare"] }); } catch { return; }
+  for (const s of skepp) {
+    let ryttare = [];
+    try { ryttare = s.getComponent("minecraft:rideable")?.getRiders() ?? []; } catch { continue; }
+    if (!ryttare.length) continue;
+    let upp = false, ner = false;
+    try { upp = !!ryttare[0].isJumping; ner = !!ryttare[0].isSneaking; } catch { continue; }
+    if (upp === ner) continue;                      // båda eller ingen: håll höjden
+    let vy = 0;
+    try { vy = s.getVelocity().y; } catch { }
+    if (upp && vy > 0.6) continue;
+    if (ner && vy < -0.6) continue;
+    try { s.applyImpulse({ x: 0, y: upp ? 0.10 : -0.10, z: 0 }); } catch { }
+  }
+}, 2);
+
+const STATION = { x: 20, z: 0 };      // mitt på stationen
+const PLATTAN = { x: 65, y: -60, z: 0 };
+const VARNA = 110, HEM = 150, BOTTEN = -110;   // 45 block/2,5 s uppmätt
+// => ~8 s från stationen till varningen. Kortare koppel blev en tvärnit.
+
+system.runInterval(() => {
+  const d = world.getDimension("overworld");
+  let skepp;
+  try { skepp = d.getEntities({ families: ["spjutjaktare"] }); } catch { return; }
+  for (const s of skepp) {
+    let L;
+    try { L = s.location; } catch { continue; }
+    const dx = L.x - STATION.x, dz = L.z - STATION.z;
+    const avstand = Math.sqrt(dx * dx + dz * dz);
+    if (avstand < VARNA && L.y > BOTTEN) continue;
+
+    let ryttare = [];
+    try { ryttare = s.getComponent("minecraft:rideable")?.getRiders() ?? []; } catch { }
+    if (avstand >= HEM || L.y <= BOTTEN) {
+      try { s.teleport(PLATTAN); } catch { }
+      for (const r of ryttare) {
+        try { r.onScreenDisplay.setActionBar({ translate: "mjau.skepp.hem" }); } catch { }
+      }
+      try { d.playSound("beacon.deactivate", PLATTAN); } catch { }
+    } else {
+      for (const r of ryttare) {
+        try { r.onScreenDisplay.setActionBar({ translate: "mjau.skepp.varning" }); } catch { }
+      }
+    }
+  }
+}, 20);
 
 // ---------------------------------------------------------------------------
 // UPPDRAGS-UTMÄRKELSER: titel + fanfar när milstolpar nås. Plattforms-

@@ -130,7 +130,7 @@ PY
   sed -i "s/^level-name=.*/level-name=StarHarbourSmoke/" "$PROPS"
   SLOG=/tmp/hamn-smoke.log
   { sleep 28
-    echo "tickingarea add -20 -70 -20 60 -20 40 station"; sleep 4
+    echo "tickingarea add -20 -70 -20 78 -20 40 station"; sleep 4
     # KUPOLEN
     echo "testforblock 0 -52 0 glass"; sleep 1            # kupoltaket
     echo "testforblock -3 -60 3 chest"; sleep 1           # startkistan
@@ -143,8 +143,12 @@ PY
     # HANGAREN
     echo "testforblock 47 -59 0 chest"; sleep 1           # skyttelns lastrum
     echo "testforblock 45 -57 0 glass"; sleep 1           # cockpitfönstret
-    echo "testforblock 39 -57 -12 blackstone"; sleep 1    # jaktplan 1, vingpanel
-    echo "testforblock 39 -57 12 blackstone"; sleep 1     # jaktplan 2, vingpanel
+    # HANGARPORTEN + LANDNINGSPLATTAN: utan dem sitter ett flygbart skepp
+    # fast i en sluten låda
+    echo "testforblock 56 -57 0 air"; sleep 1             # porten är öppen
+    echo "testforblock 65 -61 0 light_gray_concrete"; sleep 1
+    echo "testforblock 74 -60 0 iron_block"; sleep 1      # kanten mot tomrummet
+    echo "testforblock 70 -60 0 sea_lantern"; sleep 1     # inflygningsljus
     echo "testforblock 36 -60 -12 chest"; sleep 1         # bladfack: rött
     # UTKIKEN — vägen dit, inte bara att däcket finns
     echo "testforblock 0 -52 17 ladder"; sleep 1          # servicestegen i schaktet
@@ -182,6 +186,8 @@ PY
     echo "testforblock 0 -64 25 air"; sleep 1
     # KATTERNA + kistprovet
     echo "testfor @e[type=mjau:misty,x=-6,y=-60,z=6,r=40]"; sleep 1
+    # SKEPPEN: två flygbara jaktplan, inte kulisser av block
+    echo "testfor @e[type=mjau:spjutjaktare,x=39,y=-60,z=0,r=20]"; sleep 1
     echo "setblock -3 -60 3 air destroy"; sleep 2
     echo "testfor @e[type=item,x=-3,y=-60,z=3,r=8]"; sleep 1
     echo "tickingarea remove station"; sleep 1
@@ -192,8 +198,11 @@ PY
   grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" \
     || bad "paketen laddades INTE ur världen"
   FB=$(grep -c 'found the block' "$SLOG")
-  [ "$FB" -ge 78 ] && ok "alla $FB/78 kontroller: nyckelblock, hela gångvägen kupol->korridor->hangar->torn, vägvisarna och tomrummet runt om" \
-    || bad "bara $FB/78 kontroller i den paketerade världen — se $SLOG för vilket block som fattas"
+  [ "$FB" -ge 80 ] && ok "alla $FB/80 kontroller: nyckelblock, hela gångvägen kupol->korridor->hangar->torn, vägvisarna och tomrummet runt om" \
+    || bad "bara $FB/80 kontroller i den paketerade världen — se $SLOG för vilket block som fattas"
+  grep -qE "Found (Spear Fighter|Spjutjaktare)" "$SLOG" \
+    && ok "de två jaktplanen är flygbara entiteter, inte kulisser av block" \
+    || bad "jaktplanen saknas i den paketerade världen"
   grep -q "Found " "$SLOG" && ok "katterna överlevde paketeringen (namngivna, persistenta)" \
     || bad "katterna saknas i den paketerade världen"
   # kistprovet: bara riktiga, accepterade föremål trillar ut som item-entiteter.

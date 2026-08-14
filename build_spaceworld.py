@@ -35,17 +35,18 @@ TEXTS = {
         "book_author": "The Harbourmaster",
         "welcome_sign": "STAR HARBOUR\nCat station\nneeds a new\nharbourmaster",
         "dome_sign": "THE DOME\nRead the log\nin the chest\ninside ->",
-        "hangar_sign": "HANGAR\nThe shuttle\nnever flew\nagain",
+        "hangar_sign": "HANGAR\nShuttle stays\nFighters fly\nGate: east",
         "deck_sign": "OBSERVATION\nThe stars are\nclosest here.\nLook up.",
         # vägvisarna vid de tre dörrarna — den röda tråden genom stationen
         "way_corridor": "TASK 2\nTHE BLADES\nthrough here ->",
         "way_hangar": "TASK 3\nTHE HANGAR\nthrough here ->",
         "way_tower": "TASK 4\nUP THE TOWER\nladder inside",
+        "ship_name": "Spear Fighter",
         "book_pages": [
             "Welcome to Star Harbour!\n\nThe station has been dark a long time. Its cats are still aboard - they know the corridors better than I ever did.\n\nEverything you need is in this chest.",
             "TASK 1 - WAKE THE STATION\n\nFour cats sleep aboard: one in the dome, one in the corridor, one in the hangar, one on the observation deck.\n\nTame them with the cod from this chest.",
             "TASK 2 - THE BLADES\n\nThe harbour kept four energy blades, one of each colour, locked in different bays.\n\nHold one and it swings like a sword - it cuts harder than iron.\n\nOr tame a cat, hold the blade and press Equip: the cat carries it and fights beside you.",
-            "TASK 3 - THE HANGAR\n\nThe shuttle in the hangar never flew again. Something worth keeping is still strapped in the hold.\n\nThe two spear-fighters beside it are older still. Nobody remembers who flew them.",
+            "TASK 3 - THE HANGAR\n\nThe shuttle never flew again. Something worth keeping is still strapped in its hold.\n\nThe two spear-fighters beside it still start. Climb in, and the gate east is open - but the harbour keeps you on a short leash out there.",
             "TASK 4 - THE OBSERVATION DECK\n\nClimb to the top of the station and look out at the dark.\n\nStanding there is its own reward - but not the only one.",
             "The beds carry the cats' names. Cat treats cheer them up when their tails droop - sugar, wheat and cod.\n\nMind the bays. The harbour kept more than blades.\n\n- The Harbourmaster",
             "One more thing, before the lights went out.\n\nThe cats spoke of one who was not born here - fur like the space between stars, and light caught in it.\n\nShe answers only to someone who carries all four colours at once.",
@@ -57,16 +58,17 @@ TEXTS = {
         "book_author": "Hamnmästaren",
         "welcome_sign": "STJÄRNHAMNEN\nStationen\nbehöver en ny\nhamnmästare",
         "dome_sign": "KUPOLEN\nLäs loggboken\ni kistan\ndärinne ->",
-        "hangar_sign": "HANGAREN\nSkytteln\nflög aldrig\nmer",
+        "hangar_sign": "HANGAREN\nSkytteln star\nJaktplan flyger\nPort: oster",
         "deck_sign": "UTKIKEN\nStjärnorna är\nnärmast här.\nTitta upp.",
         "way_corridor": "UPPDRAG 2\nBLADEN\nhär framme ->",
         "way_hangar": "UPPDRAG 3\nHANGAREN\nhär framme ->",
         "way_tower": "UPPDRAG 4\nUPP I TORNET\nstege därinne",
+        "ship_name": "Spjutjaktare",
         "book_pages": [
             "Välkommen till Stjärnhamnen!\n\nStationen har varit mörk länge. Katterna är kvar ombord - de kan korridorerna bättre än jag någonsin gjorde.\n\nAllt du behöver ligger i den här kistan.",
             "UPPDRAG 1 - VÄCK STATIONEN\n\nFyra katter sover ombord: en i kupolen, en i korridoren, en i hangaren, en på utkiken.\n\nTämj dem med torsken ur kistan.",
             "UPPDRAG 2 - BLADEN\n\nHamnen förvarade fyra energisvärd, ett i varje färg, inlåsta i olika fack.\n\nHåll ett i handen så svingas det som ett svärd - det hugger hårdare än järn.\n\nEller tämj en katt, håll bladet och tryck Utrusta: katten bär det och slåss vid din sida.",
-            "UPPDRAG 3 - HANGAREN\n\nSkytteln i hangaren flög aldrig mer. Något värt att behålla sitter fastspänt i lastrummet.\n\nDe två spjutjaktarna bredvid är ännu äldre. Ingen minns vem som flög dem.",
+            "UPPDRAG 3 - HANGAREN\n\nSkytteln flög aldrig mer. Något värt att behålla sitter fastspänt i lastrummet.\n\nDe två spjutjaktarna bredvid startar fortfarande. Kliv i - porten österut är öppen, men hamnen håller dig i kort koppel därute.",
             "UPPDRAG 4 - UTKIKEN\n\nKlättra högst upp i stationen och se ut i mörkret.\n\nAtt stå där är belöning nog - men inte den enda.",
             "Bäddarna bär katternas namn. Kattgodis piggar upp dem när svansen hänger - socker, vete och torsk.\n\nSe upp med facken. Hamnen förvarade mer än blad.\n\n- Hamnmästaren",
             "En sak till, innan ljuset slocknade.\n\nKatterna talade om en som inte föddes här - päls som mellanrummet mellan stjärnorna, och ljus fångat i den.\n\nHon svarar bara den som bär alla fyra färgerna samtidigt.",
@@ -131,7 +133,7 @@ def build_structures(outdir, t, disp, cats):
         s.emit(f"{st}/namn_{src}.mcstructure")
 
 
-def build_commands(cats, disp):
+def build_commands(cats, disp, t):
     c = []
     c.append("gamerule commandblockoutput false")
     c.append("gamerule domobspawning false")
@@ -140,7 +142,10 @@ def build_commands(cats, disp):
     # evig natt: i tomrummet är stjärnhimlen hela kulissen, och en soluppgång
     # tog bort precis den rymdkänsla världen bygger på
     c.append("gamerule dodaylightcycle false")
-    c.append(f"tickingarea add -40 {G-4} -40 60 {G+40} 60 bygge")
+    # x till 78: landningsplattan går till x=74, och i en TOMRUMSVÄRLD finns
+    # inga chunks utanför tickingarean att fylla — fill svarar "Cannot place
+    # blocks outside of the world". 8x7 chunks, väl under taket på 100.
+    c.append(f"tickingarea add -40 {G-4} -40 78 {G+40} 60 bygge")
     c.append(("sleep", 4))
 
     # ---------------------------------------------------------------- KUPOLEN
@@ -221,29 +226,36 @@ def build_commands(cats, disp):
     c.append(f"fill 44 {F+3} -3 50 {F+3} 3 glass")                 # cockpitfönster
     c.append(("sleep", 2))
 
-    # SPJUTJAKTARNA: två små jaktplan parkerade på var sin sida om skytteln.
-    # Klassisk sci-fi-siluett — klotformad kabin mellan två höga, platta
-    # vingpaneler — men EGEN design och eget namn, av samma skäl som resten av
-    # temat: världen ligger publikt och ska inte låna någon annans varumärke.
-    for cz in (-9, 9):
-        cx = 39
-        # kabinen: liten kub med avfasade hörn + fönsterband
-        c.append(f"fill {cx-1} {F+2} {cz-1} {cx+1} {F+4} {cz+1} blackstone")
-        c.append(f"fill {cx-1} {F+3} {cz-1} {cx-1} {F+3} {cz+1} gray_stained_glass")
-        # vingpanelerna: 5 breda, 7 höga, en ruta tjocka — hörnen borttagna
-        # så rektangeln läser som en sexkant
-        for dz in (-3, 3):
-            pz = cz + dz
-            c.append(f"fill {cx-2} {F} {pz} {cx+2} {F+6} {pz} blackstone")
-            for corner_y, corner_x in ((F, cx-2), (F, cx+2), (F+6, cx-2), (F+6, cx+2)):
-                c.append(f"setblock {corner_x} {corner_y} {pz} air")
-        # bommarna som håller vingarna
-        for dz in (-2, 2):
-            c.append(f"setblock {cx} {F+3} {cz+dz} polished_blackstone")
+    # HANGARPORTEN + LANDNINGSPLATTAN. Hangaren var en helt sluten låda, så
+    # även ett flygbart skepp hade suttit fast i den. Porten går ut österut,
+    # bort från resten av stationen. Plattan utanför finns för att man ska
+    # kunna gå ut utan att trilla i tomrummet — med en kant runt om.
+    c.append(f"fill 56 {F} -6 56 {F+7} 6 air")                     # porten
+    c.append(f"fill 56 {G} -10 74 {G} 10 light_gray_concrete")     # plattan
+    c.append(f"fill 74 {F} -10 74 {F} 10 iron_block")              # kant: ytterkant
+    c.append(f"fill 57 {F} -10 74 {F} -10 iron_block")             # kant: söder
+    c.append(f"fill 57 {F} 10 74 {F} 10 iron_block")               # kant: norr
+    for pz in (-7, 0, 7):
+        c.append(f"setblock 70 {F} {pz} sea_lantern")              # inflygningsljus
     c.append(("sleep", 2))
-    c.append(f"testforblock 39 {F+3} -12 blackstone")   # vingpanel, jaktplan 1
-    c.append(f"testforblock 39 {F+3} 12 blackstone")    # vingpanel, jaktplan 2
-    c.append(f"testforblock 38 {F+3} -9 gray_stained_glass")   # kabinfönster
+    c.append(f"testforblock 56 {F+3} 0 air")            # porten är öppen
+    c.append(f"testforblock 65 {G} 0 light_gray_concrete")
+    c.append(f"testforblock 74 {F} 0 iron_block")       # kanten håller
+
+    # SPJUTJAKTARNA: två flygbara jaktplan parkerade på var sin sida om
+    # skytteln. Klassisk sci-fi-siluett — klotformad kabin mellan två höga,
+    # platta vingpaneler — men EGEN design och eget namn, av samma skäl som
+    # resten av temat: världen ligger publikt och ska inte låna någon annans
+    # varumärke.
+    #
+    # De var förut byggda av block: snygga, men bara kulisser. Nu är de
+    # entiteter man kan sätta sig i och flyga (mjau:spjutjaktare). Det man ser
+    # i hangaren är alltså det man flyger — inga dubletter.
+    for i, cz in enumerate((-9, 9)):
+        c.append(f'summon mjau:spjutjaktare "{t["ship_name"]} {i+1}" 39 {F} {cz}')
+        c.append(("sleep", 1))
+    c.append(("sleep", 1))
+    c.append(f"testfor @e[type=mjau:spjutjaktare,x=39,y={F},z=0,r=20]")
     c.append(("sleep", 1))
 
     c.append(f"structure load hamn:shuttlechest 47 {F+1} 0")
@@ -391,7 +403,7 @@ def build(variant, outdir):
     nbt.write_level_dat(f"{wdir}/level.dat", version, root)
     shutil.rmtree(f"{wdir}/db", ignore_errors=True)
 
-    log = bw.run_server_build(world_name, build_commands(cats, disp), f"/tmp/hamn-build-{variant}.log")
+    log = bw.run_server_build(world_name, build_commands(cats, disp, t), f"/tmp/hamn-build-{variant}.log")
     problems = []
     hittade = log.count("found the block")
     katter = log.count("Found ")

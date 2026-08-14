@@ -42,12 +42,18 @@ TEXTS = {
         "way_hangar": "TASK 3\nTHE HANGAR\nthrough here ->",
         "way_tower": "TASK 4\nUP THE TOWER\nladder inside",
         "ship_name": "Spear Fighter",
+        "sign_krater": "SAMPLE SITE\nDeep crater\nnorth of base\nTake a sample",
+        "sign_rela": "RELAY MAST\nSilent since\nthe lights\nwent out",
+        "sign_sond": "CRASHED PROBE\nIt came down\nhard. Its core\nstill hums.",
         "book_pages": [
             "Welcome to Star Harbour!\n\nThe station has been dark a long time. Its cats are still aboard - they know the corridors better than I ever did.\n\nEverything you need is in this chest.",
             "TASK 1 - WAKE THE STATION\n\nFour cats sleep aboard: one in the dome, one in the corridor, one in the hangar, one on the observation deck.\n\nTame them with the cod from this chest.",
             "TASK 2 - THE BLADES\n\nThe harbour kept four energy blades, one of each colour, locked in different bays.\n\nHold one and it swings like a sword - it cuts harder than iron.\n\nOr tame a cat, hold the blade and press Equip: the cat carries it and fights beside you.",
             "TASK 3 - THE HANGAR\n\nThe shuttle never flew again. Something worth keeping is still strapped in its hold.\n\nThe two spear-fighters beside it still start - but no cat, no flight. Tame one, keep it close, and it takes the navigator's seat by itself. The gate east is open; the harbour keeps you on a short leash out there.",
             "TASK 4 - THE OBSERVATION DECK\n\nClimb to the top of the station and look out at the dark.\n\nStanding there is its own reward - but not the only one.",
+            "TASK 5 - THE SAMPLE SITE\n\nNorth of the base, a crater deep enough to swallow the shuttle. There is a sample chest at the bottom.\n\nFly. It is too far to walk, and the mast light will guide you in.",
+            "TASK 6 - THE SILENT RELAY\n\nFar to the east stands the relay mast. It has not spoken since the lights went out.\n\nWhatever the harbour needs to hear it again is in the crate beside it.",
+            "TASK 7 - THE CRASHED PROBE\n\nWest, in a crater of its own making. It came down hard - but the core still hums.\n\nBring back all three finds at once and the harbour will call you its surveyor.",
             "The beds carry the cats' names. Cat treats cheer them up when their tails droop - sugar, wheat and cod.\n\nMind the bays. The harbour kept more than blades.\n\n- The Harbourmaster",
             "One more thing, before the lights went out.\n\nThe cats spoke of one who was not born here - fur like the space between stars, and light caught in it.\n\nShe answers only to someone who carries all four colours at once.",
         ],
@@ -64,12 +70,18 @@ TEXTS = {
         "way_hangar": "UPPDRAG 3\nHANGAREN\nhär framme ->",
         "way_tower": "UPPDRAG 4\nUPP I TORNET\nstege därinne",
         "ship_name": "Spjutjaktare",
+        "sign_krater": "PROVPLATSEN\nDjup krater\nnorr om basen\nTa ett prov",
+        "sign_rela": "RELAMASTEN\nTyst sedan\nljuset\nslocknade",
+        "sign_sond": "KRASCHAD SOND\nDen kom ner\nhart. Karnan\nsurrar an.",
         "book_pages": [
             "Välkommen till Stjärnhamnen!\n\nStationen har varit mörk länge. Katterna är kvar ombord - de kan korridorerna bättre än jag någonsin gjorde.\n\nAllt du behöver ligger i den här kistan.",
             "UPPDRAG 1 - VÄCK STATIONEN\n\nFyra katter sover ombord: en i kupolen, en i korridoren, en i hangaren, en på utkiken.\n\nTämj dem med torsken ur kistan.",
             "UPPDRAG 2 - BLADEN\n\nHamnen förvarade fyra energisvärd, ett i varje färg, inlåsta i olika fack.\n\nHåll ett i handen så svingas det som ett svärd - det hugger hårdare än järn.\n\nEller tämj en katt, håll bladet och tryck Utrusta: katten bär det och slåss vid din sida.",
             "UPPDRAG 3 - HANGAREN\n\nSkytteln flög aldrig mer. Något värt att behålla sitter fastspänt i lastrummet.\n\nDe två spjutjaktarna bredvid startar fortfarande - men ingen katt, ingen flygning. Tämj en och håll den nära, så tar den navigatörsstolen själv. Porten österut är öppen, men hamnen håller dig i kort koppel därute.",
             "UPPDRAG 4 - UTKIKEN\n\nKlättra högst upp i stationen och se ut i mörkret.\n\nAtt stå där är belöning nog - men inte den enda.",
+            "UPPDRAG 5 - PROVPLATSEN\n\nNorr om basen finns en krater djup nog att svälja skytteln. På botten står en provkista.\n\nFlyg dit. Det är för långt att gå, och mastens ljus visar vägen.",
+            "UPPDRAG 6 - DEN TYSTA RELÄN\n\nLångt österut står relämasten. Den har inte hörts av sedan ljuset slocknade.\n\nDet hamnen behöver för att höra den igen ligger i lådan bredvid.",
+            "UPPDRAG 7 - DEN KRASCHADE SONDEN\n\nVästerut, i sin egen nedslagskrater. Den kom ner hårt - men kärnan surrar än.\n\nBär hem alla tre fynden samtidigt så kallar hamnen dig sin kartläggare.",
             "Bäddarna bär katternas namn. Kattgodis piggar upp dem när svansen hänger - socker, vete och torsk.\n\nSe upp med facken. Hamnen förvarade mer än blad.\n\n- Hamnmästaren",
             "En sak till, innan ljuset slocknade.\n\nKatterna talade om en som inte föddes här - päls som mellanrummet mellan stjärnorna, och ljus fångat i den.\n\nHon svarar bara den som bär alla fyra färgerna samtidigt.",
         ],
@@ -102,7 +114,10 @@ def build_structures(outdir, t, disp, cats):
                                 ("deck", t["deck_sign"], 12),
                                 ("waycorridor", t["way_corridor"], 4),
                                 ("wayhangar", t["way_hangar"], 4),
-                                ("waytower", t["way_tower"], 0)):
+                                ("waytower", t["way_tower"], 0),
+                                ("krater", t["sign_krater"], 0),
+                                ("rela", t["sign_rela"], 0),
+                                ("sond", t["sign_sond"], 0)):
         s = Struct(1, 1, 1)
         s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": riktning})
         s.entity_at(0, 0, 0, sign_entity(txt))
@@ -114,6 +129,18 @@ def build_structures(outdir, t, disp, cats):
         s.set(0, 0, 0, "minecraft:chest", {"facing_direction": 3})
         s.entity_at(0, 0, 0, chest_entity([item(0, f"mjau:energisvard_{farg}", 1)]))
         s.emit(f"{st}/blade_{farg}.mcstructure")
+
+    # UTPOSTERNAS KISTOR: ett fynd var, som tillsammans ger Månkartläggaren
+    for namn, foremal in (("provkistan", "minecraft:echo_shard"),
+                          ("relakistan", "minecraft:lightning_rod"),
+                          ("sondkistan", "minecraft:heart_of_the_sea")):
+        s = Struct(1, 1, 1)
+        s.set(0, 0, 0, "minecraft:chest", {"facing_direction": 3})
+        s.entity_at(0, 0, 0, chest_entity([
+            item(0, foremal, 1),
+            item(1, "minecraft:golden_apple", 1),
+        ]))
+        s.emit(f"{st}/{namn}.mcstructure")
 
     # SKYTTELNS LASTRUM: rymdmanteln + proviant
     s = Struct(1, 1, 1)
@@ -131,6 +158,41 @@ def build_structures(outdir, t, disp, cats):
         s.set(0, 0, 0, "minecraft:wall_sign", {"facing_direction": 2})
         s.entity_at(0, 0, 0, sign_entity(disp[src]))
         s.emit(f"{st}/namn_{src}.mcstructure")
+
+
+
+# --------------------------------------------------------------- MÅNLANDSKAP
+# Tre utposter ute på månytan, inom skeppets koppel (150 block). De ligger så
+# långt bort att man VILL flyga dit — och varje plats har en ljusmast, för
+# läxan från Cat Haven var att barnen inte hittade nycklarna.
+UTPOSTER = [
+    # (nyckel, x, z, struktur, riktmärke i loggboken)
+    ("krater", 20, -90, "provkistan"),
+    ("rela", 110, 30, "relakistan"),
+    ("sond", -65, 45, "sondkistan"),
+]
+
+
+def krater(c, cx, cz, r):
+    """Stegad skål med uppkastad kant — tre nivåer djupt, aldrig ner i berggrunden."""
+    for i, rad in enumerate(range(r, 1, -2)):
+        y = G - i
+        if y <= -63:            # -64 är berggrund: gräver vi där blir det hål
+            break
+        c.append(f"fill {cx-rad} {y} {cz-rad} {cx+rad} {y} {cz+rad} air")
+    c.append(f"fill {cx-r-1} {G+1} {cz-r-1} {cx+r+1} {G+1} {cz+r+1} deepslate hollow")
+
+
+def ljusmast(c, x, z, hojd=8):
+    """Syns över hela slätten i mörkret — annars hittar ingen utposten."""
+    c.append(f"fill {x} {G+1} {z} {x} {G+hojd} {z} iron_bars")
+    c.append(f"setblock {x} {G+hojd+1} {z} sea_lantern")
+
+
+def landningsplatta(c, x, z, r=4):
+    c.append(f"fill {x-r} {G} {z-r} {x+r} {G} {z+r} light_gray_concrete")
+    for hx, hz in ((x-r, z-r), (x+r, z-r), (x-r, z+r), (x+r, z+r)):
+        c.append(f"setblock {hx} {G+1} {hz} sea_lantern")
 
 
 def build_commands(cats, disp, t):
@@ -323,6 +385,68 @@ def build_commands(cats, disp, t):
     c.append(("sleep", 1))
     c.append(f"testforblock 11 {F} 3 standing_sign")
 
+    # ------------------------------------------------------------- UTPOSTERNA
+    # Ute på månytan, en i taget: varje plats får en egen tickingarea eftersom
+    # de ligger för långt isär för att rymmas i en gemensam (taket är 100
+    # chunks), och i en genererad värld går det inte att fylla block i chunks
+    # som inte är laddade.
+    c.append("tickingarea remove bygge")
+    c.append(("sleep", 2))
+
+    # 1. PROVPLATSEN — en djup krater norr om basen
+    c.append(f"tickingarea add 4 {G-4} -106 36 {G+30} -74 krater")
+    c.append(("sleep", 4))
+    krater(c, 20, -90, 8)
+    landningsplatta(c, 20, -78, 3)
+    ljusmast(c, 26, -84)
+    c.append(f"structure load hamn:provkistan 20 {G+1} -90")
+    c.append(f"structure load hamn:kratersign 22 {G+1} -88")
+    c.append(("sleep", 3))
+    c.append(f"testforblock 20 {G+1} -90 chest")
+    c.append(f"testforblock 26 {G+9} -84 sea_lantern")
+    c.append(("sleep", 1))
+    c.append("tickingarea remove krater")
+
+    # 2. RELÄMASTEN — tyst sedan ljuset slocknade, öster om basen
+    c.append(f"tickingarea add 94 {G-4} 14 126 {G+30} 46 rela")
+    c.append(("sleep", 4))
+    landningsplatta(c, 110, 30, 5)
+    c.append(f"fill 110 {G+1} 30 110 {G+12} 30 iron_block")     # masten
+    c.append(f"fill 108 {G+12} 28 112 {G+12} 32 iron_bars")     # antennkorgen
+    c.append(f"setblock 110 {G+13} 30 redstone_lamp")
+    c.append(f"fill 106 {G+1} 26 108 {G+3} 28 blackstone")      # apparathuset
+    c.append(f"fill 107 {G+2} 26 107 {G+2} 26 air")
+    c.append(("sleep", 2))
+    c.append(f"structure load hamn:relakistan 112 {G+1} 32")
+    c.append(f"structure load hamn:relasign 108 {G+1} 32")
+    c.append(("sleep", 3))
+    c.append(f"testforblock 110 {G+6} 30 iron_block")
+    c.append(f"testforblock 112 {G+1} 32 chest")
+    c.append(("sleep", 1))
+    c.append("tickingarea remove rela")
+
+    # 3. DEN KRASCHADE SONDEN — väster om basen, i sin egen nedslagskrater
+    c.append(f"tickingarea add -81 {G-4} 29 -49 {G+30} 61 sond")
+    c.append(("sleep", 4))
+    krater(c, -65, 45, 6)
+    c.append(f"fill -67 {G-1} 43 -63 {G+1} 47 blackstone")      # skrovet
+    c.append(f"fill -66 {G} 44 -64 {G} 46 air")                 # uppsprucket
+    c.append(f"fill -67 {G+2} 44 -63 {G+2} 46 gray_stained_glass")
+    c.append(f"setblock -65 {G+1} 45 sea_lantern")              # kärnan lyser
+    c.append(f"setblock -70 {G} 41 blackstone")                 # utslungat skrot
+    c.append(f"setblock -60 {G} 49 blackstone")
+    c.append(("sleep", 2))
+    ljusmast(c, -58, 45)
+    c.append(f"structure load hamn:sondkistan -62 {G+1} 45")
+    c.append(f"structure load hamn:sondsign -63 {G+1} 48")
+    c.append(("sleep", 3))
+    c.append(f"testforblock -65 {G+1} 45 sea_lantern")
+    c.append(f"testforblock -62 {G+1} 45 chest")
+    c.append(("sleep", 1))
+    c.append("tickingarea remove sond")
+    c.append(f"tickingarea add -40 {G-4} -40 78 {G+40} 60 bygge")
+    c.append(("sleep", 4))
+
     # ---------------------------------------------------------------- KATTERNA
     spots = {"misty": (-6, 6), "hazel": (24, 0), "mocha": (46, 8), "snow": (0, 16)}
     ytor = {"misty": F, "hazel": F, "mocha": F, "snow": F + 16}
@@ -388,17 +512,23 @@ def build(variant, outdir):
     json.dump([{"pack_id": rp["uuid"], "version": rp["version"]}],
               open(f"{wdir}/world_resource_packs.json", "w"))
 
-    # TOMRUMSVÄRLD. Stationen byggdes på FLAT-generatorns standardlager och
-    # stod därför på en gräsmatta under blå himmel — "det känns inte som en
-    # rymdstation, det är gräs överallt". Marken går inte att städa bort i
-    # efterhand: Bedrock genererar nya gräs-chunks så fort spelaren närmar sig
-    # kanten, så horisonten hade varit grön hur mycket vi än fyllde med luft.
-    # Lösningen är att generera världen UTAN lager alls. FlatWorldLayers sätts
-    # innan bygget, och chunk-databasen slängs så allt redan genererat görs om.
+    # MÅNYTAN. Först var världen gräs (fel), sedan rent tomrum (rätt känsla,
+    # men ingenting att landa på). Nu är den en måne: samma knep som med
+    # tomrummet, men med egna lager i stället för inga alls.
+    #
+    # Lagren räknas nerifrån y=-64 och landar med ytan på exakt G=-61, samma
+    # nivå som stationens golv byggdes för — annars hade basen begravts.
+    # Marken går inte att lägga i efterhand: Bedrock genererar nya chunks så
+    # fort spelaren närmar sig kanten, så horisonten måste komma från
+    # generatorn. Chunk-databasen slängs så allt redan genererat görs om.
     bw.run_server_build(world_name, [("sleep", 2)], f"/tmp/hamn-gen-{variant}.log")
     version, root = nbt.read_level_dat(f"{wdir}/level.dat")
     root.v["FlatWorldLayers"] = S(
-        '{"biome_id":1,"block_layers":[],"encoding_version":6,"preset_id":null,'
+        '{"biome_id":1,"block_layers":['
+        '{"block_name":"minecraft:bedrock","count":1},'
+        '{"block_name":"minecraft:deepslate","count":2},'
+        '{"block_name":"minecraft:tuff","count":1}],'
+        '"encoding_version":6,"preset_id":null,'
         '"structure_options":null,"world_version":"version.post_1_18"}\n')
     nbt.write_level_dat(f"{wdir}/level.dat", version, root)
     shutil.rmtree(f"{wdir}/db", ignore_errors=True)
@@ -409,7 +539,7 @@ def build(variant, outdir):
     katter = log.count("Found ")
     fel = [l.strip() for l in log.splitlines()
            if "Syntax error" in l or "Unknown block" in l or "ERROR" in l][:8]
-    if hittade < 20: problems.append(f"bara {hittade}/20 kontrollblock hittades")
+    if hittade < 26: problems.append(f"bara {hittade}/26 kontrollblock hittades")
     if katter < 4: problems.append(f"bara {katter}/4 katter verifierade")
     for e in fel: problems.append(f"serverfel: {e}")
 

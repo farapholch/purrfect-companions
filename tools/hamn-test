@@ -180,10 +180,25 @@ PY
     echo "testforblock 11 -60 3 standing_sign"; sleep 1
     echo "testforblock 32 -60 -2 standing_sign"; sleep 1
     echo "testforblock 2 -60 11 standing_sign"; sleep 1
-    # TOMRUMMET: inte ett grässtrå i hela världen
-    echo "testforblock 20 -61 20 air"; sleep 1
-    echo "testforblock -20 -61 -20 air"; sleep 1
-    echo "testforblock 0 -64 25 air"; sleep 1
+    # MÅNYTAN: generatorns egna lager, inte gräs och inte tomrum. Ytan MÅSTE
+    # ligga på -61 — en nivå fel och stationens golv hade begravts.
+    echo "testforblock 20 -61 20 tuff"; sleep 1
+    echo "testforblock -20 -61 -20 tuff"; sleep 1
+    echo "testforblock 0 -60 25 air"; sleep 1
+    echo "testforblock 0 -64 25 bedrock"; sleep 1
+    # UTPOSTERNA: egna tickingareas, de ligger långt utanför basens
+    echo "tickingarea add 4 -70 -106 36 -30 -74 t1"; sleep 3
+    echo "testforblock 20 -60 -90 chest"; sleep 1        # provkistan i kratern
+    echo "testforblock 26 -52 -84 sea_lantern"; sleep 1  # ljusmasten
+    echo "tickingarea remove t1"; sleep 1
+    echo "tickingarea add 94 -70 14 126 -30 46 t2"; sleep 3
+    echo "testforblock 110 -55 30 iron_block"; sleep 1   # relämasten
+    echo "testforblock 112 -60 32 chest"; sleep 1
+    echo "tickingarea remove t2"; sleep 1
+    echo "tickingarea add -81 -70 29 -49 -30 61 t3"; sleep 3
+    echo "testforblock -65 -60 45 sea_lantern"; sleep 1  # sondens kärna
+    echo "testforblock -62 -60 45 chest"; sleep 1
+    echo "tickingarea remove t3"; sleep 1
     # KATTERNA + kistprovet
     echo "testfor @e[type=mjau:misty,x=-6,y=-60,z=6,r=40]"; sleep 1
     # SKEPPEN: två flygbara jaktplan, inte kulisser av block
@@ -198,8 +213,8 @@ PY
   grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" \
     || bad "paketen laddades INTE ur världen"
   FB=$(grep -c 'found the block' "$SLOG")
-  [ "$FB" -ge 80 ] && ok "alla $FB/80 kontroller: nyckelblock, hela gångvägen kupol->korridor->hangar->torn, vägvisarna och tomrummet runt om" \
-    || bad "bara $FB/80 kontroller i den paketerade världen — se $SLOG för vilket block som fattas"
+  [ "$FB" -ge 87 ] && ok "alla $FB/87 kontroller: nyckelblock, hela gångvägen kupol->korridor->hangar->torn, vägvisarna, månytan och de tre utposterna" \
+    || bad "bara $FB/87 kontroller i den paketerade världen — se $SLOG för vilket block som fattas"
   grep -qE "Found (Spear Fighter|Spjutjaktare)" "$SLOG" \
     && ok "de två jaktplanen är flygbara entiteter, inte kulisser av block" \
     || bad "jaktplanen saknas i den paketerade världen"

@@ -165,3 +165,5 @@ entity.spjutjaktare.name=Spjutjaktare
 item.spawn_egg.entity.mjau:spjutjaktare.name=Spawn Spjutjaktare
 mjau.skepp.behovkatt=En katt maste folja med - ropa hit en
 mjau.skepp.utankatt=Ingen katt ombord. Hamnen slapper inte ivag dig.
+mjau.achv.manlandaren=Mankartlaggaren
+mjau.achv.manlandaren.sub=Prov, reladel och sondkarna - alla tre, samtidigt

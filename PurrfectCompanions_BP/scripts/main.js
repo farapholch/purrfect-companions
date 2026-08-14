@@ -397,11 +397,12 @@ const XP_REWARD = {
   hela_flocken: 20, alla_hemma: 20,
   trippelskatten: 30, bergsbestigaren: 25, regnbagssamlaren: 25, hinderbanan: 30,
   djuphavsdykaren: 30, handelsman: 20, vindskatten: 25,
-  kattmastare: 50, norrsken: 40, stjarnfodd: 40,
+  kattmastare: 50, norrsken: 40, stjarnfodd: 40, manlandaren: 35,
 };
 const ITEM_REWARD = {
   ur_morkret: [{ id: "minecraft:phantom_membrane", n: 2 }],
   trippelskatten: [{ id: "minecraft:diamond", n: 2 }],
+  manlandaren: [{ id: "minecraft:diamond", n: 3 }],
 };
 
 function give(pl, id) {
@@ -713,6 +714,15 @@ system.runInterval(() => {
         hasItem(pl, "minecraft:nautilus_shell") && hasItem(pl, "minecraft:rabbit_foot")) {
       give(pl, "trippelskatten");
       console.warn("[mjau] Trippelskatten utdelad — alla tre nycklar samlade");
+    }
+    // MÅNKARTLÄGGAREN: de tre fynden från utposterna i Stjärnhamnen, burna
+    // samtidigt. Ligger MEDVETET utanför ACHV_ORDER — den listan är grinden
+    // till kattmästarfesten, och föremålen finns bara i rymdvärlden. Hade den
+    // legat med hade festen blivit omöjlig att nå i Cat Haven.
+    if (!hasAward(pl, "manlandaren") && hasItem(pl, "minecraft:echo_shard") &&
+        hasItem(pl, "minecraft:lightning_rod") && hasItem(pl, "minecraft:heart_of_the_sea")) {
+      give(pl, "manlandaren");
+      console.warn("[mjau] Manlandaren utdelad — alla tre fynd hemma");
     }
     if (!hasAward(pl, "kattmastare") && ACHV_ORDER.every(id => hasAward(pl, id))) fest(pl);
     } catch { }

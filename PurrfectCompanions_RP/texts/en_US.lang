@@ -165,3 +165,5 @@ entity.spjutjaktare.name=Spear Fighter
 item.spawn_egg.entity.mjau:spjutjaktare.name=Spawn Spear Fighter
 mjau.skepp.behovkatt=A cat must fly with you - call one over
 mjau.skepp.utankatt=No cat aboard. The harbour will not let you launch.
+mjau.achv.manlandaren=Moon Surveyor
+mjau.achv.manlandaren.sub=Sample, relay part and probe core - all three, all at once

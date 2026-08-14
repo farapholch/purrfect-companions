@@ -537,7 +537,7 @@ try {
   });
 } catch { }
 
-// VAKTHUNDEN: den som fäller hunden vid Majas kula befriar henne
+// VAKTHUNDEN: den som fäller hunden vid kulan befriar katten därinne
 try {
   world.afterEvents.entityDie.subscribe(ev => {
     if (ev.deadEntity?.typeId !== "mjau:vakthund") return;
@@ -741,7 +741,7 @@ const MOBLER = [
   [-4, -59, 13], [-3, -59, 13],                                // matskålarna
   [-5, -59, 14], [5, -59, 14], [0, -59, 13], [5, -59, 9],      // låda/ställning/nystan/kartong
   [12, -60, 7],                                                // fiskdammen
-  [-52, -60, 66],                                              // Majas bädd i nya kulan
+  [-52, -60, 66],                                              // den fångna kattens bädd i nya kulan
 ];
 let moblerLagda = false;
 
@@ -808,10 +808,10 @@ system.runInterval(() => {
 }, 60);
 
 // ---------------------------------------------------------------------------
-// KATTUNGAR: en nyfödd kattunge ärver ett namn efter sin förälder ("Baby
-// Maja" osv) i stället för att vara namnlös, och kommer i en hel kull
-// (2-3 ungar) i stället för bara en — speltest-önskemål ("kör kittens!
-// typ baby Maja" / "det ska vara kattungar"), inspirerat av Better
+// KATTUNGAR: en nyfödd kattunge ärver ett namn efter sin förälder
+// ("Baby " + förälderns namn) i stället för att vara namnlös, och kommer i
+// en hel kull (2-3 ungar) i stället för bara en — speltest-önskemål ("kör
+// kittens!" / "det ska vara kattungar"), inspirerat av Better
 // Cats-paketets idé om individuella ungar, fast här via namn/antal
 // snarare än nya texturer.
 const CAT_TYPES = ["mjau:misty", "mjau:hazel", "mjau:mocha", "mjau:snow"];

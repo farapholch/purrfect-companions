@@ -67,6 +67,32 @@ OUT="/tmp/$SLUG-v$VER$SUFFIX.mcaddon"
 rm -f "$OUT"
 ( cd "$STAGE" && zip -r -q "$OUT" PurrfectCompanions_BP PurrfectCompanions_RP )
 SHA=$(sha256sum "$OUT" | cut -d' ' -f1)
+
+# PRIVATA NAMN I PUBLIK FIL. Den här spärren fanns inte alls — cathaven-ship
+# hade en (fast utan "maja"), purrfect-ship ingen. Resultatet: den publika
+# .mcaddon:en bar familjens kattnamn i KOMMENTARER i main.js, osynligt i
+# spelet men fullt läsbart för den som packar upp filen. Textposter räcker
+# att granska; binärer ger bara falsklarm.
+if [ "$VARIANT" = "public" ]; then
+  LACKA=$(python3 - "$OUT" <<'PYNAMN'
+import sys, zipfile
+z = zipfile.ZipFile(sys.argv[1]); traff = []
+for n in z.namelist():
+    if n.endswith((".json", ".lang", ".js", ".txt", ".md")):
+        d = z.read(n).lower()
+        for p in (b"vinda", b"vilma", b"lillen", b"maja"):
+            if p in d:
+                traff.append(f"{n}: {p.decode()}")
+print("\n".join(traff))
+PYNAMN
+)
+  if [ -n "$LACKA" ]; then
+    echo "❌ AVBRYTER: privata kattnamn i den publika filen"
+    echo "$LACKA" | sed 's/^/   /'
+    exit 1
+  fi
+  echo "🔒 inga privata namn i den publika filen"
+fi
 echo
 echo "📦 paketerad: $(basename "$OUT") ($(du -h "$OUT" | cut -f1))"
 

@@ -27,7 +27,7 @@ echo "📦 $(basename "$FILE") (v$VER, $(du -k "$FILE" | cut -f1) KB)"
 
 # publika världen får ALDRIG innehålla familjenamnen — samma spärr som
 # publish_site.sh. Billig försäkring innan filen går ut publikt.
-if unzip -qq -p "$FILE" 2>/dev/null | grep -qiE "vinda|vilma|lillen"; then
+if unzip -qq -p "$FILE" 2>/dev/null | grep -qiE "vinda|vilma|lillen|maja"; then
   echo "❌ AVBRYTER: privata kattnamn i den publika filen"; exit 1
 fi
 

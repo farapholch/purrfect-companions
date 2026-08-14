@@ -505,11 +505,19 @@ def build(variant, outdir):
     os.makedirs(f"{wdir}/resource_packs", exist_ok=True)
     shutil.copytree(builddir, f"{wdir}/behavior_packs/PurrfectCompanions_BP")
     shutil.copytree(f"{packdir}/PurrfectCompanions_RP", f"{wdir}/resource_packs/PurrfectCompanions_RP")
+    # HAMNPACKEN: skeppet bor inte längre i kattpaketet (det ska bara hålla
+    # katt-tema). Stjärnhamnen är den enda världen som bär båda.
+    shutil.copytree(f"{BASE}/PurrfectHarbour_BP", f"{wdir}/behavior_packs/PurrfectHarbour_BP")
+    shutil.copytree(f"{BASE}/PurrfectHarbour_RP", f"{wdir}/resource_packs/PurrfectHarbour_RP")
     bp = json.load(open(f"{builddir}/manifest.json"))["header"]
     rp = json.load(open(f"{packdir}/PurrfectCompanions_RP/manifest.json"))["header"]
-    json.dump([{"pack_id": bp["uuid"], "version": bp["version"]}],
+    hbp = json.load(open(f"{BASE}/PurrfectHarbour_BP/manifest.json"))["header"]
+    hrp = json.load(open(f"{BASE}/PurrfectHarbour_RP/manifest.json"))["header"]
+    json.dump([{"pack_id": bp["uuid"], "version": bp["version"]},
+               {"pack_id": hbp["uuid"], "version": hbp["version"]}],
               open(f"{wdir}/world_behavior_packs.json", "w"))
-    json.dump([{"pack_id": rp["uuid"], "version": rp["version"]}],
+    json.dump([{"pack_id": rp["uuid"], "version": rp["version"]},
+               {"pack_id": hrp["uuid"], "version": hrp["version"]}],
               open(f"{wdir}/world_resource_packs.json", "w"))
 
     # MÅNYTAN. Först var världen gräs (fel), sedan rent tomrum (rätt känsla,

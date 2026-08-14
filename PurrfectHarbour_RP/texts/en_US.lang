@@ -1,0 +1,6 @@
+entity.mjau:spjutjaktare.name=Spear Fighter
+entity.spjutjaktare.name=Spear Fighter
+mjau.skepp.varning=Turn back - the harbour is falling behind
+mjau.skepp.hem=Autopilot returned you to the landing pad
+mjau.skepp.behovkatt=A cat must fly with you - call one over
+mjau.skepp.utankatt=No cat aboard. The harbour will not let you launch.

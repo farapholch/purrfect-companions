@@ -3,7 +3,7 @@
   "minecraft:entity": {
     "description": {
       "identifier": "mjau:spjutjaktare",
-      "is_spawnable": true,
+      "is_spawnable": false,
       "is_summonable": true
     },
     "component_groups": {},

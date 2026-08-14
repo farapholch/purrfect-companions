@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
-"""Genererar SPJUTJAKTAREN — Stjärnhamnens flygbara jaktplan.
+"""Genererar STJÄRNHAMNS-PACKEN — spjutjaktaren, som en EGEN add-on.
+
+Skeppet låg först i kattpaketet. Det hörde inte hemma där: Purrfect Companions
+säljs som ett kattpaket, och ett rymdskepp bland tillbehören förvirrar den som
+laddar ner det för katternas skull ("jag tror inte jag vill ha den i katt-
+paketet", "fokusera på addonet och att det bara håller katt-tema").
+
+Nu bor skeppet i PurrfectHarbour_BP/RP med egna UUID:n och eget skript.
+Stjärnhamnen bäddar in BÅDA paketen; kattpaketet vet ingenting om skepp.
+
+Plaggen (energisvärd, rymdmantel) stannar däremot kvar i kattpaketet — de
+sitter monterade på kattmodellen, och att flytta dem hade krävt att den här
+packen bar egna kopior av alla åtta kattentiteter.
 
 Jaktplanen i hangaren var byggda av block: snygga att titta på, men bara
 kulisser ("kan man köra rymdskeppen?" — nej). Det här skriptet gör dem till
@@ -20,8 +32,22 @@ Samma siluett som blockbygget i hangaren, så det man ser är det man flyger.
 import json, os, struct, sys, zlib
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-BP = f"{BASE}/PurrfectCompanions_BP"
-RP = f"{BASE}/PurrfectCompanions_RP"
+BP = f"{BASE}/PurrfectHarbour_BP"
+RP = f"{BASE}/PurrfectHarbour_RP"
+GAMMAL_BP = f"{BASE}/PurrfectCompanions_BP"
+GAMMAL_RP = f"{BASE}/PurrfectCompanions_RP"
+
+# egna UUID:n — får ALDRIG krocka med kattpaketets
+# Header och moduler måste ha OLIKA UUID:n — samma på båda ger
+# "Provided UUID '/header/uuid' element already exists in pack manifest"
+# och hela paketet ignoreras tyst av servern.
+UUID_BP = "b1e7c9a4-5f28-4d63-9a17-2c8e05f4d311"
+UUID_BP_DATA = "e4b0fcd7-825b-4096-ad4a-5fb138c7a644"
+UUID_BP_SKRIPT = "c2f8dab5-6039-4e74-8b28-3d9f16a5e422"
+UUID_RP = "d3a9ebc6-714a-4f85-9c39-4ea027b6f533"
+UUID_RP_MODUL = "f5c10de8-936c-41a7-be5b-60c249d8b755"
+VERSION = [1, 1, 0]
+SERVER_API = "1.9.0"     # samma nivå som kattpaketet kör mot
 
 ID = "mjau:spjutjaktare"
 NAMN = {"en_US": "Spear Fighter", "sv_SE": "Spjutjaktare"}
@@ -106,8 +132,13 @@ def bp_entitet():
         "format_version": "1.20.50",
         "minecraft:entity": {
             "description": {
+                # is_spawnable=False: INGET spawnägg. Skeppet ska inte dyka upp
+                # bland addonets föremål — "jag tror inte jag vill ha den i
+                # kattpaketet". Det summoneras av Stjärnhamnen vid bygget och
+                # finns bara där, medan Purrfect Companions förblir ett
+                # kattpaket i allt spelaren ser.
                 "identifier": ID,
-                "is_spawnable": True, "is_summonable": True,
+                "is_spawnable": False, "is_summonable": True,
             },
             "component_groups": {},
             "components": {
@@ -161,30 +192,101 @@ def rp_entitet():
                 "materials": {"default": "entity_alphatest"},
                 "textures": {"default": "textures/entity/spjutjaktare"},
                 "geometry": {"default": "geometry.spjutjaktare"},
-                "spawn_egg": {"base_colour": "#26262f", "overlay_colour": "#82c8f0"},
                 "render_controllers": ["controller.render.default"],
             },
         },
     }
 
 
+MEDDELANDEN = {
+    "en_US": {"mjau.skepp.varning": "Turn back - the harbour is falling behind",
+              "mjau.skepp.hem": "Autopilot returned you to the landing pad",
+              "mjau.skepp.behovkatt": "A cat must fly with you - call one over",
+              "mjau.skepp.utankatt": "No cat aboard. The harbour will not let you launch."},
+    "sv_SE": {"mjau.skepp.varning": "Vand om - hamnen borjar forsvinna bakom dig",
+              "mjau.skepp.hem": "Autopiloten satte dig pa landningsplattan",
+              "mjau.skepp.behovkatt": "En katt maste folja med - ropa hit en",
+              "mjau.skepp.utankatt": "Ingen katt ombord. Hamnen slapper inte ivag dig."},
+}
+
+
 def sprak():
+    os.makedirs(f"{RP}/texts", exist_ok=True)
     for lang, namn in NAMN.items():
         p = f"{RP}/texts/{lang}.lang"
         rader = open(p, encoding="utf-8").read().splitlines() if os.path.exists(p) else []
         # båda formerna: UI-skärmar slår upp namnet utan namnrymd (2.6.3-läxan)
+        # ingen spawnägg-sträng: ägget finns inte längre
         vill = {f"entity.{ID}.name": namn,
-                f"entity.spjutjaktare.name": namn,
-                f"item.spawn_egg.entity.{ID}.name": f"Spawn {namn}"}
+                f"entity.spjutjaktare.name": namn}
+        vill.update(MEDDELANDEN[lang])
         kvar = [r for r in rader if r.split("=")[0] not in vill]
         for k, v in vill.items():
             kvar.append(f"{k}={v}")
         open(p, "w", encoding="utf-8").write("\n".join(kvar) + "\n")
 
 
+def manifest_bp():
+    return {
+        "format_version": 2,
+        "header": {
+            "name": "Star Harbour - Spear Fighter",
+            "description": "Det flygbara jaktplanet i Stjarnhamnen. Kraver Purrfect Companions.",
+            "uuid": UUID_BP, "version": VERSION, "min_engine_version": [1, 20, 0],
+        },
+        "modules": [
+            {"type": "data", "uuid": UUID_BP_DATA, "version": VERSION},
+            {"type": "script", "language": "javascript", "uuid": UUID_BP_SKRIPT,
+             "version": VERSION, "entry": "scripts/skepp.js"},
+        ],
+        "dependencies": [{"module_name": "@minecraft/server", "version": SERVER_API}],
+    }
+
+
+def manifest_rp():
+    return {
+        "format_version": 2,
+        "header": {
+            "name": "Star Harbour - Spear Fighter",
+            "description": "Modell och textur till jaktplanet.",
+            "uuid": UUID_RP, "version": VERSION, "min_engine_version": [1, 20, 0],
+        },
+        "modules": [{"type": "resources", "uuid": UUID_RP_MODUL, "version": VERSION}],
+    }
+
+
+def skript():
+    """Skeppets egen logik, utbruten ur kattpaketets main.js."""
+    kod = open(f"{BASE}/tools/skeppskod.js", encoding="utf-8").read()
+    return 'import { world, system } from "@minecraft/server";\n\n' + kod
+
+
+def stada_gamla_spar():
+    """Skeppet låg förut i kattpaketet — filerna får inte bli kvar där."""
+    for p in (f"{GAMMAL_BP}/entities/spjutjaktare.json",
+              f"{GAMMAL_RP}/entity/spjutjaktare.json",
+              f"{GAMMAL_RP}/models/entity/spjutjaktare.geo.json",
+              f"{GAMMAL_RP}/textures/entity/spjutjaktare.png"):
+        if os.path.exists(p):
+            os.remove(p); print(f"  tog bort ur kattpaketet: {os.path.relpath(p, BASE)}")
+    for lang in NAMN:
+        f = f"{GAMMAL_RP}/texts/{lang}.lang"
+        if not os.path.exists(f): continue
+        rader = open(f, encoding="utf-8").read().splitlines()
+        kvar = [r for r in rader if "spjutjaktare" not in r and "mjau.skepp." not in r]
+        if len(kvar) != len(rader):
+            open(f, "w", encoding="utf-8").write("\n".join(kvar) + "\n")
+            print(f"  rensade {len(rader)-len(kvar)} rader ur {lang}.lang")
+
+
 def main():
+    stada_gamla_spar()
     os.makedirs(f"{BP}/entities", exist_ok=True)
+    os.makedirs(f"{BP}/scripts", exist_ok=True)
+    json.dump(manifest_bp(), open(f"{BP}/manifest.json", "w"), indent=2)
     os.makedirs(f"{RP}/entity", exist_ok=True)
+    json.dump(manifest_rp(), open(f"{RP}/manifest.json", "w"), indent=2)
+    open(f"{BP}/scripts/skepp.js", "w", encoding="utf-8").write(skript())
     os.makedirs(f"{RP}/models/entity", exist_ok=True)
     json.dump(bp_entitet(), open(f"{BP}/entities/spjutjaktare.json", "w"),
               indent=2, ensure_ascii=False)

@@ -1,0 +1,29 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Star Harbour - Spear Fighter",
+    "description": "Modell och textur till jaktplanet.",
+    "uuid": "d3a9ebc6-714a-4f85-9c39-4ea027b6f533",
+    "version": [
+      1,
+      1,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      20,
+      0
+    ]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "f5c10de8-936c-41a7-be5b-60c249d8b755",
+      "version": [
+        1,
+        1,
+        0
+      ]
+    }
+  ]
+}

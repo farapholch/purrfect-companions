@@ -59,11 +59,23 @@ for w in varldar:
     if d["GameType"].v != 0: bad.append(f"{os.path.basename(w)}: GameType != survival")
     if d["commandsEnabled"].v != 0: bad.append(f"{os.path.basename(w)}: fusk är PÅ i skeppad värld")
     # inbäddade paket: UUID/version måste matcha manifesten
-    for sort, pack in (("behavior", "PurrfectCompanions_BP"), ("resource", "PurrfectCompanions_RP")):
-        ref = json.loads(z.read(f"world_{sort}_packs.json"))[0]
-        man = json.loads(z.read(f"{sort}_packs/{pack}/manifest.json"))["header"]
-        if ref["pack_id"] != man["uuid"]: bad.append(f"{os.path.basename(w)}: {sort}-UUID matchar inte")
-        if ref["version"] != man["version"]: bad.append(f"{os.path.basename(w)}: {sort}-version matchar inte")
+    # TVÅ paket per sort: kattpaketet + hamnpacken med skeppet. Varje post i
+    # world_*_packs.json måste peka på ett paket som FINNS i filen, annars
+    # vägrar världen ladda.
+    for sort, packar in (("behavior", ["PurrfectCompanions_BP", "PurrfectHarbour_BP"]),
+                         ("resource", ["PurrfectCompanions_RP", "PurrfectHarbour_RP"])):
+        refs = json.loads(z.read(f"world_{sort}_packs.json"))
+        if len(refs) != 2:
+            bad.append(f"{os.path.basename(w)}: {sort}-listan har {len(refs)} paket, väntade 2")
+        manifest = {}
+        for pack in packar:
+            h = json.loads(z.read(f"{sort}_packs/{pack}/manifest.json"))["header"]
+            manifest[h["uuid"]] = h["version"]
+        for ref in refs:
+            if ref["pack_id"] not in manifest:
+                bad.append(f"{os.path.basename(w)}: {sort}-UUID {ref['pack_id'][:8]} saknar paket i filen")
+            elif ref["version"] != manifest[ref["pack_id"]]:
+                bad.append(f"{os.path.basename(w)}: {sort}-version matchar inte för {ref['pack_id'][:8]}")
     if any("/structures/" in n for n in namn):
         bad.append(f"{os.path.basename(w)}: byggstrukturer har läckt in i skeppat BP")
     if "world_icon.jpeg" not in namn:

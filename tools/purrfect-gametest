@@ -32,6 +32,13 @@ echo "[gametest] bygger och installerar testpaketet"
 python3 "$SRC/tools/gametest/build_gametest_pack.py" /tmp/purrfect-gametest-pack "$SERVER_MOD" "$GAMETEST_MOD" >/dev/null
 rm -rf "$W/behavior_packs/PurrfectGameTest"
 cp -r /tmp/purrfect-gametest-pack "$W/behavior_packs/PurrfectGameTest"
+# HAMNPACKEN: skeppet flyttade ut ur kattpaketet, så utan den här raden finns
+# mjau:spjutjaktare inte i testvärlden och skepp-testet faller på "could not
+# spawn entity" — inte för att skeppet är trasigt, utan för att det saknas.
+rm -rf "$W/behavior_packs/PurrfectHarbour_BP" "$W/resource_packs/PurrfectHarbour_RP"
+cp -r "$SRC/PurrfectHarbour_BP" "$W/behavior_packs/PurrfectHarbour_BP"
+mkdir -p "$W/resource_packs"
+cp -r "$SRC/PurrfectHarbour_RP" "$W/resource_packs/PurrfectHarbour_RP"
 # purrfect-test skriver om world_behavior_packs.json med BARA huvudpaketet —
 # registrera oss igen varje körning.
 python3 - "$W" <<'PY'
@@ -40,7 +47,17 @@ W = sys.argv[1]
 wb = json.load(open(f"{W}/world_behavior_packs.json"))
 gt = {"pack_id": "7c1e9f10-31a2-4a3b-9c58-b5c9d2f4a601", "version": [1, 0, 0]}
 if gt not in wb: wb.append(gt)
+# hamnpacken måste också stå i listan, annars ligger den bara på disk
+hb = json.load(open("/opt/purrfect-companions/PurrfectHarbour_BP/manifest.json"))["header"]
+hamn = {"pack_id": hb["uuid"], "version": hb["version"]}
+wb = [e for e in wb if e.get("pack_id") != hb["uuid"]] + [hamn]
 json.dump(wb, open(f"{W}/world_behavior_packs.json", "w"))
+hr = json.load(open("/opt/purrfect-companions/PurrfectHarbour_RP/manifest.json"))["header"]
+import os
+wrp = f"{W}/world_resource_packs.json"
+wr = json.load(open(wrp)) if os.path.exists(wrp) else []
+wr = [e for e in wr if e.get("pack_id") != hr["uuid"]] + [{"pack_id": hr["uuid"], "version": hr["version"]}]
+json.dump(wr, open(wrp, "w"))
 PY
 
 pkill -x bedrock_server 2>/dev/null; sleep 1

@@ -12,10 +12,6 @@
       "geometry": {
         "default": "geometry.spjutjaktare"
       },
-      "spawn_egg": {
-        "base_colour": "#26262f",
-        "overlay_colour": "#82c8f0"
-      },
       "render_controllers": [
         "controller.render.default"
       ]

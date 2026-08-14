@@ -294,23 +294,56 @@ function give(pl, id) {
 
 // PROGRESS-RAPPORTEN: smyg intill en tämjd katt så "berättar" den i chatten
 // vilka uppdrag som är klara. Den hemliga nian visas som ??? tills den tagits.
-const ACHV_ORDER = ["forsta_vannen", "befriaren", "hela_flocken", "ryttaren", "fiskarkatten",
-                    "fyrvaktaren", "skattgravaren", "lados_hemlighet",
-                    "ur_morkret", "alla_hemma", "trippelskatten", "bergsbestigaren",
-                    "regnbagssamlaren", "hinderbanan", "djuphavsdykaren", "handelsman"];
+// TVÅ LISTOR, inte en. Addonet ska gå att spela fristående, och tio av de
+// sexton utmärkelserna hänger på Kattgårdens koordinater — fyren, berget,
+// hinderbanan, sjön, nycklarna. En spelare som laddat ner paketet till sin
+// egen värld kunde alltså aldrig göra listan färdig, och kattmästarfesten låg
+// bakom just den omöjliga listan.
+//
+// KATT_ORDER är det som fungerar VAR SOM HELST (katterna spawnar naturligt på
+// slätter, så de går att hitta i vilken värld som helst). Festen kräver bara
+// den. KATTGARDEN_ORDER visas bara för den som faktiskt är i Kattgården.
+const KATT_ORDER = ["forsta_vannen", "hela_flocken", "ryttaren", "fiskarkatten",
+                    "skattgravaren", "ur_morkret"];
+const KATTGARDEN_ORDER = ["befriaren", "fyrvaktaren", "lados_hemlighet", "alla_hemma",
+                          "trippelskatten", "bergsbestigaren", "regnbagssamlaren",
+                          "hinderbanan", "djuphavsdykaren", "handelsman"];
+const ACHV_ORDER = [...KATT_ORDER, ...KATTGARDEN_ORDER];
 const rapportTyst = new Map();   // spelar-id -> tick då nästa rapport tillåts
+
+// VÄLKOMSTEN. Den som spelar i Kattgården har en handbok i startkistan; den
+// som laddat ner addonet till sin egen värld har ingenting alls och vet inte
+// att katten kan sadlas, fiska, bära plagg eller att det finns hemligheter.
+// Tre rader vid första tämjda katten, en gång per spelare — resten hittar de
+// själva genom att smyga intill en katt (framstegsrapporten).
+function valkomna(pl) {
+  try { if (pl.getDynamicProperty("mjau_valkomnad")) return; } catch { }
+  try { pl.setDynamicProperty("mjau_valkomnad", true); } catch { }
+  try {
+    pl.sendMessage({ rawtext: [
+      { text: "\n" }, { translate: "mjau.valkommen.rad1" },
+      { text: "\n" }, { translate: "mjau.valkommen.rad2" },
+      { text: "\n" }, { translate: "mjau.valkommen.rad3" },
+      { text: "\n" }, { translate: "mjau.valkommen.rad4" },
+    ] });
+    pl.playSound("mob.cat.purr");
+  } catch { }
+}
 
 function rapportera(pl) {
   const rt = [{ translate: "mjau.progress.title" }];
   let n = 0;
-  for (const id of ACHV_ORDER) {
+  // i en främmande värld listas bara det som går att ta där — annars fylls
+  // rapporten av uppdrag spelaren aldrig kan bli klar med
+  const lista = catHavenWorld === true ? ACHV_ORDER : KATT_ORDER;
+  for (const id of lista) {
     const har = hasAward(pl, id);
     if (har) n++;
     rt.push({ text: "\n" + (har ? "§a✔ §r" : "§8◻ §7") });
     rt.push(har || id !== "ur_morkret" ? { translate: "mjau.achv." + id }
                                        : { text: "???" });
   }
-  rt.push({ text: "\n§e" + n + "/" + ACHV_ORDER.length });
+  rt.push({ text: "\n§e" + n + "/" + lista.length });
   try { pl.sendMessage({ rawtext: rt }); pl.playSound("mob.cat.meow"); } catch { }
 }
 
@@ -475,7 +508,7 @@ system.runInterval(() => {
   for (const pl of world.getAllPlayers()) {
     if (!pl) continue;   // gametest-miljön kan lämna trasiga spelarposter
     try {
-    if (tamed.length >= 1) give(pl, "forsta_vannen");
+    if (tamed.length >= 1) { give(pl, "forsta_vannen"); valkomna(pl); }
     if (tamed.length >= 4) give(pl, "hela_flocken");
     try {
       const r = pl.getComponent("minecraft:riding")?.entityRidingOn;
@@ -599,7 +632,7 @@ system.runInterval(() => {
       give(pl, "manlandaren");
       console.warn("[mjau] Manlandaren utdelad — alla tre fynd hemma");
     }
-    if (!hasAward(pl, "kattmastare") && ACHV_ORDER.every(id => hasAward(pl, id))) fest(pl);
+    if (!hasAward(pl, "kattmastare") && KATT_ORDER.every(id => hasAward(pl, id))) fest(pl);
     } catch { }
   }
 }, 40);

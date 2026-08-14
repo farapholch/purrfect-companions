@@ -5,20 +5,49 @@ ut på purrfect.pelleops.se, och en changelog på sajten som CurseForge inte
 har blir en mismatch. Flytta in posterna i publish/changelog.md samma dag
 som uppladdningen görs, kör md2html.py + publish_site.sh.
 
-## 3.14.1 — Blades of light, a star cloak, and a cat that fights back
+## 3.23.0 — Blades of light, icons you can tell apart, and an add-on that stands on its own
 
-**The energy blade.** A hilt that wakes into a humming bar of light, in
-four colours — blue, green, red and violet. It hits for 8 and holds up to
-800 swings, and it can be enchanted like any sword.
+**Energy blades.** A hilt that wakes into a humming bar of light, in four
+colours — blue, green, red and violet. Two dyes and an iron ingot make one.
+It hits as hard as netherite, holds 800 swings, takes enchantments, and
+throws sparks in its own colour while you carry it.
 
-**A cat that carries one hits harder.** Hand a blade to a cat wearing the
-new star cloak and its attack more than doubles, from 3 to 7. The cloak
-itself is cut for deep space: dark weave, a drift of stars across the back.
+**A cat that fights beside you.** Give a blade to a tamed cat and she wears
+it. Her attack goes from 3 to 7, and — this is the new part — she actually
+uses it: she strikes back at whatever hurts you, and joins in on whatever
+you swing at. Saddle her and she goes back to being your mount, because you
+should always be the one steering.
 
-**Twenty accessories now**, all craftable, all with something they do.
+**The star cloak.** Dark weave, a drift of stars across the back. It is a
+cape, and it does what capes here do.
 
-**Something waits for the collector.** Four colours exist. A cat is said to
-answer someone carrying all of them at once. That is as much as we will say.
+**Every outfit finally looks like itself.** The icons were the weak point:
+only four accessory types had their own shape, and the other sixteen were
+drawn as the same coloured rectangle. Saddle, cap, scarf, backpack, collar,
+bow, wings, horn, armor, hats, coat, crown and blade now each have their own
+silhouette. You can tell what a thing is before you notice what colour it is.
+
+**The add-on plays on its own now.** It was built alongside Cat Haven, and it
+showed: ten of the sixteen quests were tied to that world's landmarks, and
+the Cat Master celebration needed all sixteen — so it was unreachable for
+anyone playing in their own world. The celebration now asks only for the six
+that work anywhere: your first friend, all four cats, riding, fishing,
+digging up treasure, and the one at midnight. Play in Cat Haven and you still
+see the full list.
+
+**And it tells you where to start.** Tame your first cat and she lets you know
+what the two of you can do — the saddle, the cart, the twenty outfits, and
+that sneaking beside a cat gets you a progress report. She does not tell you
+everything.
+
+**Also in this release**
+- The add-on no longer reaches into worlds it was not built for. Two secrets
+  used to trigger on bare coordinates and could fire in your own world by
+  accident; both now check where they are first.
+- The spear fighter that briefly lived here has moved out to Star Harbour,
+  where it belongs. This is a cat add-on.
+- Cats spawn on plains in daylight, so every quest that counts can be
+  finished in a fresh survival world.
 
 ## 3.12.2 — The gates became walls
 

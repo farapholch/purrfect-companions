@@ -355,49 +355,123 @@ def paint_accessories():
         write_png(p,w,h,px)
 
 # ---------------------------------------------------------------- ikoner
+# EN EGEN SILUETT PER PLAGGTYP. Förut hade bara glasögon, mantel, vagn och
+# tossor egna former — allt annat föll ner i ett gemensamt "else" och blev en
+# färgad rektangel. I inventariet såg sadel, keps, halsduk, halsband, vingar,
+# krona och energisvärd därför likadana ut, och enda skillnaden mellan två
+# plagg var nyansen ("det var lite svårt att se skillnader i ikonerna").
+#
+# Formen ska bära igenkänningen, färgen bara varianten: man ska se att det är
+# en sadel innan man ser att den är brun.
 def icon(a,col,path):
     S=16; T=(0,0,0,0); px=[[T]*S for _ in range(S)]
     def sp(x,y,c):
         if 0<=x<S and 0<=y<S: px[y][x]=c
+    def rect(x0,y0,x1,y1,c):
+        for y in range(y0,y1+1):
+            for x in range(x0,x1+1): sp(x,y,c)
+    ljus, mork, djup = sh(col,1.25), sh(col,0.72), sh(col,0.55)
+
     if a=="glasogon":
-        for x in range(1,15): sp(x,7,sh(col,0.8)); sp(x,8,sh(col,1.0)); sp(x,9,sh(col,0.8))
+        for x in range(1,15): sp(x,7,mork); sp(x,8,col); sp(x,9,mork)
         for y in range(6,11):
-            for x in (2,3,4,11,12,13): sp(x,y,sh(col,1.0))
+            for x in (2,3,4,11,12,13): sp(x,y,col)
         for y in range(7,10):
             for x in (3,12): sp(x,y,(150,200,230,255))
+    elif a=="sadel":
+        rect(2,6,13,9,col); rect(3,6,12,6,ljus)
+        rect(2,4,4,6,ljus); rect(11,4,13,6,ljus)
+        rect(6,10,9,13,mork); rect(6,13,9,13,djup)
+    elif a=="keps":
+        rect(4,5,11,9,col); rect(5,4,10,4,ljus)
+        rect(3,10,14,11,mork)
+    elif a=="halsduk":
+        # band runt halsen med TVÅ hängande ändar — ett rakt streck med en
+        # snibb under läste som ett T, inte som en halsduk
+        rect(2,5,13,5,ljus); rect(2,6,13,6,col)
+        rect(2,7,4,12,col); rect(11,7,13,12,col)
+        rect(2,13,4,13,djup); rect(11,13,13,13,djup)  # fransar
+    elif a=="ryggsack":
+        rect(4,5,11,13,col); rect(4,5,11,7,ljus)
+        rect(2,6,3,11,djup); rect(12,6,13,11,djup)
+        sp(7,8,(214,182,86,255)); sp(8,8,(214,182,86,255))
+    elif a=="halsband":
+        for x in range(4,12): sp(x,4,col); sp(x,10,col)
+        for y in range(5,10): sp(3,y,col); sp(12,y,col)
+        rect(7,11,8,13,(214,182,86,255))
+    elif a=="rosett":
+        for y in range(6,11):
+            d=abs(y-8)
+            rect(1+d,y,6,y,col); rect(9,y,14-d,y,col)
+        rect(6,7,9,9,mork)
+    elif a=="vingar":
+        for i,ln in enumerate((3,5,6,6,5,4,3,2)):
+            y=4+i; c=col if i%2 else sh(col,0.88)
+            rect(7-ln,y,6,y,c); rect(9,y,8+ln,y,c)
+    elif a=="batvingar":
+        for i,ln in enumerate((2,4,5,6,6,5,3,1)):
+            y=4+i; c=col if i%2 else sh(col,0.8)
+            rect(7-ln,y,6,y,c); rect(9,y,8+ln,y,c)
+        for x in (2,4,11,13): sp(x,12,djup)
+    elif a=="horn":
+        for i in range(8):
+            y=13-i; w=(8-i)//2
+            rect(8-w,y,8+w,y,ljus if i%2 else col)
+    elif a=="krona":
+        rect(2,9,13,12,col); rect(2,9,13,9,ljus)
+        for x0 in (2,7,12):
+            rect(x0,6,x0+1,8,col); rect(x0,5,x0+1,5,ljus)
+        for x0 in (3,8,12): sp(x0,11,(220,90,120,255))
+    elif a=="haxhatt":
+        for i in range(9):
+            y=3+i; w=i//2
+            rect(8-w,y,8+w,y,col)
+        rect(1,12,14,13,mork); rect(5,10,11,11,(214,182,86,255))
+    elif a=="tomteluva":
+        for i in range(7):
+            y=4+i; w=i//2; lut=i//3
+            rect(9-w-lut,y,10+w-lut,y,col)
+        rect(2,11,13,13,(240,240,240,255)); rect(10,3,12,5,(240,240,240,255))
+    elif a=="doktorsrock":
+        rect(3,4,12,13,col); rect(7,4,8,13,mork)
+        sp(4,4,mork); sp(5,5,mork); sp(11,4,mork); sp(10,5,mork)
+        rect(9,7,11,7,(210,60,60,255)); rect(10,6,10,8,(210,60,60,255))
+    elif a=="rustning":
+        rect(3,5,12,12,col); rect(2,5,4,7,col); rect(11,5,13,7,col)
+        rect(6,5,9,5,T)                               # halsurtag ur plåten
+        rect(4,6,11,6,ljus); rect(3,11,12,12,mork)
+    elif a=="energisvard":
+        rect(7,1,8,10,ljus); rect(6,2,6,9,col); rect(9,2,9,9,col)
+        rect(5,11,10,11,(96,96,108,255)); rect(7,12,8,15,(58,58,68,255))
+    elif a=="rymdmantel":
+        for y in range(3,14): rect(4,y,11,y,col)
+        rect(4,3,11,3,ljus)
+        for sx,sy in ((5,5),(9,6),(7,9),(10,11),(5,12)):
+            sp(sx,sy,(235,235,255,255))
     elif a=="mantel":
         for y in range(3,14):
             wsp=1 if y<5 else 0
-            for x in range(3+wsp,13-wsp): sp(x,y,sh(col,1.0))
-        for x in range(4,12): sp(x,3,sh(col,1.2))
-        for y in range(3,14): sp(3,y,sh(col,0.7)); sp(12,y,sh(col,0.7))
+            rect(3+wsp,y,12-wsp,y,col)
+        rect(4,3,11,3,ljus)
+        for y in range(3,14): sp(3,y,mork); sp(12,y,mork)
         for x in range(3,13):
-            if x%3==0:
-                for y in range(5,14): sp(x,y,sh(col,0.86))
+            if x%3==0: rect(x,5,x,13,sh(col,0.86))
     elif a=="vagn":
-        for y in range(5,11):
-            for x in range(2,14): sp(x,y,sh(col,1.0))
-        for x in range(2,14): sp(x,5,sh(col,1.22))
-        for x in range(2,14): sp(x,10,sh(col,0.7))
+        rect(2,5,13,10,col); rect(2,5,13,5,ljus); rect(2,10,13,10,mork)
         for x in range(3,13):
-            if x%3==0:
-                for y in range(6,10): sp(x,y,sh(col,0.86))
-        for (wx) in (4,11):                      # hjul
-            for y in range(11,15):
-                for x in range(wx-1,wx+2): sp(x,y,(72,60,48,255))
+            if x%3==0: rect(x,6,x,9,sh(col,0.86))
+        for wx in (4,11):
+            rect(wx-1,11,wx+1,14,(72,60,48,255))
             sp(wx,12,(140,124,100,255)); sp(wx,13,(140,124,100,255))
     elif a=="tossor":
-        for (bx,by) in ((2,4),(9,4),(2,10),(9,10)):      # fyra små tossor
+        for (bx,by) in ((2,4),(9,4),(2,10),(9,10)):
             for y in range(by,by+4):
                 for x in range(bx,bx+5):
                     if y==by and x in (bx,bx+4): continue
-                    sp(x,y,sh(col,1.0))
-            for x in range(bx+1,bx+4): sp(x,by,sh(col,1.2))
-            for x in range(bx,bx+5): sp(x,by+3,sh(col,0.68))
+                    sp(x,y,col)
+            rect(bx+1,by,bx+3,by,ljus); rect(bx,by+3,bx+4,by+3,mork)
     else:
-        for y in range(5,12):
-            for x in range(3,13): sp(x,y,sh(col,1.0))
-        for x in range(3,13): sp(x,5,sh(col,1.2)); sp(x,11,sh(col,0.7))
+        rect(3,5,12,11,col); rect(3,5,12,5,ljus); rect(3,11,12,11,mork)
     write_png(path,S,S,px)
 
 def icon_treat():
@@ -539,6 +613,12 @@ def build_rest():
     for f in sorted(glob.glob(f"{BP}/entities/*.json")):
         d=json.load(open(f)); e=d["minecraft:entity"]
         if "component_groups" not in e: continue   # inte en klädbar katt (t.ex. vakthund.json)
+        # ...och inte heller ett FORDON. Spjutjaktaren har component_groups men
+        # ingen mjau:saddled, och koden längre ner skriver rakt in i den
+        # gruppen — resultatet blev KeyError så fort skeppet lades till bland
+        # entiteterna. Samma klass av fel som när plaggen en gång tvingade
+        # kattgeometri på vakthunden: filtret måste fråga vad entiteten ÄR.
+        if "mjau:saddled" not in e["component_groups"]: continue
         g=e["component_groups"]; ev=e["events"]
         # client_sync ÄR NÖDVÄNDIG: utan den finns propertyn bara på servern och
         # render controllers (som körs på klienten) kan inte läsa query.property

@@ -68,6 +68,11 @@ system.runInterval(() => {
   const d = world.getDimension("overworld");
   let players;
   try { players = world.getAllPlayers(); } catch { return; }
+  // Bergets topp ligger på en KOORDINAT, inte på ett landmärke — utan den här
+  // vakten kom Aurora till den som råkade stå på (26, 80) i sin egen värld.
+  // Bergsbestigaren-utmärkelsen på samma plats var redan vaktad; ritualen var
+  // det inte.
+  if (catHavenWorld !== true) return;
   for (const pl of players) {
     if (!pl) continue;                 // getAllPlayers kan ge tomma platser
     const L = pl.location;
@@ -417,6 +422,7 @@ try {
 let hundSedd = false, hundPlats = null;   // vakthunds-vakans minne
 
 let catHavenWorld = null;   // fyrljuset på känd plats = vi är i Cat Haven
+let starHarbourWorld = null;  // navlyktan i kupolen = vi är i Stjärnhamnen
 
 system.runInterval(() => {
   const d = world.getDimension("overworld");
@@ -429,8 +435,11 @@ system.runInterval(() => {
       catHavenWorld = d.getBlock({ x: 2, y: -59, z: 8 })?.typeId === "mjau:kattlucka" ||
                       d.getBlock({ x: 0, y: -41, z: 56 })?.typeId === "minecraft:glowstone" ||
                       d.getBlock({ x: 0, y: -42, z: 56 })?.typeId === "minecraft:glowstone";
+      // Stjärnhamnens signatur: navlyktan mitt i kupolgolvet, två steg från
+      // spawn och därmed laddad från första sekunden
+      starHarbourWorld = d.getBlock({ x: 0, y: -61, z: 0 })?.typeId === "minecraft:sea_lantern";
     }
-    catch { catHavenWorld = null; }   // chunk oladdad — fråga igen nästa varv
+    catch { catHavenWorld = null; starHarbourWorld = null; }   // chunk oladdad — fråga igen
   }
   // grindkollen: sentinel-rutan (murens nedre hörn) kvar + någon spelare har
   // förkravet → riv muren. Billigt: ett getBlock per grind, inte per ruta.
@@ -580,7 +589,12 @@ system.runInterval(() => {
     // samtidigt. Ligger MEDVETET utanför ACHV_ORDER — den listan är grinden
     // till kattmästarfesten, och föremålen finns bara i rymdvärlden. Hade den
     // legat med hade festen blivit omöjlig att nå i Cat Haven.
-    if (!hasAward(pl, "manlandaren") && hasItem(pl, "minecraft:echo_shard") &&
+    // ...och bara i Stjärnhamnen: de tre fynden är vanliga vanilla-föremål, så
+    // utan vakten kunde en spelare som bara har kattpaketet plötsligt få
+    // "Moon Surveyor" för att hen råkade bära ekoskärva, åskledare och
+    // havshjärta samtidigt.
+    if (starHarbourWorld === true &&
+        !hasAward(pl, "manlandaren") && hasItem(pl, "minecraft:echo_shard") &&
         hasItem(pl, "minecraft:lightning_rod") && hasItem(pl, "minecraft:heart_of_the_sea")) {
       give(pl, "manlandaren");
       console.warn("[mjau] Manlandaren utdelad — alla tre fynd hemma");

@@ -1,3 +1,95 @@
+## 3.24.0 — Blades of light, icons you can tell apart, and an add-on that stands on its own
+
+**Energy blades.** A hilt that wakes into a humming bar of light, in four
+colours — blue, green, red and violet. Two dyes and an iron ingot make one.
+It hits as hard as netherite, holds 800 swings, takes enchantments, and
+throws sparks in its own colour while you carry it.
+
+**A cat that fights beside you.** Give a blade to a tamed cat and she wears
+it. Her attack goes from 3 to 7, and — this is the new part — she actually
+uses it: she strikes back at whatever hurts you, and joins in on whatever
+you swing at. Saddle her and she goes back to being your mount, because you
+should always be the one steering.
+
+**The star cloak.** Dark weave, a drift of stars across the back. It is a
+cape, and it does what capes here do.
+
+**Every outfit finally looks like itself.** The icons were the weak point in
+two ways. Only four accessory types had their own shape — the other sixteen
+were drawn as the same coloured rectangle. And then the redrawn ones shipped
+broken: written a byte short per pixel, so the game refused them and showed
+the missing-texture pattern instead. Both are fixed, and every image in the
+pack is now decoded and verified before a release can leave the building. Saddle, cap, scarf, backpack, collar,
+bow, wings, horn, armor, hats, coat, crown and blade now each have their own
+silhouette. You can tell what a thing is before you notice what colour it is.
+
+**The add-on plays on its own now.** It was built alongside Cat Haven, and it
+showed: ten of the sixteen quests were tied to that world's landmarks, and
+the Cat Master celebration needed all sixteen — so it was unreachable for
+anyone playing in their own world. The celebration now asks only for the six
+that work anywhere: your first friend, all four cats, riding, fishing,
+digging up treasure, and the one at midnight. Play in Cat Haven and you still
+see the full list.
+
+**And it tells you where to start.** Tame your first cat and she lets you know
+what the two of you can do — the saddle, the cart, the twenty outfits, and
+that sneaking beside a cat gets you a progress report. She does not tell you
+everything.
+
+**Also in this release**
+- The add-on no longer reaches into worlds it was not built for. Two secrets
+  used to trigger on bare coordinates and could fire in your own world by
+  accident; both now check where they are first.
+- The spear fighter that briefly lived here has moved out to Star Harbour,
+  where it belongs. This is a cat add-on.
+- Cats spawn on plains in daylight, so every quest that counts can be
+  finished in a fresh survival world.
+
+## 3.12.2 — The gates became walls
+
+The quest gates were fences, and a fence is two blocks of stone wearing a
+disguise — the kids simply jumped them and walked into the parkour course
+before finding a single key. They are proper stone brick walls now, five
+blocks tall, and they come down the same way: finish the quest on the sign.
+
+## 3.12.0 — Superpowers, kittens, cuter cats, and a world that opens as you play
+
+Everything from a dozen smaller releases, gathered into one.
+
+**Every outfit does something now.** All eighteen. The cape makes a ridden
+cat faster and higher-jumping, and leaves a trail of stars behind it in the
+air. Wings cancel fall damage and glitter as you drop. The crown glows
+through walls. The doctor's coat heals, with little hearts to prove it. The
+unicorn horn sparkles. Fourteen more besides — dress your cat for the job.
+
+**Kittens come in litters** of two or three, each named after its parent,
+each inheriting a little of it, and now and then one is born already wearing
+a collar.
+
+**The cats got cuter.** Bigger ears, a glint in the eye, pink paw pads.
+
+**The Cat Parkour.** A lantern-lit wooden course you ride a cat through —
+up the ramp, then platform to platform, ending in wide gaps and single-block
+landings. Golden wings in a chest at the finish. It was too easy at first;
+it is not any more.
+
+**The world opens as you play.** Paths start walled off, each with a sign
+naming the quest that opens it. Light the lighthouse and the meadow road
+opens. Find the three keys and the parkour path opens. Beat the parkour and
+the lake lifts its grate. The story finally has an order.
+
+**Rewards on nearly every quest** — experience and items, not just a line of
+text.
+
+**A deep lake** far east with a tunnel at the bottom and a trident in the
+dark, **an attic** in the old house holding a full set of netherite for you
+and for your cat, **a trading post** that takes what a backpack cat digs up,
+and **a forest all the way around the map** with rabbits, foxes and sheep
+among the trees.
+
+**And a world template**, so you can start a fresh Cat Haven whenever you
+like without importing anything again.
+
 ## 3.12.1 — The rider on the head, for the last time
 
 A saddled cat no longer plays its sitting or sleeping pose. Those poses

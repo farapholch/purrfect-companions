@@ -61,7 +61,11 @@ cd "$SRV"
   echo "tickingarea remove_all"; sleep 2
   # hela spelytan måste ticka: byn+vägen respektive skogen+kullen
   echo "tickingarea add -25 -64 -8 20 -40 30 by"; sleep 2
-  echo "tickingarea add -58 -64 28 -10 -40 82 skog"; sleep 2
+  # skogen VID: spökkatterna står inte still — mätt i den skeppade världen
+  # låg närmaste spöke 16-32 block från sin plats, och det som hamnar i en
+  # oladdad chunk räknas inte alls. Ett för snävt område såg ut som att
+  # spöken saknades i världen; alla tre fanns hela tiden.
+  echo "tickingarea add -85 -64 20 -10 -40 92 skog"; sleep 2
   echo "tickingarea add -12 -64 30 20 -40 70 kulle"; sleep 2
   echo "tickingarea add 20 -64 0 120 -40 67 ang"; sleep 2
   echo "tickingarea add 10 -64 65 42 -40 95 berg"; sleep 2

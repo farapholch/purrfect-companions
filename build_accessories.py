@@ -366,6 +366,12 @@ def paint_accessories():
 def icon(a,col,path):
     S=16; T=(0,0,0,0); px=[[T]*S for _ in range(S)]
     def sp(x,y,c):
+        # ALLTID fyra byte. write_png deklarerar RGBA men skriver bytes(px),
+        # så en RGB-trippel ger tre byte i en rad som ska ha fyra — hela
+        # bilden blir förskjuten och Minecraft ritar rutmönstret i stället.
+        # sh() returnerar RGBA, men råfärgen ur ACC är RGB, och den skrevs
+        # rakt in på de flesta ställen.
+        if len(c) == 3: c = c + (255,)
         if 0<=x<S and 0<=y<S: px[y][x]=c
     def rect(x0,y0,x1,y1,c):
         for y in range(y0,y1+1):

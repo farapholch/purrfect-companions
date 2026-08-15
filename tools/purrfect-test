@@ -38,6 +38,13 @@ done < <(find "$SRC" -name "*.json")
 [ $badjson -eq 0 ] && ok "$n filer giltiga"
 
 echo
+# PNG-KOLL först: en trasig bild ser exakt ut som en fungerande i alla andra
+# kontroller — filen finns, item_texture.json pekar rätt, JSON:en är giltig —
+# och syns först som rutmönster på konsolen.
+if ! python3 "$SRC/tools/pngkoll.py" "$SRC/PurrfectCompanions_RP" "$SRC/PurrfectHarbour_RP" | sed 's/^/  /'; then
+  bad "trasiga PNG-filer i resurspaketen"
+fi
+
 echo "[2/4] Struktur & kända fallgropar"
 python3 - "$SRC" > /tmp/purrfect-struct.txt 2>/tmp/purrfect-struct.err <<'PY'
 import json,glob,os,sys

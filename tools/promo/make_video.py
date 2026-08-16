@@ -9,7 +9,11 @@ ljud (Pelle lägger musik från YouTubes ljudbibliotek — licensfritt där).
 Rutor renderas i 480×270 och skalas till 1080p med NÄRMSTA GRANNE — pixellooken
 är en del av Minecraft-estetiken, inte en kompromiss.
 
-ENDAST publika namn (Misty/Hazel/Mocha/Snow) — videon är marknadsföring.
+ENDAST publika namn — videon är marknadsföring.
+
+Titelkortets räkneord följer CATS-listan. Det stod "FOUR" i klartext och blev
+fel i samma stund som femte och sjätte katten kom; en trailer som räknar fel
+är värre än ingen trailer.
 
     python3 tools/promo/make_video.py            # full render (~10-15 min)
     python3 tools/promo/make_video.py --smoke    # var 30:e ruta, snabbkoll
@@ -23,6 +27,7 @@ import render_regression as rr
 W, H, FPS = 480, 270, 30
 OUTDIR = "/tmp/promo-frames"
 OUT = "/tmp/purrfect-promo.mp4"
+GIF = f"{BASE}/publish/purrfect-trailer.gif"
 SMOKE = "--smoke" in sys.argv
 
 # ---------------------------------------------------------------- 5x7-font --
@@ -49,6 +54,13 @@ FONT = {c: rows.split() for c, rows in {
  "T": "##### ..#.. ..#.. ..#.. ..#.. ..#.. ..#..",
  "U": "#...# #...# #...# #...# #...# #...# .###.",
  "W": "#...# #...# #...# #.#.# #.#.# ##.## #...#",
+ # J, Q, V och X saknades helt, och text() byter tyst ut en okänd bokstav mot
+ # mellanslag. Titelkortet skrev "SI HAND-MADE CATS" i en hel renderad trailer
+ # innan någon tittade. Hellre fyra glyfer för mycket än en tyst lucka.
+ "J": "..### ...#. ...#. ...#. #..#. #..#. .##..",
+ "Q": ".###. #...# #...# #...# #.#.# #..#. .##.#",
+ "V": "#...# #...# #...# #...# #...# .#.#. ..#..",
+ "X": "#...# #...# .#.#. ..#.. .#.#. #...# #...#",
  "Y": "#...# #...# .#.#. ..#.. ..#.. ..#.. ..#..",
  "Z": "##### ....# ...#. ..#.. .#... #.... #####",
  ".": "..... ..... ..... ..... ..... ..... ..#..",
@@ -119,7 +131,8 @@ def walk_pose(t):
 
 # ---------------------------------------------------------------- scener ----
 # Varje scen ger (renderjobb | färdig bild). Jobb kör i arbetarpool.
-CATS = [("misty", "MISTY"), ("hazel", "HAZEL"), ("mocha", "MOCHA"), ("snow", "SNOW")]
+CATS = [("misty", "MISTY"), ("hazel", "HAZEL"), ("mocha", "MOCHA"), ("snow", "SNOW"),
+        ("ginger", "GINGER"), ("domino", "DOMINO")]
 OUTFITS = [("sadel1", "SADDLE"), ("rustning3", "ARMOR"), ("horn2", "UNICORN HORN"),
            ("vingar1", "WINGS"), ("batvingar1", "BAT WINGS"), ("haxhatt1", "WITCH HAT"),
            ("tomteluva1", "SANTA HAT"), ("doktorsrock1", "DOCTOR COAT"), ("keps1", "CAP"),
@@ -127,6 +140,7 @@ OUTFITS = [("sadel1", "SADDLE"), ("rustning3", "ARMOR"), ("horn2", "UNICORN HORN
            ("mantel1", "CAPE"), ("tossor1", "BOOTIES"), ("halsband1", "COLLAR"),
            ("rosett1", "BOW"), ("krona1", "CROWN"), ("vagn1", "CART")]
 FULL = ["rustning3", "horn1", "vingar1", "halsduk1", "tossor2", "vagn1"]
+RAKNEORD = {4: "FOUR", 5: "FIVE", 6: "SIX", 7: "SEVEN", 8: "EIGHT"}
 
 
 def scenes():
@@ -175,7 +189,7 @@ def make_frame(job):
         # bara huvudena (övre delen) — ordbilden sätter kortet själv, större
         paste(img, lp[:404], lw, 404, W // 2, 96, 132)
         text(img, "PURRFECT COMPANIONS", W // 2, 200, 3)
-        text(img, "FOUR HAND-MADE CATS FOR MINECRAFT BEDROCK", W // 2, 236, 1)
+        text(img, f"{RAKNEORD[len(CATS)]} HAND-MADE CATS FOR MINECRAFT BEDROCK", W // 2, 236, 1)
         return fade(img, i, n)
     if kind == "cat":
         _, ci, i, n = job
@@ -232,6 +246,33 @@ def main():
     ], check=True)
     dur = len(jobs) / FPS
     print(f"klar: {OUT} ({dur:.1f} s, {os.path.getsize(OUT)//1024} kB)")
+    gif()
+
+
+def gif():
+    """README:s och sajtens loopande trailer.
+
+    Fanns inte som byggsteg: publish/purrfect-trailer.gif var handgjord en gång
+    med ffmpeg och visade fyra katter långt efter att det blivit sex. Nu faller
+    den ut ur samma rutor som videon.
+
+    Egen palett (palettegen/paletteuse) — standardpaletten gör grus av
+    pixelkonsten. 12 rutor/s och halva bredden håller filen kring en megabyte,
+    vilket GitHub och sajten orkar visa direkt.
+    """
+    if SMOKE:
+        return
+    paletten = "/tmp/purrfect-gif-palett.png"
+    kallor = f"{OUTDIR}/%05d.png"
+    filter_ = f"fps=12,scale={W // 2}:-1:flags=neighbor"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
+                    "-i", kallor, "-vf", f"{filter_},palettegen=max_colors=128",
+                    paletten], check=True)
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
+                    "-i", kallor, "-i", paletten,
+                    "-lavfi", f"{filter_}[x];[x][1:v]paletteuse=dither=none",
+                    "-loop", "0", GIF], check=True)
+    print(f"klar: {GIF} ({os.path.getsize(GIF)//1024} kB)")
 
 
 if __name__ == "__main__":

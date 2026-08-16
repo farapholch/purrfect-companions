@@ -147,18 +147,20 @@ def sheet(panels, cols, PW, PH, gap=2):
 
 if __name__=="__main__":
     os.makedirs(OUT,exist_ok=True)
-    CATS=["misty","hazel","mocha","snow"]
+    CATS=["misty","hazel","mocha","snow","ginger","domino"]
     PW=PH=300
-    # 1) alla fyra katterna
-    W,H,img=sheet([render3d(c,[],PW,PH) for c in CATS],2,PW,PH)
+    # 1) alla katterna — tre i bredd så sex ryms utan att rutorna krymper
+    W,H,img=sheet([render3d(c,[],PW,PH) for c in CATS],3,PW,PH)
     write_png(f"{OUT}/01-katterna.png",W,H,img); print("01-katterna.png")
     # 2) tillbehör
     # visa upp bredden: varje katt bär flera plagg, inklusive de nya
     looks=[("misty",["rustning3","haxhatt1","tossor2"]),          # diamantrustning + häxhatt
            ("hazel",["sadel1","tomteluva1","halsduk1","vagn1"]),   # tomteluva + vagn
            ("mocha",["horn2","vingar1","halsband1"]),              # ENHÖRNINGSKATTEN
-           ("snow",["doktorsrock1","glasogon2","ryggsack2"])]      # doktorn
-    W,H,img=sheet([render3d(c,a,PW,PH) for c,a in looks],2,PW,PH)
+           ("snow",["doktorsrock1","glasogon2","ryggsack2"]),      # doktorn
+           ("ginger",["mantel2","krona1","halsband2"]),            # kungligheten
+           ("domino",["keps2","tossor1","ryggsack1"])]             # bäraren
+    W,H,img=sheet([render3d(c,a,PW,PH) for c,a in looks],3,PW,PH)
     write_png(f"{OUT}/02-tillbehor.png",W,H,img); print("02-tillbehor.png")
     # 3) en fullt utrustad katt, stor
     img=render3d("misty",["rustning1","horn1","vingar1","halsduk1","ryggsack1","tossor2","vagn1"],640,440)

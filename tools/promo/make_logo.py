@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Logga + YouTube-miniatyr för promo-filmen.
 
-Alla fyra katternas huvuden renderas rakt framifrån med regressionsmotorn
+Allas katthuvuden renderas rakt framifrån med regressionsmotorn
 (bones_for filtreras till bara huvudet), beskärs automatiskt och komponeras:
 
   publish/video-logo.png        512x512-märke till filmens titelkort
@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import render_regression as rr
 from make_video import FONT
 
-CATS = ["misty", "hazel", "mocha", "snow"]
+CATS = ["misty", "hazel", "mocha", "snow", "ginger", "domino"]
 
 
 def head_render(cat, size=240):
@@ -75,9 +75,12 @@ heads = {c: head_render(c) for c in CATS}
 # --- märket: 2x2 huvuden + ordmärke -----------------------------------------
 S = 512
 logo = canvas(S, S)
-POS = [(150, 130), (362, 130), (150, 320), (362, 320)]
+# 3x2 sedan katterna blev sex. Huvudena krymper från 165 till 128 px så
+# raderna får plats ovanför ordmärket i stället för att växa in i det.
+POS = [(108, 128), (256, 128), (404, 128),
+       (108, 286), (256, 286), (404, 286)]
 for (c, (img, bg)), (cx, cy) in zip(heads.items(), POS):
-    blit_scaled(logo, img, bg, cx, cy, 165)
+    blit_scaled(logo, img, bg, cx, cy, 128)
 text(logo, "PURRFECT", S // 2, 428, 6, (0, 212, 255, 255))
 text(logo, "COMPANIONS", S // 2, 476, 4)
 rr.write_png(f"{BASE}/publish/video-logo.png", S, S, logo)
@@ -85,13 +88,16 @@ rr.write_png(f"{BASE}/publish/video-logo.png", S, S, logo)
 # --- miniatyren: huvuden till vänster, budskap till höger -------------------
 TW, TH = 1280, 720
 th = canvas(TW, TH)
-TPOS = [(210, 200), (470, 200), (210, 470), (470, 470)]
+TPOS = [(160, 200), (390, 200), (620, 200),
+        (160, 460), (390, 460), (620, 460)]
 for (c, (img, bg)), (cx, cy) in zip(heads.items(), TPOS):
-    blit_scaled(th, img, bg, cx, cy, 220)
-text(th, "PURRFECT", 950, 190, 10, (0, 212, 255, 255))
-text(th, "COMPANIONS", 950, 290, 7)
-text(th, "4 CATS . 12 OUTFITS", 950, 400, 4)
-text(th, "TAME . RIDE . BREED", 950, 450, 4)
-text(th, "MINECRAFT BEDROCK", 950, 540, 3, (150, 200, 255, 255))
+    blit_scaled(th, img, bg, cx, cy, 200)
+text(th, "PURRFECT", 985, 190, 9, (0, 212, 255, 255))
+text(th, "COMPANIONS", 985, 290, 6)
+# Stod "4 CATS . 12 OUTFITS" — fel i BÅDA leden sedan länge; det är sex
+# katter och tjugo plagg.
+text(th, "6 CATS . 20 OUTFITS", 985, 400, 4)
+text(th, "TAME . RIDE . BREED", 985, 450, 4)
+text(th, "MINECRAFT BEDROCK", 985, 540, 3, (150, 200, 255, 255))
 rr.write_png(f"{BASE}/publish/youtube-thumbnail.png", TW, TH, th)
 print("video-logo.png + youtube-thumbnail.png klara")

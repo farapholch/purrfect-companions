@@ -2562,6 +2562,14 @@
         "minecraft:behavior.owner_hurt_target": {
           "priority": 18
         }
+      },
+      "mjau:packad": {
+        "minecraft:is_chested": {},
+        "minecraft:inventory": {
+          "container_type": "horse",
+          "inventory_size": 15,
+          "private": false
+        }
       }
     },
     "events": {
@@ -2646,6 +2654,62 @@
                 "weight": 10,
                 "set_property": {
                   "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
                 }
               }
             ]
@@ -3727,7 +3791,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:skattletare"
+            "mjau:skattletare",
+            "mjau:packad"
           ]
         }
       },
@@ -3737,7 +3802,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:skattletare"
+            "mjau:skattletare",
+            "mjau:packad"
           ]
         }
       },
@@ -3747,7 +3813,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:skattletare"
+            "mjau:skattletare",
+            "mjau:packad"
           ]
         }
       },

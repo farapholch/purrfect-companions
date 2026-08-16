@@ -151,6 +151,15 @@ gt.registerAsync("mjau", "interakt", async (test) => {
   .structureName("mjau:arena")
   .maxTicks(2400);
 
+// RYGGSACKEN HAR INGET GAMETEST — medvetet. Ett forsok las har och togs bort:
+// overlamningen sker i huvudpaketets 20-tick-loop pa villkoret pl.isSneaking,
+// och p.isSneaking pa en SimulatedPlayer far inte det villkoret att bli sant
+// (samma sak i natverksboten: dar loste inte ens den beprovade
+// framstegsrapporten ut, som anvander EXAKT samma gest). Testet matte alltsa
+// simulatorns granser, inte paketet, och ett rott prov som alltid ar rott ar
+// samre an inget. Villkoret ar detsamma som framstegsrapportens, och den ar
+// bevisad pa riktig Xbox. Se tools/testbot/container-test.js.
+
 gt.registerAsync("mjau", "vagn", async (test) => {
   const p = test.spawnSimulatedPlayer({ x: 20, y: 2, z: 18 }, "GTVagn");
   const cat = test.spawn("mjau:misty", { x: 20, y: 2, z: 21 });

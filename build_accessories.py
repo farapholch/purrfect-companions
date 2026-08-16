@@ -827,10 +827,21 @@ def build_rest():
             {"min_wait_time":300,"max_wait_time":900,"spawn_item":"minecraft:string","spawn_sound":"drop.slot"},
             {"min_wait_time":420,"max_wait_time":1200,"spawn_item":"minecraft:feather","spawn_sound":"drop.slot"},
             {"min_wait_time":2400,"max_wait_time":4800,"spawn_item":"minecraft:diamond","spawn_sound":"random.levelup"}]}}
+        # ...och bär på RIKTIGT. Ryggsäcken var ren dekor: den syntes på ryggen
+        # och räckte som filter för Skattgrävaren, men gick inte att lägga något
+        # i. Lastrummet är samma som vagnens (is_chested + horse-container), och
+        # med FLIT identiska värden: en katt kan ha både vagn och ryggsäck, och
+        # två grupper som sätter minecraft:inventory olika stort ger odefinierad
+        # storlek. Lika värden = ingen konflikt oavsett vilken som vinner.
+        g["mjau:packad"]={
+            "minecraft:is_chested":{},
+            "minecraft:inventory":{"container_type":"horse",
+                                   "inventory_size":15,"private":False}}
         for _i in (1,2,3):
             _evn=f"mjau:on_ryggsack_{_i}"
             if _evn in ev:
-                ev[_evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:skattletare")
+                ev[_evn].setdefault("add",{}).setdefault("component_groups",[]).extend(
+                    ["mjau:skattletare","mjau:packad"])
         # KATTUNGAR föds ibland med rosett
         _born=ev["minecraft:entity_born"]
         _born.setdefault("sequence",[]).append({"randomize":[

@@ -34,3 +34,18 @@ Hard-won findings encoded in these scripts:
   claimed position must always match the server's view of the player.
 - `execute as <name>` does not match in BDS console commands; use absolute
   coordinates.
+
+## container-test.js — vad den svarar på (och inte)
+
+Provar om spelaren kommer åt ryggsäckens last (3.25.0). Exit 0 = överlämningen
+skedde, 1 = den uteblev, **2 = frågan obesvarad**.
+
+Tvåan är det vanliga utfallet, och den är ärlig: botens smygflagga i
+`player_auth_input` når inte serverns `Player.isSneaking`. Testet kontrollerar
+det genom att samtidigt lyssna efter *framstegsrapporten*, som utlöses av exakt
+samma gest och är bevisad på riktig Xbox — kommer inte heller den är det boten
+som är gränsen, inte paketet.
+
+Samma körning slog också fast att `container_open` inte går att framkalla
+härifrån: en **kistförsedd vaniljaåsna** öppnades inte heller. Därför bygger
+inte ryggsäcken på att den inbyggda luckan går att öppna.

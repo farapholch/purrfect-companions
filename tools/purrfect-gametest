@@ -32,6 +32,14 @@ echo "[gametest] bygger och installerar testpaketet"
 python3 "$SRC/tools/gametest/build_gametest_pack.py" /tmp/purrfect-gametest-pack "$SERVER_MOD" "$GAMETEST_MOD" >/dev/null
 rm -rf "$W/behavior_packs/PurrfectGameTest"
 cp -r /tmp/purrfect-gametest-pack "$W/behavior_packs/PurrfectGameTest"
+# HUVUDPAKETET: kopieras varje körning, precis som hamnpacken. Utan den här
+# raden testar gametestet den kopia purrfect-test råkade lämna i världen —
+# alltså gammal kod. Det kostade tre körningar och tre falska FAIL innan det
+# upptäcktes: överlämningen som testades fanns inte i världens paket.
+rm -rf "$W/behavior_packs/PurrfectCompanions_BP" "$W/resource_packs/PurrfectCompanions_RP"
+cp -r "$SRC/PurrfectCompanions_BP" "$W/behavior_packs/PurrfectCompanions_BP"
+mkdir -p "$W/resource_packs"
+cp -r "$SRC/PurrfectCompanions_RP" "$W/resource_packs/PurrfectCompanions_RP"
 # HAMNPACKEN: skeppet flyttade ut ur kattpaketet, så utan den här raden finns
 # mjau:spjutjaktare inte i testvärlden och skepp-testet faller på "could not
 # spawn entity" — inte för att skeppet är trasigt, utan för att det saknas.

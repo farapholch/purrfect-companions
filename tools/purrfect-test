@@ -533,6 +533,24 @@ cd "$SRV" || exit 1
   echo "event entity @e[type=mjau:misty,x=16,y=20,z=16,r=30] mjau:on_vagn_1"; sleep 1
   echo "replaceitem entity @e[type=mjau:misty,x=16,y=20,z=16,r=30] slot.inventory 0 diamond 1"; sleep 1
   echo "kill @e[type=mjau:misty,x=16,y=20,z=16,r=30]"; sleep 1
+  # RYGGSÄCKENS FÖRVARING + UPPLOCKNING (3.25.0). Samma replaceitem-bevis som
+  # vagnen ovan, och sedan skriptkroken: den lägger en tråd vid katten och
+  # svarar om den hamnat i väskan. Två helt olika fel ser likadana ut i spelet —
+  # "komponentgruppen saknas" och "skriptet plockar inte upp" — och skiljs åt här.
+  # MARKEN UNDER KATTEN är inte pyntning. Vagn- och sadelgrupperna nollar
+  # fallskadan (2.6.1-fixen ovan); en ryggsäckskatt gör det inte, så en katt
+  # summonad i luften på y=20 hann dö innan kroken svarade — och felet såg ut
+  # som en trasig container. Egen misty utan sällskap: kroken tar FÖRSTA
+  # katten med ryggsäck, och de fyra från uppstarten ska inte kunna vinna.
+  echo "kill @e[type=mjau:misty]"; sleep 1
+  echo "fill 14 19 14 18 19 18 stone"; sleep 1
+  echo "fill 14 20 14 18 24 18 air"; sleep 1
+  echo "summon mjau:misty 16 21 16"; sleep 1
+  echo "event entity @e[type=mjau:misty,x=16,y=21,z=16,r=10] mjau:on_tame"; sleep 1
+  echo "event entity @e[type=mjau:misty,x=16,y=21,z=16,r=10] mjau:on_ryggsack_1"; sleep 1
+  echo "replaceitem entity @e[type=mjau:misty,x=16,y=21,z=16,r=10] slot.inventory 1 emerald 1"; sleep 1
+  echo "scriptevent mjau:test_vakuum kor"; sleep 10
+  echo "kill @e[type=mjau:misty,x=16,y=21,z=16,r=10]"; sleep 1
   # RUSTNINGSNIVÅ: netherit ska ge 60 hp. 45 skada dödar basen (20 hp) och
   # gamla platta rustningen (30 hp) men inte netherit — överlevnad bevisar
   # att nivågruppen faktiskt gäller, inte bara att eventet gick igenom.
@@ -568,6 +586,7 @@ PROPOK=$(grep -c "Found entity.mjau:misty" "$LOG")
 ARMOK=$(grep -c "Found entity.mjau:snow" "$LOG")
 BLOCKOK=$(grep -c "Block placed" "$LOG")
 CARGO=$(grep -ci "Replaced slot" "$LOG")
+VAKUUM=$(grep -c "VAKUUM-TEST OK" "$LOG")
 # Syntax-/komponentfel är ALLTID allvarliga. "Unable to summon" kan vara flakigt
 # för första spawnen precis när tickingarea laddas → tolerera högst 1.
 HARD=$(grep -ciE "Syntax error|unknown component|invalid" "$LOG")
@@ -578,7 +597,8 @@ SOFT=$(grep -c "Unable to summon" "$LOG")
 [ "$HARD" -eq 0 ] && ok "inga syntax-/komponentfel" || bad "$HARD allvarliga fel (se $LOG)"
 [ "$PROPOK" -ge 10 ] && ok "plaggen ändrar kattens tillstånd: $PROPOK/10 (has_property)" || bad "bara $PROPOK/10 plagg satte sin property"
 [ "$BLOCKOK" -ge 5 ] && ok "blocken går att placera: $BLOCKOK/5" || bad "blocken kunde inte placeras ($BLOCKOK/5)"
-[ "$CARGO" -ge 1 ] && ok "vagnen har ett riktigt lastutrymme (replaceitem i slot.inventory)" || bad "vagnens förvaring gick inte att fylla — is_chested/inventory verkar inte ge någon container"
+[ "$CARGO" -ge 2 ] && ok "vagn OCH ryggsäck har riktiga lastutrymmen ($CARGO/2 replaceitem i slot.inventory)" || bad "förvaringen gick inte att fylla ($CARGO/2) — is_chested/inventory verkar inte ge någon container"
+[ "$VAKUUM" -ge 1 ] && ok "ryggsäckskatten plockar upp från marken (skriptkroken hittade tråden i väskan)" || bad "ryggsäckskatten plockade INTE upp tråden (se VAKUUM-TEST i $LOG)"
 [ "$ARMOK" -ge 1 ] && ok "netheritrustningen ger extra liv (överlevde 45 skada)" || bad "rustningsnivån gav inte extra liv — 45 skada dödade katten"
 if [ "$SOFT" -eq 0 ]; then
   ok "inga misslyckade spawns"
@@ -588,8 +608,14 @@ else
   bad "$SOFT misslyckade spawns"
 fi
 CL=$(find "$SRV" -name "ContentLog*" 2>/dev/null | head -1)
-if [ -n "$CL" ] && [ -s "$CL" ]; then
-  bad "innehållsfel i $(basename "$CL")"; grep -v '^[[:space:]]*$' "$CL" | head -5 | sed 's/^/     /'
+# ContentLog samlar ALL skriptutskrift, även [inform] — och vakuumkrokens
+# gröna rad är avsiktlig utskrift, inte ett fel. Bara den ena raden undantas;
+# krokens FEL-rader ska fortfarande färga körningen röd, och testet har ändå
+# ett eget påstående om att OK-raden finns.
+CLREST=""
+[ -n "$CL" ] && CLREST=$(grep -v '^[[:space:]]*$' "$CL" | grep -v "VAKUUM-TEST OK" || true)
+if [ -n "$CLREST" ]; then
+  bad "innehållsfel i $(basename "$CL")"; echo "$CLREST" | head -5 | sed 's/^/     /'
 else
   ok "inga innehållsfel"
 fi

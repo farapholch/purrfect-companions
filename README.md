@@ -25,6 +25,11 @@ Each meows in its own pitch — Mocha highest, Snow deepest.
 - **Ride** when saddled: hold a saddle → interact → interact again. ~56 % faster, charged jump. The saddle is visible on their back
 - **Breed** with fish → a kitten of the **same breed**, half size, which grows up
 - **Gifts** — tamed cats bring presents in the morning
+- **Carries for you** — a cat in a backpack has a real 15-slot hold, picks up
+  what you drop or mine within 4 blocks, and hands the load over when you
+  sneak up beside her
+- **Warns you** — she bristles and calls out when something hostile closes in
+  from 8–16 blocks away
 - **Creepers and phantoms flee** from them (they carry the `cat` family)
 - They **stalk and pounce** on rabbits and chickens
 - **Spawn naturally** in plains biomes
@@ -49,7 +54,7 @@ Craftable, applied to a tamed cat, and all wearable at the same time.
 | **Cat Saddle** | brown, black, light | 3 leather + 2 string (+ dye). A vanilla saddle gives brown |
 | **Cat Cap** | cyan, red, green, yellow | 3 wool + 1 leather |
 | **Cat Scarf** | red, blue, green, yellow | 4 wool |
-| **Cat Backpack** | brown, green, blue | 5 leather + 2 string + dye |
+| **Cat Backpack** | brown, green, blue | 5 leather + 2 string + dye. **Holds 15 slots**, auto-collects nearby drops, gives them back when you sneak beside her |
 | **Cat Glasses** | black, gold, pink | 2 glass panes + dye or gold nugget |
 | **Cat Cape** | red, blue, purple, black | 6 wool + 2 string |
 | **Cat Booties** | white, black, red, yellow | 4 wool in the corners — one on each paw |
@@ -107,6 +112,14 @@ the item registry, `/give`, entity streaming and property syncs — and a
 **simulated player** (Mojang's GameTest framework) that tames a cat by feeding
 it cod, saddles it through the ownership and held-item filters, mounts it and
 steers it, measuring that the cat actually moves.
+
+What the suite deliberately does **not** claim: whether a player can open the
+built-in container window. A real client failed to open one — and failed on a
+chest-carrying vanilla donkey in the same run, which is why the backpack hands
+its load over on a sneak instead of relying on that window. The gesture is the
+same one the progress report uses, proven on real Xbox; neither the network bot
+nor a simulated player can raise `isSneaking`, so `tools/testbot/container-test.js`
+reports *inconclusive* (exit 2) rather than a false failure.
 
 `purrfect-ship` packages and uploads, refuses to run if the test is red, and
 keeps a ledger so the same version can never ship twice with different

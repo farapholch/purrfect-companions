@@ -716,6 +716,234 @@ system.runInterval(() => {
 }, 60);
 
 // ---------------------------------------------------------------------------
+// RYGGSÄCKEN BÄR PÅ RIKTIGT. Lastrummet sitter i entiteten (mjau:packad, samma
+// horse-container som vagnen) — det här är den andra halvan: katten PLOCKAR
+// UPP. En ryggsäckskatt som går bredvid dig i gruvan dammsuger upp det som
+// ligger på marken innan det hinner försvinna, och du öppnar henne som en
+// åsna för att hämta ut det.
+//
+// Tre vakter, alla tre av misstag inlärda:
+//   * MOGNADSTID — utan den snappar hon det du precis släppte för att sortera
+//     väskan. 2 sekunder räcker: det du kastar bort hinner du ångra.
+//   * FISKUNDANTAGET — torsk, lax och godis är tämjnings- och parningsmat.
+//     Att hon åt upp fisken du skulle tämja nästa katt med vore rent sabotage.
+//     Undantaget skyddar dessutom Midnight-ritualen, som ÄR en lax på en bädd.
+//   * LEDIG PLATS — bara i tom ficka. Då får hela högen plats och det finns
+//     ingen rest att lägga tillbaka i världen.
+const VAKUUM_RADIE = 4;
+const VAKUUM_MOGEN = 40;                 // ticks på marken innan hon rör det
+const VAKUUM_EJ = new Set(["minecraft:cod", "minecraft:salmon", "mjau:godis"]);
+const FYND = new Set(["minecraft:string", "minecraft:feather", "minecraft:diamond"]);
+const itemSedd = new Map();              // föremåls-id -> tick vi först såg det
+const packadSedd = new Set();            // katt-id vi redan tipsat om
+
+function tamKatt(c) {
+  try { return c.getProperty("mjau:tam") === 1; } catch { return false; }
+}
+
+system.runInterval(() => {
+  const d = world.getDimension("overworld");
+  let cats;
+  try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
+  if (itemSedd.size > 400) itemSedd.clear();   // minnestak: hellre glömma än växa
+  for (const c of cats) {
+    let ryggsack = 0;
+    try { ryggsack = c.getProperty("mjau:ryggsack") ?? 0; } catch { continue; }
+    if (!ryggsack || !tamKatt(c)) continue;
+
+    // TIPSET: ingen läser en changelog. Första gången en katt får ryggsäcken
+    // på sig får den som står bredvid veta vad den nu duger till.
+    if (!packadSedd.has(c.id)) {
+      packadSedd.add(c.id);
+      try {
+        for (const pl of world.getAllPlayers()) {
+          if (Math.hypot(pl.location.x - c.location.x, pl.location.z - c.location.z) > 8) continue;
+          if (pl.getDynamicProperty("mjau_packtips")) continue;
+          pl.setDynamicProperty("mjau_packtips", true);
+          pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.packad.tips" }] });
+        }
+      } catch { }
+    }
+
+    // ÖVERLÄMNINGEN: den som smyger intill henne får lasten i handen.
+    try {
+      for (const pl of world.getAllPlayers()) {
+        if (!pl.isSneaking) continue;
+        if ((lamnaTyst.get(pl.id) || 0) > system.currentTick) continue;
+        if (Math.hypot(pl.location.x - c.location.x, pl.location.y - c.location.y,
+                       pl.location.z - c.location.z) > 2.5) continue;
+        const n = lamnaOver(pl, c);
+        if (!n) continue;                    // tom väska: ingen text, ingen paus
+        lamnaTyst.set(pl.id, system.currentTick + 100);
+        pl.onScreenDisplay.setActionBar({
+          rawtext: [{ translate: "mjau.packad.lamnar", with: [String(n)] }] });
+        pl.playSound("random.pop");
+        // Framstegsrapporten hänger på samma gest. Utan pausen får du
+        // uppdragslistan i chatten varje gång du hämtar lasten.
+        rapportTyst.set(pl.id, system.currentTick + 200);
+      }
+    } catch { }
+
+    let box;
+    try { box = c.getComponent("minecraft:inventory")?.container; } catch { }
+    if (!box || box.emptySlotsCount === 0) continue;
+
+    let items;
+    try { items = d.getEntities({ type: "minecraft:item", location: c.location, maxDistance: VAKUUM_RADIE }); }
+    catch { continue; }
+    for (const it of items) {
+      let stack;
+      try { stack = it.getComponent("minecraft:item")?.itemStack; } catch { continue; }
+      if (!stack || VAKUUM_EJ.has(stack.typeId)) continue;
+      const forst = itemSedd.get(it.id);
+      if (forst === undefined) { itemSedd.set(it.id, system.currentTick); continue; }
+      if (system.currentTick - forst < VAKUUM_MOGEN) continue;
+      if (box.emptySlotsCount === 0) break;
+      try { box.addItem(stack); } catch { continue; }
+      itemSedd.delete(it.id);
+      try { it.remove(); } catch { }
+      try { d.playSound("random.pop", c.location); } catch { }
+      try {
+        d.spawnParticle("minecraft:villager_happy", {
+          x: c.location.x, y: c.location.y + 0.7, z: c.location.z });
+      } catch { }
+      // SKATTGRÄVAREN utdelades genom att leta efter fynden PÅ MARKEN intill
+      // katten — och nu hinner hon plocka upp dem innan den kollen vaknar
+      // (40 ticks). Utmärkelsen följer därför med i väskan i stället.
+      if (FYND.has(stack.typeId)) {
+        for (const pl of world.getAllPlayers()) {
+          try {
+            if (Math.hypot(pl.location.x - c.location.x, pl.location.z - c.location.z) < 16)
+              give(pl, "skattgravaren");
+          } catch { }
+        }
+      }
+    }
+  }
+}, 20);
+
+// ÖVERLÄMNINGEN — och varför den inte är en lucka som öppnas.
+//
+// Lastrummet finns: replaceitem mot slot.inventory fyller det, både för vagnen
+// och för ryggsäcken. Att en SPELARE kommer åt det gick däremot inte att
+// bevisa. En riktig klient i testservern fick inte upp väskan vare sig med
+// vanligt tryck eller smygtryck — och inte heller en kistförsedd VANILJAÅSNAS
+// inventarie med samma paket. Kontrollen visar att provet inte kan avgöra
+// frågan, inte att luckan är trasig; men att lova en lucka i hjälptexten som
+// ingen bevisat går att öppna vore att gissa åt spelaren.
+//
+// Alltså en väg som inte hänger på den luckan alls: SMYG INTILL HENNE, så
+// lämnar hon över allt hon bär. Öppnas den inbyggda luckan också för någon,
+// är det en bonus — inte förutsättningen.
+//
+// Gesten är MEDVETET densamma som framstegsrapportens (smyga intill en tämjd
+// katt). Den är beprövad på riktig Xbox, till skillnad från
+// playerInteractWithEntity, som i den simulerade spelaren aldrig löste ut.
+// Bara när det finns något att lämna över säger hon till — annars vore varje
+// smygsteg förbi katten ett meddelande.
+const lamnaTyst = new Map();             // spelar-id -> tick då nästa överlämning tillåts
+
+function lamnaOver(pl, c) {
+  const box = c.getComponent("minecraft:inventory")?.container;
+  const inv = pl.getComponent("minecraft:inventory")?.container;
+  if (!box || !inv) return 0;
+  let n = 0;
+  for (let i = 0; i < box.size; i++) {
+    const it = box.getItem(i);
+    if (!it) continue;
+    if (inv.emptySlotsCount === 0) break;   // dina egna fickor fulla: resten stannar hos henne
+    inv.addItem(it);
+    box.setItem(i, undefined);
+    n += it.amount;
+  }
+  return n;
+}
+
+// testkrok: /scriptevent mjau:test_vakuum lägger en tråd vid en ryggsäckskatt
+// och rapporterar om den hamnat i väskan (röktestet — hela kedjan grupp ->
+// container -> mognadstid -> upplockning i ett svep). Samma mönster som
+// mjau:test_fest och mjau:test_grind.
+try {
+  system.afterEvents.scriptEventReceive.subscribe(ev => {
+    if (ev.id !== "mjau:test_vakuum") return;
+    try {
+      const d = world.getDimension("overworld");
+      const c = d.getEntities({ families: ["mjaukatt"] })
+        .find(k => { try { return (k.getProperty("mjau:ryggsack") ?? 0) > 0; } catch { return false; } });
+      if (!c) { console.warn("[mjau] VAKUUM-TEST FEL: ingen ryggsackskatt att prova pa"); return; }
+      if (!c.getComponent("minecraft:inventory")?.container) {
+        console.warn("[mjau] VAKUUM-TEST FEL: ryggsackskatten har inget lastrum"); return;
+      }
+      const katt_id = c.id;
+      d.spawnItem(new ItemStack("minecraft:string", 1), c.location);
+      // Katten letas upp PÅ NYTT efter väntan i stället för att återanvända
+      // handtaget: första försöket dog i "cannot read property 'size' of
+      // undefined", vilket såg ut som en trasig container men var en katt som
+      // hunnit dö i testvärlden. Fel ska säga vilket fel det är.
+      system.runTimeout(() => {
+        try {
+          const k = d.getEntities({ families: ["mjaukatt"] }).find(x => x.id === katt_id);
+          if (!k) { console.warn("[mjau] VAKUUM-TEST FEL: katten forsvann under testet"); return; }
+          const box = k.getComponent("minecraft:inventory")?.container;
+          if (!box) { console.warn("[mjau] VAKUUM-TEST FEL: lastrummet borta"); return; }
+          let n = 0;
+          for (let i = 0; i < box.size; i++)
+            if (box.getItem(i)?.typeId === "minecraft:string") n++;
+          // OK-raden går via console.log, inte console.warn: warn hamnar i
+          // ContentLog, och testet räknar varje rad där som ett innehållsfel —
+          // ett grönt delprov ska inte färga hela körningen röd. FEL-raderna
+          // ska däremot ligga kvar i ContentLog.
+          if (n > 0) console.log("[mjau] VAKUUM-TEST OK: traden ligger i vaskan");
+          else console.warn("[mjau] VAKUUM-TEST FEL: traden ligger kvar pa marken");
+        } catch (e) { console.warn("[mjau] VAKUUM-TEST FEL: " + e); }
+      }, 100);
+    } catch (e) { console.warn("[mjau] VAKUUM-TEST FEL: " + e); }
+  });
+} catch { }
+
+// ---------------------------------------------------------------------------
+// KATTENS VARNING: hon hör det du inte hör. En tämjd katt intill dig reser
+// ragg när något fientligt närmar sig, och du hinner vända dig om.
+//
+// RINGEN 8-16 block är hela poängen: står monstret redan framför dig är
+// varningen brus, och en gruvgång full av mobs skulle annars göra henne till
+// en brandlarmsklocka. Hon varnar för det som är PÅ VÄG, en gång per kvart
+// minut. (Creepers behöver hon inte varna för — de flyr redan från katter.)
+const varningTyst = new Map();           // spelar-id -> tick då nästa varning tillåts
+const VARNING_PAUS = 300;                // 15 s
+
+system.runInterval(() => {
+  const d = world.getDimension("overworld");
+  let cats;
+  try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
+  const tamda = cats.filter(tamKatt);
+  if (!tamda.length) return;
+  for (const pl of world.getAllPlayers()) {
+    if (!pl) continue;
+    try {
+      if ((varningTyst.get(pl.id) || 0) > system.currentTick) continue;
+      const L = pl.location;
+      const vakt = tamda.find(c => Math.hypot(c.location.x - L.x, c.location.y - L.y,
+                                              c.location.z - L.z) < 10);
+      if (!vakt) continue;
+      const fiender = d.getEntities({ families: ["monster"], location: L, maxDistance: 16 });
+      const pavag = fiender.some(m => {
+        const a = Math.hypot(m.location.x - L.x, m.location.y - L.y, m.location.z - L.z);
+        return a >= 8;
+      });
+      const nara = fiender.some(m =>
+        Math.hypot(m.location.x - L.x, m.location.y - L.y, m.location.z - L.z) < 8);
+      if (!pavag || nara) continue;
+      varningTyst.set(pl.id, system.currentTick + VARNING_PAUS);
+      pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.varning" }] });
+      pl.playSound("mob.cat.straymeow", { pitch: 0.7 });
+      d.spawnParticle("minecraft:critical_hit_emitter", {
+        x: vakt.location.x, y: vakt.location.y + 0.9, z: vakt.location.z });
+    } catch { }
+  }
+}, 20);
+
+// ---------------------------------------------------------------------------
 // KATTUNGAR: en nyfödd kattunge ärver ett namn efter sin förälder
 // ("Baby " + förälderns namn) i stället för att vara namnlös, och kommer i
 // en hel kull (2-3 ungar) i stället för bara en — speltest-önskemål ("kör

@@ -67,6 +67,32 @@ for _g in GEOALL:
     if (_dsc.get("texture_width"),_dsc.get("texture_height"))!=(_tw,_th):
         bad.append(f"{_dsc['identifier']}: texturstorlek {_dsc.get('texture_width')}x{_dsc.get('texture_height')} != PNG {_tw}x{_th}")
 GEOIDS={g["description"]["identifier"] for g in GEOALL}
+
+# HUNDEN har egen geometri och egen textur sedan 3.27.0. Samma två kontroller
+# som katten får, plus en tredje som är hela anledningen till att hon byggdes
+# om: klientdefinitionen animerar BENNAMN, och animeras ett ben som inte finns
+# i geometrin hamnar kroppsdelen någon annanstans — precis så föll vaniljas
+# varg isär hos oss (look_at_target roterade ett "head" som satt i en
+# upperBody-hierarki vi inte ägde). Servern säger ingenting; det syns först på
+# en konsol.
+BENKRAV={"animation.common.look_at_target":["head"],
+         "animation.quadruped.walk":["leg0","leg1","leg2","leg3"]}
+_hp=f"{SRC}/PurrfectCompanions_RP/models/entity/hund.geo.json"
+if os.path.exists(_hp):
+    for _g in json.load(open(_hp))["minecraft:geometry"]:
+        _dsc=_g["description"]; GEOIDS.add(_dsc["identifier"])
+        _tex=f"{SRC}/PurrfectCompanions_RP/textures/entity/hund.png"
+        _hd=open(_tex,"rb").read(); _hw,_hh=_st.unpack(">II",_hd[16:24])
+        if (_dsc.get("texture_width"),_dsc.get("texture_height"))!=(_hw,_hh):
+            bad.append(f"{_dsc['identifier']}: texturstorlek {_dsc.get('texture_width')}x{_dsc.get('texture_height')} != PNG {_hw}x{_hh}")
+        _ben={b["name"] for b in _g["bones"]}
+        for _cf in glob.glob(f"{SRC}/PurrfectCompanions_RP/entity/*.json"):
+            _cd=json.load(open(_cf))["minecraft:client_entity"]["description"]
+            if _dsc["identifier"] not in _cd.get("geometry",{}).values(): continue
+            for _anim in _cd.get("animations",{}).values():
+                for _krav in BENKRAV.get(_anim,[]):
+                    if _krav not in _ben:
+                        bad.append(f"{os.path.basename(_cf)}: {_anim} animerar benet '{_krav}' som {_dsc['identifier']} saknar")
 geoj=GEOALL[0]
 geo=geoj["description"]["identifier"]; body_top=None; body_back=None
 # render controllers som client_entity refererar måste finnas
@@ -564,6 +590,13 @@ cd "$SRV" || exit 1
     echo "testfor @e[type=mjau:$c,x=16,y=21,z=16,r=10,has_property={mjau:ryggsack=2}]"; sleep 1
     echo "kill @e[type=mjau:$c,x=16,y=21,z=16,r=10]"; sleep 1
   done
+  # VAKTHUNDEN (3.27.0): egen geometri sedan vaniljas varg föll isär på Xbox.
+  # Servern kan inte se en modell, men den kan se att entiteten laddar och
+  # lever — och den statiska kontrollen ovan vaktar bennamnen som animationerna
+  # kräver. Tillsammans täcker de det som gick fel.
+  echo "summon mjau:vakthund 16 21 16"; sleep 1
+  echo "testfor @e[type=mjau:vakthund,x=16,y=21,z=16,r=10]"; sleep 1
+  echo "kill @e[type=mjau:vakthund]"; sleep 1
   # RUSTNINGSNIVÅ: netherit ska ge 60 hp. 45 skada dödar basen (20 hp) och
   # gamla platta rustningen (30 hp) men inte netherit — överlevnad bevisar
   # att nivågruppen faktiskt gäller, inte bara att eventet gick igenom.
@@ -601,6 +634,7 @@ BLOCKOK=$(grep -c "Block placed" "$LOG")
 CARGO=$(grep -ci "Replaced slot" "$LOG")
 VAKUUM=$(grep -c "VAKUUM-TEST OK" "$LOG")
 NYRAS=$(grep -cE "Found entity\.mjau:(ginger|domino)" "$LOG")
+HUND=$(grep -c "Found entity.mjau:vakthund" "$LOG")
 # Syntax-/komponentfel är ALLTID allvarliga. "Unable to summon" kan vara flakigt
 # för första spawnen precis när tickingarea laddas → tolerera högst 1.
 HARD=$(grep -ciE "Syntax error|unknown component|invalid" "$LOG")
@@ -613,6 +647,7 @@ SOFT=$(grep -c "Unable to summon" "$LOG")
 [ "$BLOCKOK" -ge 5 ] && ok "blocken går att placera: $BLOCKOK/5" || bad "blocken kunde inte placeras ($BLOCKOK/5)"
 [ "$CARGO" -ge 2 ] && ok "vagn OCH ryggsäck har riktiga lastutrymmen ($CARGO/2 replaceitem i slot.inventory)" || bad "förvaringen gick inte att fylla ($CARGO/2) — is_chested/inventory verkar inte ge någon container"
 [ "$VAKUUM" -ge 1 ] && ok "ryggsäckskatten plockar upp från marken (skriptkroken hittade tråden i väskan)" || bad "ryggsäckskatten plockade INTE upp tråden (se VAKUUM-TEST i $LOG)"
+[ "$HUND" -ge 1 ] && ok "vakthunden laddar med egen geometri" || bad "vakthunden gick inte att spawna"
 [ "$NYRAS" -ge 4 ] && ok "Ginger och Domino bär plaggen: $NYRAS/4 (sadel + ryggsäck, has_property)" || bad "de nya raserna satte bara $NYRAS/4 plagg-properties"
 [ "$ARMOK" -ge 1 ] && ok "netheritrustningen ger extra liv (överlevde 45 skada)" || bad "rustningsnivån gav inte extra liv — 45 skada dödade katten"
 if [ "$SOFT" -eq 0 ]; then
@@ -623,12 +658,14 @@ else
   bad "$SOFT misslyckade spawns"
 fi
 CL=$(find "$SRV" -name "ContentLog*" 2>/dev/null | head -1)
-# ContentLog samlar ALL skriptutskrift, även [inform] — och vakuumkrokens
-# gröna rad är avsiktlig utskrift, inte ett fel. Bara den ena raden undantas;
-# krokens FEL-rader ska fortfarande färga körningen röd, och testet har ändå
-# ett eget påstående om att OK-raden finns.
+# ContentLog samlar ALL skriptutskrift, även [inform]. Grinden ska falla på
+# VARNINGAR OCH FEL, inte på kvitton: paketet skriver medvetet ut rader när
+# något gick rätt till (vakuumkroken, Befriaren när vakthunden fälls), och de
+# raderna gjorde körningen röd fast ingenting var fel. Tidigare undantogs de
+# en och en med grep — en lista som växte varje gång paketet fick en ny
+# informationsrad. [warning] och [error] passerar fortfarande rakt igenom.
 CLREST=""
-[ -n "$CL" ] && CLREST=$(grep -v '^[[:space:]]*$' "$CL" | grep -v "VAKUUM-TEST OK" || true)
+[ -n "$CL" ] && CLREST=$(grep -v '^[[:space:]]*$' "$CL" | grep -v '\[Scripting\]\[inform\]' || true)
 if [ -n "$CLREST" ]; then
   bad "innehållsfel i $(basename "$CL")"; echo "$CLREST" | head -5 | sed 's/^/     /'
 else

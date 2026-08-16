@@ -20,6 +20,11 @@ BASE = "/opt/purrfect-companions"; BP = f"{BASE}/PurrfectCompanions_BP"; RP = f"
 # Ginger och Domino tillkom raderade ikonstädningen deras spawnägg vid varje
 # bygge — en gång per ställe man glömde.
 KATTER = ("misty", "hazel", "mocha", "snow", "ginger", "domino")
+
+# Alla som har ett spawnägg att skydda mot ikonstädningen. Vakthunden är ingen
+# katt (ingen päls att måla plagg i), men hennes ikon rensas bort av samma
+# glob om hon inte står med här.
+SPAWNAGG = KATTER + ("vakthund",)
 TEX = 256
 
 # ---------------------------------------------------------------- definition
@@ -556,10 +561,10 @@ def build_rest():
         for f in glob.glob(f"{d_}/*.json"):
             if os.path.splitext(os.path.basename(f))[0] in _mina: os.remove(f)
     for f in glob.glob(f"{RP}/textures/items/pc_*.png"):
-        if not any(f.endswith(f"pc_{c}.png") for c in KATTER): os.remove(f)
+        if not any(f.endswith(f"pc_{c}.png") for c in SPAWNAGG): os.remove(f)
     it=json.load(open(f"{RP}/textures/item_texture.json"))
     it["texture_data"]={k:v for k,v in it["texture_data"].items()
-                        if k in {f"pc_{c}" for c in KATTER}}
+                        if k in {f"pc_{c}" for c in SPAWNAGG}}
     lang=[]
     for a,cfg in ACC.items():
         for i,(slug,col) in cfg["colors"].items():

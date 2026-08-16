@@ -448,7 +448,10 @@ try {
         if (dx * dx + dz * dz < 24 * 24) { give(pl, "befriaren"); fick++; }
       } catch { }
     }
-    console.warn("[mjau] vakthunden fälld — Befriaren till " + fick + " spelare");
+    // console.log, inte warn: det här är ett KVITTO på att allt gick rätt till,
+    // och warn hamnar i ContentLog där varje rad räknas som ett innehållsfel.
+    // Samma gräns som vakuumkrokens gröna rad.
+    console.log("[mjau] vakthunden fälld — Befriaren till " + fick + " spelare");
   });
 } catch { }
 
@@ -494,7 +497,7 @@ system.runInterval(() => {
       hundSedd = true; hundPlats = hundar[0].location;
     } else if (hundSedd && hundPlats) {
       hundSedd = false;
-      console.warn("[mjau] vakan: hunden borta — delar ut Befriaren");
+      console.log("[mjau] vakan: hunden borta — delar ut Befriaren");
       for (const pl of world.getAllPlayers()) {
         try {
           const dx = pl.location.x - hundPlats.x, dz = pl.location.z - hundPlats.z;

@@ -1,5 +1,34 @@
 # Ej publicerat på CurseForge ännu
 
+## 3.27.0 — The guard dog was never ours
+
+Reported from an Xbox: the dog's head and body had come apart, and she sat in
+the hotbar as a plain egg among the cats' faces.
+
+**She was a borrowed wolf.** The pack pointed at vanilla's `geometry.wolf` and
+the vanilla wolf texture, then animated the bone named `head` — but vanilla's
+wolf keeps its head inside a body hierarchy we neither owned nor could read,
+so the rotation put the head somewhere else entirely. Nothing in the game
+complains about that. It only shows up on a screen.
+
+**Now she is ours.** Her cubes, her coat and her spawn-egg face all come out of
+`tools/make_dog.py`, the same way everything else in this pack is made — so she
+can be rendered and looked at before she leaves the house, which is exactly how
+the head was checked this time. Dark guard coat, pale chest and paws, amber
+eyes, upright tail.
+
+**And she has a face in the hotbar.** The client definition had no spawn egg at
+all, which is why Minecraft drew its default one.
+
+**Also in this release**
+- A new static check: if a client definition animates a bone, the geometry has
+  to have that bone. That is precisely the fault that broke her, and it was
+  invisible to every existing test.
+- The test suite no longer turns red over receipts. Deliberate informational
+  output — "the vacuum found the string", "the guard dog fell" — was being
+  counted as a content error, one grep exception at a time. Warnings and
+  errors still fail the run.
+
 ## 3.26.0 — Two more cats, and a forest to find them in
 
 **Ginger.** A Norwegian Forest Cat: a big warm ginger tabby, a head taller than

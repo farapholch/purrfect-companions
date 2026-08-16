@@ -20,6 +20,9 @@
     "pc_domino": {
       "textures": "textures/items/pc_domino"
     },
+    "pc_vakthund": {
+      "textures": "textures/items/pc_vakthund"
+    },
     "pc_sadel_brun": {
       "textures": "textures/items/pc_sadel_brun"
     },

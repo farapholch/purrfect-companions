@@ -178,3 +178,4 @@ action.hint.exit.mjau:snow=Dismount
 action.hint.exit.snow=Dismount
 action.hint.exit.mjau:spokkatt=Dismount
 action.hint.exit.spokkatt=Dismount
+item.spawn_egg.entity.mjau:vakthund.name=Skapa Vakthund

@@ -209,7 +209,12 @@ gt.registerAsync("mjau", "sate", async (test) => {
   const p = test.spawnSimulatedPlayer({ x: 20, y: 2, z: 18 }, "GTSate");
   await test.idle(20);
   const rader = [];
-  for (const [typ, skala] of [["mjau:mocha", 0.85], ["mjau:misty", 1.0], ["mjau:snow", 1.15]]) {
+  // Ginger (1.10) och Domino (0.95) ar EGNA storlekar. Xbox-rapporten "man
+  // sitter pa huvudet ibland" gallde just en oprovad skala, sa varje ny
+  // kattstorlek ska matas har innan den lamnar huset.
+  for (const [typ, skala] of [["mjau:mocha", 0.85], ["mjau:domino", 0.95],
+                              ["mjau:misty", 1.0], ["mjau:ginger", 1.10],
+                              ["mjau:snow", 1.15]]) {
     const cat = test.spawn(typ, { x: 20, y: 2, z: 21 });
     await test.idle(10);
     // genvag forbi filterkedjan: den testas redan av "interakt"-testet
@@ -237,7 +242,9 @@ gt.registerAsync("mjau", "sate", async (test) => {
   }
   // Ingen FAIL an: forsta korningen ar en MATNING som avgor om sitsen maste
   // skalas per katt. Assertion sats nar facit finns (se raderna ovan).
-  done(test, "sateshojd matt for alla tre kattstorlekar: " + rader.join(" | "), true);
+  // Antalet lases ur listan: raden sa "alla tre kattstorlekar" medan den
+  // mätte fem, och en testutskrift som räknar fel är inte värd att lita på.
+  done(test, `sateshojd matt for alla ${rader.length} kattstorlekar: ` + rader.join(" | "), true);
 })
   .structureName("mjau:arena")
   .maxTicks(2400);

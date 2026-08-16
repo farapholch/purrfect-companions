@@ -551,6 +551,19 @@ cd "$SRV" || exit 1
   echo "replaceitem entity @e[type=mjau:misty,x=16,y=21,z=16,r=10] slot.inventory 1 emerald 1"; sleep 1
   echo "scriptevent mjau:test_vakuum kor"; sleep 10
   echo "kill @e[type=mjau:misty,x=16,y=21,z=16,r=10]"; sleep 1
+  # DE NYA RASERNA (3.26.0) bär plaggkedjan i kraft av att vara kopior av
+  # misty och hazel — men "i kraft av" är ett antagande tills det mätts, och
+  # en felgenererad entitet ser likadan ut som en fungerande i alla andra
+  # kontroller. En property var räcker för att avslöja den. Katterna föds i
+  # samma urgröpta ficka som vakuumtestet, av samma skäl: y=20 är berg.
+  for c in ginger domino; do
+    echo "summon mjau:$c 16 21 16"; sleep 1
+    echo "event entity @e[type=mjau:$c,x=16,y=21,z=16,r=10] mjau:on_sadel_1"; sleep 1
+    echo "testfor @e[type=mjau:$c,x=16,y=21,z=16,r=10,has_property={mjau:sadel=1}]"; sleep 1
+    echo "event entity @e[type=mjau:$c,x=16,y=21,z=16,r=10] mjau:on_ryggsack_2"; sleep 1
+    echo "testfor @e[type=mjau:$c,x=16,y=21,z=16,r=10,has_property={mjau:ryggsack=2}]"; sleep 1
+    echo "kill @e[type=mjau:$c,x=16,y=21,z=16,r=10]"; sleep 1
+  done
   # RUSTNINGSNIVÅ: netherit ska ge 60 hp. 45 skada dödar basen (20 hp) och
   # gamla platta rustningen (30 hp) men inte netherit — överlevnad bevisar
   # att nivågruppen faktiskt gäller, inte bara att eventet gick igenom.
@@ -587,6 +600,7 @@ ARMOK=$(grep -c "Found entity.mjau:snow" "$LOG")
 BLOCKOK=$(grep -c "Block placed" "$LOG")
 CARGO=$(grep -ci "Replaced slot" "$LOG")
 VAKUUM=$(grep -c "VAKUUM-TEST OK" "$LOG")
+NYRAS=$(grep -cE "Found entity\.mjau:(ginger|domino)" "$LOG")
 # Syntax-/komponentfel är ALLTID allvarliga. "Unable to summon" kan vara flakigt
 # för första spawnen precis när tickingarea laddas → tolerera högst 1.
 HARD=$(grep -ciE "Syntax error|unknown component|invalid" "$LOG")
@@ -599,6 +613,7 @@ SOFT=$(grep -c "Unable to summon" "$LOG")
 [ "$BLOCKOK" -ge 5 ] && ok "blocken går att placera: $BLOCKOK/5" || bad "blocken kunde inte placeras ($BLOCKOK/5)"
 [ "$CARGO" -ge 2 ] && ok "vagn OCH ryggsäck har riktiga lastutrymmen ($CARGO/2 replaceitem i slot.inventory)" || bad "förvaringen gick inte att fylla ($CARGO/2) — is_chested/inventory verkar inte ge någon container"
 [ "$VAKUUM" -ge 1 ] && ok "ryggsäckskatten plockar upp från marken (skriptkroken hittade tråden i väskan)" || bad "ryggsäckskatten plockade INTE upp tråden (se VAKUUM-TEST i $LOG)"
+[ "$NYRAS" -ge 4 ] && ok "Ginger och Domino bär plaggen: $NYRAS/4 (sadel + ryggsäck, has_property)" || bad "de nya raserna satte bara $NYRAS/4 plagg-properties"
 [ "$ARMOK" -ge 1 ] && ok "netheritrustningen ger extra liv (överlevde 45 skada)" || bad "rustningsnivån gav inte extra liv — 45 skada dödade katten"
 if [ "$SOFT" -eq 0 ]; then
   ok "inga misslyckade spawns"

@@ -1,4 +1,4 @@
-**Purrfect Companions** adds four distinct cats to Minecraft Bedrock — modelled after real breeds: two Siberians, a Sacred Birman and a Ragdoll.
+**Purrfect Companions** adds six distinct cats to Minecraft Bedrock — modelled after real breeds: two Siberians, a Sacred Birman, a Ragdoll, a Norwegian Forest Cat and a tuxedo shorthair.
 
 They are not reskins. Each has its own colouring, size, temperament, voice — and mood.
 
@@ -10,6 +10,8 @@ They are not reskins. Each has its own colouring, size, temperament, voice — a
 | **Hazel** | Siberian | Brown-and-white tabby, white bib and paws, green eyes |
 | **Mocha** | Sacred Birman | White with brown points, white gloves, faint belly stripes, blue eyes. Smallest and quickest |
 | **Snow** | Ragdoll | All white, blue eyes. Largest and calmest |
+| **Ginger** | Norwegian Forest Cat | Warm ginger tabby, green eyes. Big, and the deepest voice after Snow. Lives in forests |
+| **Domino** | European Shorthair | Tuxedo — charcoal with a white bib and four white paws. Small and quick. Lives in taiga |
 
 Each cat meows in its own pitch — Mocha highest, Snow deepest.
 
@@ -26,11 +28,13 @@ Each cat meows in its own pitch — Mocha highest, Snow deepest.
 - **Ride** them once saddled — much faster, with a charged jump like a horse. They stand perfectly still and obey the reins while you ride
 - **Cat fishing** — a saddled cat in water catches cod for you
 - **Hitch the Cat Cart** and sit IN it, steering like a sled, with a back seat for a friend — and fifteen slots of cargo space
+- **She carries for you** — a cat in a backpack has fifteen slots of her own, picks up what you drop or mine within four blocks, and hands the whole load over when you sneak up beside her
 - **Treasure hunting** — cats wearing a backpack dig up string and feathers, and once in a long while, a diamond
+- **She warns you** — a cat at your side bristles and calls out when something hostile closes in
 - **Breed** two of the same cat for a kitten of that breed — sometimes born wearing a little bow
 - **Gifts** — tamed cats bring you presents in the morning
 - **Creepers and phantoms flee** from them; they stalk and pounce on rabbits and chickens
-- They **spawn naturally** in plains, or use the spawn eggs (which show cat faces, not eggs)
+- They **spawn naturally** — four of them on plains, Ginger in forests, Domino in taiga — or use the spawn eggs (which show cat faces, not eggs)
 
 ### Furniture they actually use
 
@@ -38,9 +42,9 @@ Cats seek all of these out on their own:
 
 **Cat Bed** · **Yarn Ball** · **Food Bowl** · **Litter Box** · **Cat Tower** · **Cardboard Box** (cats love boxes) · **Fish Pond** · **Cat Door**
 
-### Eighteen craftable outfits
+### Twenty craftable outfits
 
-All wearable at the same time, in any combination — **over fifty colour variants**.
+All wearable at the same time, in any combination — **sixty colour variants**.
 
 | Outfit | Notes |
 |---|---|
@@ -52,6 +56,8 @@ All wearable at the same time, in any combination — **over fifty colour varian
 | **Witch Hat / Santa Hat** | For the season |
 | **Doctor Coat** | Trust them, they are a doctor |
 | **Bat Wings** | Leather or phantom membrane |
+| **Energy Blade** | Blue, green, red or violet. Hits like netherite — and a cat given one fights at your side |
+| **Star Cloak** | Dark weave with a drift of stars across the back |
 | **Cap, Scarf, Backpack, Glasses, Booties, Collar, Bow, Crown, Cape** | In many colours |
 
 **Cat Treat** — cod + wheat: tames, and cheers them up.

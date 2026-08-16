@@ -6,12 +6,13 @@
 Purrfect Companions — Cat Add-On for Minecraft Bedrock (Trailer)
 
 **Beskrivning:**
-Four hand-made cats for Minecraft Bedrock — tame, ride, breed and dress them
-in eighteen craftable outfits. Modelled after real breeds: two Siberians, a
-Sacred Birman and a Ragdoll.
+Six hand-made cats for Minecraft Bedrock — tame, ride, breed and dress them
+in twenty craftable outfits. Modelled after real breeds: two Siberians, a
+Sacred Birman, a Ragdoll, a Norwegian Forest Cat and a tuxedo shorthair.
 
 Moods, naps, purring, cat fishing, treasure hunting, a drivable cat cart,
-cat armor with triple hearts — and yes, a unicorn cat.
+cat armor with triple hearts, a backpack cat who picks up your loot and hands
+it back — and yes, a unicorn cat.
 
 Download free:
 ▸ CurseForge: https://www.curseforge.com/minecraft-bedrock/addons/purrfect-companions

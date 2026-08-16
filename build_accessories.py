@@ -12,6 +12,14 @@ plagg är oberoende av varandra.
 import copy, json, shutil, zlib, struct, glob, os
 
 BASE = "/opt/purrfect-companions"; BP = f"{BASE}/PurrfectCompanions_BP"; RP = f"{BASE}/PurrfectCompanions_RP"
+
+# DE VANLIGA KATTERNA — de som spawnar naturligt, har spawnägg och ska ha
+# plaggens UV-ytor inmålade i sin päls. De hemliga (midnight, aurora, nova) och
+# spökkatten står MEDVETET inte här: de har inga spawnägg och ska inte dyka upp
+# i föremålslistan. Listan låg tidigare hårdkodad på tre ställen, och när
+# Ginger och Domino tillkom raderade ikonstädningen deras spawnägg vid varje
+# bygge — en gång per ställe man glömde.
+KATTER = ("misty", "hazel", "mocha", "snow", "ginger", "domino")
 TEX = 256
 
 # ---------------------------------------------------------------- definition
@@ -336,7 +344,7 @@ def build_geometry():
 
 # ---------------------------------------------------------------- textur
 def paint_accessories():
-    for cid in ("misty","hazel","mocha","snow"):
+    for cid in KATTER:
         p=f"{RP}/textures/entity/{cid}.png"; w,h,px=read_png(p)
         def rect(x0,y0,ww,hh,c):
             for y in range(y0,y0+hh):
@@ -548,10 +556,10 @@ def build_rest():
         for f in glob.glob(f"{d_}/*.json"):
             if os.path.splitext(os.path.basename(f))[0] in _mina: os.remove(f)
     for f in glob.glob(f"{RP}/textures/items/pc_*.png"):
-        if not any(f.endswith(f"pc_{c}.png") for c in ("misty","hazel","mocha","snow")): os.remove(f)
+        if not any(f.endswith(f"pc_{c}.png") for c in KATTER): os.remove(f)
     it=json.load(open(f"{RP}/textures/item_texture.json"))
     it["texture_data"]={k:v for k,v in it["texture_data"].items()
-                        if k in ("pc_misty","pc_hazel","pc_mocha","pc_snow")}
+                        if k in {f"pc_{c}" for c in KATTER}}
     lang=[]
     for a,cfg in ACC.items():
         for i,(slug,col) in cfg["colors"].items():

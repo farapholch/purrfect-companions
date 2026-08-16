@@ -2,7 +2,7 @@
   "format_version": "1.19.0",
   "minecraft:entity": {
     "description": {
-      "identifier": "mjau:spokkatt",
+      "identifier": "mjau:domino",
       "is_spawnable": true,
       "is_summonable": true,
       "is_experimental": false,
@@ -2075,7 +2075,7 @@
       },
       "mjau:adult": {
         "minecraft:scale": {
-          "value": 1.0
+          "value": 0.95
         },
         "minecraft:behavior.breed": {
           "priority": 4,
@@ -2089,8 +2089,8 @@
           ],
           "breeds_with": [
             {
-              "mate_type": "mjau:spokkatt",
-              "baby_type": "mjau:spokkatt",
+              "mate_type": "mjau:domino",
+              "baby_type": "mjau:domino",
               "breed_event": {
                 "event": "minecraft:entity_born",
                 "target": "baby"
@@ -2102,7 +2102,7 @@
       "mjau:baby": {
         "minecraft:is_baby": {},
         "minecraft:scale": {
-          "value": 0.5
+          "value": 0.475
         },
         "minecraft:ageable": {
           "duration": 1200,
@@ -2654,6 +2654,62 @@
                 "weight": 10,
                 "set_property": {
                   "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
                 }
               }
             ]

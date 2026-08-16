@@ -14,6 +14,12 @@
     "pc_snow": {
       "textures": "textures/items/pc_snow"
     },
+    "pc_ginger": {
+      "textures": "textures/items/pc_ginger"
+    },
+    "pc_domino": {
+      "textures": "textures/items/pc_domino"
+    },
     "pc_sadel_brun": {
       "textures": "textures/items/pc_sadel_brun"
     },

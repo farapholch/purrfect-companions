@@ -1,6 +1,6 @@
 # Purrfect Companions
 
-Minecraft **Bedrock** add-on: four hand-made cats you can tame, ride, breed and dress up.
+Minecraft **Bedrock** add-on: six hand-made cats you can tame, ride, breed and dress up.
 
 [CurseForge](https://www.curseforge.com/minecraft-bedrock/addons/purrfect-companions) · [MCPEDL](https://mcpedl.com/purrfect-companions/) · [purrfect.pelleops.se](https://purrfect.pelleops.se)
 
@@ -15,8 +15,17 @@ Minecraft **Bedrock** add-on: four hand-made cats you can tame, ride, breed and 
 | `mjau:hazel` | Hazel | Siberian | Brown-and-white tabby, white bib and paws | 1.0 |
 | `mjau:mocha` | Mocha | Sacred Birman | White with brown points, white gloves, belly stripes, blue eyes | 0.85 |
 | `mjau:snow` | Snow | Ragdoll | All white, blue eyes | 1.15 |
+| `mjau:ginger` | Ginger | Norwegian Forest Cat | Warm ginger tabby, green eyes | 1.10 |
+| `mjau:domino` | Domino | European Shorthair | Tuxedo — charcoal with white bib and paws | 0.95 |
 
 Each meows in its own pitch — Mocha highest, Snow deepest.
+
+Misty, Hazel, Mocha and Snow spawn on plains; Ginger in forests, Domino in
+taiga. None of the coats are drawn by hand: `tools/make_cat_textures.py`
+transforms an existing cat deterministically (Ginger out of Misty, Domino out
+of Hazel), leaving the measured face palette — eyes, nose, the white spot of
+gloss — untouched. Change a base coat and the breeds that descend from it
+follow.
 
 ## Features
 
@@ -79,6 +88,7 @@ manually in sync.
 |---|---|
 | `build_accessories.py` | Outfits: geometry, textures, render controllers, entity properties and events, interactions, items, icons, recipes, language keys |
 | `build_blocks.py` | Cat Bed and Yarn Ball, plus the behaviour that makes cats seek them out |
+| `tools/make_cat_textures.py` | The coats and spawn-egg icons of the derived breeds (Ginger, Domino) |
 | `render_preview.py` | The preview images, with a small z-buffered renderer — no image library required |
 | `make_variant.py` | Rewrites the pack into its public naming, with its own pack UUIDs |
 

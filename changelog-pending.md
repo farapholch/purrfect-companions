@@ -1,5 +1,30 @@
 # Ej publicerat på CurseForge ännu
 
+## 3.26.0 — Two more cats, and a forest to find them in
+
+**Ginger.** A Norwegian Forest Cat: a big warm ginger tabby, a head taller than
+the others, with the deepest voice after Snow. She lives in forests.
+
+**Domino.** A tuxedo shorthair — charcoal with a white bib and four white
+paws, small and quick, the highest voice after Mocha. She lives in taiga.
+
+Both tame, ride, breed, wear all twenty outfits and carry a backpack like
+everyone else. They breed true: two ginger cats make ginger kittens.
+
+Neither coat was drawn by hand. `tools/make_cat_textures.py` transforms a cat
+that already exists — Ginger out of Misty, Domino out of Hazel — keeping the
+face untouched: the two green eye tones, the pink nose, the white spot of
+gloss. Change a base coat and the breeds descended from it follow along
+instead of quietly drifting apart.
+
+**Also in this release**
+- "The Whole Clowder" now says *four cats trust you* rather than *all four*.
+  It was always four tamed cats, and with six breeds "all" had stopped being
+  true.
+- The list of ordinary cats lived hard-coded in three places in the build
+  script. The icon cleanup used one of them, so a new cat's spawn egg was
+  deleted on every build until all three were found. There is one list now.
+
 ## 3.25.0 — The cat earns her keep
 
 **The backpack was a picture of a backpack.** It sat on her back, it counted

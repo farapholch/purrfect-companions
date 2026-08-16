@@ -76,6 +76,38 @@
           "hurt": "mob.wolf.hurt",
           "death": "mob.wolf.death"
         }
+      },
+      "mjau:ginger": {
+        "volume": 1.0,
+        "pitch": [
+          0.78,
+          1.0
+        ],
+        "events": {
+          "ambient": "mob.cat.meow",
+          "hurt": "mob.cat.hit",
+          "death": "mob.cat.hit",
+          "eat": "mob.cat.eat",
+          "tame": "mob.cat.tame",
+          "purr": "mob.cat.purr",
+          "purreow": "mob.cat.purreow"
+        }
+      },
+      "mjau:domino": {
+        "volume": 1.0,
+        "pitch": [
+          1.0,
+          1.24
+        ],
+        "events": {
+          "ambient": "mob.cat.meow",
+          "hurt": "mob.cat.hit",
+          "death": "mob.cat.hit",
+          "eat": "mob.cat.eat",
+          "tame": "mob.cat.tame",
+          "purr": "mob.cat.purr",
+          "purreow": "mob.cat.purreow"
+        }
       }
     }
   }

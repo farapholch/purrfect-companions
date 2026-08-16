@@ -950,7 +950,8 @@ system.runInterval(() => {
 // kittens!" / "det ska vara kattungar"), inspirerat av Better
 // Cats-paketets idé om individuella ungar, fast här via namn/antal
 // snarare än nya texturer.
-const CAT_TYPES = ["mjau:misty", "mjau:hazel", "mjau:mocha", "mjau:snow"];
+const CAT_TYPES = ["mjau:misty", "mjau:hazel", "mjau:mocha", "mjau:snow",
+                  "mjau:ginger", "mjau:domino"];
 let spawningLitter = false;   // spärr: kullsyskonen ska bara namnges, inte multipliceras igen
 world.afterEvents.entitySpawn.subscribe(ev => {
   const baby = ev.entity;

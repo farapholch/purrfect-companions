@@ -114,6 +114,10 @@
       },
       "particle_effects": {
         "hjarta": "minecraft:heart_particle"
+      },
+      "spawn_egg": {
+        "texture": "pc_midnight",
+        "texture_index": 0
       }
     }
   }

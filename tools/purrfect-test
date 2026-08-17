@@ -270,13 +270,20 @@ for f in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json")):
                         bad.append(f"{cid}: event {evn} aktiverar {grp} utan att ta bort {others}")
     if "minecraft:behavior.follow_owner" in comp:
         bad.append(f"{cid}: follow_owner i bas-components (kraver agare)")
-    # Hemliga katter (utan spawn_egg i RP-client-entityn) spawnar bara via
-    # sin ritual — de ska INTE ha spawn_rules eller synas i creative-menyn.
-    _cef=f"{SRC}/PurrfectCompanions_RP/entity/{cid}.json"
-    _secret=os.path.exists(_cef) and "spawn_egg" not in json.load(open(_cef))["minecraft:client_entity"]["description"]
-    if _secret:
+    # RITUALKATTERNA kommer bara via sin ritual och får därför inte ha
+    # spawn_rules — då vore de inte hemliga.
+    #
+    # Listan är EXPLICIT sedan 3.27.2. Förut lästes hemligheten ur att katten
+    # saknade spawn_egg, och det var fel proxy: de fyra syntes ändå i
+    # kreativlistan (is_spawnable), fast som svarta standardägg, vilket
+    # rapporterades från Xbox med orden "de ska ha bilder". När de fick sina
+    # ansikten började kontrollen kräva spawn_rules av dem. Hemligheten sitter
+    # i att de aldrig dyker upp av sig själva i världen — inte i hur de ser ut
+    # i inventariet.
+    RITUALKATTER={"midnight","aurora","nova","spokkatt"}
+    if cid in RITUALKATTER:
         if os.path.exists(f"{SRC}/PurrfectCompanions_BP/spawn_rules/{cid}.json"):
-            bad.append(f"{cid}: hemlig katt med spawn_rules — då är hon inte hemlig")
+            bad.append(f"{cid}: ritualkatt med spawn_rules — då är hon inte hemlig")
     elif not os.path.exists(f"{SRC}/PurrfectCompanions_BP/spawn_rules/{cid}.json"):
         bad.append(f"{cid}: saknar spawn_rules")
     # has_equipment-filtren: EGNA föremål måste anges med full identifierare

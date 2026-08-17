@@ -768,25 +768,6 @@ system.runInterval(() => {
       } catch { }
     }
 
-    // ÖVERLÄMNINGEN: den som smyger intill henne får lasten i handen.
-    try {
-      for (const pl of world.getAllPlayers()) {
-        if (!pl.isSneaking) continue;
-        if ((lamnaTyst.get(pl.id) || 0) > system.currentTick) continue;
-        if (Math.hypot(pl.location.x - c.location.x, pl.location.y - c.location.y,
-                       pl.location.z - c.location.z) > 2.5) continue;
-        const n = lamnaOver(pl, c);
-        if (!n) continue;                    // tom väska: ingen text, ingen paus
-        lamnaTyst.set(pl.id, system.currentTick + 100);
-        pl.onScreenDisplay.setActionBar({
-          rawtext: [{ translate: "mjau.packad.lamnar", with: [String(n)] }] });
-        pl.playSound("random.pop");
-        // Framstegsrapporten hänger på samma gest. Utan pausen får du
-        // uppdragslistan i chatten varje gång du hämtar lasten.
-        rapportTyst.set(pl.id, system.currentTick + 200);
-      }
-    } catch { }
-
     let box;
     try { box = c.getComponent("minecraft:inventory")?.container; } catch { }
     if (!box || box.emptySlotsCount === 0) continue;
@@ -835,32 +816,19 @@ system.runInterval(() => {
 // frågan, inte att luckan är trasig; men att lova en lucka i hjälptexten som
 // ingen bevisat går att öppna vore att gissa åt spelaren.
 //
-// Alltså en väg som inte hänger på den luckan alls: SMYG INTILL HENNE, så
-// lämnar hon över allt hon bär. Öppnas den inbyggda luckan också för någon,
-// är det en bonus — inte förutsättningen.
+// OCH LUCKAN GÅR ATT ÖPPNA. Det här stycket bar tidigare en skriptad
+// överlämning — smyg intill katten och få lasten i handen — byggd just för att
+// container-fönstret inte gick att belägga: en riktig klient i testservern fick
+// inte upp vare sig kattens väska eller en KISTFÖRSEDD VANILJAÅSNAS inventarie.
 //
-// Gesten är MEDVETET densamma som framstegsrapportens (smyga intill en tämjd
-// katt). Den är beprövad på riktig Xbox, till skillnad från
-// playerInteractWithEntity, som i den simulerade spelaren aldrig löste ut.
-// Bara när det finns något att lämna över säger hon till — annars vore varje
-// smygsteg förbi katten ett meddelande.
-const lamnaTyst = new Map();             // spelar-id -> tick då nästa överlämning tillåts
-
-function lamnaOver(pl, c) {
-  const box = c.getComponent("minecraft:inventory")?.container;
-  const inv = pl.getComponent("minecraft:inventory")?.container;
-  if (!box || !inv) return 0;
-  let n = 0;
-  for (let i = 0; i < box.size; i++) {
-    const it = box.getItem(i);
-    if (!it) continue;
-    if (inv.emptySlotsCount === 0) break;   // dina egna fickor fulla: resten stannar hos henne
-    inv.addItem(it);
-    box.setItem(i, undefined);
-    n += it.amount;
-  }
-  return n;
-}
+// Xbox-bild 2026-08-17 visade fönstret öppet med sina femton platser. Provet
+// var alltså otillräckligt, inte funktionen. Överlämningen är borta igen, och
+// det är inte bara städning: gesten att smyga intill ett lastdjur ÄR Minecrafts
+// egen väg att öppna det, så de två krockade. Den som smög för att öppna väskan
+// fick den tömd i handen först och ett tomt fönster sedan.
+//
+// Luckan är dessutom bättre än överlämningen någonsin var: den fungerar i båda
+// riktningarna, så katten går att packa lika lätt som att tömma.
 
 // testkrok: /scriptevent mjau:test_vakuum lägger en tråd vid en ryggsäckskatt
 // och rapporterar om den hamnat i väskan (röktestet — hela kedjan grupp ->
@@ -908,12 +876,25 @@ try {
 // KATTENS VARNING: hon hör det du inte hör. En tämjd katt intill dig reser
 // ragg när något fientligt närmar sig, och du hinner vända dig om.
 //
-// RINGEN 8-16 block är hela poängen: står monstret redan framför dig är
-// varningen brus, och en gruvgång full av mobs skulle annars göra henne till
-// en brandlarmsklocka. Hon varnar för det som är PÅ VÄG, en gång per kvart
-// minut. (Creepers behöver hon inte varna för — de flyr redan från katter.)
+// FÖRSTA VERSIONEN TJATADE. Kommentaren här sa att hon varnar för det som är
+// "på väg", men koden kollade bara att något fanns i ringen 8-16 block — och
+// en zombie som står stilla tolv block bort uppfyller det var femtonde
+// sekund. Spelrapport från Xbox: "det står your cat bristles rätt ofta".
+//
+// Tre krav nu, och det är avståndsändringen som gör jobbet:
+//   * NÄRMAR SIG — mäts mot förra sekundens avstånd, minst 1,5 block närmare.
+//     En vandrande eller stillastående mob är inget hot att avbryta för.
+//   * EN GÅNG PER MOB — samma zombie får inte utlösa varningen två gånger.
+//     Glöms igen när den lämnat ringen, så en mob som drar sig undan och
+//     kommer tillbaka räknas som nytt hot.
+//   * RINGEN 8-16 — står den redan framför dig ser du den själv.
+// Plus en halv minuts paus per spelare, dubbelt mot förut.
+// (Creepers behöver hon inte varna för — de flyr redan från katter.)
 const varningTyst = new Map();           // spelar-id -> tick då nästa varning tillåts
-const VARNING_PAUS = 300;                // 15 s
+const monsterAvstand = new Map();        // mob-id -> avstånd förra mätningen
+const monsterVarnad = new Set();         // mob-id vi redan varnat för
+const VARNING_PAUS = 600;                // 30 s
+const VARNING_NARMAR = 1.5;              // block/sekund som räknas som "kommer mot dig"
 
 system.runInterval(() => {
   const d = world.getDimension("overworld");
@@ -921,22 +902,32 @@ system.runInterval(() => {
   try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
   const tamda = cats.filter(tamKatt);
   if (!tamda.length) return;
+  if (monsterAvstand.size > 400) { monsterAvstand.clear(); monsterVarnad.clear(); }
   for (const pl of world.getAllPlayers()) {
     if (!pl) continue;
     try {
-      if ((varningTyst.get(pl.id) || 0) > system.currentTick) continue;
       const L = pl.location;
       const vakt = tamda.find(c => Math.hypot(c.location.x - L.x, c.location.y - L.y,
                                               c.location.z - L.z) < 10);
       if (!vakt) continue;
       const fiender = d.getEntities({ families: ["monster"], location: L, maxDistance: 16 });
-      const pavag = fiender.some(m => {
-        const a = Math.hypot(m.location.x - L.x, m.location.y - L.y, m.location.z - L.z);
-        return a >= 8;
-      });
-      const nara = fiender.some(m =>
-        Math.hypot(m.location.x - L.x, m.location.y - L.y, m.location.z - L.z) < 8);
-      if (!pavag || nara) continue;
+      let hot = null;
+      for (const m of fiender) {
+        const nu = Math.hypot(m.location.x - L.x, m.location.y - L.y, m.location.z - L.z);
+        const forra = monsterAvstand.get(m.id);
+        monsterAvstand.set(m.id, nu);
+        if (nu < 8) continue;                       // redan framför dig — du ser den själv
+        if (forra === undefined) continue;          // första mätningen säger inget om riktning
+        if (forra - nu < VARNING_NARMAR) continue;  // står stilla eller vandrar förbi
+        if (monsterVarnad.has(m.id)) continue;      // redan varnat för just den här
+        hot = m;
+      }
+      // mober som lämnat ringen glöms, så de kan larma igen om de kommer tillbaka
+      const kvar = new Set(fiender.map(m => m.id));
+      for (const id of monsterVarnad) if (!kvar.has(id)) monsterVarnad.delete(id);
+      if (!hot) continue;
+      if ((varningTyst.get(pl.id) || 0) > system.currentTick) continue;
+      monsterVarnad.add(hot.id);
       varningTyst.set(pl.id, system.currentTick + VARNING_PAUS);
       pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.varning" }] });
       pl.playSound("mob.cat.straymeow", { pitch: 0.7 });

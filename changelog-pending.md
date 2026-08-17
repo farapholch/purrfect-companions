@@ -1,6 +1,6 @@
 # Ej publicerat på CurseForge ännu
 
-## 3.27.0 — Two more cats, and one who carries your loot
+## 3.27.2 — Two more cats, and one who carries your loot
 
 Everything since 3.24.0, gathered into one release.
 
@@ -28,14 +28,15 @@ touching anything, so what you drop on purpose stays dropped, and she never
 takes cod, salmon or a cat treat — that is taming food, and one of those fish
 on a bed at midnight is somebody's secret.
 
-**Sneak up beside her and she hands it over.** The whole load, into your hands,
-with a count of what came out. It is the same gesture that already shows you
-the quest report.
+**Sneak up and tap her to open the pack.** Fifteen slots, the same way you
+open a donkey's chest — so you can pack her as easily as you empty her.
 
 **She warns you.** A tamed cat beside you bristles and calls out when something
-hostile closes in — between eight and sixteen blocks, so it is a warning and
-not a bell that rings every time a zombie exists. Once every fifteen seconds at
-most. Creepers she does not bother with; they already run from her.
+hostile is *coming for you* — she measures whether it is closing the distance,
+between eight and sixteen blocks away, and she says it once per creature rather
+than once per zombie that happens to exist. A standing zombie twelve blocks
+off is not worth interrupting you for. Half a minute between warnings at most.
+Creepers she does not bother with; they already run from her.
 
 **The guard dog has been rebuilt.** Reported from an Xbox: her head and body had
 come apart, and she sat in the hotbar as a plain egg among the cats' faces. She
@@ -57,3 +58,8 @@ instead of an egg.
 - A release can no longer ship a client definition that animates a bone the
   model does not have. That is precisely what broke the dog, and it was
   invisible to every test we had.
+- Midnight, Aurora, Nova and the ghost cat have faces in the creative menu.
+  All four had no spawn egg icon at all, so the game drew four plain black
+  eggs among the cats. Their rituals are exactly as secret as before.
+- Domino's icon was a black square. Dark coats are now lifted to something
+  you can actually see — in the icon only, never on the cat.

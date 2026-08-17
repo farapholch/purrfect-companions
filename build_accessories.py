@@ -22,9 +22,11 @@ BASE = "/opt/purrfect-companions"; BP = f"{BASE}/PurrfectCompanions_BP"; RP = f"
 KATTER = ("misty", "hazel", "mocha", "snow", "ginger", "domino")
 
 # Alla som har ett spawnägg att skydda mot ikonstädningen. Vakthunden är ingen
-# katt (ingen päls att måla plagg i), men hennes ikon rensas bort av samma
-# glob om hon inte står med här.
-SPAWNAGG = KATTER + ("vakthund",)
+# katt (ingen päls att måla plagg i), men hennes ikon rensas bort av samma glob
+# om hon inte står med här. De hemliga katterna står här av samma skäl — de
+# saknade spawn_egg helt och syntes som fyra svarta standardägg i hotbaren
+# (Xbox-bild). Ett ansikte avslöjar ingen ritual; de låg redan i kreativlistan.
+SPAWNAGG = KATTER + ("vakthund", "midnight", "aurora", "nova", "spokkatt")
 TEX = 256
 
 # ---------------------------------------------------------------- definition

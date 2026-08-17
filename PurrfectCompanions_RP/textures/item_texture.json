@@ -23,6 +23,18 @@
     "pc_vakthund": {
       "textures": "textures/items/pc_vakthund"
     },
+    "pc_midnight": {
+      "textures": "textures/items/pc_midnight"
+    },
+    "pc_aurora": {
+      "textures": "textures/items/pc_aurora"
+    },
+    "pc_nova": {
+      "textures": "textures/items/pc_nova"
+    },
+    "pc_spokkatt": {
+      "textures": "textures/items/pc_spokkatt"
+    },
     "pc_sadel_brun": {
       "textures": "textures/items/pc_sadel_brun"
     },

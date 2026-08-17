@@ -1,0 +1,233 @@
+#!/usr/bin/env python3
+"""Kattdräkten — fyra plagg som SPELAREN bär, inte katten.
+
+Önskemål från barnen: "man själv som gubbe ska också ha kattutrustning". Hela
+paketet har hittills bara klätt katten; ingenting har ritats på spelarkroppen,
+och paketet hade inga attachables alls. Det här skriptet skapar allt som krävs:
+
+  luva   slot.armor.head    kattöron, rosa insida
+  vast   slot.armor.chest   päls med ljus mage
+  byxor  slot.armor.legs
+  tassar slot.armor.feet    ljusa tassar med rosa trampdynor
+
+Skyddet motsvarar järnrustning (2/6/5/2), så dräkten är ett riktigt alternativ
+och inte bara utklädnad.
+
+TRE SAKER SOM MÅSTE STÄMMA, och som inget serverprov kan se:
+
+1. BENNAMNEN i geometrin måste vara spelarskelettets (head, body, leftArm,
+   rightArm, leftLeg, rightLeg). Fel namn = plagget hamnar i marken. Samma
+   fälla som fällde vakthunden, fast på spelaren.
+2. INFLATE lyfter plagget utanför kroppen. Utan den ligger tyget exakt i
+   samma yta som huden och flimrar (z-fighting).
+3. Attachablens `parent_setup` släcker vaniljalagret, annars syns både vår
+   luva och en osynlig hjälmkontur.
+
+Egna UV:n i egna texturer — vi behöver alltså inte gissa vaniljas
+rustningsutfällning, som ändå inte går att läsa här (BDS resurspack är
+avskalad).
+
+    python3 tools/make_player_gear.py
+"""
+import json, math, os, sys
+
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, BASE)
+import render_regression as rr
+
+BP = f"{BASE}/PurrfectCompanions_BP"
+RP = f"{BASE}/PurrfectCompanions_RP"
+TW = TH = 64
+
+PALS      = (150, 140, 128, 255)   # varm kattgrå — syns mot både gräs och sten
+PALS_MORK = (112, 104, 95, 255)
+MAGE      = (224, 218, 208, 255)   # ljus mage, bringa och tassar
+ORA_IN    = (226, 140, 160, 255)   # samma rosa som katternas nos och trampdynor
+DYNA      = (226, 140, 160, 255)
+
+
+def fot(size):
+    w, h, d = size
+    return math.ceil(2 * (d + w)), math.ceil(d + h)
+
+
+# (ben, origin, size, uv, färg) — spelarskelettets bennamn, inget annat duger
+PLAGG = {
+    "luva": {
+        "slot": "slot.armor.head", "skydd": 2, "slitage": 165,
+        "namn": "Cat Hood", "enchant": "armor_head",
+        "kuber": [
+            ("head", [-4, 24, -4], [8, 8, 8], [0, 0], PALS, 1.0),
+            ("head", [-4.5, 31, -2.5], [3, 3, 1], [40, 0], PALS_MORK, 0.0),   # vänster öra
+            ("head", [1.5, 31, -2.5], [3, 3, 1], [40, 8], PALS_MORK, 0.0),    # höger öra
+            ("head", [-3.8, 31.6, -2.9], [1.6, 1.6, 0.6], [40, 16], ORA_IN, 0.0),
+            ("head", [2.2, 31.6, -2.9], [1.6, 1.6, 0.6], [46, 16], ORA_IN, 0.0),
+        ],
+    },
+    "vast": {
+        "slot": "slot.armor.chest", "skydd": 6, "slitage": 240,
+        "namn": "Cat Vest", "enchant": "armor_torso",
+        "kuber": [
+            ("body", [-4, 12, -2], [8, 12, 4], [0, 0], PALS, 1.01),
+            ("body", [-2.5, 12.5, -2.6], [5, 8, 1], [26, 0], MAGE, 0.0),      # ljus bringa
+            ("leftArm", [4, 12, -2], [4, 12, 4], [40, 0], PALS, 1.0),
+            ("rightArm", [-8, 12, -2], [4, 12, 4], [40, 20], PALS, 1.0),
+        ],
+    },
+    "byxor": {
+        "slot": "slot.armor.legs", "skydd": 5, "slitage": 225,
+        "namn": "Cat Trousers", "enchant": "armor_legs",
+        "kuber": [
+            ("body", [-4, 12, -2], [8, 12, 4], [0, 0], PALS_MORK, 0.55),
+            ("leftLeg", [0, 0, -2], [4, 12, 4], [28, 0], PALS_MORK, 0.55),
+            ("rightLeg", [-4, 0, -2], [4, 12, 4], [28, 20], PALS_MORK, 0.55),
+        ],
+    },
+    "tassar": {
+        "slot": "slot.armor.feet", "skydd": 2, "slitage": 195,
+        "namn": "Cat Paws", "enchant": "armor_feet",
+        "kuber": [
+            ("leftLeg", [0, 0, -2], [4, 5, 4], [0, 0], MAGE, 1.0),
+            ("rightLeg", [-4, 0, -2], [4, 5, 4], [0, 14], MAGE, 1.0),
+            ("leftLeg", [0.6, -0.1, -2.6], [2.8, 1, 1], [28, 0], DYNA, 0.0),   # trampdynor
+            ("rightLeg", [-3.4, -0.1, -2.6], [2.8, 1, 1], [28, 4], DYNA, 0.0),
+        ],
+    },
+}
+
+
+def sh(c, k):
+    return tuple(min(255, int(v * k)) for v in c[:3]) + (255,)
+
+
+def geometri_och_textur(namn, cfg):
+    ben = {}
+    for b, origin, size, uv, _f, inflate in cfg["kuber"]:
+        kub = {"origin": origin, "size": size, "uv": uv}
+        if inflate:
+            kub["inflate"] = inflate
+        ben.setdefault(b, []).append(kub)
+    PIVOT = {"head": [0, 24, 0], "body": [0, 24, 0],
+             "leftArm": [5, 22, 0], "rightArm": [-5, 22, 0],
+             "leftLeg": [1.9, 12, 0], "rightLeg": [-1.9, 12, 0]}
+    g = {"format_version": "1.12.0", "minecraft:geometry": [{
+        "description": {"identifier": f"geometry.mjau_{namn}",
+                        "texture_width": TW, "texture_height": TH,
+                        "visible_bounds_width": 2, "visible_bounds_height": 3,
+                        "visible_bounds_offset": [0, 1.5, 0]},
+        "bones": [{"name": b, "pivot": PIVOT[b], "cubes": k} for b, k in ben.items()]}]}
+    json.dump(g, open(f"{RP}/models/entity/mjau_{namn}.geo.json", "w"), indent=2)
+
+    px = [[(0, 0, 0, 0)] * TW for _ in range(TH)]
+
+    def rect(x0, y0, w, h, c):
+        for y in range(int(y0), int(y0 + h)):
+            for x in range(int(x0), int(x0 + w)):
+                if 0 <= x < TW and 0 <= y < TH:
+                    px[y][x] = c
+    for b, origin, size, uv, farg, _i in cfg["kuber"]:
+        w, h, d = size
+        fw, fh = fot(size)
+        rect(uv[0], uv[1], fw, fh, farg)
+        rect(uv[0], uv[1], fw, math.ceil(d), sh(farg, 1.14))
+        rect(uv[0], uv[1] + fh - 1, fw, 1, sh(farg, 0.72))
+    rr.write_png(f"{RP}/textures/entity/mjau_{namn}.png", TW, TH, px)
+    return len(ben), len(cfg["kuber"])
+
+
+def attachable(namn, cfg):
+    """Utan attachable BÄRS plagget men syns inte — bara ikonen i rutan."""
+    d = {"format_version": "1.10.0", "minecraft:attachable": {"description": {
+        "identifier": f"mjau:{namn}",
+        "materials": {"default": "armor", "enchanted": "armor_enchanted"},
+        "textures": {"default": f"textures/entity/mjau_{namn}",
+                     "enchanted": "textures/misc/enchanted_item_glint"},
+        "geometry": {"default": f"geometry.mjau_{namn}"},
+        # släck vaniljalagret för samma plats, annars ritas två plagg
+        "scripts": {"parent_setup": f"variable.{ {'luva':'helmet','vast':'chest','byxor':'leg','tassar':'boot'}[namn] }_layer_visible = 0.0;"},
+        "render_controllers": ["controller.render.armor"]}}}
+    json.dump(d, open(f"{RP}/attachables/{namn}.json", "w"), indent=2)
+
+
+def ikon(namn, cfg):
+    N = 16
+    px = [[(0, 0, 0, 0)] * N for _ in range(N)]
+
+    def rect(x0, y0, w, h, c):
+        for y in range(y0, y0 + h):
+            for x in range(x0, x0 + w):
+                if 0 <= x < N and 0 <= y < N:
+                    px[y][x] = c
+    if namn == "luva":
+        rect(3, 4, 10, 9, PALS); rect(2, 1, 3, 4, PALS_MORK); rect(11, 1, 3, 4, PALS_MORK)
+        rect(3, 2, 1, 2, ORA_IN); rect(12, 2, 1, 2, ORA_IN)
+        rect(5, 8, 2, 2, (40, 40, 46, 255)); rect(9, 8, 2, 2, (40, 40, 46, 255))
+        rect(3, 4, 10, 1, sh(PALS, 1.14))
+    elif namn == "vast":
+        rect(4, 3, 8, 10, PALS); rect(2, 4, 2, 6, PALS); rect(12, 4, 2, 6, PALS)
+        rect(6, 5, 4, 6, MAGE); rect(4, 3, 8, 1, sh(PALS, 1.14))
+    elif namn == "byxor":
+        rect(4, 2, 8, 5, PALS_MORK); rect(4, 7, 3, 7, PALS_MORK); rect(9, 7, 3, 7, PALS_MORK)
+        rect(4, 2, 8, 1, sh(PALS_MORK, 1.14))
+    else:
+        rect(3, 6, 4, 7, MAGE); rect(9, 6, 4, 7, MAGE)
+        rect(3, 11, 4, 2, DYNA); rect(9, 11, 4, 2, DYNA)
+        rect(3, 6, 4, 1, sh(MAGE, 1.14)); rect(9, 6, 4, 1, sh(MAGE, 1.14))
+    rr.write_png(f"{RP}/textures/items/pc_{namn}.png", N, N, px)
+
+
+# --- föremål och recept -----------------------------------------------------
+# Läder och ull, samma material som kattens egna plagg — dräkten hör ihop med
+# resten av paketet och kräver inget nytt som barnen inte redan har.
+MONSTER = {
+    "luva":   ["WLW", "L L"],
+    "vast":   ["L L", "LWL", "LLL"],
+    # ULLEN I TOPPEN är inte pynt: rent läder ger EXAKT vaniljas recept för
+    # läderbyxor, och då hade spelaren fått vaniljabyxorna i stället för våra.
+    # Granskningen (audit.py mot en vaniljakopia) fångade det.
+    "byxor":  ["LWL", "L L", "L L"],
+    "tassar": ["L L", "W W"],
+}
+
+
+def foremal(namn, cfg):
+    json.dump({"format_version": "1.20.50", "minecraft:item": {
+        "description": {"identifier": f"mjau:{namn}",
+                        "menu_category": {"category": "equipment"}},
+        "components": {
+            "minecraft:icon": {"texture": f"pc_{namn}"},
+            "minecraft:display_name": {"value": cfg["namn"]},
+            "minecraft:max_stack_size": 1,
+            "minecraft:wearable": {"slot": cfg["slot"], "protection": cfg["skydd"]},
+            "minecraft:durability": {"max_durability": cfg["slitage"]},
+            "minecraft:repairable": {"repair_items": [
+                {"items": ["minecraft:leather"], "repair_amount": 25}]},
+            "minecraft:enchantable": {"slot": cfg["enchant"], "value": 9},
+        }}}, open(f"{BP}/items/{namn}.json", "w"), indent=2)
+    json.dump({"format_version": "1.20.10", "minecraft:recipe_shaped": {
+        "description": {"identifier": f"mjau:{namn}"},
+        "tags": ["crafting_table"],
+        "pattern": MONSTER[namn],
+        "key": {"L": {"item": "minecraft:leather"}, "W": {"item": "minecraft:white_wool"}},
+        # UNLOCK KRÄVS sedan format 1.20: utan den vägrar servern receptet med
+        # "1.20+ Recipes require unlock data" — och receptet finns då helt
+        # enkelt inte i spelet, fast filen ligger på plats och JSON:en är giltig.
+        # Fångades av innehållsloggen, inte av någon av de statiska kollarna.
+        "unlock": [{"item": "minecraft:leather"}],
+        "result": {"item": f"mjau:{namn}"}}},
+        open(f"{BP}/recipes/{namn}.json", "w"), indent=2)
+
+
+if __name__ == "__main__":
+    os.makedirs(f"{RP}/attachables", exist_ok=True)
+    it = json.load(open(f"{RP}/textures/item_texture.json"))
+    for namn, cfg in PLAGG.items():
+        ben, kuber = geometri_och_textur(namn, cfg)
+        attachable(namn, cfg)
+        ikon(namn, cfg)
+        foremal(namn, cfg)
+        it["texture_data"][f"pc_{namn}"] = {"textures": f"textures/items/pc_{namn}"}
+        print(f"  {cfg['namn']:14} {cfg['slot']:18} skydd {cfg['skydd']}  "
+              f"{ben} ben, {kuber} kuber")
+    json.dump(it, open(f"{RP}/textures/item_texture.json", "w"), indent=2)
+    print("  item_texture.json uppdaterad")

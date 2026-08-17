@@ -68,6 +68,39 @@ for _g in GEOALL:
         bad.append(f"{_dsc['identifier']}: texturstorlek {_dsc.get('texture_width')}x{_dsc.get('texture_height')} != PNG {_tw}x{_th}")
 GEOIDS={g["description"]["identifier"] for g in GEOALL}
 
+# KATTDRÄKTEN (3.28.0) ritas på SPELAREN via attachables, och där kan tre fel
+# göra plagget osynligt eller trasigt utan att servern säger något:
+#   * geometrin eller texturen som pekas ut finns inte
+#   * texturstorleken i geometrin stämmer inte med PNG:en (UV i fel skala)
+#   * bennamnen är inte spelarskelettets — plagget hamnar då i marken
+# Alla tre syns först på en skärm, precis som vakthundens lossnade huvud.
+SPELARBEN={"head","body","leftArm","rightArm","leftLeg","rightLeg"}
+for _af in sorted(glob.glob(f"{SRC}/PurrfectCompanions_RP/attachables/*.json")):
+    _a=json.load(open(_af))["minecraft:attachable"]["description"]
+    _namn=os.path.basename(_af)
+    for _gid in _a.get("geometry",{}).values():
+        _gf=f"{SRC}/PurrfectCompanions_RP/models/entity/{_gid.replace('geometry.','')}.geo.json"
+        if not os.path.exists(_gf):
+            bad.append(f"{_namn}: geometri {_gid} finns inte"); continue
+        _g=json.load(open(_gf))["minecraft:geometry"][0]
+        _tex=f"{SRC}/PurrfectCompanions_RP/{_a['textures']['default']}.png"
+        if not os.path.exists(_tex):
+            bad.append(f"{_namn}: textur {_a['textures']['default']} saknas"); continue
+        _td=open(_tex,"rb").read(); _tw2,_th2=_st.unpack(">II",_td[16:24])
+        _d2=_g["description"]
+        if (_d2.get("texture_width"),_d2.get("texture_height"))!=(_tw2,_th2):
+            bad.append(f"{_namn}: texturstorlek {_d2.get('texture_width')}x{_d2.get('texture_height')} != PNG {_tw2}x{_th2}")
+        for _b in _g["bones"]:
+            if _b["name"] not in SPELARBEN:
+                bad.append(f"{_namn}: benet '{_b['name']}' finns inte i spelarskelettet")
+# Bärbara föremål måste ha en ikon som är registrerad, annars är rutan tom
+for _if in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/items/*.json")):
+    _i=json.load(open(_if))["minecraft:item"]
+    if "minecraft:wearable" not in _i["components"]: continue
+    _slot=_i["components"]["minecraft:wearable"].get("slot","")
+    if not _slot.startswith("slot.armor."):
+        bad.append(f"{os.path.basename(_if)}: wearable utan giltig rustningsplats ({_slot})")
+
 # HUNDEN har egen geometri och egen textur sedan 3.27.0. Samma två kontroller
 # som katten får, plus en tredje som är hela anledningen till att hon byggdes
 # om: klientdefinitionen animerar BENNAMN, och animeras ett ben som inte finns

@@ -562,11 +562,21 @@ def build_rest():
     for d_ in (f"{BP}/items", f"{BP}/recipes"):
         for f in glob.glob(f"{d_}/*.json"):
             if os.path.splitext(os.path.basename(f))[0] in _mina: os.remove(f)
+    # STÄDA BARA DET HÄR SKRIPTET ÄGER. Regeln var tvärtom förut — "behåll en
+    # lista, radera resten" — och den listan glömdes tre gånger: Gingers
+    # spawnägg, vakthundens ansikte och de hemliga katternas ikoner raderades
+    # alla vid nästa bygge. Nu raderas bara ikoner som HETER som ett plagg
+    # skriptet självt genererar (pc_<plagg>_<färg>) och inte längre finns.
+    # Kattdräktens och spawnäggens ikoner ägs av andra verktyg och lämnas ifred.
+    _mina_ikoner={f"pc_{a}_{slug}" for a,cfg in ACC.items() for slug,_ in cfg["colors"].values()}
+    def _mitt(k):
+        return k.startswith("pc_") and k.rsplit("_",1)[0].replace("pc_","",1) in ACC
     for f in glob.glob(f"{RP}/textures/items/pc_*.png"):
-        if not any(f.endswith(f"pc_{c}.png") for c in SPAWNAGG): os.remove(f)
+        k=os.path.splitext(os.path.basename(f))[0]
+        if _mitt(k) and k not in _mina_ikoner: os.remove(f)
     it=json.load(open(f"{RP}/textures/item_texture.json"))
     it["texture_data"]={k:v for k,v in it["texture_data"].items()
-                        if k in {f"pc_{c}" for c in SPAWNAGG}}
+                        if not _mitt(k) or k in _mina_ikoner}
     lang=[]
     for a,cfg in ACC.items():
         for i,(slug,col) in cfg["colors"].items():

@@ -1,0 +1,41 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:byxor",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_byxor"
+      },
+      "minecraft:display_name": {
+        "value": "Cat Trousers"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:wearable": {
+        "slot": "slot.armor.legs",
+        "protection": 5
+      },
+      "minecraft:durability": {
+        "max_durability": 225
+      },
+      "minecraft:repairable": {
+        "repair_items": [
+          {
+            "items": [
+              "minecraft:leather"
+            ],
+            "repair_amount": 25
+          }
+        ]
+      },
+      "minecraft:enchantable": {
+        "slot": "armor_legs",
+        "value": 9
+      }
+    }
+  }
+}

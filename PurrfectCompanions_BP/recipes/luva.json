@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:luva"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "WLW",
+      "L L"
+    ],
+    "key": {
+      "L": {
+        "item": "minecraft:leather"
+      },
+      "W": {
+        "item": "minecraft:white_wool"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:leather"
+      }
+    ],
+    "result": {
+      "item": "mjau:luva"
+    }
+  }
+}

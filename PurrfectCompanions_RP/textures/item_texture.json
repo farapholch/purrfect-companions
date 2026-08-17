@@ -217,6 +217,18 @@
     },
     "pc_godis": {
       "textures": "textures/items/pc_godis"
+    },
+    "pc_luva": {
+      "textures": "textures/items/pc_luva"
+    },
+    "pc_vast": {
+      "textures": "textures/items/pc_vast"
+    },
+    "pc_byxor": {
+      "textures": "textures/items/pc_byxor"
+    },
+    "pc_tassar": {
+      "textures": "textures/items/pc_tassar"
     }
   }
 }

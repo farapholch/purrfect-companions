@@ -75,6 +75,23 @@ Craftable, applied to a tamed cat, and all wearable at the same time.
 
 **Cat Treat** — cod + wheat, works as a taming treat.
 
+## What the player wears
+
+Four pieces of leather-and-wool armour so you can look like a cat next to your
+cat. Protection matches iron (2/6/5/2), so it is a real choice and not only
+dress-up.
+
+| Piece | Slot | Look |
+|---|---|---|
+| **Cat Hood** | head | Ears with pink insides |
+| **Cat Vest** | chest | Fur with a pale chest |
+| **Cat Trousers** | legs | Darker fur |
+| **Cat Paws** | feet | Pale paws with pink pads |
+
+These are the pack's first **attachables** — the parts that draw on the player
+body rather than on a cat. `tools/make_player_gear.py` emits the geometry,
+textures, attachables, items and recipes from one table.
+
 ---
 
 ## How it is built
@@ -89,6 +106,8 @@ manually in sync.
 | `build_accessories.py` | Outfits: geometry, textures, render controllers, entity properties and events, interactions, items, icons, recipes, language keys |
 | `build_blocks.py` | Cat Bed and Yarn Ball, plus the behaviour that makes cats seek them out |
 | `tools/make_cat_textures.py` | The coats and spawn-egg icons of the derived breeds (Ginger, Domino) |
+| `tools/make_player_gear.py` | The player's cat suit: geometry, textures, attachables, items, recipes |
+| `tools/make_dog.py` | The guard dog: geometry, coat and spawn-egg face |
 | `render_preview.py` | The preview images, with a small z-buffered renderer — no image library required |
 | `make_variant.py` | Rewrites the pack into its public naming, with its own pack UUIDs |
 

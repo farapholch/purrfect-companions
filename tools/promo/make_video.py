@@ -28,6 +28,7 @@ W, H, FPS = 480, 270, 30
 OUTDIR = "/tmp/promo-frames"
 OUT = "/tmp/purrfect-promo.mp4"
 GIF = f"{BASE}/publish/purrfect-trailer.gif"
+KATTGIF = f"{BASE}/publish/purrfect-cats.gif"
 SMOKE = "--smoke" in sys.argv
 
 # ---------------------------------------------------------------- 5x7-font --
@@ -264,15 +265,32 @@ def gif():
         return
     paletten = "/tmp/purrfect-gif-palett.png"
     kallor = f"{OUTDIR}/%05d.png"
-    filter_ = f"fps=12,scale={W // 2}:-1:flags=neighbor"
+    # 480 px bred (samma som renderingen, inte halva): 240 px var för smått i
+    # CurseForges mediagalleri. 12 rutor/s håller hela 42-sekunderstrailern
+    # kring 1,3 MB.
+    filter_ = f"fps=12,scale={W}:-1:flags=neighbor"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
-                    "-i", kallor, "-vf", f"{filter_},palettegen=max_colors=128",
+                    "-i", kallor, "-vf", f"{filter_},palettegen=max_colors=192",
                     paletten], check=True)
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
                     "-i", kallor, "-i", paletten,
                     "-lavfi", f"{filter_}[x];[x][1:v]paletteuse=dither=none",
                     "-loop", "0", GIF], check=True)
     print(f"klar: {GIF} ({os.path.getsize(GIF)//1024} kB)")
+
+    # KATTPARADEN som egen kort loop till butikssidor: hela trailern är 42 s
+    # och för lång för ett galleri. Rutorna 75-615 är titelkortets slut och de
+    # sex kattavsnitten (90 rutor styck) — ändras scenlängderna i scenes()
+    # måste intervallet räknas om.
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
+                    "-start_number", "75", "-t", "18", "-i", kallor,
+                    "-vf", "fps=12,scale=480:-1:flags=neighbor,palettegen=max_colors=192",
+                    paletten], check=True)
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
+                    "-start_number", "75", "-t", "18", "-i", kallor, "-i", paletten,
+                    "-lavfi", "fps=12,scale=480:-1:flags=neighbor[x];[x][1:v]paletteuse=dither=none",
+                    "-loop", "0", KATTGIF], check=True)
+    print(f"klar: {KATTGIF} ({os.path.getsize(KATTGIF)//1024} kB)")
 
 
 if __name__ == "__main__":

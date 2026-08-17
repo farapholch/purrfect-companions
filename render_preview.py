@@ -165,7 +165,17 @@ if __name__=="__main__":
     # 3) en fullt utrustad katt, stor
     img=render3d("misty",["rustning1","horn1","vingar1","halsduk1","ryggsack1","tossor2","vagn1"],640,440)
     write_png(f"{OUT}/03-fullt-utrustad.png",640,440,img); print("03-fullt-utrustad.png")
-    # 4) projektlogga 512x512 — 3/4-vy med ansiktet mot kameran + vinjett
+    # 4) alla katterna i FULL utrustning — begärd bild till butikssidan.
+    #    Med hela kittet (rustning + vagn + vingar) försvinner pälsen bakom
+    #    utrustningen och de sex ser nästan lika ut, därför finns även 05:
+    #    samma katter utstyrda, men med plagg som lämnar pälsen synlig.
+    FULL_KIT=["rustning1","horn1","vingar1","halsduk1","ryggsack1","tossor2","vagn1"]
+    LATT_KIT=["horn1","vingar1","halsduk1","tossor2","halsband1"]
+    W,H,img=sheet([render3d(c,FULL_KIT,PW,PH) for c in CATS],3,PW,PH)
+    write_png(f"{OUT}/04-alla-fullt-utrustade.png",W,H,img); print("04-alla-fullt-utrustade.png")
+    W,H,img=sheet([render3d(c,LATT_KIT,PW,PH) for c in CATS],3,PW,PH)
+    write_png(f"{OUT}/05-alla-utstyrda.png",W,H,img); print("05-alla-utstyrda.png")
+    # 5) projektlogga 512x512 — 3/4-vy med ansiktet mot kameran + vinjett
     N=512; BG=(24,27,36,255)
     lg=render3d("misty",["keps1","halsband1","sadel1","tossor2"],N,N,yaw_deg=30,pitch_deg=18,bg=BG,pad_frac=0.07)
     for y in range(N):

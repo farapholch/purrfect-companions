@@ -52,7 +52,16 @@ cp -r "$SRC/PurrfectHarbour_RP" "$W/resource_packs/PurrfectHarbour_RP"
 python3 - "$W" <<'PY'
 import json, sys
 W = sys.argv[1]
-wb = json.load(open(f"{W}/world_behavior_packs.json"))
+# BYGG LISTAN UR MANIFESTEN, lita inte på det som råkar stå i filen. Den
+# innehöll UUID:t för den PUBLIKA varianten (byggd vid CurseForge-släppet)
+# medan mappen innehöll källpaketet — resultatet var att huvudpaketet inte
+# laddades alls i testvärlden. Testerna såg ut att köra, men mätte ingenting
+# av vår kod: noll skriptrader i loggen och en dräkt som "inte gav krafter".
+import glob as _g
+wb = []
+for _m in sorted(_g.glob(f"{W}/behavior_packs/*/manifest.json")):
+    _h = json.load(open(_m))["header"]
+    wb.append({"pack_id": _h["uuid"], "version": _h["version"]})
 gt = {"pack_id": "7c1e9f10-31a2-4a3b-9c58-b5c9d2f4a601", "version": [1, 0, 0]}
 if gt not in wb: wb.append(gt)
 # hamnpacken måste också stå i listan, annars ligger den bara på disk

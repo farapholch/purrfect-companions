@@ -218,6 +218,44 @@ def foremal(namn, cfg):
         open(f"{BP}/recipes/{namn}.json", "w"), indent=2)
 
 
+def forhandsbild():
+    """publish/06-kattdrakt.png — ikonerna som de syns i rutan, och delarna i
+    3D under. Renderaren ritar katter, inte spelarmodellen, så det här är så
+    nära man kommer utan att starta spelet: formerna går att granska, hur de
+    sitter på kroppen gör det inte."""
+    import render_preview as rp
+    K, N = 10, 16
+    rad_h = N * K + 24
+    delar = list(PLAGG)
+    rutbredd = 300
+    bred = len(delar) * rutbredd
+    ark = [[(24, 27, 36, 255)] * bred for _ in range(rad_h + rutbredd)]
+    for i, namn in enumerate(delar):
+        w, h, px = rr.read_png(f"{RP}/textures/items/pc_{namn}.png")
+        ox = i * rutbredd + (rutbredd - N * K) // 2
+        for y in range(h):
+            for x in range(w):
+                p = px[y][x]
+                if len(p) > 3 and p[3] == 0:
+                    continue
+                for dy in range(K):
+                    for dx in range(K):
+                        ark[12 + y * K + dy][ox + x * K + dx] = (p[0], p[1], p[2], 255)
+        g = json.load(open(f"{RP}/models/entity/mjau_{namn}.geo.json"))["minecraft:geometry"][0]
+        lok = []
+        for b in g["bones"]:
+            kub = [{**c, "origin": [v * 0.45 for v in c["origin"]],
+                    "size": [v * 0.45 for v in c["size"]]} for c in b["cubes"]]
+            lok.append((b["name"], [v * 0.45 for v in b["pivot"]], kub))
+        rr.bones_for = lambda acc, _l=lok: _l
+        vy = rr.render(f"mjau_{namn}", [], {}, W=rutbredd, H=rutbredd, yaw=28, pitch=8)
+        for y in range(rutbredd):
+            for x in range(rutbredd):
+                ark[rad_h + y][i * rutbredd + x] = vy[y][x]
+    rr.write_png(f"{BASE}/publish/06-kattdrakt.png", bred, rad_h + rutbredd, ark)
+    print(f"  publish/06-kattdrakt.png ({bred}x{rad_h + rutbredd})")
+
+
 if __name__ == "__main__":
     os.makedirs(f"{RP}/attachables", exist_ok=True)
     it = json.load(open(f"{RP}/textures/item_texture.json"))
@@ -231,3 +269,4 @@ if __name__ == "__main__":
               f"{ben} ben, {kuber} kuber")
     json.dump(it, open(f"{RP}/textures/item_texture.json", "w"), indent=2)
     print("  item_texture.json uppdaterad")
+    forhandsbild()

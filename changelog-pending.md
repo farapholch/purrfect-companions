@@ -1,6 +1,6 @@
 # Ej publicerat på CurseForge ännu
 
-## 3.28.0 — Dress like your cat
+## 3.29.0 — Dress like your cat
 
 The kids asked for it: *you* should be able to wear cat gear, not just the cat.
 
@@ -9,6 +9,12 @@ chest, darker trousers, and paws with pink pads. Leather and wool, the same
 materials the cats' own outfits are made of. It protects like iron — 2, 6, 5
 and 2 — so wearing it is a real choice rather than only dress-up, and it takes
 enchantments and mending like any other armour.
+
+**And the suit does something.** One power per piece, so each is worth wearing
+on its own — the hood gives night vision, because cats see in the dark; the
+vest gives resistance; the trousers give speed; and the paws give a soft
+landing, so you take no fall damage. Wear all four and you get speed II and a
+higher jump on top, and every cat around you purrs and heals.
 
 Until now everything in this pack was worn by a cat. Nothing had ever been
 drawn on a player, and the pack had no attachables at all — the parts that put
@@ -24,6 +30,9 @@ something on your own body. All four pieces come out of one table in
   exist, the declared texture size has to match the actual image, and the bones
   have to be the player skeleton's. Wrong bone names put the clothes in the
   ground, and no server test can see that.
+- The pack now has a hero image with all six cats in a meadow, a shorter
+  gallery gif, and an outfit picture where every cat wears something different
+  and one is fully kitted out.
 - Icon cleanup only deletes icons it made itself now. The old rule was "keep a
   list, delete the rest", and that list was forgotten three times — Ginger's
   spawn egg, the guard dog's face and the secret cats' icons were each deleted

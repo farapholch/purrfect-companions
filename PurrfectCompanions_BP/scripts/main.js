@@ -938,6 +938,84 @@ system.runInterval(() => {
 }, 20);
 
 // ---------------------------------------------------------------------------
+// KATTDRÄKTENS KRAFTER. Barnens önskemål: "kattrustningen ska ge bra krafter
+// och sånt". Skyddet fanns redan (2/6/5/2 som järn) — det här är vad plaggen
+// GÖR.
+//
+// En kraft per del, så varje bit är värd att ha på sig även ensam, och en
+// bonus för hela dräkten som är märkbart bättre än summan:
+//
+//   luva    mörkerseende   — katter ser i mörker
+//   väst    motståndskraft — pälsen tar smällen
+//   byxor   snabbhet       — kattens språng
+//   tassar  mjuk landning  — katter landar på tassarna (tar bort fallskadan)
+//   ALLA    snabbhet II + hopp, och katterna omkring dig spinner och läks
+//
+// Effekterna sätts om varje sekund med tre sekunders varaktighet i stället
+// för att sättas en gång: tar spelaren av sig ett plagg ska kraften försvinna
+// av sig själv, utan att vi behöver hålla reda på vem som bar vad.
+// showParticles är av — annars står spelaren i ett moln av gnistor jämt.
+const DRAKT = [
+  ["Head",  "mjau:luva",   "night_vision"],
+  ["Chest", "mjau:vast",   "resistance"],
+  ["Legs",  "mjau:byxor",  "speed"],
+  ["Feet",  "mjau:tassar", "slow_falling"],
+];
+const helDrakt = new Set();          // spelar-id som just nu bär hela dräkten
+
+system.runInterval(() => {
+  const d = world.getDimension("overworld");
+  for (const pl of world.getAllPlayers()) {
+    if (!pl) continue;
+    try {
+      const eq = pl.getComponent("minecraft:equippable");
+      if (!eq) continue;
+      let burna = 0;
+      for (const [plats, id, effekt] of DRAKT) {
+        let bar = false;
+        // PLATSNAMNET stavas olika i olika API-generationer: enumet finns i
+        // nyare, versaler i vissa, gemener i andra. Simulerade spelaren tog på
+        // sig tassarna (uppmätt: setEquipment=true, foten=mjau:tassar) men
+        // paketets avläsning gav ändå ingenting — det var stavningen, inte
+        // plagget. Prova alla tre i stället för att gissa en.
+        for (const p2 of [plats, plats.toLowerCase()]) {
+          try { if (eq.getEquipment(p2)?.typeId === id) { bar = true; break; } } catch { }
+        }
+        if (!bar) continue;
+        burna++;
+        try { pl.addEffect(effekt, 60, { showParticles: false }); } catch { }
+      }
+      if (burna === 4) {
+        try {
+          pl.addEffect("speed", 60, { amplifier: 1, showParticles: false });
+          pl.addEffect("jump_boost", 60, { showParticles: false });
+        } catch { }
+        // SPINNANDET: hela dräkten gör dig till en av dem. Katterna omkring
+        // dig läks, och hjärtana visar att det händer — annars är bonusen
+        // osynlig för den som redan har fullt liv.
+        try {
+          for (const c of d.getEntities({ families: ["mjaukatt"], location: pl.location, maxDistance: 8 })) {
+            c.addEffect("regeneration", 60, { showParticles: false });
+            if (system.currentTick % 100 < 20)
+              d.spawnParticle("minecraft:heart_particle",
+                { x: c.location.x, y: c.location.y + 0.9, z: c.location.z });
+          }
+        } catch { }
+        if (!helDrakt.has(pl.id)) {
+          helDrakt.add(pl.id);
+          try {
+            pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.drakt.full" }] });
+            pl.playSound("mob.cat.purreow");
+          } catch { }
+        }
+      } else {
+        helDrakt.delete(pl.id);
+      }
+    } catch { }
+  }
+}, 20);
+
+// ---------------------------------------------------------------------------
 // KATTUNGAR: en nyfödd kattunge ärver ett namn efter sin förälder
 // ("Baby " + förälderns namn) i stället för att vara namnlös, och kommer i
 // en hel kull (2-3 ungar) i stället för bara en — speltest-önskemål ("kör

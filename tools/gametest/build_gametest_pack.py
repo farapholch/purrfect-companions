@@ -160,6 +160,19 @@ gt.registerAsync("mjau", "interakt", async (test) => {
 // samre an inget. Villkoret ar detsamma som framstegsrapportens, och den ar
 // bevisad pa riktig Xbox. Se tools/testbot/container-test.js.
 
+// KATTDRAKTENS KRAFTER HAR INGET GAMETEST — och orsaken ar uppmatt, inte
+// antagen. Ett forsok las har: den simulerade spelaren tog PA sig dracten
+// (setEquipment=true, getEquipment gav mjau:tassar tillbaka) men fick aldrig
+// nagon effekt. Kroken mjau:test_drakt i huvudpaketet svarade varfor:
+//
+//   world.getAllPlayers() ger 5 platser — ALLA TOMMA
+//
+// Simulerade spelare ar alltsa osynliga for ETT ANNAT PAKETS skript. Samma
+// grundorsak som gjorde att smyg-overlamningen inte gick att prova. Allt som
+// huvudpaketet driver via getAllPlayers() ligger utanfor vad den har miljon
+// kan bevisa; det galler dracten, faravarningen och framstegsrapporten (som
+// bevisligen FUNGERAR pa riktig Xbox).
+
 gt.registerAsync("mjau", "vagn", async (test) => {
   const p = test.spawnSimulatedPlayer({ x: 20, y: 2, z: 18 }, "GTVagn");
   const cat = test.spawn("mjau:misty", { x: 20, y: 2, z: 21 });

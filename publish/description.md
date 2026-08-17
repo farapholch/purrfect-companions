@@ -28,7 +28,7 @@ Each cat meows in its own pitch — Mocha highest, Snow deepest.
 - **Ride** them once saddled — much faster, with a charged jump like a horse. They stand perfectly still and obey the reins while you ride
 - **Cat fishing** — a saddled cat in water catches cod for you
 - **Hitch the Cat Cart** and sit IN it, steering like a sled, with a back seat for a friend — and fifteen slots of cargo space
-- **She carries for you** — a cat in a backpack has fifteen slots of her own, picks up what you drop or mine within four blocks, and hands the whole load over when you sneak up beside her
+- **She carries for you** — a cat in a backpack has fifteen slots of her own, picks up what you drop or mine within four blocks, and opens like a donkey's chest when you sneak and tap her
 - **Treasure hunting** — cats wearing a backpack dig up string and feathers, and once in a long while, a diamond
 - **She warns you** — a cat at your side bristles and calls out when something hostile closes in
 - **Breed** two of the same cat for a kitten of that breed — sometimes born wearing a little bow

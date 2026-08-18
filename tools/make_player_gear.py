@@ -51,6 +51,49 @@ def fot(size):
     return math.ceil(2 * (d + w)), math.ceil(d + h)
 
 
+# NIVÅERNA. Läderdräkten är BASEN och behåller sina gamla identifierare
+# (mjau:luva, mjau:vast ...) — byter man id försvinner plaggen ur inventariet
+# hos alla som redan har dem, och familjen har dem sedan 3.28.0. De tre nya
+# nivåerna får suffix.
+#
+# Skyddet stiger, men KRAFTERNA är det som gör uppgraderingen värd besväret;
+# de bor i main.js och står listade här bara som dokumentation:
+#
+#   läder     mörkerseende · motstånd I · snabbhet I · mjuk landning
+#             hel dräkt: snabbhet II + hopp, katterna omkring dig läks
+#   järn      + hoppkraft i tassarna
+#             hel dräkt: styrka I när en tämjd katt är i närheten
+#   diamant   motstånd II · snabbhet II
+#             hel dräkt: läkning I
+#   netherit  + eldskydd i luvan (netherit brinner inte)
+#             hel dräkt: styrka I alltid, och katterna omkring dig får motstånd
+#
+# Geometrin DELAS mellan nivåerna — det är samma dräkt, i annat material. Bara
+# textur, ikon, skydd och slitage skiljer.
+NIVAER = {
+    "": {"namn": "", "skydd": 0, "slitage": 1.0, "pals": (150, 140, 128, 255),
+         "mork": (112, 104, 95, 255), "ljus": (224, 218, 208, 255), "upp": None, "antal": 0},
+    "jarn": {"namn": "Iron ", "skydd": 1, "slitage": 1.8, "pals": (176, 178, 186, 255),
+             "mork": (128, 131, 140, 255), "ljus": (226, 228, 234, 255),
+             "upp": "minecraft:iron_ingot", "antal": 5},
+    "diamant": {"namn": "Diamond ", "skydd": 2, "slitage": 3.4, "pals": (94, 200, 202, 255),
+                "mork": (58, 148, 156, 255), "ljus": (198, 244, 246, 255),
+                "upp": "minecraft:diamond", "antal": 5},
+    "netherit": {"namn": "Netherite ", "skydd": 2, "slitage": 5.0, "pals": (74, 66, 70, 255),
+                 "mork": (48, 42, 46, 255), "ljus": (150, 132, 120, 255),
+                 "upp": "minecraft:netherite_ingot", "antal": 1},
+}
+NIVAORDNING = ["", "jarn", "diamant", "netherit"]
+
+
+def farga(c, niv):
+    """Kubens färg översatt till nivåns palett. Kuberna är skrivna i lädrets
+    färger; nivån byter ut dem så samma tabell duger till alla fyra."""
+    n = NIVAER[niv]
+    return {PALS: n["pals"], PALS_MORK: n["mork"], MAGE: n["ljus"],
+            ORA_IN: ORA_IN, DYNA: DYNA}.get(c, c)
+
+
 # (ben, origin, size, uv, färg) — spelarskelettets bennamn, inget annat duger
 PLAGG = {
     "luva": {
@@ -96,11 +139,16 @@ PLAGG = {
 }
 
 
+def ident(namn, niv):
+    """Basen behåller sitt gamla id — se kommentaren vid NIVAER."""
+    return namn if not niv else f"{namn}_{niv}"
+
+
 def sh(c, k):
     return tuple(min(255, int(v * k)) for v in c[:3]) + (255,)
 
 
-def geometri_och_textur(namn, cfg):
+def geometri(namn, cfg):
     ben = {}
     for b, origin, size, uv, _f, inflate in cfg["kuber"]:
         kub = {"origin": origin, "size": size, "uv": uv}
@@ -117,7 +165,10 @@ def geometri_och_textur(namn, cfg):
                         "visible_bounds_offset": [0, 1.5, 0]},
         "bones": [{"name": b, "pivot": PIVOT[b], "cubes": k} for b, k in ben.items()]}]}
     json.dump(g, open(f"{RP}/models/entity/mjau_{namn}.geo.json", "w"), indent=2)
+    return len(ben), len(cfg["kuber"])
 
+
+def textur(namn, cfg, niv):
     px = [[(0, 0, 0, 0)] * TW for _ in range(TH)]
 
     def rect(x0, y0, w, h, c):
@@ -125,31 +176,32 @@ def geometri_och_textur(namn, cfg):
             for x in range(int(x0), int(x0 + w)):
                 if 0 <= x < TW and 0 <= y < TH:
                     px[y][x] = c
-    for b, origin, size, uv, farg, _i in cfg["kuber"]:
+    for b, origin, size, uv, farg0, _i in cfg["kuber"]:
+        farg = farga(farg0, niv)
         w, h, d = size
         fw, fh = fot(size)
         rect(uv[0], uv[1], fw, fh, farg)
         rect(uv[0], uv[1], fw, math.ceil(d), sh(farg, 1.14))
         rect(uv[0], uv[1] + fh - 1, fw, 1, sh(farg, 0.72))
-    rr.write_png(f"{RP}/textures/entity/mjau_{namn}.png", TW, TH, px)
-    return len(ben), len(cfg["kuber"])
+    rr.write_png(f"{RP}/textures/entity/mjau_{ident(namn, niv)}.png", TW, TH, px)
 
 
-def attachable(namn, cfg):
+def attachable(namn, cfg, niv):
     """Utan attachable BÄRS plagget men syns inte — bara ikonen i rutan."""
     d = {"format_version": "1.10.0", "minecraft:attachable": {"description": {
-        "identifier": f"mjau:{namn}",
+        "identifier": f"mjau:{ident(namn, niv)}",
         "materials": {"default": "armor", "enchanted": "armor_enchanted"},
-        "textures": {"default": f"textures/entity/mjau_{namn}",
+        "textures": {"default": f"textures/entity/mjau_{ident(namn, niv)}",
                      "enchanted": "textures/misc/enchanted_item_glint"},
         "geometry": {"default": f"geometry.mjau_{namn}"},
         # släck vaniljalagret för samma plats, annars ritas två plagg
         "scripts": {"parent_setup": f"variable.{ {'luva':'helmet','vast':'chest','byxor':'leg','tassar':'boot'}[namn] }_layer_visible = 0.0;"},
         "render_controllers": ["controller.render.armor"]}}}
-    json.dump(d, open(f"{RP}/attachables/{namn}.json", "w"), indent=2)
+    json.dump(d, open(f"{RP}/attachables/{ident(namn, niv)}.json", "w"), indent=2)
 
 
-def ikon(namn, cfg):
+def ikon(namn, cfg, niv):
+    PALS, PALS_MORK, MAGE = (NIVAER[niv]["pals"], NIVAER[niv]["mork"], NIVAER[niv]["ljus"])
     N = 16
     px = [[(0, 0, 0, 0)] * N for _ in range(N)]
 
@@ -173,7 +225,7 @@ def ikon(namn, cfg):
         rect(3, 6, 4, 7, MAGE); rect(9, 6, 4, 7, MAGE)
         rect(3, 11, 4, 2, DYNA); rect(9, 11, 4, 2, DYNA)
         rect(3, 6, 4, 1, sh(MAGE, 1.14)); rect(9, 6, 4, 1, sh(MAGE, 1.14))
-    rr.write_png(f"{RP}/textures/items/pc_{namn}.png", N, N, px)
+    rr.write_png(f"{RP}/textures/items/pc_{ident(namn, niv)}.png", N, N, px)
 
 
 # --- föremål och recept -----------------------------------------------------
@@ -190,20 +242,36 @@ MONSTER = {
 }
 
 
-def foremal(namn, cfg):
+def foremal(namn, cfg, niv):
+    n = NIVAER[niv]
     json.dump({"format_version": "1.20.50", "minecraft:item": {
-        "description": {"identifier": f"mjau:{namn}",
+        "description": {"identifier": f"mjau:{ident(namn, niv)}",
                         "menu_category": {"category": "equipment"}},
         "components": {
-            "minecraft:icon": {"texture": f"pc_{namn}"},
-            "minecraft:display_name": {"value": cfg["namn"]},
+            "minecraft:icon": {"texture": f"pc_{ident(namn, niv)}"},
+            "minecraft:display_name": {"value": n["namn"] + cfg["namn"]},
             "minecraft:max_stack_size": 1,
-            "minecraft:wearable": {"slot": cfg["slot"], "protection": cfg["skydd"]},
-            "minecraft:durability": {"max_durability": cfg["slitage"]},
+            "minecraft:wearable": {"slot": cfg["slot"],
+                                   "protection": cfg["skydd"] + n["skydd"]},
+            "minecraft:durability": {"max_durability": int(cfg["slitage"] * n["slitage"])},
             "minecraft:repairable": {"repair_items": [
                 {"items": ["minecraft:leather"], "repair_amount": 25}]},
             "minecraft:enchantable": {"slot": cfg["enchant"], "value": 9},
-        }}}, open(f"{BP}/items/{namn}.json", "w"), indent=2)
+        }}}, open(f"{BP}/items/{ident(namn, niv)}.json", "w"), indent=2)
+    if niv:
+        # UPPGRADERING, inte nytillverkning: nivån under plus material. Kan
+        # aldrig krocka med ett vaniljarecept eftersom vårt eget plagg ingår.
+        forra = NIVAORDNING[NIVAORDNING.index(niv) - 1]
+        ing = [{"item": f"mjau:{ident(namn, forra)}"}] + \
+              [{"item": n["upp"]} for _ in range(n["antal"])]
+        json.dump({"format_version": "1.20.10", "minecraft:recipe_shapeless": {
+            "description": {"identifier": f"mjau:{ident(namn, niv)}"},
+            "tags": ["crafting_table"],
+            "ingredients": ing,
+            "unlock": [{"item": n["upp"]}],
+            "result": {"item": f"mjau:{ident(namn, niv)}"}}},
+            open(f"{BP}/recipes/{ident(namn, niv)}.json", "w"), indent=2)
+        return
     json.dump({"format_version": "1.20.10", "minecraft:recipe_shaped": {
         "description": {"identifier": f"mjau:{namn}"},
         "tags": ["crafting_table"],
@@ -260,13 +328,17 @@ if __name__ == "__main__":
     os.makedirs(f"{RP}/attachables", exist_ok=True)
     it = json.load(open(f"{RP}/textures/item_texture.json"))
     for namn, cfg in PLAGG.items():
-        ben, kuber = geometri_och_textur(namn, cfg)
-        attachable(namn, cfg)
-        ikon(namn, cfg)
-        foremal(namn, cfg)
-        it["texture_data"][f"pc_{namn}"] = {"textures": f"textures/items/pc_{namn}"}
-        print(f"  {cfg['namn']:14} {cfg['slot']:18} skydd {cfg['skydd']}  "
-              f"{ben} ben, {kuber} kuber")
+        ben, kuber = geometri(namn, cfg)          # geometrin delas av alla nivåer
+        for niv in NIVAORDNING:
+            textur(namn, cfg, niv)
+            attachable(namn, cfg, niv)
+            ikon(namn, cfg, niv)
+            foremal(namn, cfg, niv)
+            i = ident(namn, niv)
+            it["texture_data"][f"pc_{i}"] = {"textures": f"textures/items/pc_{i}"}
+        print(f"  {cfg['namn']:14} {cfg['slot']:18} "
+              f"skydd {cfg['skydd']}-{cfg['skydd'] + NIVAER['netherit']['skydd']}  "
+              f"{ben} ben, {kuber} kuber, {len(NIVAORDNING)} nivåer")
     json.dump(it, open(f"{RP}/textures/item_texture.json", "w"), indent=2)
     print("  item_texture.json uppdaterad")
     forhandsbild()

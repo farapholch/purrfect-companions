@@ -229,6 +229,42 @@
     },
     "pc_tassar": {
       "textures": "textures/items/pc_tassar"
+    },
+    "pc_luva_jarn": {
+      "textures": "textures/items/pc_luva_jarn"
+    },
+    "pc_luva_diamant": {
+      "textures": "textures/items/pc_luva_diamant"
+    },
+    "pc_luva_netherit": {
+      "textures": "textures/items/pc_luva_netherit"
+    },
+    "pc_vast_jarn": {
+      "textures": "textures/items/pc_vast_jarn"
+    },
+    "pc_vast_diamant": {
+      "textures": "textures/items/pc_vast_diamant"
+    },
+    "pc_vast_netherit": {
+      "textures": "textures/items/pc_vast_netherit"
+    },
+    "pc_byxor_jarn": {
+      "textures": "textures/items/pc_byxor_jarn"
+    },
+    "pc_byxor_diamant": {
+      "textures": "textures/items/pc_byxor_diamant"
+    },
+    "pc_byxor_netherit": {
+      "textures": "textures/items/pc_byxor_netherit"
+    },
+    "pc_tassar_jarn": {
+      "textures": "textures/items/pc_tassar_jarn"
+    },
+    "pc_tassar_diamant": {
+      "textures": "textures/items/pc_tassar_diamant"
+    },
+    "pc_tassar_netherit": {
+      "textures": "textures/items/pc_tassar_netherit"
     }
   }
 }

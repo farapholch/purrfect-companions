@@ -947,68 +947,86 @@ system.runInterval(() => {
 }, 20);
 
 // ---------------------------------------------------------------------------
-// KATTDRÄKTENS KRAFTER. Barnens önskemål: "kattrustningen ska ge bra krafter
-// och sånt". Skyddet fanns redan (2/6/5/2 som järn) — det här är vad plaggen
-// GÖR.
+// KATTDRÄKTENS KRAFTER, i fyra nivåer. Barnens önskemål två gånger om: först
+// "kattrustningen ska ge bra krafter", sedan nivåer att uppgradera till.
 //
-// En kraft per del, så varje bit är värd att ha på sig även ensam, och en
-// bonus för hela dräkten som är märkbart bättre än summan:
+// Skyddet stiger jämnt (2/6/5/2 upp till 4/8/7/4), men det är KRAFTERNA som
+// gör uppgraderingen värd besväret. En kraft per del, så varje bit duger
+// ensam, och en bonus för hela dräkten som avgörs av den SVAGASTE delen —
+// blandar man läder och netherit får man lädrets bonus. Det gör regeln lätt
+// att förklara för ett barn: dräkten är så stark som sin svagaste del.
 //
-//   luva    mörkerseende   — katter ser i mörker
-//   väst    motståndskraft — pälsen tar smällen
-//   byxor   snabbhet       — kattens språng
-//   tassar  mjuk landning  — katter landar på tassarna (tar bort fallskadan)
-//   ALLA    snabbhet II + hopp, och katterna omkring dig spinner och läks
-//
-// Effekterna sätts om varje sekund med tre sekunders varaktighet i stället
-// för att sättas en gång: tar spelaren av sig ett plagg ska kraften försvinna
-// av sig själv, utan att vi behöver hålla reda på vem som bar vad.
-// showParticles är av — annars står spelaren i ett moln av gnistor jämt.
-const DRAKT = [
-  ["Head",  "mjau:luva",   "night_vision"],
-  ["Chest", "mjau:vast",   "resistance"],
-  ["Legs",  "mjau:byxor",  "speed"],
-  ["Feet",  "mjau:tassar", "slow_falling"],
-];
-const helDrakt = new Set();          // spelar-id som just nu bär hela dräkten
+//   del      läder            järn             diamant          netherit
+//   luva     mörkerseende     =                =                + eldskydd
+//   väst     motstånd I       =                motstånd II      =
+//   byxor    snabbhet I       =                snabbhet II      =
+//   tassar   mjuk landning    + hoppkraft      =                =
+//   HEL      fart II, hopp,   + styrka nära    + läkning        styrka alltid,
+//            katter läks        en tämjd katt                   katter får motstånd
+const DRAKTDELAR = [["Head", "luva"], ["Chest", "vast"],
+                    ["Legs", "byxor"], ["Feet", "tassar"]];
+const NIVASUFFIX = ["", "_jarn", "_diamant", "_netherit"];
+const helDrakt = new Set();          // spelar-id som just nu bär en hel dräkt
+
+function delensKrafter(del, niva) {
+  if (del === "luva") return niva >= 3 ? [["night_vision", 0], ["fire_resistance", 0]]
+                                       : [["night_vision", 0]];
+  if (del === "vast") return [["resistance", niva >= 2 ? 1 : 0]];
+  if (del === "byxor") return [["speed", niva >= 2 ? 1 : 0]];
+  if (del === "tassar") return niva >= 1 ? [["slow_falling", 0], ["jump_boost", 0]]
+                                         : [["slow_falling", 0]];
+  return [];
+}
 
 system.runInterval(() => {
   const d = world.getDimension("overworld");
   for (const pl of world.getAllPlayers()) {
-    if (!pl) continue;
+    if (!pl) continue;                 // getAllPlayers kan ge tomma platser
     try {
       const eq = pl.getComponent("minecraft:equippable");
       if (!eq) continue;
-      let burna = 0;
-      for (const [plats, id, effekt] of DRAKT) {
-        let bar = false;
-        // PLATSNAMNET stavas olika i olika API-generationer: enumet finns i
-        // nyare, versaler i vissa, gemener i andra. Simulerade spelaren tog på
-        // sig tassarna (uppmätt: setEquipment=true, foten=mjau:tassar) men
-        // paketets avläsning gav ändå ingenting — det var stavningen, inte
-        // plagget. Prova alla tre i stället för att gissa en.
+      let burna = 0, lagsta = 99;
+      for (const [plats, del] of DRAKTDELAR) {
+        let buren = -1;
+        // PLATSNAMNET stavas olika i olika API-generationer — prova båda i
+        // stället för att gissa en.
         for (const p2 of [plats, plats.toLowerCase()]) {
-          try { if (eq.getEquipment(p2)?.typeId === id) { bar = true; break; } } catch { }
+          let id;
+          try { id = eq.getEquipment(p2)?.typeId; } catch { continue; }
+          if (!id || !id.startsWith(`mjau:${del}`)) continue;
+          buren = NIVASUFFIX.indexOf(id.slice(`mjau:${del}`.length));
+          break;
         }
-        if (!bar) continue;
+        if (buren < 0) continue;
         burna++;
-        try { pl.addEffect(effekt, 60, { showParticles: false }); } catch { }
+        if (buren < lagsta) lagsta = buren;
+        for (const [effekt, styrka] of delensKrafter(del, buren)) {
+          // Sätts om varje sekund med tre sekunders varaktighet: tas plagget
+          // av försvinner kraften av sig själv, utan bokföring.
+          try { pl.addEffect(effekt, 60, { amplifier: styrka, showParticles: false }); } catch { }
+        }
       }
       if (burna === 4) {
         try {
-          pl.addEffect("speed", 60, { amplifier: 1, showParticles: false });
+          pl.addEffect("speed", 60, { amplifier: lagsta >= 2 ? 2 : 1, showParticles: false });
           pl.addEffect("jump_boost", 60, { showParticles: false });
+          if (lagsta >= 2) pl.addEffect("regeneration", 60, { showParticles: false });
+          if (lagsta >= 3) pl.addEffect("strength", 60, { showParticles: false });
         } catch { }
-        // SPINNANDET: hela dräkten gör dig till en av dem. Katterna omkring
-        // dig läks, och hjärtana visar att det händer — annars är bonusen
-        // osynlig för den som redan har fullt liv.
         try {
-          for (const c of d.getEntities({ families: ["mjaukatt"], location: pl.location, maxDistance: 8 })) {
+          const nara = d.getEntities({ families: ["mjaukatt"], location: pl.location, maxDistance: 8 });
+          // SPINNANDET: hela dräkten gör dig till en av dem. Katterna omkring
+          // dig läks — och i netherit skyddas de också.
+          for (const c of nara) {
             c.addEffect("regeneration", 60, { showParticles: false });
+            if (lagsta >= 3) c.addEffect("resistance", 60, { showParticles: false });
             if (system.currentTick % 100 < 20)
               d.spawnParticle("minecraft:heart_particle",
                 { x: c.location.x, y: c.location.y + 0.9, z: c.location.z });
           }
+          // järnnivån och uppåt: styrka så länge en tämjd katt är med dig
+          if (lagsta >= 1 && lagsta < 3 && nara.some(tamKatt))
+            pl.addEffect("strength", 60, { showParticles: false });
         } catch { }
         if (!helDrakt.has(pl.id)) {
           helDrakt.add(pl.id);

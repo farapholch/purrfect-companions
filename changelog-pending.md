@@ -1,6 +1,6 @@
 # Ej publicerat på CurseForge ännu
 
-## 3.30.0 — Dress like your cat, and two new neighbours in Cat Haven
+## 3.31.0 — Dress like your cat, and two new neighbours in Cat Haven
 
 The kids asked for it: *you* should be able to wear cat gear, not just the cat.
 
@@ -9,6 +9,15 @@ chest, darker trousers, and paws with pink pads. Leather and wool, the same
 materials the cats' own outfits are made of. It protects like iron — 2, 6, 5
 and 2 — so wearing it is a real choice rather than only dress-up, and it takes
 enchantments and mending like any other armour.
+
+**The suit comes in four tiers.** Leather, iron, diamond and netherite. You do
+not re-craft it — you upgrade the piece you already wear by combining it with
+the metal, so the hood you made on day one is the hood you still have in
+netherite. Protection climbs from 2/6/5/2 to 4/8/7/4, and each tier adds a
+stronger power: jump strength in iron paws, resistance II and speed II in
+diamond, fire resistance in a netherite hood. A full suit is only as strong as
+its weakest piece — mix leather with netherite and you get the leather bonus,
+which is a rule a seven-year-old can hold in their head.
 
 **And the suit does something.** One power per piece, so each is worth wearing
 on its own — the hood gives night vision, because cats see in the dark; the

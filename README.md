@@ -77,9 +77,20 @@ Craftable, applied to a tamed cat, and all wearable at the same time.
 
 ## What the player wears
 
-Four pieces of leather-and-wool armour so you can look like a cat next to your
-cat. Protection matches iron (2/6/5/2), so it is a real choice and not only
-dress-up.
+Four pieces of armour so you can look like a cat next to your cat — in four
+tiers. The leather suit protects like iron (2/6/5/2); each tier above adds
+protection, durability and a stronger power. You upgrade a piece by combining
+it with the metal, so the suit grows with you instead of being re-crafted.
+
+| Tier | Made from | Powers on top of the tier below |
+|---|---|---|
+| **Leather** | leather + wool | Night vision · resistance · speed · soft landing |
+| **Iron** | + 5 iron ingots | Jump strength in the paws; strength while a tamed cat is near |
+| **Diamond** | + 5 diamonds | Resistance II, speed II, and regeneration in a full suit |
+| **Netherite** | + 1 netherite ingot | Fire resistance in the hood; strength always, and your cats get resistance |
+
+A full suit is only as strong as its weakest piece — mix leather with netherite
+and you get the leather bonus.
 
 | Piece | Slot | Look |
 |---|---|---|
@@ -87,6 +98,9 @@ dress-up.
 | **Cat Vest** | chest | Fur with a pale chest |
 | **Cat Trousers** | legs | Darker fur |
 | **Cat Paws** | feet | Pale paws with pink pads |
+
+Every piece keeps the ears and pads across all four tiers; only the material
+colour changes.
 
 These are the pack's first **attachables** — the parts that draw on the player
 body rather than on a cat. `tools/make_player_gear.py` emits the geometry,

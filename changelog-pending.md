@@ -1,6 +1,6 @@
 # Ej publicerat på CurseForge ännu
 
-## 3.29.0 — Dress like your cat
+## 3.30.0 — Dress like your cat, and two new neighbours in Cat Haven
 
 The kids asked for it: *you* should be able to wear cat gear, not just the cat.
 
@@ -20,6 +20,14 @@ Until now everything in this pack was worn by a cat. Nothing had ever been
 drawn on a player, and the pack had no attachables at all — the parts that put
 something on your own body. All four pieces come out of one table in
 `tools/make_player_gear.py`: geometry, textures, attachables, items, recipes.
+
+**Ginger and Domino have moved into Cat Haven.** They were added to the add-on
+after the world was built, so until now they only existed out in the wild.
+Ginger keeps to the grove in the north-west, where the third key lies. Domino
+sits by the lighthouse and watches the sea. Find them, bring cod, and there are
+two more quests on the list: *The Grove Keeper* and *The Lighthouse Shadow*.
+The caretaker's handbook has a new page about both of them — he wrote it after
+the rest of the book, which is why it is last.
 
 **Also in this release**
 - The trousers recipe was, letter for letter, vanilla's leather leggings. You

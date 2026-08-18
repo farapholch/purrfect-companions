@@ -182,3 +182,7 @@ action.hint.exit.snow=Dismount
 action.hint.exit.mjau:spokkatt=Dismount
 action.hint.exit.spokkatt=Dismount
 mjau.drakt.full=🐾 The whole cat suit — you move like one of them.
+mjau.achv.skogens_vakt=The Grove Keeper
+mjau.achv.skogens_vakt.sub=You found and tamed Ginger in the grove
+mjau.achv.fyrens_skugga=The Lighthouse Shadow
+mjau.achv.fyrens_skugga.sub=You found and tamed Domino by the lighthouse

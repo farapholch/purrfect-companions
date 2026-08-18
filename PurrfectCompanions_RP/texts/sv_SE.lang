@@ -182,3 +182,7 @@ action.hint.exit.snow=Dismount
 action.hint.exit.mjau:spokkatt=Dismount
 action.hint.exit.spokkatt=Dismount
 mjau.drakt.full=🐾 Hela kattdräkten — du rör dig som en av dem.
+mjau.achv.skogens_vakt=Skogens vakt
+mjau.achv.skogens_vakt.sub=Du hittade och tämjde Ginger i skogslunden
+mjau.achv.fyrens_skugga=Fyrens skugga
+mjau.achv.fyrens_skugga.sub=Du hittade och tämjde Domino vid fyren

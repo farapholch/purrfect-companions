@@ -80,6 +80,7 @@ TEXTS = {
             "TASK 7 - THE CAT PARKOUR\n\nPast the crystal cave, a gravel path keeps going east to a little wooden course lit by lanterns, floating platform to platform.\n\nRide and jump all the way to the far end. The last few jumps are wide and the platforms are narrow - take a run-up. Something is waiting for you there.",
             "TASK 8 - THE DEEP LAKE\n\nEast of everything else, past the meadow and the mountain, a lake hides more than fish. Dive to the bottom and swim through the tunnel - hold your breath.\n\nSomething waits in the dark at the far end.",
             "TASK 9 - THE TRADING POST\n\nA backpack cat's finds pile up fast. There is a barrel behind the house, east of the garden, that will take three string, three feathers and a diamond off your hands - and give something back.\n\nThe first trade brings out my old CAPE. Put it on a cat and go for a ride - you will see why I kept it.",
+            "TASK 10 - TWO MORE OF US\n\nTwo cats came to the haven after I wrote the rest of this book.\n\nGINGER, a big ginger tabby from the north, keeps to the GROVE where the third key lies. She is not shy, only busy.\n\nDOMINO, black with white paws, sits by the LIGHTHOUSE and watches the sea. Bring cod for them both.",
             "The beds inside carry the cats' names. Cat treats cheer them up when their tails droop - the recipe is sugar, wheat and cod.\n\nTake good care of them.\n\nAnd mind the boxes. Some hide more than dust.\n\nKeep your eyes open as you go, too - six coloured ribbons are hiding in places you already visit. Carry all six at once for a surprise.\n\n- The Old Caretaker",
             "One more thing, if you will believe an old man.\n\nThe cats used to tell of a FIFTH - black as the gap between the stars, with eyes of amber.\n\nShe shows herself only to those who leave the SILVER FISH from the lighthouse chest on a cat's bed while the moon stands at its highest.",
         ],
@@ -122,6 +123,7 @@ TEXTS = {
             "UPPDRAG 7 - KATTBANAN\n\nBortom kristallgrottan fortsätter en grusstig österut till en liten lyktbelyst bana av trä, med plattformar som flyter i luften.\n\nRid och hoppa hela vägen till andra änden. De sista hoppen är breda och plattformarna smala - ta sats. Något väntar på dig där.",
             "UPPDRAG 8 - DEN DJUPA SJÖN\n\nÖster om allt annat, förbi ängen och berget, gömmer en sjö mer än fisk. Dyk till botten och simma genom tunneln - håll andan.\n\nNågot väntar i mörkret vid andra änden.",
             "UPPDRAG 9 - HANDELSPOSTEN\n\nEn ryggsäckskatts fynd hopar sig fort. Det finns en tunna bakom huset, öster om täppan, som tar emot tre snören, tre fjädrar och en diamant - och ger något tillbaka.\n\nFörsta bytet plockar fram min gamla MANTEL. Sätt den på en katt och rid ut - då förstår du varför jag behöll den.",
+            "UPPDRAG 10 - TVÅ TILL AV OSS\n\nTvå katter kom till hemmet efter att jag skrivit resten av den här boken.\n\nGINGER, en stor ingefärsrandig från norr, håller till i SKOGSLUNDEN där tredje nyckeln ligger. Hon är inte skygg, bara upptagen.\n\nDOMINO, svart med vita tassar, sitter vid FYREN och spanar ut över havet. Ta med torsk till dem båda.",
             "Sängarna därinne bär katternas namn. Kattgodis piggar upp dem när svansen hänger - receptet är socker, vete och torsk.\n\nTa väl hand om dem.\n\nOch se upp med lådorna. Vissa gömmer mer än damm.\n\nHåll ögonen öppna medan du utforskar också - sex färgade band gömmer sig på platser du redan besökt. Bär alla sex samtidigt för en överraskning.\n\n- Gamla föreståndaren",
             "En sak till, om du tror en gammal man.\n\nKatterna berättade om en FEMTE - svart som mellanrummet mellan stjärnorna, med ögon av bärnsten.\n\nHon visar sig bara för den som lämnar SILVERFISKEN ur fyrens kista på en kattbädd när månen står som högst.",
         ],
@@ -1059,6 +1061,23 @@ def build_commands(cats, disp, dog_name):
         c.append(("sleep", 1))
         c.append(f"event entity @e[type=mjau:{cats[src]}] mjau:grow_up")
     c.append(("sleep", 1))
+    # DE TVÅ NYA RASERNA (3.30.0). Kattgården byggdes när det fanns fyra
+    # katter; Ginger och Domino fanns inte i världen alls, bara i naturen
+    # utanför den. Nu har de var sitt hem här — och var sitt uppdrag.
+    #
+    # Platserna är valda för att de är BEVISAD MARK: skogslundens nyckelkista
+    # laddas på f vid (-39,79) och fyrkullens band på f vid (-6,50), så de
+    # cellerna ligger garanterat i dagsljus på gräs. En katt summonad på fri
+    # höjd eller inne i en kulle dör innan spelaren hinner fram — det har
+    # kostat en felsökning förr.
+    nya = {"ginger": (-41, 77), "domino": (-8, 48)}
+    for src, (nx, nz) in nya.items():
+        c.append(f'summon mjau:{src} "{src.capitalize()}" {nx} {f} {nz}')
+        c.append(("sleep", 1))
+        c.append(f"event entity @e[type=mjau:{src},x={nx},y={f},z={nz},r=8] mjau:grow_up")
+        c.append(("sleep", 1))
+        c.append(f"testfor @e[type=mjau:{src},x={nx},y={f},z={nz},r=20]")
+        c.append(("sleep", 1))
     # konsol-testfor behöver positionsbundna selektorer (samma som purrfect-test)
     for src, (x, y) in spots.items():
         c.append(f"testfor @e[type=mjau:{cats[src]},x={x},y={y},z={zs[src]},r=60]")

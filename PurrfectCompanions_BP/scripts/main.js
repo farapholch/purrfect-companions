@@ -261,6 +261,7 @@ const XP_REWARD = {
   forsta_vannen: 10, ryttaren: 10, fiskarkatten: 10, ur_morkret: 15,
   befriaren: 15, fyrvaktaren: 15, skattgravaren: 15, lados_hemlighet: 15,
   hela_flocken: 20, alla_hemma: 20,
+  skogens_vakt: 20, fyrens_skugga: 20,
   trippelskatten: 30, bergsbestigaren: 25, regnbagssamlaren: 25, hinderbanan: 30,
   djuphavsdykaren: 30, handelsman: 20, vindskatten: 25,
   kattmastare: 50, norrsken: 40, stjarnfodd: 40, manlandaren: 35,
@@ -307,7 +308,8 @@ const KATT_ORDER = ["forsta_vannen", "hela_flocken", "ryttaren", "fiskarkatten",
                     "skattgravaren", "ur_morkret"];
 const KATTGARDEN_ORDER = ["befriaren", "fyrvaktaren", "lados_hemlighet", "alla_hemma",
                           "trippelskatten", "bergsbestigaren", "regnbagssamlaren",
-                          "hinderbanan", "djuphavsdykaren", "handelsman"];
+                          "hinderbanan", "djuphavsdykaren", "handelsman",
+                          "skogens_vakt", "fyrens_skugga"];
 const ACHV_ORDER = [...KATT_ORDER, ...KATTGARDEN_ORDER];
 const rapportTyst = new Map();   // spelar-id -> tick då nästa rapport tillåts
 
@@ -534,6 +536,13 @@ system.runInterval(() => {
     if (catHavenWorld) {
       const L = pl.location;
       if (L.y > -46 && Math.hypot(L.x - 0, L.z - 56) < 7) give(pl, "fyrvaktaren");
+      // DE TVÅ NYA RASERNA bor på var sitt landmärke i Kattgården: Ginger i
+      // skogslunden där tredje nyckeln ligger, Domino på fyrkullen. Uppdraget
+      // är att hitta OCH tämja dem — därför räknas bara tämjda katter, och
+      // inte var spelaren står. Vakten catHavenWorld gör att de inte kan
+      // krockas av en vildkatt i någons egen värld.
+      if (tamed.some(c2 => c2.typeId === "mjau:ginger")) give(pl, "skogens_vakt");
+      if (tamed.some(c2 => c2.typeId === "mjau:domino")) give(pl, "fyrens_skugga");
       if (L.y > -52 && Math.hypot(L.x - 26, L.z - 80) < 5) give(pl, "bergsbestigaren");
       if (L.y > -58 && Math.hypot(L.x - 113, L.z - 10) < 4) give(pl, "hinderbanan");
       if (Math.hypot(L.x - 65, L.z - 49) < 3 && L.y < -60) give(pl, "djuphavsdykaren");

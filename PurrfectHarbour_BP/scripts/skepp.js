@@ -29,15 +29,35 @@ system.runInterval(() => {
   for (const s of skepp) try {
     let ryttare = [];
     try { ryttare = s.getComponent("minecraft:rideable")?.getRiders() ?? []; } catch { continue; }
-    if (!ryttare.length) continue;
     let upp = false, ner = false;
-    try { upp = !!ryttare[0].isJumping; ner = !!ryttare[0].isSneaking; } catch { continue; }
-    if (upp === ner) continue;                      // båda eller ingen: håll höjden
+    if (ryttare.length) {
+      try { upp = !!ryttare[0].isJumping; ner = !!ryttare[0].isSneaking; } catch { }
+    }
     let vy = 0;
     try { vy = s.getVelocity().y; } catch { }
-    if (upp && vy > 0.6) continue;
-    if (ner && vy < -0.6) continue;
-    try { s.applyImpulse({ x: 0, y: upp ? 0.10 : -0.10, z: 0 }); } catch { }
+    if (upp !== ner) {
+      if (upp && vy > 0.6) continue;
+      if (ner && vy < -0.6) continue;
+      try { s.applyImpulse({ x: 0, y: upp ? 0.10 : -0.10, z: 0 }); } catch { }
+      continue;
+    }
+    // BROMSEN. Spelrapport: "man bara fortsätter flyga oändligt". Skeppet har
+    // INGEN minecraft:physics — alltså varken tyngdkraft eller friktion — och
+    // koden gjorde tidigare ingenting alls när ingen knapp hölls. Farten satt
+    // därför kvar för evigt: släppte man hoppknappen mitt i en stigning
+    // fortsatte skeppet uppåt tills världstaket tog emot.
+    //
+    // Nu bromsas den lodräta farten mot noll när ingen styr. Motimpulsen är
+    // en TREDJEDEL av farten per varv (var 2:a tick), så skeppet glider ut
+    // mjukt på ungefär en sekund i stället för att tvärnita — en tvärnit i
+    // luften läser som att spelet hängt sig.
+    //
+    // Bromsen gäller ÄVEN utan ryttare, till skillnad från styrningen: ett
+    // skepp som knuffats i väg ska också stanna, och det är den varianten
+    // speltestet kan mäta (simulerade spelare syns inte härifrån).
+    if (Math.abs(vy) > 0.02) {
+      try { s.applyImpulse({ x: 0, y: -vy * 0.34, z: 0 }); } catch { }
+    }
   } catch { }
 }, 2);
 
@@ -110,6 +130,11 @@ system.runInterval(() => {
 const STATION = { x: 20, z: 0 };      // mitt på stationen
 const PLATTAN = { x: 65, y: -60, z: 0 };
 const VARNA = 110, HEM = 150, BOTTEN = -110;   // 45 block/2,5 s uppmätt
+// TAKET saknades helt: kopplet fångade sidledes och nedåt, men den som flög
+// RAKT UPP möttes aldrig av något. Stationen ligger kring y=-60, så 20 är
+// åttio block ovanför plattan (varning) och 60 är hundratjugo (hemhämtning) —
+// samma proportion som det vågräta kopplet.
+const TAKVARNA = 20, TAK = 60;
 // => ~8 s från stationen till varningen. Kortare koppel blev en tvärnit.
 
 system.runInterval(() => {
@@ -121,12 +146,16 @@ system.runInterval(() => {
     try { L = s.location; } catch { continue; }
     const dx = L.x - STATION.x, dz = L.z - STATION.z;
     const avstand = Math.sqrt(dx * dx + dz * dz);
-    if (avstand < VARNA && L.y > BOTTEN) continue;
+    if (avstand < VARNA && L.y > BOTTEN && L.y < TAKVARNA) continue;
 
     let ryttare = [];
     try { ryttare = s.getComponent("minecraft:rideable")?.getRiders() ?? []; } catch { }
-    if (avstand >= HEM || L.y <= BOTTEN) {
+    if (avstand >= HEM || L.y <= BOTTEN || L.y >= TAK) {
       try { s.teleport(PLATTAN); } catch { }
+      // NOLLA FARTEN vid hemhämtningen. Utan den behåller skeppet sin
+      // hastighet genom teleporten och skjuter i väg igen direkt — det ser ut
+      // som att kopplet inte fungerar alls.
+      try { s.clearVelocity(); } catch { }
       for (const r of ryttare) {
         try { r.onScreenDisplay.setActionBar({ translate: "mjau.skepp.hem" }); } catch { }
       }

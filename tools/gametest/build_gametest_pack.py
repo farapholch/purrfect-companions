@@ -366,6 +366,28 @@ gt.registerAsync("mjau", "skepp", async (test) => {
   } catch (e) { console.warn("[MJAU-GT] skepp: applyImpulse kastade " + e); }
   console.warn(`[MJAU-GT] skepp: lyft av impuls 1.0 = ${lyft.toFixed(2)} block`);
 
+  // BROMSEN (3.32.0). Spelrapport fran Xbox: "man bara fortsatter flyga
+  // oandligt". Skeppet har ingen minecraft:physics — varken tyngdkraft eller
+  // friktion — sa farten satt kvar for evigt nar ingen holl i knappen.
+  // Bromsen gar DAREMOT att mata har, till skillnad fran knapptrycken: den
+  // verkar aven pa ett skepp utan ryttare, sa den simulerade spelarens
+  // osynlighet spelar ingen roll.
+  let fart0 = 0, fart1 = 0;
+  try {
+    skepp.teleport({ x: 20, y: 8, z: 20 });
+    await test.idle(5);
+    skepp.applyImpulse({ x: 0, y: 0.8, z: 0 });
+    await test.idle(4);
+    fart0 = Math.abs(skepp.getVelocity().y);
+    await test.idle(40);                       // 2 s utan styrning
+    fart1 = Math.abs(skepp.getVelocity().y);
+  } catch (e) { console.warn("[MJAU-GT] skepp: bromsmatning kastade " + e); }
+  console.warn(`[MJAU-GT] skepp: lodrat fart ${fart0.toFixed(3)} -> ${fart1.toFixed(3)} efter 2 s utan styrning`);
+  if (fart0 > 0.05 && fart1 > fart0 * 0.35) {
+    try { skepp.remove(); } catch { }
+    return done(test, `skeppet bromsar inte: ${fart0.toFixed(3)} -> ${fart1.toFixed(3)}`, false);
+  }
+
   try { p.stopMoving(); p.stopRiding(); } catch { }
   await test.idle(5);
   try { skepp.remove(); } catch { }

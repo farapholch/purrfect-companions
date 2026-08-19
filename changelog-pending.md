@@ -49,6 +49,14 @@ two more quests on the list: *The Grove Keeper* and *The Lighthouse Shadow*.
 The caretaker's handbook has a new page about both of them — he wrote it after
 the rest of the book, which is why it is last.
 
+**The fighters stop now.** Reported from play: you just kept flying forever.
+The ship has no physics of its own — no gravity, no drag — and the code did
+nothing at all when you were not holding a button, so whatever speed you had
+stayed with you until the world ran out of sky. Let go and it now glides to a
+stop in about a second. There is also a ceiling: fly too high and the harbour
+brings you home, the same way it already did if you flew too far out or too
+far down.
+
 **Also in this release**
 - The trousers recipe was, letter for letter, vanilla's leather leggings. You
   would have crafted vanilla trousers and wondered where the ears went. Caught

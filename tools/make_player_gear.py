@@ -44,6 +44,8 @@ PALS_MORK = (112, 104, 95, 255)
 MAGE      = (224, 218, 208, 255)   # ljus mage, bringa och tassar
 ORA_IN    = (226, 140, 160, 255)   # samma rosa som katternas nos och trampdynor
 DYNA      = (226, 140, 160, 255)
+OGON      = (232, 176, 64, 255)    # bärnsten, samma som vakthundens
+OGON_GLANS = (255, 232, 176, 255)
 
 
 def fot(size):
@@ -101,10 +103,14 @@ PLAGG = {
         "namn": "Cat Hood", "enchant": "armor_head",
         "kuber": [
             ("head", [-4, 24, -4], [8, 8, 8], [0, 0], PALS, 1.0),
-            ("head", [-4.5, 31, -2.5], [3, 3, 1], [40, 0], PALS_MORK, 0.0),   # vänster öra
-            ("head", [1.5, 31, -2.5], [3, 3, 1], [40, 8], PALS_MORK, 0.0),    # höger öra
-            ("head", [-3.8, 31.6, -2.9], [1.6, 1.6, 0.6], [40, 16], ORA_IN, 0.0),
-            ("head", [2.2, 31.6, -2.9], [1.6, 1.6, 0.6], [46, 16], ORA_IN, 0.0),
+            # ÖRONEN: hjälmkuben är inflate 1.0 och når därmed y=33, inte 32.
+            # Första försöket satte öronen på 31-34 — tre av fyra enheter låg
+            # INUTI hjälmen och kvar syntes en stump. Xbox-rapport: "inga
+            # öron". De börjar nu ovanför hjälmens topp och är 5 höga.
+            ("head", [-4.5, 32, -2.5], [3, 5, 1], [40, 0], PALS_MORK, 0.0),  # vänster öra
+            ("head", [1.5, 32, -2.5], [3, 5, 1], [46, 0], PALS_MORK, 0.0),   # höger öra
+            ("head", [-3.8, 33.4, -2.9], [1.6, 3, 0.6], [40, 12], ORA_IN, 0.0),
+            ("head", [2.2, 33.4, -2.9], [1.6, 3, 0.6], [46, 12], ORA_IN, 0.0),
         ],
     },
     "vast": {
@@ -183,6 +189,21 @@ def textur(namn, cfg, niv):
         rect(uv[0], uv[1], fw, fh, farg)
         rect(uv[0], uv[1], fw, math.ceil(d), sh(farg, 1.14))
         rect(uv[0], uv[1] + fh - 1, fw, 1, sh(farg, 0.72))
+        # KATTANSIKTET målas på huvudkubens framsida — utan det är luvan en
+        # slät låda på skallen, vilket är exakt vad som rapporterades från
+        # Xbox ("inga ögon"). Ögonen är bärnsten i alla nivåer: de ska läsa
+        # som katt även när materialet är diamant.
+        if namn == "luva" and size == [8, 8, 8]:
+            fx, fy = uv[0] + d, uv[1] + d
+            rect(fx + 1, fy + 2, 2, 2, OGON)          # vänster öga
+            rect(fx + 5, fy + 2, 2, 2, OGON)          # höger öga
+            rect(fx + 1, fy + 2, 1, 1, OGON_GLANS)
+            rect(fx + 5, fy + 2, 1, 1, OGON_GLANS)
+            rect(fx + 3, fy + 4, 2, 1, ORA_IN)        # nos
+            rect(fx + 2, fy + 5, 1, 1, sh(farg, 0.55))   # mungipor
+            rect(fx + 5, fy + 5, 1, 1, sh(farg, 0.55))
+            for mx in (fx, fx + 7):                   # morrhår
+                rect(mx, fy + 4, 1, 1, sh(farg, 1.3))
     rr.write_png(f"{RP}/textures/entity/mjau_{ident(namn, niv)}.png", TW, TH, px)
 
 

@@ -1,6 +1,6 @@
 # Ej publicerat på CurseForge ännu
 
-## 3.31.0 — Dress like your cat, and two new neighbours in Cat Haven
+## 3.31.1 — Dress like your cat, and two new neighbours in Cat Haven
 
 The kids asked for it: *you* should be able to wear cat gear, not just the cat.
 
@@ -18,6 +18,12 @@ stronger power: jump strength in iron paws, resistance II and speed II in
 diamond, fire resistance in a netherite hood. A full suit is only as strong as
 its weakest piece — mix leather with netherite and you get the leather bonus,
 which is a rule a seven-year-old can hold in their head.
+
+**The hood has a face.** Amber eyes, a pink nose and whiskers — and ears that
+actually clear the helmet. Reported from an Xbox: "no eyes and no ears". Both
+were true. The ears were three quarters buried inside the helmet, which is
+inflated a unit larger than the head; and the face only ever existed in the
+16×16 inventory icon, never on the model you wear.
 
 **And the suit does something.** One power per piece, so each is worth wearing
 on its own — the hood gives night vision, because cats see in the dark; the

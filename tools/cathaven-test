@@ -25,7 +25,7 @@ echo "[1/5] Bygger båda varianterna (2 serverbyggen, ~3 min)"
 rm -rf "$OUT"
 for V in public private; do
   if python3 "$SRC/build_world.py" "$V" "$OUT" > /tmp/cathaven-test-$V.txt 2>&1; then
-    ok "variant $V: byggd + byggverifierad (mark, kista, damm, fyrljus, 4 katter)"
+    ok "variant $V: byggd + byggverifierad (mark, kista, damm, fyrljus, 6 katter)"
   else
     sed 's/^/    /' /tmp/cathaven-test-$V.txt | tail -6
     bad "variant $V föll i bygget"

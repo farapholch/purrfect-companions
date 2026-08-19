@@ -30,9 +30,14 @@ drawn on a player, and the pack had no attachables at all — the parts that put
 something on your own body. All four pieces come out of one table in
 `tools/make_player_gear.py`: geometry, textures, attachables, items, recipes.
 
-**Ginger and Domino have moved into Cat Haven.** They were added to the add-on
-after the world was built, so until now they only existed out in the wild.
-Ginger keeps to the grove in the north-west, where the third key lies. Domino
+**Ginger and Domino have moved into both worlds.** Star Harbour now wakes six
+cats instead of four — the ginger one drifted in with a supply run and never
+left, the black-and-white one was born aboard. The logbook says so on its
+first page.
+
+**In Cat Haven they have quests of their own.** They were added to the add-on after the
+world was built, so until now they only existed out in the wild. Ginger keeps
+to the grove in the north-west, where the third key lies. Domino
 sits by the lighthouse and watches the sea. Find them, bring cod, and there are
 two more quests on the list: *The Grove Keeper* and *The Lighthouse Shadow*.
 The caretaker's handbook has a new page about both of them — he wrote it after

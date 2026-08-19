@@ -13,7 +13,7 @@ upp filer till projekt som redan finns.
 `Star Harbour`
 
 ## Summary (en mening, max 255 tecken)
-`A dark cat station adrift among the stars: wake its four cats, find four energy blades, and climb to the observation deck - Purrfect Companions included, one tap to install.`
+`A dark cat station adrift among the stars: wake its six cats, find four energy blades, and climb to the observation deck - Purrfect Companions included, one tap to install.`
 
 ## Description
 

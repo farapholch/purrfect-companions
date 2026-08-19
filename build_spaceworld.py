@@ -47,7 +47,7 @@ TEXTS = {
         "sign_sond": "CRASHED PROBE\nIt came down\nhard. Its core\nstill hums.",
         "book_pages": [
             "Welcome to Star Harbour!\n\nThe station has been dark a long time. Its cats are still aboard - they know the corridors better than I ever did.\n\nEverything you need is in this chest.",
-            "TASK 1 - WAKE THE STATION\n\nFour cats sleep aboard: one in the dome, one in the corridor, one in the hangar, one on the observation deck.\n\nTame them with the cod from this chest.",
+            "TASK 1 - WAKE THE STATION\n\nSix cats sleep aboard: two in the dome, one in the corridor, two in the hangar, one on the observation deck.\n\nThe ginger one drifted in with a supply run and never left; the black-and-white one was born here.\n\nTame them with the cod from this chest.",
             "TASK 2 - THE BLADES\n\nThe harbour kept four energy blades, one of each colour, locked in different bays.\n\nHold one and it swings like a sword - it cuts harder than iron.\n\nOr tame a cat, hold the blade and press Equip: the cat carries it and fights beside you.",
             "TASK 3 - THE HANGAR\n\nThe shuttle never flew again. Something worth keeping is still strapped in its hold.\n\nThe two spear-fighters beside it still start - but no cat, no flight. Tame one, keep it close, and it takes the navigator's seat by itself. The gate east is open; the harbour keeps you on a short leash out there.",
             "TASK 4 - THE OBSERVATION DECK\n\nClimb to the top of the station and look out at the dark.\n\nStanding there is its own reward - but not the only one.",
@@ -75,7 +75,7 @@ TEXTS = {
         "sign_sond": "KRASCHAD SOND\nDen kom ner\nhart. Karnan\nsurrar an.",
         "book_pages": [
             "Välkommen till Stjärnhamnen!\n\nStationen har varit mörk länge. Katterna är kvar ombord - de kan korridorerna bättre än jag någonsin gjorde.\n\nAllt du behöver ligger i den här kistan.",
-            "UPPDRAG 1 - VÄCK STATIONEN\n\nFyra katter sover ombord: en i kupolen, en i korridoren, en i hangaren, en på utkiken.\n\nTämj dem med torsken ur kistan.",
+            "UPPDRAG 1 - VÄCK STATIONEN\n\nSex katter sover ombord: två i kupolen, en i korridoren, två i hangaren, en på utkiken.\n\nDen ingefärsfärgade kom hit med en frakt och stannade; den svartvita är född ombord.\n\nTämj dem med torsken ur kistan.",
             "UPPDRAG 2 - BLADEN\n\nHamnen förvarade fyra energisvärd, ett i varje färg, inlåsta i olika fack.\n\nHåll ett i handen så svingas det som ett svärd - det hugger hårdare än järn.\n\nEller tämj en katt, håll bladet och tryck Utrusta: katten bär det och slåss vid din sida.",
             "UPPDRAG 3 - HANGAREN\n\nSkytteln flög aldrig mer. Något värt att behålla sitter fastspänt i lastrummet.\n\nDe två spjutjaktarna bredvid startar fortfarande - men ingen katt, ingen flygning. Tämj en och håll den nära, så tar den navigatörsstolen själv. Porten österut är öppen, men hamnen håller dig i kort koppel därute.",
             "UPPDRAG 4 - UTKIKEN\n\nKlättra högst upp i stationen och se ut i mörkret.\n\nAtt stå där är belöning nog - men inte den enda.",
@@ -455,6 +455,21 @@ def build_commands(cats, disp, t):
         c.append(("sleep", 1))
         c.append(f"event entity @e[type=mjau:{cats[src]}] mjau:grow_up")
     c.append(("sleep", 1))
+    # DE TVÅ NYA RASERNA (3.32.0). Stjärnhamnen byggdes när det fanns fyra
+    # katter, precis som Kattgården — Ginger och Domino saknades i båda.
+    #
+    # Platserna undviker två kända hinder: jaktplanen står på x=39 (z ±9) och
+    # skulle klämma en katt som spawnar i dem, och Mocha står redan i hangarens
+    # östra ände (46, 8). Golvet är hangarens och kupolens F-nivå, samma som de
+    # fyra ursprungliga står på — alltså mark som bygget redan verifierat.
+    nya = {"ginger": (44, -10), "domino": (6, -6)}
+    for src, (nx, nz) in nya.items():
+        c.append(f'summon mjau:{src} "{src.capitalize()}" {nx} {F} {nz}')
+        c.append(("sleep", 1))
+        c.append(f"event entity @e[type=mjau:{src},x={nx},y={F},z={nz},r=8] mjau:grow_up")
+        c.append(("sleep", 1))
+        c.append(f"testfor @e[type=mjau:{src},x={nx},y={F},z={nz},r=20]")
+        c.append(("sleep", 1))
     for src, (x, z) in spots.items():
         c.append(f"testfor @e[type=mjau:{cats[src]},x={x},y={ytor[src]},z={z},r=60]")
         c.append(("sleep", 1))

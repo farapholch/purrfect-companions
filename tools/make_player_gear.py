@@ -308,41 +308,69 @@ def foremal(namn, cfg, niv):
 
 
 def forhandsbild():
-    """publish/06-kattdrakt.png — ikonerna som de syns i rutan, och delarna i
-    3D under. Renderaren ritar katter, inte spelarmodellen, så det här är så
-    nära man kommer utan att starta spelet: formerna går att granska, hur de
-    sitter på kroppen gör det inte."""
+    """publish/06-kattdrakt.png — hela dräkten monterad, en kolumn per nivå,
+    med ikonerna under.
+
+    Delarna renderas var för sig (varje plagg har egen textur) men med SAMMA
+    kamera och samma ram, så de landar på rätt plats i förhållande till
+    varandra och kan läggas ovanpå varandra. Bakgrunden nycklas bort.
+
+    KUBERNA FÅR INTE SKALAS: renderaren räknar texturytorna ur kubens mått, så
+    en nedskalad kub läser fel del av bilden — det gav ett ansiktslöst huvud i
+    en tidigare förhandsbild fast texturen var rätt. Ramen vidgas i stället.
+    """
     import render_preview as rp
-    K, N = 10, 16
-    rad_h = N * K + 24
-    delar = list(PLAGG)
-    rutbredd = 300
-    bred = len(delar) * rutbredd
-    ark = [[(24, 27, 36, 255)] * bred for _ in range(rad_h + rutbredd)]
-    for i, namn in enumerate(delar):
-        w, h, px = rr.read_png(f"{RP}/textures/items/pc_{namn}.png")
-        ox = i * rutbredd + (rutbredd - N * K) // 2
-        for y in range(h):
-            for x in range(w):
-                p = px[y][x]
-                if len(p) > 3 and p[3] == 0:
-                    continue
-                for dy in range(K):
-                    for dx in range(K):
-                        ark[12 + y * K + dy][ox + x * K + dx] = (p[0], p[1], p[2], 255)
-        g = json.load(open(f"{RP}/models/entity/mjau_{namn}.geo.json"))["minecraft:geometry"][0]
-        lok = []
-        for b in g["bones"]:
-            kub = [{**c, "origin": [v * 0.45 for v in c["origin"]],
-                    "size": [v * 0.45 for v in c["size"]]} for c in b["cubes"]]
-            lok.append((b["name"], [v * 0.45 for v in b["pivot"]], kub))
-        rr.bones_for = lambda acc, _l=lok: _l
-        vy = rr.render(f"mjau_{namn}", [], {}, W=rutbredd, H=rutbredd, yaw=28, pitch=8)
-        for y in range(rutbredd):
-            for x in range(rutbredd):
-                ark[rad_h + y][i * rutbredd + x] = vy[y][x]
-    rr.write_png(f"{BASE}/publish/06-kattdrakt.png", bred, rad_h + rutbredd, ark)
-    print(f"  publish/06-kattdrakt.png ({bred}x{rad_h + rutbredd})")
+    RAM = ((-10, 10), (0, 38), (-10, 10))       # spelarens hela höjd
+    RUTA = 260
+    K, N = 3, 16
+    kolumner = []
+    for niv in NIVAORDNING:
+        lager = None
+        for namn in PLAGG:
+            g = json.load(open(f"{RP}/models/entity/mjau_{namn}.geo.json"))["minecraft:geometry"][0]
+            ben = []
+            for b in g["bones"]:
+                kub = []
+                for c in b["cubes"]:
+                    k = dict(c)
+                    inf = k.pop("inflate", 0)
+                    k["origin"] = [v - inf for v in c["origin"]]
+                    k["size"] = [v + 2 * inf for v in c["size"]]
+                    kub.append(k)
+                ben.append((b["name"], b["pivot"], kub))
+            rr.bones_for = lambda acc, _l=ben: _l
+            vy = rr.render(f"mjau_{ident(namn, niv)}", [], {}, W=RUTA, H=RUTA,
+                           yaw=22, pitch=6, ram=RAM)
+            if lager is None:
+                lager = [list(r) for r in vy]
+                bg = vy[0][0]
+            else:
+                for y in range(RUTA):
+                    for x in range(RUTA):
+                        p2 = vy[y][x]
+                        if p2 != bg:
+                            lager[y][x] = p2
+        kolumner.append(lager)
+
+    bred, hojd = len(kolumner) * RUTA, RUTA + N * K + 20
+    ark = [[(24, 27, 36, 255)] * bred for _ in range(hojd)]
+    for ci, kol in enumerate(kolumner):
+        for y in range(RUTA):
+            for x in range(RUTA):
+                ark[y][ci * RUTA + x] = kol[y][x]
+        for pi, namn in enumerate(PLAGG):
+            w, h, px = rr.read_png(f"{RP}/textures/items/pc_{ident(namn, NIVAORDNING[ci])}.png")
+            ox = ci * RUTA + 12 + pi * (N * K + 8)
+            for y in range(h):
+                for x in range(w):
+                    q = px[y][x]
+                    if len(q) > 3 and q[3] == 0:
+                        continue
+                    for dy in range(K):
+                        for dx in range(K):
+                            ark[RUTA + 10 + y * K + dy][ox + x * K + dx] = (q[0], q[1], q[2], 255)
+    rr.write_png(f"{BASE}/publish/06-kattdrakt.png", bred, hojd, ark)
+    print(f"  publish/06-kattdrakt.png ({bred}x{hojd}) — läder, järn, diamant, netherit")
 
 
 if __name__ == "__main__":

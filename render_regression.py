@@ -105,7 +105,7 @@ def faces(U, V, w, h, d):
 SH = {"top": 1.00, "bottom": 0.45, "north": 0.92, "south": 0.55, "east": 0.72, "west": 0.66}
 
 
-def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16):
+def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16, ram=None):
     tw, th, tex = read_png(f"{RP}/textures/entity/{cat}.png")
     bones = bones_for(acc)
     ya, pa = math.radians(yaw), math.radians(pitch)
@@ -122,7 +122,12 @@ def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16):
     # FAST ram. Anpassas den till modellens omslutande låda förskjuts hela bilden
     # så fort någon del rör sig, och då blir varje diff 25 % av alla pixlar utan
     # att peka ut vad som ändrats. Med fast kamera rör bara det trasiga sig.
-    corners = [cam((x, y, z)) for x in (-9, 9) for y in (0, 17) for z in (-9, 11)]
+    # Ramen går att vidga för det som INTE är en katt: spelardräkten är 37
+    # enheter hög och ryms inte i kattens ram. Bildregressionen skickar aldrig
+    # in något och behåller därmed exakt samma fasta ram som förut — det är
+    # hela poängen med den, att en flyttad detalj inte förskjuter hela bilden.
+    rx, ry, rz = ram or ((-9, 9), (0, 17), (-9, 11))
+    corners = [cam((x, y, z)) for x in rx for y in ry for z in rz]
     minx, maxx = min(c[0] for c in corners), max(c[0] for c in corners)
     miny, maxy = min(c[1] for c in corners), max(c[1] for c in corners)
     pad = int(min(W, H) * 0.04)

@@ -119,8 +119,16 @@ PLAGG = {
         "kuber": [
             ("body", [-4, 12, -2], [8, 12, 4], [0, 0], PALS, 1.01),
             ("body", [-2.5, 12.5, -2.6], [5, 8, 1], [26, 0], MAGE, 0.0),      # ljus bringa
-            ("leftArm", [4, 12, -2], [4, 12, 4], [40, 0], PALS, 1.0),
-            ("rightArm", [-8, 12, -2], [4, 12, 4], [40, 20], PALS, 1.0),
+            # KORTA ÄRMAR. Först täckte de hela armen (y 12-24) och satt kant i
+            # kant med bålen — med inflate växte de ihop till ETT brett block
+            # och spelaren såg armlös ut. Xbox-bild: "man har typ inga armar".
+            #
+            # En väst ÄR ärmlös, så plagget får axelstycken (y 18-24) och
+            # lämnar underarmen bar: armarna syns, rör sig, och silhuetten
+            # läser som en människa igen. Mindre inflate så axeln inte
+            # blir bredare än kroppen.
+            ("leftArm", [4, 18, -2], [4, 6, 4], [40, 0], PALS_MORK, 0.6),
+            ("rightArm", [-8, 18, -2], [4, 6, 4], [40, 14], PALS_MORK, 0.6),
         ],
     },
     "byxor": {

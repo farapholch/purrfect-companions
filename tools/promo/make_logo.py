@@ -117,7 +117,11 @@ for y in range(P):
     # dagsljusbilder i listan utan att för den skull rinna ut i den — ramen
     # och de ljusa katterna håller emot.
     for x in range(P):
-        proj[y][x] = (int(16 + 26 * k), int(20 + 34 * k), int(44 + 46 * k), 255)
+        # svag gloria mitt i bilden: bakgrunden ska vara mörk i kanterna men
+        # ljusna där katterna står, annars försvinner de i botten
+        d = (((x - P * 0.5) ** 2 + (y - P * 0.62) ** 2) ** 0.5) / (P * 0.62)
+        g = max(0.0, 1.0 - d) ** 2 * 34
+        proj[y][x] = (int(16 + 26 * k + g), int(20 + 34 * k + g), int(44 + 46 * k + g * 1.1), 255)
 
 B = 16                         # blockstorlek, samma pixelspråk som hjältebilden
 def _rita(x0, y0, w, h, c):
@@ -165,17 +169,17 @@ UPPSTALLNING = [
     # klump. Nu tre och tre på samma x-linjer med luft emellan: bakre raden
     # mindre och högre upp, främre större och lägre. Bredden på en katt i den
     # här skalan är ~150 px, och centrumen ligger ~160 isär.
-    # RADERNA SKILJS PÅ DJUPET. Förut stod bakre raden på 0.56 medan de främre
-    # var 176 px höga — deras huvuden nådde upp till 0.47 och täckte hela
-    # bakre raden. Nu: bakre fotlinje 0.62 med 112 px höjd (topp ~0.40),
-    # främre fotlinje 0.88 med 168 (topp ~0.55). Bara de främres huvuden
-    # skymmer de bakres tassar, vilket är hur en gruppbild ska se ut.
-    ("hazel",  ["keps1", "halsduk2"],   0.17, 0.620, 112),
-    ("mocha",  ["horn2", "vingar1"],    0.50, 0.605, 110),
-    ("domino", ["krona1"],              0.83, 0.620, 112),
-    ("misty",  ["sadel1", "halsband1"], 0.19, 0.880, 168),
-    ("snow",   ["doktorsrock1"],        0.50, 0.890, 172),
-    ("ginger", ["mantel2", "tossor1"],  0.81, 0.880, 168),
+    # TRE STORA I STÄLLET FÖR SEX SMÅ. Sex katter i två rader gav en klump som
+    # inte gick att tyda i listrutan — Pelles skärmdump visade vår ruta bredvid
+    # "MAGNETO" och "invisible man", som båda har EN stor figur och läser
+    # direkt. Better Cats gör tre, men stora: de fyller halva höjden.
+    #
+    # Urvalet är gjort på KONTRAST mot mörk botten, inte på vilka som är
+    # populärast: Snow (vit), Ginger (orange) och Domino (svartvit med vit
+    # haklapp). Misty och Hazel är gråbruna och skulle sjunka in i natten.
+    ("snow",   ["doktorsrock1", "horn1"], 0.215, 0.855, 268),
+    ("ginger", ["krona1", "mantel2"],     0.500, 0.885, 286),
+    ("domino", ["keps1", "vingar1"],      0.785, 0.855, 268),
 ]
 for cat, plagg, fx, fy, hojd in UPPSTALLNING:
     src = rp.render3d(cat, plagg, 260, 260)
@@ -196,6 +200,12 @@ for cat, plagg, fx, fy, hojd in UPPSTALLNING:
                 _p = proj[_y][_x]
                 proj[_y][_x] = (int(_p[0] * (1 - _f)), int(_p[1] * (1 - _f)),
                                 int(_p[2] * (1 - _f)), 255)
+    # KONTUR, som referensbilden med de vita siluettkanterna: mot mörk botten
+    # smälter en mörk katt (Domino) annars ihop med himlen. Samma sprite i
+    # ljust, förskjuten åt åtta håll, under originalet.
+    ljus = [[(236, 244, 252, 255) if p2 != TOM else TOM for p2 in rad] for rad in nyckl]
+    for ddx, ddy in ((-4, 0), (4, 0), (0, -4), (0, 4), (-3, -3), (3, -3), (-3, 3), (3, 3)):
+        blit_scaled(proj, ljus, TOM, int(P * fx) + ddx, int(P * fy) - hojd // 2 + ddy, hojd)
     blit_scaled(proj, nyckl, TOM, int(P * fx), int(P * fy) - hojd // 2, hojd)
 
 # HJÄRTAN i himlen — det är det gulliga inslaget, och de får INTE ligga över

@@ -117,18 +117,22 @@ PLAGG = {
         "slot": "slot.armor.chest", "skydd": 6, "slitage": 240,
         "namn": "Cat Vest", "enchant": "armor_torso",
         "kuber": [
-            ("body", [-4, 12, -2], [8, 12, 4], [0, 0], PALS, 1.01),
+            # BÅLEN SMALARE ÄN ÄRMARNA. Med bål 1.01 och ärm 1.0 låg ytorna i
+            # samma plan och de växte ihop till en bred platta ("man har typ
+            # inga armar"). Nu buktar ärmen längre ut än bålen åt alla håll,
+            # så det finns en synlig avsats där armen börjar.
+            ("body", [-4, 12, -2], [8, 12, 4], [0, 0], PALS, 0.7),
             ("body", [-2.5, 12.5, -2.6], [5, 8, 1], [26, 0], MAGE, 0.0),      # ljus bringa
-            # KORTA ÄRMAR. Först täckte de hela armen (y 12-24) och satt kant i
-            # kant med bålen — med inflate växte de ihop till ETT brett block
-            # och spelaren såg armlös ut. Xbox-bild: "man har typ inga armar".
+            # HELA ÄRMAR, men tydliga. Två försök gick fel före det här: först
+            # ärmar kant i kant med bålen (allt blev en platta), sedan ärmlös
+            # väst med bara axelstycken — men önskemålet är en RIKTIG kropp
+            # med tydliga armar, inte bar hud.
             #
-            # En väst ÄR ärmlös, så plagget får axelstycken (y 18-24) och
-            # lämnar underarmen bar: armarna syns, rör sig, och silhuetten
-            # läser som en människa igen. Mindre inflate så axeln inte
-            # blir bredare än kroppen.
-            ("leftArm", [4, 18, -2], [4, 6, 4], [40, 0], PALS_MORK, 0.6),
-            ("rightArm", [-8, 18, -2], [4, 6, 4], [40, 14], PALS_MORK, 0.6),
+            # Tre saker skiljer dem åt nu: ärmen buktar mer än bålen (1.15 mot
+            # 0.7) så det finns en avsats, den är i den mörkare tonen, och den
+            # får en ljus manschett vid handleden så armen har ett slut.
+            ("leftArm", [4, 12, -2], [4, 12, 4], [40, 0], PALS_MORK, 1.15),
+            ("rightArm", [-8, 12, -2], [4, 12, 4], [40, 20], PALS_MORK, 1.15),
         ],
     },
     "byxor": {
@@ -201,6 +205,12 @@ def textur(namn, cfg, niv):
         # slät låda på skallen, vilket är exakt vad som rapporterades från
         # Xbox ("inga ögon"). Ögonen är bärnsten i alla nivåer: de ska läsa
         # som katt även när materialet är diamant.
+        if b in ("leftArm", "rightArm"):
+            # MANSCHETT: sidytornas nedersta rader ligger sist i kubens
+            # utfällning (först djupet som topp/botten, sedan höjden). En ljus
+            # kant där ger armen ett tydligt slut i stället för att tona ut i
+            # spelarens hud.
+            rect(uv[0], uv[1] + fh - 3, fw, 2, farga(MAGE, niv))
         if namn == "luva" and size == [8, 8, 8]:
             fx, fy = uv[0] + d, uv[1] + d
             rect(fx + 1, fy + 2, 2, 2, OGON)          # vänster öga

@@ -1,6 +1,6 @@
 # Ej publicerat på CurseForge ännu
 
-## 3.31.4 — Dress like your cat, and two new neighbours in Cat Haven
+## 3.31.5 — Dress like your cat, and two new neighbours in Cat Haven
 
 The kids asked for it: *you* should be able to wear cat gear, not just the cat.
 
@@ -10,11 +10,12 @@ materials the cats' own outfits are made of. It protects like iron — 2, 6, 5
 and 2 — so wearing it is a real choice rather than only dress-up, and it takes
 enchantments and mending like any other armour.
 
-**The vest is a vest.** It has shoulder pieces and leaves your forearms bare.
-The first version wrapped the whole arm and sat flush against the chest, so
-with the outward bevel every armour piece has, the two grew into one wide slab
-— reported from an Xbox as "you have basically no arms". Sleeveless is also
-what the name promised.
+**The vest has arms you can see.** The first version wrapped the whole arm in
+the same colour as the chest and sat flush against it, so the two grew into one
+wide slab — reported from an Xbox as "you have basically no arms". The sleeves
+are full length again, but now they are a shade darker than the chest, they sit
+a little proud of it, and they end in a pale cuff at the wrist. You can tell
+where the body stops and the arm starts.
 
 **The suit comes in four tiers.** Leather, iron, diamond and netherite. You do
 not re-craft it — you upgrade the piece you already wear by combining it with

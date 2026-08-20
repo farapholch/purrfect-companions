@@ -143,6 +143,52 @@ OUTFITS = [("sadel1", "SADDLE"), ("rustning3", "ARMOR"), ("horn2", "UNICORN HORN
 FULL = ["rustning3", "horn1", "vingar1", "halsduk1", "tossor2", "vagn1"]
 RAKNEORD = {4: "FOUR", 5: "FIVE", 6: "SIX", 7: "SEVEN", 8: "EIGHT"}
 
+# KATTDRÄKTEN. Trailern visade bara vad KATTEN kan bära; sedan 3.28.0 kan
+# spelaren bära en egen dräkt i fyra nivåer, och det syntes ingenstans i
+# filmen. Delarna har var sin textur, så varje ruta komponeras av fyra
+# renderingar med bakgrunden bortnycklad — samma teknik som förhandsbilden.
+#
+# INFLATE SLÄNGS, precis som i förhandsbilden: renderaren räknar texturytan ur
+# kubens mått, så en uppblåst kub läser fel del av bilden.
+DRAKT_DELAR = ["luva", "vast", "byxor", "tassar"]
+DRAKT_NIVAER = [("", "LEATHER"), ("_jarn", "IRON"),
+                ("_diamant", "DIAMOND"), ("_netherit", "NETHERITE")]
+DRAKT_RAM = ((-11, 11), (0, 39), (-11, 11))
+_DRAKT_BEN = {}
+
+
+def drakt_ben(del_):
+    if del_ not in _DRAKT_BEN:
+        import json as _json
+        g = _json.load(open(f"{BASE}/PurrfectCompanions_RP/models/entity/mjau_{del_}.geo.json")
+                       )["minecraft:geometry"][0]
+        _DRAKT_BEN[del_] = [(b["name"], b["pivot"],
+                             [{k: v for k, v in c.items() if k != "inflate"} for c in b["cubes"]])
+                            for b in g["bones"]]
+    return _DRAKT_BEN[del_]
+
+
+def drakt_ruta(niv, yaw):
+    """Hela dräkten i en ruta: fyra renderingar lagda på varandra."""
+    bild = bg = None
+    for del_ in DRAKT_DELAR:
+        orig = rr.bones_for
+        rr.bones_for = lambda acc, _l=drakt_ben(del_): _l
+        try:
+            vy = rr.render(f"mjau_{del_}{niv}", [], {}, W=W, H=H,
+                           yaw=yaw, pitch=4, ram=DRAKT_RAM)
+        finally:
+            rr.bones_for = orig
+        if bild is None:
+            bild = [list(r) for r in vy]
+            bg = vy[0][0]
+        else:
+            for y in range(H):
+                for x in range(W):
+                    if vy[y][x] != bg:
+                        bild[y][x] = vy[y][x]
+    return bild
+
 
 def scenes():
     out = []
@@ -156,6 +202,9 @@ def scenes():
         out += [("outfit", oi, i, 24) for i in range(24)]
     # 4) fullt utrustad, svep, 3 s
     out += [("full", i, 90) for i in range(90)]
+    # 4b) kattdräkten: 1,5 s per nivå
+    for ni in range(len(DRAKT_NIVAER)):
+        out += [("drakt", ni, i, 45) for i in range(45)]
     # 5) slutkort, 4 s
     out += [("card_end", i, 120) for i in range(120)]
     return out
@@ -211,6 +260,14 @@ def make_frame(job):
         t = i / FPS
         img = rr.render("misty", FULL, walk_pose(t), W=W, H=H, yaw=10 + i * 0.8, pitch=16)
         text(img, "ALL WEARABLE AT THE SAME TIME", W // 2, H - 30, 1)
+        return fade(watermark(img), i, n)
+    if kind == "drakt":
+        _, ni, i, n = job
+        niv, etikett = DRAKT_NIVAER[ni]
+        img = drakt_ruta(niv, 18 + i * 0.7)
+        text(img, etikett + " CAT SUIT", W // 2, H - 30, 2)
+        if ni == 0:
+            text(img, "AND ONE FOR YOU", W // 2, 16, 1)
         return fade(watermark(img), i, n)
     if kind == "card_end":
         _, i, n = job

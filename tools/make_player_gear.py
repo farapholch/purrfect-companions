@@ -154,8 +154,14 @@ PLAGG = {
         "slot": "slot.armor.feet", "skydd": 2, "slitage": 195,
         "namn": "Cat Paws", "enchant": "armor_feet",
         "kuber": [
-            ("leftLeg", [0, 0, -2], [4, 5, 4], [0, 0], MAGE, 1.0),
-            ("rightLeg", [-4, 0, -2], [4, 5, 4], [0, 14], MAGE, 1.0),
+            # FÖTTERNA satt ihop. Benen ligger kant i kant (x 0..4 och -4..0),
+            # så VARJE enhet utbuktning får tassarna att överlappa i mitten —
+            # med 1.0 möttes de två enheter in i varandra och blev ett enda
+            # vitt block. Xbox-bild: "fötterna smälter ihop". 0.55 räcker för
+            # att ligga utanför benet utan att korsa mittlinjen nämnvärt, och
+            # insidorna mörkas i texturen så skarven syns.
+            ("leftLeg", [0, 0, -2], [4, 5, 4], [0, 0], MAGE, 0.55),
+            ("rightLeg", [-4, 0, -2], [4, 5, 4], [0, 14], MAGE, 0.55),
             ("leftLeg", [0.6, -0.1, -2.6], [2.8, 1, 1], [28, 0], DYNA, 0.0),   # trampdynor
             ("rightLeg", [-3.4, -0.1, -2.6], [2.8, 1, 1], [28, 4], DYNA, 0.0),
         ],
@@ -211,6 +217,17 @@ def textur(namn, cfg, niv):
         # slät låda på skallen, vilket är exakt vad som rapporterades från
         # Xbox ("inga ögon"). Ögonen är bärnsten i alla nivåer: de ska läsa
         # som katt även när materialet är diamant.
+        if b in ("leftLeg", "rightLeg"):
+            # KANTLINJE PÅ FRAM- OCH BAKSIDAN. Första försöket mörkade benens
+            # INNERSIDOR — men de ytorna sitter mellan benen och syns aldrig:
+            # när två lådor står kant i kant är ytorna mot varandra dolda.
+            # Det som syns är fram- och baksidan, så varje ben får en mörk
+            # pixelkant där. Då läser paret som två ben i stället för en
+            # pelare, vilket var felet: "fötterna smälter ihop".
+            _d, _w, _h = math.ceil(d), math.ceil(w), math.ceil(h)
+            for _fx in (uv[0] + _d, uv[0] + 2 * _d + _w):        # north, south
+                rect(_fx, uv[1] + _d, 1, _h, sh(farg, 0.72))
+                rect(_fx + _w - 1, uv[1] + _d, 1, _h, sh(farg, 0.72))
         if b in ("leftArm", "rightArm"):
             # MANSCHETT: sidytornas nedersta rader ligger sist i kubens
             # utfällning (först djupet som topp/botten, sedan höjden). En ljus

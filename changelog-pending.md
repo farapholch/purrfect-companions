@@ -1,6 +1,6 @@
 # Ej publicerat på CurseForge ännu
 
-## 3.31.5 — Dress like your cat, and two new neighbours in Cat Haven
+## 3.31.6 — Dress like your cat, and two new neighbours in Cat Haven
 
 The kids asked for it: *you* should be able to wear cat gear, not just the cat.
 
@@ -13,9 +13,11 @@ enchantments and mending like any other armour.
 **The vest has arms you can see.** The first version wrapped the whole arm in
 the same colour as the chest and sat flush against it, so the two grew into one
 wide slab — reported from an Xbox as "you have basically no arms". The sleeves
-are full length again, but now they are a shade darker than the chest, they sit
-a little proud of it, and they end in a pale cuff at the wrist. You can tell
-where the body stops and the arm starts.
+are full length, a shade darker than the chest, and they end in a pale cuff at
+the wrist — so you can tell where the body stops and the arm starts without the
+suit having to be bulky about it. It sits about one and a half units wider than
+a bare player, where the first attempt at making the arms visible sat at two
+and a half.
 
 **The suit comes in four tiers.** Leather, iron, diamond and netherite. You do
 not re-craft it — you upgrade the piece you already wear by combining it with

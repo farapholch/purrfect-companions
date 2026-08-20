@@ -121,7 +121,7 @@ PLAGG = {
             # samma plan och de växte ihop till en bred platta ("man har typ
             # inga armar"). Nu buktar ärmen längre ut än bålen åt alla håll,
             # så det finns en synlig avsats där armen börjar.
-            ("body", [-4, 12, -2], [8, 12, 4], [0, 0], PALS, 0.7),
+            ("body", [-4, 12, -2], [8, 12, 4], [0, 0], PALS, 0.5),
             ("body", [-2.5, 12.5, -2.6], [5, 8, 1], [26, 0], MAGE, 0.0),      # ljus bringa
             # HELA ÄRMAR, men tydliga. Två försök gick fel före det här: först
             # ärmar kant i kant med bålen (allt blev en platta), sedan ärmlös
@@ -131,8 +131,14 @@ PLAGG = {
             # Tre saker skiljer dem åt nu: ärmen buktar mer än bålen (1.15 mot
             # 0.7) så det finns en avsats, den är i den mörkare tonen, och den
             # får en ljus manschett vid handleden så armen har ett slut.
-            ("leftArm", [4, 12, -2], [4, 12, 4], [40, 0], PALS_MORK, 1.15),
-            ("rightArm", [-8, 12, -2], [4, 12, 4], [40, 20], PALS_MORK, 1.15),
+            # SMALARE. 1.15 mot bålens 0.7 gav en tydlig avsats men en bred,
+            # klumpig siluett — axlarna blev bredare än en vanlig spelares.
+            # Nu bär FÄRGEN och MANSCHETTEN skillnaden (bevisat på Xbox), så
+            # utbuktningen behöver bara vara precis så stor att armen ligger
+            # utanför bålen: 0.75 mot 0.5. Under ~0.4 börjar plagget flimra
+            # mot spelarens egen hud, så längre ner än så går det inte.
+            ("leftArm", [4, 12, -2], [4, 12, 4], [40, 0], PALS_MORK, 0.75),
+            ("rightArm", [-8, 12, -2], [4, 12, 4], [40, 20], PALS_MORK, 0.75),
         ],
     },
     "byxor": {
@@ -343,7 +349,7 @@ def forhandsbild():
     """
     import render_preview as rp
     RAM = ((-10, 10), (0, 38), (-10, 10))       # spelarens hela höjd
-    RUTA = 260
+    RUTA = 320
     K, N = 3, 16
     kolumner = []
     for niv in NIVAORDNING:
@@ -368,7 +374,7 @@ def forhandsbild():
                 ben.append((b["name"], b["pivot"], kub))
             rr.bones_for = lambda acc, _l=ben: _l
             vy = rr.render(f"mjau_{ident(namn, niv)}", [], {}, W=RUTA, H=RUTA,
-                           yaw=22, pitch=6, ram=RAM)
+                           yaw=10, pitch=3, ram=RAM)
             if lager is None:
                 lager = [list(r) for r in vy]
                 bg = vy[0][0]

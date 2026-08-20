@@ -108,7 +108,7 @@ rr.write_png(f"{BASE}/publish/video-logo.png", S, S, logo)
 # var och en med något på sig, mot en riktig äng — och en ram runt alltihop så
 # rutan håller ihop mot listans mörka bakgrund.
 P = 512
-FRAM = int(P * 0.46)          # horisonten
+FRAM = int(P * 0.54)          # horisonten
 proj = [[(0, 0, 0, 255)] * P for _ in range(P)]
 for y in range(P):
     k = min(1.0, y / FRAM)
@@ -137,16 +137,8 @@ for i2 in range(46):
     sx, sy = n % P, (n // 7) % int(P * 0.42)
     ljus = 170 + (n % 70)
     _rita(sx, sy, 3, 3, (ljus, ljus, min(255, ljus + 20), 255))
-# MÅNEN uppe till höger, med en svag gloria
-for y in range(int(P * 0.04), int(P * 0.30)):
-    for x in range(int(P * 0.62), int(P * 0.94)):
-        d = (((x - P * 0.78) ** 2 + (y - P * 0.16) ** 2) ** 0.5) / (P * 0.115)
-        if d < 1.0:
-            p4 = proj[y][x]
-            f = (1.0 - d) ** 2 * 0.75
-            proj[y][x] = (min(255, int(p4[0] + 210 * f)), min(255, int(p4[1] + 215 * f)),
-                          min(255, int(p4[2] + 190 * f)), 255)
-_rita(int(P * 0.735), int(P * 0.115), int(P * 0.09), int(P * 0.09), (244, 244, 226, 255))
+# INGEN MÅNE. Den drog blicken till ett tomt hörn i stället för till
+# katterna, och en logga har bara en halv sekund på sig.
 for bx in range(0, P // B + 1):                                            # kullar
     _rita(bx * B, FRAM - B - (_brus(bx * 7) % 2) * (B // 2), B, 3 * B, (22, 40, 30, 255))
 GRAS = [(30, 54, 40), (25, 46, 34), (36, 62, 44), (22, 42, 31)]
@@ -169,12 +161,21 @@ UPPSTALLNING = [
     # HÖJDERNA ÄR RÄKNADE MOT RAMEN: främre radens tassar hamnade utanför
     # rutan vid 0.855/224 — en logga med avklippta fötter ser trasig ut.
     # Fotlinjen ligger nu på 0.80 av höjden, med marginal till ramens 0.99.
-    ("hazel",  ["keps1", "halsduk2"],   0.19, 0.585, 150),
-    ("mocha",  ["horn2", "vingar1"],    0.50, 0.555, 146),
-    ("domino", ["krona1"],              0.81, 0.585, 150),
-    ("misty",  ["sadel1", "halsband1"], 0.27, 0.800, 196),
-    ("snow",   ["doktorsrock1"],        0.55, 0.825, 202),
-    ("ginger", ["mantel2", "tossor1"],  0.83, 0.795, 192),
+    # JÄMNA MELLANRUM. Förut stod de tätt och överlappade — sex katter blev en
+    # klump. Nu tre och tre på samma x-linjer med luft emellan: bakre raden
+    # mindre och högre upp, främre större och lägre. Bredden på en katt i den
+    # här skalan är ~150 px, och centrumen ligger ~160 isär.
+    # RADERNA SKILJS PÅ DJUPET. Förut stod bakre raden på 0.56 medan de främre
+    # var 176 px höga — deras huvuden nådde upp till 0.47 och täckte hela
+    # bakre raden. Nu: bakre fotlinje 0.62 med 112 px höjd (topp ~0.40),
+    # främre fotlinje 0.88 med 168 (topp ~0.55). Bara de främres huvuden
+    # skymmer de bakres tassar, vilket är hur en gruppbild ska se ut.
+    ("hazel",  ["keps1", "halsduk2"],   0.17, 0.620, 112),
+    ("mocha",  ["horn2", "vingar1"],    0.50, 0.605, 110),
+    ("domino", ["krona1"],              0.83, 0.620, 112),
+    ("misty",  ["sadel1", "halsband1"], 0.19, 0.880, 168),
+    ("snow",   ["doktorsrock1"],        0.50, 0.890, 172),
+    ("ginger", ["mantel2", "tossor1"],  0.81, 0.880, 168),
 ]
 for cat, plagg, fx, fy, hojd in UPPSTALLNING:
     src = rp.render3d(cat, plagg, 260, 260)
@@ -184,7 +185,17 @@ for cat, plagg, fx, fy, hojd in UPPSTALLNING:
     # alfa=0 — då matchade ingenting och varje katt fick en svart ruta runt sig.
     TOM = (0, 0, 0, 0)
     nyckl = [[TOM if p2 == bgp else (p2[0], p2[1], p2[2], 255) for p2 in rad] for rad in src]
-    _rita(int(P * fx) - hojd // 3, int(P * fy) - 4, (hojd * 2) // 3, 5, (22, 38, 28, 255))
+    # ELLIPS UNDER KATTEN, som referensbilderna: en mjuk skugga grundar djuret
+    # och skiljer det från gräset bättre än en rak stapel.
+    _sx, _sy, _sr = int(P * fx), int(P * fy), hojd
+    for _y in range(_sy - _sr // 12, _sy + _sr // 12):
+        for _x in range(_sx - _sr // 3, _sx + _sr // 3):
+            _e = ((_x - _sx) / (_sr / 3.0)) ** 2 + ((_y - _sy) / (_sr / 12.0)) ** 2
+            if _e < 1.0 and 0 <= _y < P and 0 <= _x < P:
+                _f = (1.0 - _e) * 0.55
+                _p = proj[_y][_x]
+                proj[_y][_x] = (int(_p[0] * (1 - _f)), int(_p[1] * (1 - _f)),
+                                int(_p[2] * (1 - _f)), 255)
     blit_scaled(proj, nyckl, TOM, int(P * fx), int(P * fy) - hojd // 2, hojd)
 
 # HJÄRTAN i himlen — det är det gulliga inslaget, och de får INTE ligga över
@@ -204,17 +215,29 @@ for hx, hy, sk in ((int(P * 0.09), int(P * 0.30), 3), (int(P * 0.86), int(P * 0.
 # rutan används: CurseForge skriver ut projektnamnet bredvid avataren ändå,
 # och utan remsa nertill får katterna hela ytan.
 
-# RAMEN: mörk kant med en ljus innerlinje, så rutan håller ihop mot listans
-# mörka bakgrund i stället för att rinna ut i den.
-for t in range(6):
-    for x in range(P):
-        proj[t][x] = proj[P - 1 - t][x] = (14, 22, 30, 255)
-    for y in range(P):
-        proj[y][t] = proj[y][P - 1 - t] = (14, 22, 30, 255)
-for x in range(6, P - 6):
-    proj[6][x] = proj[P - 7][x] = (0, 212, 255, 255)
-for y in range(6, P - 6):
-    proj[y][6] = proj[y][P - 7] = (0, 212, 255, 255)
+# RAMEN. Referensbilden med guldlist håller ihop rutan mot listans bakgrund
+# mycket bättre än en tunn linje. Fyra lager: mörk yttre list, guldband, mörk
+# skiljelinje och en tunn inre glimt — plus hörnklossar, som är det som får
+# ramen att läsa som en ram och inte som en kant.
+MORK, GULD, GLIMT = (18, 16, 22, 255), (214, 172, 78, 255), (255, 226, 150, 255)
+def _kant(t, c):
+    for x in range(t, P - t):
+        proj[t][x] = proj[P - 1 - t][x] = c
+    for y in range(t, P - t):
+        proj[y][t] = proj[y][P - 1 - t] = c
+for t in range(0, 7):
+    _kant(t, MORK)
+for t in range(7, 13):
+    _kant(t, GULD)
+for t in range(13, 15):
+    _kant(t, MORK)
+_kant(15, GLIMT)
+for hx in (0, P - 26):                     # hörnklossar
+    for hy in (0, P - 26):
+        for y in range(hy, hy + 26):
+            for x in range(hx, hx + 26):
+                kant = min(x - hx, y - hy, hx + 25 - x, hy + 25 - y)
+                proj[y][x] = MORK if kant < 4 else (GLIMT if kant < 6 else GULD)
 rr.write_png(f"{BASE}/publish/logo.png", P, P, proj)
 
 # --- miniatyren: huvuden till vänster, budskap till höger -------------------

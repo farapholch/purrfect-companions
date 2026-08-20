@@ -1,6 +1,6 @@
 # Ej publicerat på CurseForge ännu
 
-## 3.31.2 — Dress like your cat, and two new neighbours in Cat Haven
+## 3.31.3 — Dress like your cat, and two new neighbours in Cat Haven
 
 The kids asked for it: *you* should be able to wear cat gear, not just the cat.
 
@@ -19,7 +19,7 @@ diamond, fire resistance in a netherite hood. A full suit is only as strong as
 its weakest piece — mix leather with netherite and you get the leather bonus,
 which is a rule a seven-year-old can hold in their head.
 
-**The hood has a face.** Amber eyes, a pink nose and whiskers — and ears that
+**The hood has a face.** Amber eyes with mirrored highlights, a pink nose and whiskers — and ears that
 actually clear the helmet. Reported from an Xbox: "no eyes and no ears". Both
 were true. The ears were three quarters buried inside the helmet, which is
 inflated a unit larger than the head; and the face only ever existed in the

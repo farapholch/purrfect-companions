@@ -196,9 +196,13 @@ def textur(namn, cfg, niv):
         if namn == "luva" and size == [8, 8, 8]:
             fx, fy = uv[0] + d, uv[1] + d
             rect(fx + 1, fy + 2, 2, 2, OGON)          # vänster öga
+            # HÖGDAGERN SPEGLAS: båda låg på ögats vänstra pixel, vilket gav
+            # vänster öga glansen på utsidan och höger på insidan — ansiktet
+            # läste som att det sneglade ("ögonen sitter snett"). Allt annat i
+            # ansiktet var redan spegelsymmetriskt, uppmätt pixel för pixel.
             rect(fx + 5, fy + 2, 2, 2, OGON)          # höger öga
             rect(fx + 1, fy + 2, 1, 1, OGON_GLANS)
-            rect(fx + 5, fy + 2, 1, 1, OGON_GLANS)
+            rect(fx + 6, fy + 2, 1, 1, OGON_GLANS)
             rect(fx + 3, fy + 4, 2, 1, ORA_IN)        # nos
             rect(fx + 2, fy + 5, 1, 1, sh(farg, 0.55))   # mungipor
             rect(fx + 5, fy + 5, 1, 1, sh(farg, 0.55))
@@ -332,10 +336,16 @@ def forhandsbild():
             for b in g["bones"]:
                 kub = []
                 for c in b["cubes"]:
+                    # INFLATE SLÄNGS, den kompenseras INTE genom att kuben görs
+                    # större. Minecraft blåser upp lådan utan att röra UV:n,
+                    # men vår renderare räknar texturytan ur kubens MÅTT — en
+                    # kub som gjorts 10 bred läser ett 10 px brett fönster ur
+                    # en textur som ritats för 8. Ansiktet hamnade då ur led
+                    # och rapporterades som "ögonen sitter snett", fast bilden
+                    # på disk var spegelsymmetrisk. En enhets skillnad i
+                    # tjocklek syns ändå inte i en förhandsbild.
                     k = dict(c)
-                    inf = k.pop("inflate", 0)
-                    k["origin"] = [v - inf for v in c["origin"]]
-                    k["size"] = [v + 2 * inf for v in c["size"]]
+                    k.pop("inflate", None)
                     kub.append(k)
                 ben.append((b["name"], b["pivot"], kub))
             rr.bones_for = lambda acc, _l=ben: _l

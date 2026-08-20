@@ -108,12 +108,16 @@ rr.write_png(f"{BASE}/publish/video-logo.png", S, S, logo)
 # var och en med något på sig, mot en riktig äng — och en ram runt alltihop så
 # rutan håller ihop mot listans mörka bakgrund.
 P = 512
-FRAM = int(P * 0.50)          # horisonten
+FRAM = int(P * 0.46)          # horisonten
 proj = [[(0, 0, 0, 255)] * P for _ in range(P)]
 for y in range(P):
     k = min(1.0, y / FRAM)
+    # MÖRK STIL: djupblå natt som ljusnar en aning mot horisonten. Ljusa
+    # pälsar lyfter mot mörkt, och rutan skiljer sig från grannarnas
+    # dagsljusbilder i listan utan att för den skull rinna ut i den — ramen
+    # och de ljusa katterna håller emot.
     for x in range(P):
-        proj[y][x] = (int(104 + 78 * k), int(162 + 52 * k), int(228 + 14 * k), 255)
+        proj[y][x] = (int(16 + 26 * k), int(20 + 34 * k), int(44 + 46 * k), 255)
 
 B = 16                         # blockstorlek, samma pixelspråk som hjältebilden
 def _rita(x0, y0, w, h, c):
@@ -126,12 +130,26 @@ def _brus(n):
     n = (n * 1103515245 + 12345) & 0x7FFFFFFF
     return (n >> 16) & 0x7FFF
 
-for i2, (cx, cy, br) in enumerate(((1, 2, 5), (14, 1, 4), (24, 3, 4))):     # moln
-    for b in range(br):
-        _rita((cx + b) * B, (cy + (b % 2)) * B, B, B, (247, 251, 255, 255))
+# STJÄRNOR, glesa och små — deterministiska så bilden blir identisk varje
+# körning (annars är varje ombyggnad en ny bild att granska).
+for i2 in range(46):
+    n = _brus(i2 * 977)
+    sx, sy = n % P, (n // 7) % int(P * 0.42)
+    ljus = 170 + (n % 70)
+    _rita(sx, sy, 3, 3, (ljus, ljus, min(255, ljus + 20), 255))
+# MÅNEN uppe till höger, med en svag gloria
+for y in range(int(P * 0.04), int(P * 0.30)):
+    for x in range(int(P * 0.62), int(P * 0.94)):
+        d = (((x - P * 0.78) ** 2 + (y - P * 0.16) ** 2) ** 0.5) / (P * 0.115)
+        if d < 1.0:
+            p4 = proj[y][x]
+            f = (1.0 - d) ** 2 * 0.75
+            proj[y][x] = (min(255, int(p4[0] + 210 * f)), min(255, int(p4[1] + 215 * f)),
+                          min(255, int(p4[2] + 190 * f)), 255)
+_rita(int(P * 0.735), int(P * 0.115), int(P * 0.09), int(P * 0.09), (244, 244, 226, 255))
 for bx in range(0, P // B + 1):                                            # kullar
-    _rita(bx * B, FRAM - B - (_brus(bx * 7) % 2) * (B // 2), B, 3 * B, (86, 132, 62, 255))
-GRAS = [(112, 162, 66), (100, 148, 60), (122, 172, 72), (94, 138, 56)]
+    _rita(bx * B, FRAM - B - (_brus(bx * 7) % 2) * (B // 2), B, 3 * B, (22, 40, 30, 255))
+GRAS = [(30, 54, 40), (25, 46, 34), (36, 62, 44), (22, 42, 31)]
 for by, y in enumerate(range(FRAM, P, B)):                                 # ängen
     for bx, x in enumerate(range(0, P, B)):
         n = _brus(bx * 31 + by * 17)
@@ -139,21 +157,24 @@ for by, y in enumerate(range(FRAM, P, B)):                                 # än
         c = GRAS[n % len(GRAS)]
         _rita(x, y, B, B, tuple(min(255, int(v * f)) for v in c) + (255,))
         if n % 5 == 0:
-            _rita(x + (n % 11), y + 2, 2, B // 3, (134, 184, 78, 255))
-        if n % 37 == 0:
-            _rita(x + 5, y + 5, 4, 4, [(255, 214, 66, 255), (255, 255, 255, 255),
-                                       (240, 120, 170, 255)][n % 3])
+            _rita(x + (n % 11), y + 2, 2, B // 3, (44, 74, 50, 255))
+        if n % 41 == 0:                       # nattblommor, dova
+            _rita(x + 5, y + 5, 4, 4, [(196, 168, 96, 255), (206, 206, 214, 255),
+                                       (190, 112, 148, 255)][n % 3])
 
 # KATTERNA: bakre raden mindre och högre upp, främre större. Var och en bär
 # något — poängen är att visa både antalet och att de går att klä.
 import render_preview as rp
 UPPSTALLNING = [
+    # HÖJDERNA ÄR RÄKNADE MOT RAMEN: främre radens tassar hamnade utanför
+    # rutan vid 0.855/224 — en logga med avklippta fötter ser trasig ut.
+    # Fotlinjen ligger nu på 0.80 av höjden, med marginal till ramens 0.99.
     ("hazel",  ["keps1", "halsduk2"],   0.19, 0.585, 150),
     ("mocha",  ["horn2", "vingar1"],    0.50, 0.555, 146),
     ("domino", ["krona1"],              0.81, 0.585, 150),
-    ("misty",  ["sadel1", "halsband1"], 0.28, 0.775, 198),
-    ("snow",   ["doktorsrock1"],        0.55, 0.805, 204),
-    ("ginger", ["mantel2", "tossor1"],  0.82, 0.765, 194),
+    ("misty",  ["sadel1", "halsband1"], 0.27, 0.800, 196),
+    ("snow",   ["doktorsrock1"],        0.55, 0.825, 202),
+    ("ginger", ["mantel2", "tossor1"],  0.83, 0.795, 192),
 ]
 for cat, plagg, fx, fy, hojd in UPPSTALLNING:
     src = rp.render3d(cat, plagg, 260, 260)
@@ -163,7 +184,7 @@ for cat, plagg, fx, fy, hojd in UPPSTALLNING:
     # alfa=0 — då matchade ingenting och varje katt fick en svart ruta runt sig.
     TOM = (0, 0, 0, 0)
     nyckl = [[TOM if p2 == bgp else (p2[0], p2[1], p2[2], 255) for p2 in rad] for rad in src]
-    _rita(int(P * fx) - hojd // 3, int(P * fy) - 4, (hojd * 2) // 3, 5, (74, 108, 50, 255))
+    _rita(int(P * fx) - hojd // 3, int(P * fy) - 4, (hojd * 2) // 3, 5, (22, 38, 28, 255))
     blit_scaled(proj, nyckl, TOM, int(P * fx), int(P * fy) - hojd // 2, hojd)
 
 # HJÄRTAN i himlen — det är det gulliga inslaget, och de får INTE ligga över
@@ -179,17 +200,9 @@ for hx, hy, sk in ((int(P * 0.09), int(P * 0.30), 3), (int(P * 0.86), int(P * 0.
                    (int(P * 0.70), int(P * 0.36), 2)):
     _hjarta(hx, hy, sk, (255, 150, 180, 255))
 
-# ORDMÄRKET mot en mörk remsa nertill: texten måste stå emot både gräs och katt
-for y in range(int(P * 0.845), int(P * 0.962)):
-    for x in range(P):
-        p3 = proj[y][x]
-        proj[y][x] = (int(p3[0] * 0.24), int(p3[1] * 0.24), int(p3[2] * 0.3), 255)
-for dx, dy in ((-3, 0), (3, 0), (0, -3), (0, 3)):
-    text(proj, "PURRFECT", P // 2 + dx, int(P * 0.872) + dy, 8, (8, 12, 18, 255))
-text(proj, "PURRFECT", P // 2, int(P * 0.872), 8, (255, 255, 255, 255))
-# UNDERTEXTEN STRUKEN, andra gången samma lärdom: i listrutan (~130 px) blir
-# skala 3 gryn, och en logga med oläslig text ser slarvig ut. Antalet katter
-# syns ändå — de står där, alla sex.
+# INGEN TEXT. Ordmärket ströks helt på begäran — och det stämmer med hur
+# rutan används: CurseForge skriver ut projektnamnet bredvid avataren ändå,
+# och utan remsa nertill får katterna hela ytan.
 
 # RAMEN: mörk kant med en ljus innerlinje, så rutan håller ihop mot listans
 # mörka bakgrund i stället för att rinna ut i den.

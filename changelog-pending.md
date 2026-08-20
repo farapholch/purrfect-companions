@@ -1,6 +1,6 @@
 # Ej publicerat på CurseForge ännu
 
-## 3.31.1 — Dress like your cat, and two new neighbours in Cat Haven
+## 3.31.2 — Dress like your cat, and two new neighbours in Cat Haven
 
 The kids asked for it: *you* should be able to wear cat gear, not just the cat.
 
@@ -53,9 +53,13 @@ the rest of the book, which is why it is last.
 The ship has no physics of its own — no gravity, no drag — and the code did
 nothing at all when you were not holding a button, so whatever speed you had
 stayed with you until the world ran out of sky. Let go and it now glides to a
-stop in about a second. There is also a ceiling: fly too high and the harbour
-brings you home, the same way it already did if you flew too far out or too
-far down.
+stop in about a second. **And the sky is bigger than it was.** The leash was measured from the station
+alone — but the crater, the relay mast and the probe sit 90, 95 and 96 blocks
+out, so the warning started nagging fifteen blocks after you arrived at the
+very place the logbook sent you to. It now reaches 150 blocks, and it does not
+speak at all while you are near an outpost. The void beyond still has no ground
+to land on and no way back, so the net stays — but it is there to catch someone
+flying away, not someone flying there.
 
 **Also in this release**
 - The trousers recipe was, letter for letter, vanilla's leather leggings. You

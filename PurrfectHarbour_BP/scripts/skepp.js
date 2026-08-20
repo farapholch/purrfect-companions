@@ -129,12 +129,26 @@ system.runInterval(() => {
 
 const STATION = { x: 20, z: 0 };      // mitt på stationen
 const PLATTAN = { x: 65, y: -60, z: 0 };
-const VARNA = 110, HEM = 150, BOTTEN = -110;   // 45 block/2,5 s uppmätt
+// KOPPLET ÄR SATT EFTER INNEHÅLLET, inte efter stationen. Först mättes det
+// från stationen ensam (varning 110, hem 150) — men utposterna ligger 90, 95
+// och 96 block ut, så varningen började tjata femton block efter att man kommit
+// FRAM. Det läser som "du får inte vara här" på precis den plats loggboken
+// skickat en till.
+//
+// Nu: fritt flygande över hela det byggda området, och kopplet vaknar först en
+// bra bit utanför den yttersta utposten. Tomrummet därute har varken mark att
+// landa på eller väg tillbaka, så nätet blir kvar — men det ska fånga den som
+// flyger BORT, inte den som flyger DIT.
+const VARNA = 150, HEM = 200, BOTTEN = -110;
+// Nära en utpost gäller inget vågrätt koppel alls: där finns något att göra,
+// och där ska ingen bli hemkallad mitt i ett uppdrag.
+const UTPOSTER = [{ x: 20, z: -90 }, { x: 110, z: 30 }, { x: -65, z: 45 }];
+const UTPOST_FRIZON = 45;
 // TAKET saknades helt: kopplet fångade sidledes och nedåt, men den som flög
 // RAKT UPP möttes aldrig av något. Stationen ligger kring y=-60, så 20 är
 // åttio block ovanför plattan (varning) och 60 är hundratjugo (hemhämtning) —
 // samma proportion som det vågräta kopplet.
-const TAKVARNA = 20, TAK = 60;
+const TAKVARNA = 30, TAK = 90;   // 90 respektive 150 block över plattan
 // => ~8 s från stationen till varningen. Kortare koppel blev en tvärnit.
 
 system.runInterval(() => {
@@ -145,7 +159,11 @@ system.runInterval(() => {
     let L;
     try { L = s.location; } catch { continue; }
     const dx = L.x - STATION.x, dz = L.z - STATION.z;
-    const avstand = Math.sqrt(dx * dx + dz * dz);
+    let avstand = Math.sqrt(dx * dx + dz * dz);
+    // vid en utpost räknas man som hemma, hur långt bort stationen än är
+    for (const u of UTPOSTER) {
+      if (Math.hypot(L.x - u.x, L.z - u.z) < UTPOST_FRIZON) { avstand = 0; break; }
+    }
     if (avstand < VARNA && L.y > BOTTEN && L.y < TAKVARNA) continue;
 
     let ryttare = [];

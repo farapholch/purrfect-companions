@@ -20,12 +20,17 @@ from make_video import FONT
 CATS = ["misty", "hazel", "mocha", "snow", "ginger", "domino"]
 
 
-def head_render(cat, size=240):
-    """Bara huvudben(et), rakt framifrån, autobeskuret till innehållet."""
+def head_render(cat, size=240, yaw=24, pitch=8):
+    """Bara huvudben(et), autobeskuret till innehållet.
+
+    Vinkeln går att välja sedan projektloggan behövde en RAKARE vy: i
+    trekvart blir kattens öron breda klumpar och huvudet läser som en björn i
+    listrutan. Rakt framifrån syns ansiktet — ögon, nos, två öron — precis
+    som på spawnägg-ikonerna, som är ritade för att läsa i 16 px."""
     orig = rr.bones_for
     rr.bones_for = lambda acc: [b for b in orig(acc) if b[0] == "head"]
     try:
-        img = rr.render(cat, [], {}, W=size, H=size, yaw=24, pitch=8)
+        img = rr.render(cat, [], {}, W=size, H=size, yaw=yaw, pitch=pitch)
     finally:
         rr.bones_for = orig
     bgpix = img[0][0]
@@ -90,13 +95,113 @@ rr.write_png(f"{BASE}/publish/video-logo.png", S, S, logo)
 # sadel, keps, halsband och tossor — vid 64 px blev allt det gröt och kvar
 # blev "grått djur med nåt blått på huvudet". Ett ansikte som fyller rutan
 # läser i alla storlekar, och Ginger är den som syns bäst mot mörk botten.
+# ---------------------------------------------------------------------------
+# PROJEKTAVATAREN: SÅ MÅNGA KATTER SOM MÖJLIGT, i miljö och med plagg.
+#
+# Vägen hit gick via tre försök som alla föll. En hel katt i 3/4 med plagg blev
+# gröt vid 130 px. Ett stort renderat ansikte läste som kanin — modellens öron
+# är två höga rektanglar framifrån. Ett ritat 32x32-ansikte blev snyggare men
+# sa bara "en katt", och det är inte vad paketet handlar om.
+#
+# Grannarna i CurseForge-listan som fungerar bäst är skinpaketen: ett collage
+# av MÅNGA figurer säger på en halv sekund vad man får. Sex katter i två rader,
+# var och en med något på sig, mot en riktig äng — och en ram runt alltihop så
+# rutan håller ihop mot listans mörka bakgrund.
 P = 512
-proj = canvas(P, P)
-himg, hbg = heads["ginger"]
-# INGEN TEXT. Ordmärket blev oläsligt gryn vid 64 px och åt en tredjedel av
-# rutan; CurseForge skriver dessutom ut projektnamnet bredvid avataren ändå.
-# Ansiktet får hela ytan i stället — det är det enda som bär i den storleken.
-blit_scaled(proj, himg, hbg, P // 2, P // 2, int(P * 0.86))
+FRAM = int(P * 0.50)          # horisonten
+proj = [[(0, 0, 0, 255)] * P for _ in range(P)]
+for y in range(P):
+    k = min(1.0, y / FRAM)
+    for x in range(P):
+        proj[y][x] = (int(104 + 78 * k), int(162 + 52 * k), int(228 + 14 * k), 255)
+
+B = 16                         # blockstorlek, samma pixelspråk som hjältebilden
+def _rita(x0, y0, w, h, c):
+    for y in range(int(y0), int(y0 + h)):
+        for x in range(int(x0), int(x0 + w)):
+            if 0 <= y < P and 0 <= x < P:
+                proj[y][x] = c
+
+def _brus(n):
+    n = (n * 1103515245 + 12345) & 0x7FFFFFFF
+    return (n >> 16) & 0x7FFF
+
+for i2, (cx, cy, br) in enumerate(((1, 2, 5), (14, 1, 4), (24, 3, 4))):     # moln
+    for b in range(br):
+        _rita((cx + b) * B, (cy + (b % 2)) * B, B, B, (247, 251, 255, 255))
+for bx in range(0, P // B + 1):                                            # kullar
+    _rita(bx * B, FRAM - B - (_brus(bx * 7) % 2) * (B // 2), B, 3 * B, (86, 132, 62, 255))
+GRAS = [(112, 162, 66), (100, 148, 60), (122, 172, 72), (94, 138, 56)]
+for by, y in enumerate(range(FRAM, P, B)):                                 # ängen
+    for bx, x in enumerate(range(0, P, B)):
+        n = _brus(bx * 31 + by * 17)
+        f = 0.9 + min(0.22, by * 0.03)
+        c = GRAS[n % len(GRAS)]
+        _rita(x, y, B, B, tuple(min(255, int(v * f)) for v in c) + (255,))
+        if n % 5 == 0:
+            _rita(x + (n % 11), y + 2, 2, B // 3, (134, 184, 78, 255))
+        if n % 37 == 0:
+            _rita(x + 5, y + 5, 4, 4, [(255, 214, 66, 255), (255, 255, 255, 255),
+                                       (240, 120, 170, 255)][n % 3])
+
+# KATTERNA: bakre raden mindre och högre upp, främre större. Var och en bär
+# något — poängen är att visa både antalet och att de går att klä.
+import render_preview as rp
+UPPSTALLNING = [
+    ("hazel",  ["keps1", "halsduk2"],   0.19, 0.585, 150),
+    ("mocha",  ["horn2", "vingar1"],    0.50, 0.555, 146),
+    ("domino", ["krona1"],              0.81, 0.585, 150),
+    ("misty",  ["sadel1", "halsband1"], 0.28, 0.775, 198),
+    ("snow",   ["doktorsrock1"],        0.55, 0.805, 204),
+    ("ginger", ["mantel2", "tossor1"],  0.82, 0.765, 194),
+]
+for cat, plagg, fx, fy, hojd in UPPSTALLNING:
+    src = rp.render3d(cat, plagg, 260, 260)
+    bgp = src[0][0]
+    # BAKGRUNDEN MÅSTE BLI EXAKT sentinelfärgen: blit_scaled jämför pixlar mot
+    # ett värde, inte mot alfa. Första försöket behöll r,g,b och satte bara
+    # alfa=0 — då matchade ingenting och varje katt fick en svart ruta runt sig.
+    TOM = (0, 0, 0, 0)
+    nyckl = [[TOM if p2 == bgp else (p2[0], p2[1], p2[2], 255) for p2 in rad] for rad in src]
+    _rita(int(P * fx) - hojd // 3, int(P * fy) - 4, (hojd * 2) // 3, 5, (74, 108, 50, 255))
+    blit_scaled(proj, nyckl, TOM, int(P * fx), int(P * fy) - hojd // 2, hojd)
+
+# HJÄRTAN i himlen — det är det gulliga inslaget, och de får INTE ligga över
+# katterna: en logga ska läsa på en halv sekund, och prydnad framför motivet
+# gör tvärtom.
+def _hjarta(hx, hy, sk, c):
+    mall = ["..##.##..", ".#######.", ".#######.", "..#####..", "...###...", "....#...."]
+    for ry, rad in enumerate(mall):
+        for rx, tecken in enumerate(rad):
+            if tecken == "#":
+                _rita(hx + rx * sk, hy + ry * sk, sk, sk, c)
+for hx, hy, sk in ((int(P * 0.09), int(P * 0.30), 3), (int(P * 0.86), int(P * 0.22), 4),
+                   (int(P * 0.70), int(P * 0.36), 2)):
+    _hjarta(hx, hy, sk, (255, 150, 180, 255))
+
+# ORDMÄRKET mot en mörk remsa nertill: texten måste stå emot både gräs och katt
+for y in range(int(P * 0.845), int(P * 0.962)):
+    for x in range(P):
+        p3 = proj[y][x]
+        proj[y][x] = (int(p3[0] * 0.24), int(p3[1] * 0.24), int(p3[2] * 0.3), 255)
+for dx, dy in ((-3, 0), (3, 0), (0, -3), (0, 3)):
+    text(proj, "PURRFECT", P // 2 + dx, int(P * 0.872) + dy, 8, (8, 12, 18, 255))
+text(proj, "PURRFECT", P // 2, int(P * 0.872), 8, (255, 255, 255, 255))
+# UNDERTEXTEN STRUKEN, andra gången samma lärdom: i listrutan (~130 px) blir
+# skala 3 gryn, och en logga med oläslig text ser slarvig ut. Antalet katter
+# syns ändå — de står där, alla sex.
+
+# RAMEN: mörk kant med en ljus innerlinje, så rutan håller ihop mot listans
+# mörka bakgrund i stället för att rinna ut i den.
+for t in range(6):
+    for x in range(P):
+        proj[t][x] = proj[P - 1 - t][x] = (14, 22, 30, 255)
+    for y in range(P):
+        proj[y][t] = proj[y][P - 1 - t] = (14, 22, 30, 255)
+for x in range(6, P - 6):
+    proj[6][x] = proj[P - 7][x] = (0, 212, 255, 255)
+for y in range(6, P - 6):
+    proj[y][6] = proj[y][P - 7] = (0, 212, 255, 255)
 rr.write_png(f"{BASE}/publish/logo.png", P, P, proj)
 
 # --- miniatyren: huvuden till vänster, budskap till höger -------------------

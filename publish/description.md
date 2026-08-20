@@ -62,6 +62,23 @@ All wearable at the same time, in any combination — **sixty colour variants**.
 
 **Cat Treat** — cod + wheat: tames, and cheers them up.
 
+### And a cat suit for you
+
+Four pieces — a hood with ears, a vest, trousers and paws — in four tiers.
+You do not re-craft it: you upgrade the piece you already wear by combining it
+with the metal, so the hood you made on your first day is the hood you still
+have in netherite.
+
+| Tier | Upgrade with | What it adds |
+|---|---|---|
+| **Leather** | leather + wool | Night vision · resistance · speed · a soft landing (no fall damage) |
+| **Iron** | 5 iron ingots | Jump strength in the paws; strength while a tamed cat is beside you |
+| **Diamond** | 5 diamonds | Resistance II, speed II, and healing in a full suit |
+| **Netherite** | 1 netherite ingot | Fire resistance in the hood; strength always, and your cats gain resistance |
+
+A full suit is only as strong as its weakest piece — wear leather with
+netherite and you get the leather bonus.
+
 ### Quality
 
 Every release passes six layers of automated testing before it ships — including a simulated player that tames a cat by hand, saddles it, rides it and drives the cart. If a test is red, nothing ships.

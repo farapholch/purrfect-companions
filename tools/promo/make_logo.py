@@ -85,6 +85,20 @@ text(logo, "PURRFECT", S // 2, 428, 6, (0, 212, 255, 255))
 text(logo, "COMPANIONS", S // 2, 476, 4)
 rr.write_png(f"{BASE}/publish/video-logo.png", S, S, logo)
 
+# --- projektloggan: ETT ansikte, stort ------------------------------------
+# CurseForge visar den i avatarstorlek. Den gamla var en hel katt i 3/4 med
+# sadel, keps, halsband och tossor — vid 64 px blev allt det gröt och kvar
+# blev "grått djur med nåt blått på huvudet". Ett ansikte som fyller rutan
+# läser i alla storlekar, och Ginger är den som syns bäst mot mörk botten.
+P = 512
+proj = canvas(P, P)
+himg, hbg = heads["ginger"]
+# INGEN TEXT. Ordmärket blev oläsligt gryn vid 64 px och åt en tredjedel av
+# rutan; CurseForge skriver dessutom ut projektnamnet bredvid avataren ändå.
+# Ansiktet får hela ytan i stället — det är det enda som bär i den storleken.
+blit_scaled(proj, himg, hbg, P // 2, P // 2, int(P * 0.86))
+rr.write_png(f"{BASE}/publish/logo.png", P, P, proj)
+
 # --- miniatyren: huvuden till vänster, budskap till höger -------------------
 TW, TH = 1280, 720
 th = canvas(TW, TH)

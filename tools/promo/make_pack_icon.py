@@ -22,10 +22,14 @@ def head_sprite(cat,size=240):
 W=H=256
 mv.W,mv.H=W,H
 img=bg(W,H)
-for i,cat in enumerate(("misty","hazel","mocha","snow")):
+# SEX ANSIKTEN I 3x2 sedan Ginger och Domino kom. Ikonen låg kvar på fyra i
+# 2x2 och visades så varje gång någon valde paketet i spelet — den bilden är
+# det man ser oftast av hela projektet. Huvudena är mindre (104 -> 82) men
+# fortfarande läsbara i 64 px, vilket är storleken de faktiskt visas i.
+for i,cat in enumerate(("misty","hazel","mocha","snow","ginger","domino")):
     s=head_sprite(cat); sh,sw=len(s),len(s[0])
-    x,y=[(64,60),(192,60),(64,186),(192,186)][i]
-    mv.paste(img,s,sw,sh,x,y,104)
+    x,y=[(48,70),(128,70),(208,70),(48,176),(128,176),(208,176)][i]
+    mv.paste(img,s,sw,sh,x,y,82)
 out=[[(p[0],p[1],p[2],255) for p in r] for r in img]
 for pack in ("PurrfectCompanions_BP","PurrfectCompanions_RP"):
     rr.write_png(f"{BASE}/{pack}/pack_icon.png",W,H,out)

@@ -177,13 +177,6 @@ if __name__=="__main__":
     write_png(f"{OUT}/04-alla-fullt-utrustade.png",W,H,img); print("04-alla-fullt-utrustade.png")
     W,H,img=sheet([render3d(c,LATT_KIT,PW,PH) for c in CATS],3,PW,PH)
     write_png(f"{OUT}/05-alla-utstyrda.png",W,H,img); print("05-alla-utstyrda.png")
-    # 5) projektlogga 512x512 — 3/4-vy med ansiktet mot kameran + vinjett
-    N=512; BG=(24,27,36,255)
-    lg=render3d("misty",["keps1","halsband1","sadel1","tossor2"],N,N,yaw_deg=30,pitch_deg=18,bg=BG,pad_frac=0.07)
-    for y in range(N):
-        for x in range(N):
-            if lg[y][x]==BG:
-                d=(((x-N/2)**2+(y-N*0.5)**2)**0.5)/(N*0.7)
-                v=max(0.0,1.0-d)
-                lg[y][x]=(int(24+38*v),int(27+42*v),int(36+58*v),255)
-    write_png(f"{OUT}/logo.png",N,N,lg); print("logo.png")
+    # (projektloggan flyttad till tools/promo/make_logo.py: den bygger ur
+    #  head_render och gör ett stort ansikte, som håller i avatarstorlek)
+

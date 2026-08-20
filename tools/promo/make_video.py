@@ -150,6 +150,14 @@ RAKNEORD = {4: "FOUR", 5: "FIVE", 6: "SIX", 7: "SEVEN", 8: "EIGHT"}
 #
 # INFLATE SLÄNGS, precis som i förhandsbilden: renderaren räknar texturytan ur
 # kubens mått, så en uppblåst kub läser fel del av bilden.
+# TRION FRÅN LOGGAN. Den som klickar på avataren ska känna igen sig i filmens
+# första sekunder — samma tre katter, samma plagg. Urvalet gjordes en gång på
+# kontrast mot mörk botten (Snow vit, Ginger orange, Domino svartvit); här
+# fyller det en andra funktion, som igenkänning.
+TRIO = [("snow", ["doktorsrock1", "horn1"], 0.20),
+        ("ginger", ["krona1", "mantel2"], 0.50),
+        ("domino", ["keps1", "vingar1"], 0.80)]
+
 DRAKT_DELAR = ["luva", "vast", "byxor", "tassar"]
 DRAKT_NIVAER = [("", "LEATHER"), ("_jarn", "IRON"),
                 ("_diamant", "DIAMOND"), ("_netherit", "NETHERITE")]
@@ -166,6 +174,20 @@ def drakt_ben(del_):
                              [{k: v for k, v in c.items() if k != "inflate"} for c in b["cubes"]])
                             for b in g["bones"]]
     return _DRAKT_BEN[del_]
+
+
+def trio_ruta(t, yaw):
+    """De tre loggkatterna sida vid sida, komponerade ur var sin rendering."""
+    img = bg_gradient()
+    for cat, plagg, fx in TRIO:
+        src = rr.render(cat, plagg, walk_pose(t), W=200, H=200, yaw=yaw, pitch=12)
+        bgp = src[0][0]
+
+        def nara(p, _b=bgp):
+            return abs(p[0] - _b[0]) + abs(p[1] - _b[1]) + abs(p[2] - _b[2]) < 18
+        nyckl = [[(p[0], p[1], p[2], 0 if nara(p) else 255) for p in rad] for rad in src]
+        paste(img, nyckl, 200, 200, int(W * fx), int(H * 0.50), 176)
+    return img
 
 
 def drakt_ruta(niv, yaw):
@@ -194,6 +216,8 @@ def scenes():
     out = []
     # 1) titelkort, 2.5 s
     out += [("card_title", i, 75) for i in range(75)]
+    # 1b) loggans trio, 2,5 s — samma bild som avataren, direkt efter titeln
+    out += [("trio", i, 75) for i in range(75)]
     # 2) katterna i gångcykel, kamerasvep, 3 s var
     for ci, (cat, label) in enumerate(CATS):
         out += [("cat", ci, i, 90) for i in range(90)]
@@ -241,6 +265,11 @@ def make_frame(job):
         text(img, "PURRFECT COMPANIONS", W // 2, 200, 3)
         text(img, f"{RAKNEORD[len(CATS)]} HAND-MADE CATS FOR MINECRAFT BEDROCK", W // 2, 236, 1)
         return fade(img, i, n)
+    if kind == "trio":
+        _, i, n = job
+        img = trio_ruta(i / FPS, 20 + i * 0.35)
+        text(img, "SIX CATS . TWENTY OUTFITS", W // 2, H - 30, 2)
+        return fade(watermark(img), i, n)
     if kind == "cat":
         _, ci, i, n = job
         cat, label = CATS[ci]
@@ -335,18 +364,20 @@ def gif():
                     "-loop", "0", GIF], check=True)
     print(f"klar: {GIF} ({os.path.getsize(GIF)//1024} kB)")
 
-    # KATTPARADEN som egen kort loop till butikssidor: hela trailern är 42 s
-    # och för lång för ett galleri. Rutorna 75-615 är titelkortets slut och de
-    # sex kattavsnitten (90 rutor styck) — ändras scenlängderna i scenes()
-    # måste intervallet räknas om.
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
-                    "-start_number", "75", "-t", "18", "-i", kallor,
-                    "-vf", "fps=12,scale=480:-1:flags=neighbor,palettegen=max_colors=192",
-                    paletten], check=True)
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
-                    "-start_number", "75", "-t", "18", "-i", kallor, "-i", paletten,
-                    "-lavfi", "fps=12,scale=480:-1:flags=neighbor[x];[x][1:v]paletteuse=dither=none",
-                    "-loop", "0", KATTGIF], check=True)
+    # KATTPARADEN som egen kort loop till butikssidor: hela trailern är för
+    # lång för ett galleri. Intervallet RÄKNAS UT ur scenlängderna i stället
+    # för att stå som en siffra — när trion lades in efter titelkortet sköts
+    # paraden 75 rutor framåt, och den handskrivna starten klippte bort
+    # Domino utan att något sa ifrån.
+    parad_start = 75 + 75 + 1                  # titelkort + trio
+    parad_langd = len(CATS) * 90 / FPS
+    for steg in (["-vf", "fps=12,scale=480:-1:flags=neighbor,palettegen=max_colors=192", paletten],
+                 ["-i", paletten,
+                  "-lavfi", "fps=12,scale=480:-1:flags=neighbor[x];[x][1:v]paletteuse=dither=none",
+                  "-loop", "0", KATTGIF]):
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
+                        "-start_number", str(parad_start), "-t", f"{parad_langd:.2f}",
+                        "-i", kallor] + steg, check=True)
     print(f"klar: {KATTGIF} ({os.path.getsize(KATTGIF)//1024} kB)")
 
 

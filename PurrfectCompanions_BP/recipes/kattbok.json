@@ -1,0 +1,30 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:kattbok"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "BG"
+    ],
+    "key": {
+      "B": {
+        "item": "minecraft:book"
+      },
+      "G": {
+        "item": "mjau:godis"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:book"
+      }
+    ],
+    "result": {
+      "item": "mjau:kattbok"
+    }
+  }
+}

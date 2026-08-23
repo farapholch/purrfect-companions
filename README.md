@@ -48,6 +48,19 @@ follow.
 - **Spawn eggs show cat faces**, not eggs
 - **Animated**: walk cycle with legs in diagonal pairs, swaying tail, head tracking, curled-up sitting pose
 
+## The Cat Care Book
+
+Craft it from a book and a Cat Treat. It opens a menu that explains the cats,
+what they can do, every outfit and what it grants, the four suit tiers and the
+weakest-piece rule, the furniture, and how many achievements you have left.
+
+**Its contents are generated.** `build_accessories.py` writes
+`scripts/bokdata.js` from the same tables the outfits themselves are built
+from, so the book cannot promise a garment that does not exist or miss one that
+was added. What cannot be derived — that a saddle means riding — is an optional
+language key per garment; if it is missing the book shows only the generated
+part. A new garment makes the book thinner, never wrong.
+
 ## Blocks
 
 | Block | Recipe |

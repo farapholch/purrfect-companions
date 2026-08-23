@@ -265,6 +265,9 @@
     },
     "pc_tassar_netherit": {
       "textures": "textures/items/pc_tassar_netherit"
+    },
+    "pc_kattbok": {
+      "textures": "textures/items/pc_kattbok"
     }
   }
 }

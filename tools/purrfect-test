@@ -47,7 +47,7 @@ fi
 
 echo "[2/4] Struktur & kända fallgropar"
 python3 - "$SRC" > /tmp/purrfect-struct.txt 2>/tmp/purrfect-struct.err <<'PY'
-import json,glob,os,sys
+import json,glob,os,re,sys
 SRC=sys.argv[1]; bad=[]
 bp=json.load(open(f"{SRC}/PurrfectCompanions_BP/manifest.json")); rp=json.load(open(f"{SRC}/PurrfectCompanions_RP/manifest.json"))
 V=bp["header"]["version"]
@@ -374,6 +374,38 @@ for _pack in ("PurrfectCompanions_BP","PurrfectCompanions_RP"):
         for _l in _langs:
             if _l not in _dec:
                 bad.append(f"{_pack}: {_l}.lang finns men är inte deklarerad i languages.json")
+
+# --- Kattbokens språknycklar ----------------------------------------------
+# BOKEN ÄR EN GUIDE, och en guide som visar "mjau.bok.plagg.krona" i klartext är
+# värre än ingen guide. Innehållet genereras ur ACC, men PROSAN är handskriven
+# per plagg — lägger någon till ett plagg utan att skriva dess rad syns det bara
+# i spelet, i en meny som testet aldrig öppnar. Här i stället.
+_bokjs = open(f"{SRC}/PurrfectCompanions_BP/scripts/main.js", encoding="utf-8").read()
+_bokkrav = set(re.findall(r'"(mjau\.bok\.[a-z0-9_.]+)"', _bokjs))
+# de numrerade familjerna kommer ur stycken("mjau.bok.kan.", 7) och liknande
+for _pre, _n in re.findall(r'stycken\("(mjau\.bok\.[a-z.]+)",\s*(\d+)\)', _bokjs):
+    _bokkrav.discard(_pre)
+    _bokkrav |= {f"{_pre}{i}" for i in range(1, int(_n) + 1)}
+# ...och en rad per plagg, hämtad ur den GENERERADE bokdatan, inte ur en lista här
+_bd = open(f"{SRC}/PurrfectCompanions_BP/scripts/bokdata.js", encoding="utf-8").read()
+_plagg = json.loads(re.search(r"export const PLAGG = (\[.*?\]);", _bd, re.S).group(1))
+_bokkrav |= {f"mjau.bok.plagg.{p['id']}" for p in _plagg}
+_bokkrav = {k for k in _bokkrav if not k.endswith(".")}
+for _pack in ("PurrfectCompanions_BP", "PurrfectCompanions_RP"):
+    for _spr in json.load(open(f"{SRC}/{_pack}/texts/languages.json", encoding="utf-8")):
+        _fil = f"{SRC}/{_pack}/texts/{_spr}.lang"
+        _har = {r.split("=", 1)[0] for r in open(_fil, encoding="utf-8").read().split("\n") if "=" in r}
+        for _k in sorted(_bokkrav - _har):
+            bad.append(f"{_pack}/{_spr}.lang saknar Kattbokens nyckel '{_k}'")
+# EN .lang-RAD MÅSTE VARA EN RAD. Bedrock stödjer inga \n-escapes (vaniljas egen
+# fil har noll stycken), och en flerradig text sprängde filformatet: värdet
+# hamnade som rader utan '=' som spelet tyst hoppar över.
+for _pack in ("PurrfectCompanions_BP", "PurrfectCompanions_RP"):
+    for _spr in json.load(open(f"{SRC}/{_pack}/texts/languages.json", encoding="utf-8")):
+        _fil = f"{SRC}/{_pack}/texts/{_spr}.lang"
+        for _n, _r in enumerate(open(_fil, encoding="utf-8").read().split("\n"), 1):
+            if _r.strip() and "=" not in _r and not _r.lstrip().startswith("#"):
+                bad.append(f"{_pack}/{_spr}.lang rad {_n} saknar '=' — trasig flerradig text?")
 
 # --- klientsidig geometri & animation -------------------------------------
 # Servern kör aldrig render controllers eller animationer, så allt nedan är
@@ -738,9 +770,16 @@ fi
 # Spelar-röktest: en RIKTIG klient (bedrock-protocol) ansluter och verifierar
 # det kommandosidan aldrig ser — item_registry, give av egna föremål,
 # entitetsströmning, property-synk. Frivilligt steg: kräver testboten.
-if [ -f /opt/purrfect-testbot/smoke-test.js ] && [ -d /opt/purrfect-testbot/node_modules ]; then
+if [ -f "$SRC/tools/testbot/smoke-test.js" ] && [ -d /opt/purrfect-testbot/node_modules ]; then
   echo
   echo "[5/5] Spelar-röktest (riktig klient)"
+  # KÄLLAN ÄR REPOTS KOPIA, körningen sker där beroendena bor. Det fanns två
+  # filer: tools/testbot/smoke-test.js i versionshantering och en kopia i
+  # /opt/purrfect-testbot som testet faktiskt startade. De glred isär utan att
+  # något märkte det — en ändring i repot ändrade ingenting, och repofilen såg
+  # ut att vara källan medan den var död kod. Nu kopieras den in före varje
+  # körning, så det finns ett ställe att redigera.
+  cp "$SRC/tools/testbot/smoke-test.js" /opt/purrfect-testbot/smoke-test.js
   # Tre serveruppstarter i följd på 2 kärnor gör första försöket flaky
   # (RakNet-ping hinner inte besvaras) — ge testet ETT omförsök.
   BOTOUT=$(cd /opt/purrfect-testbot && timeout 120 node smoke-test.js 2>/dev/null | grep -E "^(OK|FAIL)")

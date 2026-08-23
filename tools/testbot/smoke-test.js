@@ -40,7 +40,16 @@ async function main () {
   client.on('add_entity', (p) => { if (p.entity_type.startsWith('mjau:')) checks.entities.add(p.entity_type) })
   client.on('sync_entity_property', () => { checks.props++ })
   client.on('inventory_content', (p) => {
-    if ((p.input || []).some(s => s && registry[s.network_id] === 'mjau:sadel_brun')) checks.give = true
+    for (const s of (p.input || [])) {
+      if (!s) continue
+      const id = registry[s.network_id]
+      if (id === 'mjau:sadel_brun') checks.give = true
+      // KATTBOKEN har en egen rad, inte bara en högre siffra i REGISTRY:
+      // guiden är paketets enda ingång för en ny spelare, och ett föremål som
+      // tyst faller ur registret gör hela funktionen onåbar utan att något
+      // annat test märker det.
+      if (id === 'mjau:kattbok') checks.bok = true
+    }
   })
 
   await new Promise(res => client.on('spawn', res))
@@ -48,12 +57,14 @@ async function main () {
   // säkra att minst en egen entitet finns inom synhåll för entitetskontrollen
   say('summon mjau:misty 4 102 4')
   say('give Provkatt mjau:sadel_brun')
+  say('give Provkatt mjau:kattbok')
   await sleep(6000)
 
   const rows = [
     ['JOIN', checks.join],
     ['REGISTRY', checks.registry >= 40, `${checks.registry} mjau-föremål`],
     ['GIVE', checks.give, 'mjau:sadel_brun nådde inventariet'],
+    ['BOK', checks.bok, 'mjau:kattbok nådde inventariet'],
     ['ENTITIES', checks.entities.size >= 1, [...checks.entities].join(',')],
     ['PROPS', checks.props >= 1, `${checks.props} property-syncs`],
   ]

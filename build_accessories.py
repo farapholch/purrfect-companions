@@ -31,6 +31,27 @@ TEX = 256
 
 # ---------------------------------------------------------------- definition
 # uv: startpunkt i texturen. cubes: (origin, size, uv-offset från plaggets uv)
+# EN KRAFT PER PLAGG, och tabellen står på EN plats. Entiteterna får sin
+# komponentgrupp härifrån och Kattboken sin text — skrivs den av på två ställen
+# lovar boken förr eller senare en kraft plagget inte ger.
+#
+# SPRÅKNYCKLARNA ÄR VANILJAS EGNA, verifierade mot motorns en_US.lang: prefixet
+# är "potion.", inte "effect.", och hoppkraften heter potion.jump och inte
+# potion.jumpBoost. Med vaniljas nycklar står effektnamnen översatta på varje
+# språk spelet stödjer utan att paketet översätter en enda rad.
+_EXTRA_POWERS = {
+    "keps":        ("mjau:kepskraft",       "jump_boost",      "potion.jump"),
+    "halsduk":     ("mjau:halsdukvarme",    "fire_resistance", "potion.fireResistance"),
+    "glasogon":    ("mjau:glasogonskarpa",  "resistance",      "potion.resistance"),
+    "tossor":      ("mjau:tossorfart",      "speed",           "potion.moveSpeed"),
+    "halsband":    ("mjau:halsbandssken",   "absorption",      "potion.absorption"),
+    "rosett":      ("mjau:rosettmod",       "strength",        "potion.damageBoost"),
+    "horn":        ("mjau:hornsvavning",    "slow_falling",    "potion.slowFalling"),
+    "haxhatt":     ("mjau:haxbrygd",        "water_breathing", "potion.waterBreathing"),
+    "energisvard": ("mjau:bladsken",        "night_vision",    "potion.nightVision"),
+    "tomteluva":   ("mjau:tomtegava",       "health_boost",    "potion.healthBoost"),
+}
+
 ACC = {
  "sadel": dict(label="Cat Saddle", bone="body", sound="saddle", rideable=True,
    uv={1:(24,26),2:(56,26),3:(88,26)},
@@ -511,6 +532,39 @@ def icon_treat():
         if x%2==0: sp(x,8,DARK)             # mönster
     write_png(f"{RP}/textures/items/pc_godis.png",S,S,px)
 
+def icon_bok():
+    """Kattboken: en uppslagen bok med ett kattöra över kanten.
+
+    En vanlig bokikon drunknar bland vaniljas böcker och skrivbordsböcker.
+    Örat sticker upp ovanför pärmen och gör att man ser VILKEN bok det är i en
+    full hotbar, vilket är hela poängen med en guide man ska hitta."""
+    S=16; T=(0,0,0,0); px=[[T]*S for _ in range(S)]
+    PARM=(150,62,58,255); PARM_M=(108,42,40,255)
+    SIDA=(238,232,214,255); SIDA_M=(196,188,168,255); TEXT=(120,112,98,255)
+    ORA=(196,150,120,255); ORA_IN=(232,178,166,255)
+    def sp(x,y,c):
+        if 0<=x<S and 0<=y<S: px[y][x]=c
+    def rect(x0,y0,w,h,c):
+        for y in range(y0,y0+h):
+            for x in range(x0,x0+w): sp(x,y,c)
+    # ÖRONEN FÖRST, så pärmen målar över deras nederkant och de sitter BAKOM
+    # boken i stället för att sväva ovanför den.
+    for ox in (3,10):
+        # SMALNAR AV UPPÅT. Två raka 3x4-rutor läste som skorstenar på ett tak,
+        # inte som öron — och örat är det enda som skiljer den här boken från
+        # vaniljas i en full hotbar.
+        rect(ox,3,3,3,ORA); rect(ox+1,2,1,1,ORA)
+        rect(ox+1,4,1,2,ORA_IN)
+    rect(1,5,14,10,PARM_M)                  # pärm
+    rect(2,6,12,8,PARM)
+    rect(2,6,5,8,SIDA); rect(9,6,5,8,SIDA)  # två uppslagna sidor
+    rect(2,13,5,1,SIDA_M); rect(9,13,5,1,SIDA_M)
+    rect(7,5,2,10,PARM_M)                   # ryggen
+    for y in (8,10):                        # textrader
+        rect(3,y,3,1,TEXT); rect(10,y,3,1,TEXT)
+    write_png(f"{RP}/textures/items/pc_kattbok.png",S,S,px)
+
+
 # ---------------------------------------------------------------- allt övrigt
 def build_rest():
     # render controllers
@@ -558,7 +612,7 @@ def build_rest():
     # recipes/*.json — även möblernas (kattbadd, matskal, fiskdamm ...) som
     # ägs av build_blocks.py. Ett fristående körning slog alltså ut åtta
     # orelaterade recept. Nu raderas bara det HÄR skriptet självt återskapar.
-    _mina = {f"{a}_{slug}" for a, cfg in ACC.items() for slug, _ in cfg["colors"].values()} | {"godis"}
+    _mina = {f"{a}_{slug}" for a, cfg in ACC.items() for slug, _ in cfg["colors"].values()} | {"godis", "kattbok"}
     for d_ in (f"{BP}/items", f"{BP}/recipes"):
         for f in glob.glob(f"{d_}/*.json"):
             if os.path.splitext(os.path.basename(f))[0] in _mina: os.remove(f)
@@ -622,6 +676,26 @@ def build_rest():
       "unlock":[{"item":"minecraft:cod"}],"result":{"item":"mjau:godis","count":3}}},
       open(f"{BP}/recipes/godis.json","w"),indent=2)
     lang.append("item.mjau:godis=Cat Treat")
+    # KATTBOKEN. Paketet har 96 föremål och ett tjugotal mekaniker, och en
+    # spelare som installerar det kallt får ingen aning om att en sadlad katt
+    # fiskar, att ryggsäckskatten gräver upp diamanter eller att dräktens
+    # svagaste del avgör bonusen. Achievements berättar det EFTER att man hittat
+    # saken. Boken berättar det innan.
+    icon_bok()
+    it["texture_data"]["pc_kattbok"]={"textures":"textures/items/pc_kattbok"}
+    json.dump({"format_version":"1.20.50","minecraft:item":{"description":{"identifier":"mjau:kattbok",
+      "menu_category":{"category":"items"}},"components":{"minecraft:icon":{"texture":"pc_kattbok"},
+      "minecraft:display_name":{"value":"Cat Care Book"},"minecraft:max_stack_size":1}}},
+      open(f"{BP}/items/kattbok.json","w"),indent=2)
+    # Bok + kattgodis: tematiskt, och garanterat utan krock mot vaniljas rutnät
+    # (godiset är vårt eget föremål). Receptgrinden i purrfect-test jämför mot
+    # hela vaniljas receptlista och hade fällt en krock.
+    json.dump({"format_version":"1.20.10","minecraft:recipe_shaped":{
+      "description":{"identifier":"mjau:kattbok"},"tags":["crafting_table"],
+      "pattern":["BG"],"key":{"B":{"item":"minecraft:book"},"G":{"item":"mjau:godis"}},
+      "unlock":[{"item":"minecraft:book"}],"result":{"item":"mjau:kattbok"}}},
+      open(f"{BP}/recipes/kattbok.json","w"),indent=2)
+    lang.append("item.mjau:kattbok=Cat Care Book")
     # Prompten som visas när man riktar mot katten med ett plagg i handen.
     # Utan den här raden visar spelet nyckeln i klartext ("action.interact.equip").
     lang.append("action.interact.mjau_equip=Put on")
@@ -781,20 +855,8 @@ def build_rest():
                 # ÖVRIGA SUPERKRAFTER (speltest-önskemål: "jag vill fortsätta" —
                 # samma effektmönster (spell_effects, mycket lång varaktighet i
                 # praktiken permanent), en distinkt vanilla-effekt per plagg.
-                _EXTRA_POWERS={
-                    "keps":("mjau:kepskraft","jump_boost"),
-                    "halsduk":("mjau:halsdukvarme","fire_resistance"),
-                    "glasogon":("mjau:glasogonskarpa","resistance"),
-                    "tossor":("mjau:tossorfart","speed"),
-                    "halsband":("mjau:halsbandssken","absorption"),
-                    "rosett":("mjau:rosettmod","strength"),
-                    "horn":("mjau:hornsvavning","slow_falling"),
-                    "haxhatt":("mjau:haxbrygd","water_breathing"),
-                    "energisvard":("mjau:bladsken","night_vision"),
-                    "tomteluva":("mjau:tomtegava","health_boost"),
-                }
                 if a in _EXTRA_POWERS:
-                    _grp,_eff=_EXTRA_POWERS[a]
+                    _grp,_eff,_ = _EXTRA_POWERS[a]
                     g[_grp]={"minecraft:spell_effects":{"add_effects":[
                         {"effect":_eff,"duration":999999,"amplifier":0,
                          "display_on_screen_animation":False}]}}
@@ -947,6 +1009,44 @@ def build_rest():
             keep=[l for l in open(lp).read().rstrip("\n").split("\n")
                   if not l.startswith(("item.mjau:","action."))]
             open(lp,"w").write("\n".join(dict.fromkeys(keep+lang))+"\n")
+    # ---------------------------------------------------------------- Kattboken
+    # BOKENS DATA GENERERAS, den skrivs inte. En handskriven guide till 96
+    # föremål ruttnar inom två släpp: någon lägger till ett plagg, glömmer
+    # boken, och boken börjar ljuga. Allt som går att HÄRLEDA ur tabellerna
+    # härleds — vilka plagg som finns, vad de heter, vilka färger de har och
+    # vilken effekt de ger.
+    #
+    # Det som INTE går att härleda (att sadeln betyder ridning, att ryggsäcken
+    # har femton fack) står som en valfri språknyckel per plagg,
+    # mjau.bok.plagg.<id>. Saknas nyckeln visar boken bara den genererade
+    # delen — ett nytt plagg gör alltså boken tunnare, aldrig trasig.
+    plagg = []
+    for a, cfg in ACC.items():
+        plagg.append({
+            "id": a,
+            "namn": cfg["label"],
+            "farger": [cfg["names"][i] for i in sorted(cfg["colors"])],
+            "effekt": _EXTRA_POWERS[a][2] if a in _EXTRA_POWERS else None,
+        })
+    # KATTERNA med sitt biom, läst ur spawnreglerna i stället för ur en lista
+    # här. Flyttas en ras till ett annat biom följer boken med av sig själv.
+    katter = []
+    for c in KATTER:
+        biom = None
+        sr = f"{BP}/spawn_rules/{c}.json"
+        if os.path.exists(sr):
+            for v in json.load(open(sr))["minecraft:spawn_rules"]["conditions"]:
+                biom = (v.get("minecraft:biome_filter") or {}).get("value") or biom
+        katter.append({"id": f"mjau:{c}", "biom": biom})
+    mobler = []
+    for f in sorted(glob.glob(f"{BP}/blocks/*.json")):
+        mobler.append(json.load(open(f))["minecraft:block"]["description"]["identifier"])
+    open(f"{BP}/scripts/bokdata.js", "w", encoding="utf-8").write(
+        "// GENERERAD AV build_accessories.py — ändra i ACC/_EXTRA_POWERS, inte här.\n"
+        "export const PLAGG = " + json.dumps(plagg, indent=1, ensure_ascii=False) + ";\n"
+        "export const KATTER = " + json.dumps(katter, indent=1, ensure_ascii=False) + ";\n"
+        "export const MOBLER = " + json.dumps(mobler, indent=1, ensure_ascii=False) + ";\n")
+
     return len(lang), len(inter)
 
 if __name__ == "__main__":

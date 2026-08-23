@@ -6,6 +6,8 @@
 // av bärnsten. En Midnight inom 48 block räcker: ritualen är en
 // hälsning, inte en fabrik.
 import { world, system, ItemStack } from "@minecraft/server";
+import { ActionFormData } from "@minecraft/server-ui";
+import { PLAGG, KATTER, MOBLER } from "./bokdata.js";
 
 const MIDNIGHT = "mjau:midnight";
 
@@ -1273,4 +1275,119 @@ system.afterEvents.scriptEventReceive.subscribe(ev => {
       console.log(`[mjau] KOLONI-TEST OK: ${nyaPar} par tvattade, ${sovande} sover`);
     } catch (e) { console.warn("[mjau] KOLONI-TEST FEL: " + e); }
   }, 10);
+});
+
+// ---------------------------------------------------------------------------
+// KATTBOKEN: guiden som gör paketet upptäckbart.
+//
+// Paketet har 96 föremål, ett tjugotal mekaniker och två världar, och en
+// spelare som installerar det kallt får ingen aning om att en sadlad katt
+// fiskar åt en, att ryggsäckskatten gräver upp diamanter eller att dräktens
+// SVAGASTE del avgör hela bonusen. Achievements berättar det först EFTER att
+// man hittat saken. Den här boken berättar det innan.
+//
+// INNEHÅLLET GENERERAS. bokdata.js skrivs av build_accessories.py ur samma
+// tabeller som plaggen själva byggs ur, så boken kan inte lova ett plagg som
+// inte finns eller missa ett som lagts till. Det som inte går att härleda —
+// att sadeln betyder ridning — står som en VALFRI språknyckel per plagg;
+// saknas den visas bara den genererade delen. Ett nytt plagg gör alltså boken
+// tunnare, aldrig trasig.
+const BOK = "mjau:kattbok";
+
+function txt(t) { return { text: t }; }
+function nyckel(k) { return { translate: k }; }
+
+function plaggrad(p) {
+  // "Cat Saddle — Brown, Black, Light", sedan valfri mening, sedan effekten.
+  const delar = [txt("§e" + p.namn + "§r — " + p.farger.join(", ") + "\n")];
+  delar.push({ translate: `mjau.bok.plagg.${p.id}` }, txt("\n"));
+  if (p.effekt) {
+    delar.push(txt("§7"), nyckel("mjau.bok.ger"), txt(" "), nyckel(p.effekt), txt("§r\n"));
+  }
+  delar.push(txt("\n"));
+  return delar;
+}
+
+function stycken(prefix, antal) {
+  const ut = [];
+  for (let i = 1; i <= antal; i++) {
+    if (i > 1) ut.push(txt("\n\n"));
+    ut.push(nyckel(prefix + i));
+  }
+  return ut;
+}
+
+function bokSida(pl, rubrik, kropp) {
+  const f = new ActionFormData()
+    .title({ rawtext: [nyckel(rubrik)] })
+    .body({ rawtext: kropp })
+    .button({ rawtext: [nyckel("mjau.bok.tillbaka")] });
+  f.show(pl).then(r => { if (!r.canceled) visaBoken(pl); }).catch(() => { });
+}
+
+const AVDELNINGAR = [
+  ["mjau.bok.sekt.katterna", pl => {
+    const rader = [nyckel("mjau.bok.katterna.txt"), txt("\n\n")];
+    for (const k of KATTER) {
+      rader.push(txt("§e"), nyckel(`entity.${k.id}.name`), txt("§r"));
+      if (k.biom) rader.push(txt(" — " + k.biom));
+      rader.push(txt("\n"));
+    }
+    return rader;
+  }],
+  // STYCKENA SÄTTS IHOP HÄR. Bedrocks .lang har inga radbrytningar — vaniljas
+  // egen fil innehåller noll \n-escapes — så en flerstycksstext måste vara en
+  // nyckel per stycke, fogade med rawtext. Första försöket la riktiga
+  // radbrytningar i lang-värdet och sprängde filformatet.
+  ["mjau.bok.sekt.kan", () => stycken("mjau.bok.kan.", 7)],
+  ["mjau.bok.sekt.plaggen", () => {
+    const rader = [nyckel("mjau.bok.plaggen.txt"), txt("\n\n")];
+    for (const p of PLAGG) rader.push(...plaggrad(p));
+    return rader;
+  }],
+  ["mjau.bok.sekt.drakt", () => stycken("mjau.bok.drakt.", 3)],
+  ["mjau.bok.sekt.mobler", () => {
+    const rader = [nyckel("mjau.bok.mobler.txt"), txt("\n\n")];
+    for (const b of MOBLER) rader.push(txt("§e"), nyckel(`tile.${b}.name`), txt("§r\n"));
+    return rader;
+  }],
+  ["mjau.bok.sekt.achv", pl => {
+    // HEMLIGHETERNA AVSLÖJAS INTE. Boken räknar hur många som återstår men
+    // namnger bara dem man redan tagit — annars vore den en spoilerlista, och
+    // hela poängen med Midnights ritual är att man inte får veta.
+    let tagna = 0;
+    const rader = [];
+    for (const id of ACHV_ORDER) {
+      if (hasAward(pl, id)) {
+        tagna++;
+        rader.push(txt("§a✔ §r"), nyckel(`mjau.achv.${id}`), txt("\n"));
+      }
+    }
+    const kvar = ACHV_ORDER.length - tagna;
+    return [{ translate: "mjau.bok.achv.txt",
+              with: [String(tagna), String(ACHV_ORDER.length), String(kvar)] },
+            txt("\n\n"), nyckel("mjau.bok.achv.hemliga"), txt("\n\n"), ...rader];
+  }],
+];
+
+function visaBoken(pl) {
+  const f = new ActionFormData()
+    .title({ rawtext: [nyckel("mjau.bok.titel")] })
+    .body({ rawtext: [nyckel("mjau.bok.intro")] });
+  for (const [rubrik] of AVDELNINGAR) f.button({ rawtext: [nyckel(rubrik)] });
+  f.show(pl).then(r => {
+    if (r.canceled || r.selection === undefined) return;
+    const [rubrik, bygg] = AVDELNINGAR[r.selection];
+    bokSida(pl, rubrik, bygg(pl));
+  }).catch(() => { });
+}
+
+world.afterEvents.itemUse.subscribe(ev => {
+  try {
+    if (ev.itemStack?.typeId !== BOK) return;
+    // FORMULÄR FÅR INTE ÖPPNAS DIREKT UR EN HÄNDELSE. Bedrock avvisar det med
+    // "can't show form in read-only mode"; system.run flyttar anropet till
+    // nästa tick där det är tillåtet.
+    system.run(() => visaBoken(ev.source));
+  } catch { }
 });

@@ -31,6 +31,7 @@ Each cat meows in its own pitch — Mocha highest, Snow deepest.
 - **She carries for you** — a cat in a backpack has fifteen slots of her own, picks up what you drop or mine within four blocks, and opens like a donkey's chest when you sneak and tap her
 - **Treasure hunting** — cats wearing a backpack dig up string and feathers, and once in a long while, a diamond
 - **She warns you** — a cat at your side bristles and calls out when something hostile closes in
+- **They live together** — cats groom each other when they stand close, kittens play, and at night the flock gathers on beds and boxes and curls up in a sleeping pile instead of wandering off one by one
 - **Breed** two of the same cat for a kitten of that breed — sometimes born wearing a little bow
 - **Gifts** — tamed cats bring you presents in the morning
 - **Creepers and phantoms flee** from them; they stalk and pounce on rabbits and chickens

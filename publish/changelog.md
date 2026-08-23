@@ -1,3 +1,29 @@
+## 3.32.0 — A colony, not nine copies of the same cat
+
+Until now every cat related only to you. Nine cats in a base behaved like nine
+copies of one cat: they walked around separately and never took the slightest
+notice of each other. That is the thing this release fixes.
+
+**They groom each other.** Two tame cats standing close together will wash one
+another now and then — hearts, a purr, and a little healing for both. Kittens
+play instead, with a lighter meow and their own particles. Neither of them says
+a word about it on your screen. The pack already learned that lesson the hard
+way with the warning system; grooming is something you see, not something you
+need to be told.
+
+**They sleep in a pile.** At night the flock stops wandering and gathers on cat
+beds and cardboard boxes. Before, a cat looking for somewhere to be would pick
+the nearest of eight pieces of furniture — the food bowl, the cat flap, the fish
+pond — so a house full of cats scattered instead of settling. After dark they
+only look for places to sleep.
+
+**And the pile actually looks like one.** The curled-up sleeping pose has been
+in the pack all along, but it hung on a vanilla query that is never true for a
+cat, so the game could never reach it. It has its own trigger now, and the cats
+lie curled up together for real.
+
+A saddled cat still goes where you steer her, night or not.
+
 ## 3.31.7 — Dress like your cat, and two new neighbours in Cat Haven
 
 The kids asked for it: *you* should be able to wear cat gear, not just the cat.

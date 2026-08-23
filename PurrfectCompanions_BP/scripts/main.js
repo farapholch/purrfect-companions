@@ -1082,3 +1082,195 @@ world.afterEvents.entitySpawn.subscribe(ev => {
     } finally { spawningLitter = false; }
   } catch { }
 });
+
+// ---------------------------------------------------------------------------
+// KOLONIN: katter som förhåller sig till VARANDRA, inte bara till spelaren.
+//
+// Fram till nu relaterade varje katt bara till dig. Nio katter i en bas betedde
+// sig som nio kopior av en enda katt — de gick omkring var för sig och tog
+// aldrig notis om varandra. Tre saker ändrar det:
+//
+//   TVÄTTNINGEN. Två tämjda katter som står nära varandra tvättar varandra då
+//   och då. Hjärtan och ett spinnande, och båda läks lite.
+//
+//   SOVHÖGEN. På natten byts mjau:fri mot mjau:sovdags, som bara söker
+//   sovplatser (bädd och kartong) i stället för åtta möbeltyper. Flocken
+//   samlas i stället för att sprida sig, och katter som ligger tätt får en
+//   stunds läkning.
+//
+//   KATTUNGARNAS LEK. Två ungar nära varandra leker — samma maskineri som
+//   tvättningen, men kortare paus, ljusare jamande och andra partiklar.
+//
+// INGA MEDDELANDEN FÖR TVÄTT OCH LEK. Varningssystemet ovanför bär en hel
+// kommentar om vad som händer när paketet tjatar ("det står your cat bristles
+// rätt ofta"), och det här skulle utlösas långt oftare. Tvättningen SYNS; den
+// behöver inga ord. Bara sovhögen säger till, en gång per natt och spelare.
+const KOLONI_TVATT_AVSTAND = 2.5;
+const KOLONI_TVATT_PAUS = 900;      // 45 s per PAR, inte per katt
+const KOLONI_LEK_PAUS = 400;        // ungar leker oftare än vuxna tvättar
+const KOLONI_HOG_AVSTAND = 3.0;
+const KOLONI_TAK = 24;              // så många katter räknas mot varandra
+const parTyst = new Map();          // "id|id" -> tick då paret får igen
+const sovlage = new Map();          // katt-id -> ligger hon i nattgruppen?
+const sovhogSagd = new Map();       // spelar-id -> dygn vi senast sa till
+
+function kattAvstand(a, b) {
+  return Math.hypot(a.location.x - b.location.x, a.location.y - b.location.y,
+                    a.location.z - b.location.z);
+}
+
+function parNyckel(a, b) {
+  return a.id < b.id ? a.id + "|" + b.id : b.id + "|" + a.id;
+}
+
+function arUnge(c) {
+  try { return !!c.getComponent("minecraft:is_baby"); } catch { return false; }
+}
+
+function arNatt() {
+  // TIDEN LÄSES PÅ TVÅ SÄTT. getTimeOfDay finns inte i alla API-nivåer paketet
+  // körs på, och en katt som aldrig går och lägger sig är svårare att förstå
+  // än ett fel — därför en reserv i stället för ett antagande.
+  try {
+    const t = world.getTimeOfDay();
+    if (typeof t === "number") return t >= 13000 && t < 23000;
+  } catch { }
+  try {
+    const t = world.getAbsoluteTime() % 24000;
+    return t >= 13000 && t < 23000;
+  } catch { }
+  return false;
+}
+
+function dygn() {
+  try { return Math.floor(world.getAbsoluteTime() / 24000); } catch { return 0; }
+}
+
+function koloniVarv() {
+  const d = world.getDimension("overworld");
+  let cats;
+  try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
+  const tamda = cats.filter(tamKatt);
+  if (!tamda.length) return;
+  if (parTyst.size > 600) parTyst.clear();
+
+  // NATTEN: gruppen byts bara vid ÖVERGÅNGEN. Att lägga på och ta bort en
+  // komponentgrupp startar om beteendena, och en katt vars mål nollställs varje
+  // sekund kommer aldrig fram till bädden — samma fälla som hundpaketets
+  // apport gick i.
+  const natt = arNatt();
+  for (const c of tamda) {
+    if ((sovlage.get(c.id) === true) === natt) continue;
+    try { c.triggerEvent(natt ? "mjau:sovdags_pa" : "mjau:sovdags_av"); } catch { continue; }
+    sovlage.set(c.id, natt);
+  }
+
+  // PARVIS UMGÄNGE. Jämförelsen är O(n²), så listan kapas: med tjugofyra katter
+  // är det 276 avståndsmätningar i sekunden, vilket är försumbart, men en
+  // värld med hundra katter ska inte kunna äta tickbudgeten.
+  const flock = tamda.slice(0, KOLONI_TAK);
+  const iHog = new Set();        // katt-id som ligger tätt intill en annan katt
+  let hog = null;
+  for (let i = 0; i < flock.length; i++) {
+    for (let j = i + 1; j < flock.length; j++) {
+      const a = flock[i], b = flock[j];
+      let avst;
+      try { avst = kattAvstand(a, b); } catch { continue; }
+      if (natt && avst <= KOLONI_HOG_AVSTAND) {
+        iHog.add(a.id); iHog.add(b.id);
+        if (!hog) hog = [a, b];
+      }
+      if (avst > KOLONI_TVATT_AVSTAND) continue;
+      const ungar = arUnge(a) && arUnge(b);
+      const nyckel = parNyckel(a, b);
+      if ((parTyst.get(nyckel) || 0) > system.currentTick) continue;
+      parTyst.set(nyckel, system.currentTick +
+                  (ungar ? KOLONI_LEK_PAUS : KOLONI_TVATT_PAUS));
+      const mitt = { x: (a.location.x + b.location.x) / 2,
+                     y: (a.location.y + b.location.y) / 2 + 0.7,
+                     z: (a.location.z + b.location.z) / 2 };
+      try {
+        if (ungar) {
+          d.spawnParticle("minecraft:villager_happy", mitt);
+          d.playSound("mob.cat.meow", mitt, { volume: 0.5, pitch: 1.6 });
+        } else {
+          d.spawnParticle("minecraft:heart_particle", mitt);
+          d.playSound("mob.cat.purr", mitt, { volume: 0.7 });
+          for (const k of [a, b]) k.addEffect("regeneration", 60, { showParticles: false });
+        }
+      } catch { }
+    }
+  }
+
+  // SOVPOSEN. Egenskapen skrivs bara när den ÄNDRAS — ett setProperty per katt
+  // och sekund är billigt men inte gratis, och en egenskap som skrivs om till
+  // samma värde varje varv är brus i både nätverk och logg.
+  for (const c of flock) {
+    const ska = natt && iHog.has(c.id) ? 1 : 0;
+    try {
+      if (c.getProperty("mjau:sover") !== ska)
+        c.triggerEvent(ska ? "mjau:sover_pa" : "mjau:sover_av");
+    } catch { }
+  }
+
+  // SOVHÖGEN säger till EN gång per natt och spelare, och bara om spelaren är
+  // nära nog att se den. Dygnet räknas ur världens absoluta tid, så en ny natt
+  // låser upp meddelandet igen utan bokföring.
+  if (!natt || !hog) return;
+  const nu = dygn();
+  for (const pl of world.getAllPlayers()) {
+    if (!pl) continue;
+    try {
+      if (sovhogSagd.get(pl.id) === nu) continue;
+      if (Math.hypot(pl.location.x - hog[0].location.x, pl.location.y - hog[0].location.y,
+                     pl.location.z - hog[0].location.z) > 16) continue;
+      sovhogSagd.set(pl.id, nu);
+      pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.koloni.sovhog" }] });
+      pl.playSound("mob.cat.purreow", { pitch: 0.9 });
+    } catch { }
+  }
+  try {
+    for (const k of hog) {
+      k.addEffect("regeneration", 100, { showParticles: false });
+      if (system.currentTick % 120 < 20)
+        d.spawnParticle("minecraft:heart_particle",
+          { x: k.location.x, y: k.location.y + 0.8, z: k.location.z });
+    }
+  } catch { }
+}
+
+system.runInterval(koloniVarv, 20);
+
+// testkrok: /scriptevent mjau:test_koloni kor ETT kolonivarv pa begaran.
+// Loopen gar en gang i sekunden och tvattningen har 45 sekunders paus per par,
+// sa testet kan inte vanta ut den. Kroken anropar SAMMA funktion som loopen —
+// en testvag som raknar ut svaret sjalv bevisar ingenting.
+system.afterEvents.scriptEventReceive.subscribe(ev => {
+  if (ev.id !== "mjau:test_koloni") return;
+  // PAUSERNA NOLLSTALLS FORST. Loopen gar redan en gang i sekunden, sa paret
+  // hade hunnit tvatta varandra sekunden efter tamjningen och satt pa 45
+  // sekunders paus nar kroken kordes — parTyst vaxte inte, och testet
+  // rapporterade "inget par tvattade varandra" om en mekanik som fungerade.
+  // Det ar TESTETS matning som maste vara farsk, inte varlden.
+  parTyst.clear();
+  try { koloniVarv(); } catch (e) { console.warn("[mjau] KOLONI-TEST FEL: " + e); return; }
+  const nyaPar = parTyst.size;
+  // EN EGENSKAP LANDAR FORST VID TICKENS SLUT. triggerEvent kastar inte och ser
+  // ut att lyckas, men getProperty i SAMMA tick ger fortfarande gamla vardet.
+  system.runTimeout(() => {
+    try {
+      const d = world.getDimension("overworld");
+      let tamda = 0, sovande = 0;
+      for (const c of d.getEntities({ families: ["mjaukatt"] })) {
+        if (!tamKatt(c)) continue;
+        tamda++;
+        try { if (c.getProperty("mjau:sover") === 1) sovande++; } catch { }
+      }
+      if (!arNatt()) { console.warn("[mjau] KOLONI-TEST FEL: varlden ar inte natt"); return; }
+      if (tamda < 2) { console.warn(`[mjau] KOLONI-TEST FEL: bara ${tamda} tamda katter`); return; }
+      if (nyaPar < 1) { console.warn("[mjau] KOLONI-TEST FEL: inget par tvattade varandra"); return; }
+      if (sovande < 2) { console.warn(`[mjau] KOLONI-TEST FEL: bara ${sovande} i sovhogen`); return; }
+      console.log(`[mjau] KOLONI-TEST OK: ${nyaPar} par tvattade, ${sovande} sover`);
+    } catch (e) { console.warn("[mjau] KOLONI-TEST FEL: " + e); }
+  }, 10);
+});

@@ -1,79 +1,79 @@
 {
-  "format_version": "1.10.0",
-  "animation_controllers": {
-    "controller.animation.katt.move": {
-      "initial_state": "standing",
-      "states": {
-        "standing": {
-          "blend_transition": 0.2,
-          "animations": [
-            "look",
-            "tail"
-          ],
-          "transitions": [
-            {
-              "sleeping": "q.is_sleeping && !q.is_saddled"
-            },
-            {
-              "sitting": "query.is_sitting && query.modified_move_speed <= 0.05 && !q.is_saddled"
-            },
-            {
-              "walking": "query.modified_move_speed > 0.12"
-            }
-          ]
-        },
-        "walking": {
-          "blend_transition": 0.2,
-          "animations": [
-            "look",
-            "tail",
-            "walk"
-          ],
-          "transitions": [
-            {
-              "sleeping": "q.is_sleeping && !q.is_saddled"
-            },
-            {
-              "sitting": "query.is_sitting && query.modified_move_speed <= 0.02 && !q.is_saddled"
-            },
-            {
-              "standing": "query.modified_move_speed <= 0.02"
-            }
-          ]
-        },
-        "sitting": {
-          "blend_transition": 0.3,
-          "animations": [
-            "sit",
-            "look"
-          ],
-          "transitions": [
-            {
-              "sleeping": "q.is_sleeping && !q.is_saddled"
-            },
-            {
-              "walking": "query.modified_move_speed > 0.12"
-            },
-            {
-              "standing": "q.is_saddled || !query.is_sitting"
-            }
-          ]
-        },
-        "sleeping": {
-          "blend_transition": 0.3,
-          "animations": [
-            "sova"
-          ],
-          "transitions": [
-            {
-              "walking": "q.modified_move_speed > 0.12"
-            },
-            {
-              "standing": "q.is_saddled || !q.is_sleeping"
-            }
-          ]
-        }
+ "format_version": "1.10.0",
+ "animation_controllers": {
+  "controller.animation.katt.move": {
+   "initial_state": "standing",
+   "states": {
+    "standing": {
+     "blend_transition": 0.2,
+     "animations": [
+      "look",
+      "tail"
+     ],
+     "transitions": [
+      {
+       "sleeping": "(q.is_sleeping || q.property('mjau:sover') == 1) && !q.is_saddled"
+      },
+      {
+       "sitting": "query.is_sitting && query.modified_move_speed <= 0.05 && !q.is_saddled"
+      },
+      {
+       "walking": "query.modified_move_speed > 0.12"
       }
+     ]
+    },
+    "walking": {
+     "blend_transition": 0.2,
+     "animations": [
+      "look",
+      "tail",
+      "walk"
+     ],
+     "transitions": [
+      {
+       "sleeping": "(q.is_sleeping || q.property('mjau:sover') == 1) && !q.is_saddled"
+      },
+      {
+       "sitting": "query.is_sitting && query.modified_move_speed <= 0.02 && !q.is_saddled"
+      },
+      {
+       "standing": "query.modified_move_speed <= 0.02"
+      }
+     ]
+    },
+    "sitting": {
+     "blend_transition": 0.3,
+     "animations": [
+      "sit",
+      "look"
+     ],
+     "transitions": [
+      {
+       "sleeping": "(q.is_sleeping || q.property('mjau:sover') == 1) && !q.is_saddled"
+      },
+      {
+       "walking": "query.modified_move_speed > 0.12"
+      },
+      {
+       "standing": "q.is_saddled || !query.is_sitting"
+      }
+     ]
+    },
+    "sleeping": {
+     "blend_transition": 0.3,
+     "animations": [
+      "sova"
+     ],
+     "transitions": [
+      {
+       "walking": "q.modified_move_speed > 0.12"
+      },
+      {
+       "standing": "q.is_saddled || (!q.is_sleeping && q.property('mjau:sover') != 1)"
+      }
+     ]
     }
+   }
   }
+ }
 }

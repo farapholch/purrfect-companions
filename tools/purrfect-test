@@ -646,6 +646,25 @@ cd "$SRV" || exit 1
   echo "damage @e[type=mjau:snow,x=12,y=20,z=12,r=30] 45"; sleep 1
   echo "testfor @e[type=mjau:snow,x=12,y=20,z=12,r=30]"; sleep 1
   echo "kill @e[type=mjau:snow]"; sleep 1
+  # KOLONIN: två tämjda katter tätt ihop på natten ska tvätta varandra OCH
+  # krypa ihop i en hög. Hazel används för att inga andra påståenden räknar
+  # rader för henne — misty, snow, ginger och domino är upptagna.
+  echo "time set midnight"; sleep 1
+  echo "summon mjau:hazel 14 20 14"; sleep 1
+  echo "summon mjau:hazel 14 20 15"; sleep 2
+  echo "event entity @e[type=mjau:hazel] mjau:on_tame"; sleep 2
+  # KATTERNA MÅSTE STÅ STILLA. Summonade ett block isär hann de stryka iväg
+  # till mellan 2,5 och 3,0 block under sekunderna före kroken — nog för
+  # sovhögen (3,0) men för långt för tvättningen (2,5), och testet rapporterade
+  # "inget par tvättade varandra" som om mekaniken vore trasig. Samma fälla som
+  # grispaketets bökningstest: testet får inte tävla mot mobbens AI.
+  echo "tp @e[type=mjau:hazel] 14 20 14"; sleep 1
+  echo "scriptevent mjau:test_koloni kor"; sleep 4
+  # ...och högen ska vara OBSERVERBAR utifrån. mjau:sover driver sovposen på
+  # klienten; att servern satt den går att fråga om med has_property.
+  echo "testfor @e[type=mjau:hazel,has_property={mjau:sover=1}]"; sleep 1
+  echo "kill @e[type=mjau:hazel]"; sleep 1
+  echo "time set day"; sleep 1
   # BLOCK-test: går de att placera? (verifierar registrering + geometri)
   # rensa först - världen sparas mellan körningar, och setblock på ett redan
   # identiskt block räknas inte som placerat
@@ -674,6 +693,8 @@ BLOCKOK=$(grep -c "Block placed" "$LOG")
 CARGO=$(grep -ci "Replaced slot" "$LOG")
 VAKUUM=$(grep -c "VAKUUM-TEST OK" "$LOG")
 NYRAS=$(grep -cE "Found entity\.mjau:(ginger|domino)" "$LOG")
+KOLONI=$(grep -c "KOLONI-TEST OK" "$LOG")
+SOVHOG=$(grep -c "Found entity.mjau:hazel" "$LOG")
 HUND=$(grep -c "Found entity.mjau:vakthund" "$LOG")
 # Syntax-/komponentfel är ALLTID allvarliga. "Unable to summon" kan vara flakigt
 # för första spawnen precis när tickingarea laddas → tolerera högst 1.
@@ -689,6 +710,8 @@ SOFT=$(grep -c "Unable to summon" "$LOG")
 [ "$VAKUUM" -ge 1 ] && ok "ryggsäckskatten plockar upp från marken (skriptkroken hittade tråden i väskan)" || bad "ryggsäckskatten plockade INTE upp tråden (se VAKUUM-TEST i $LOG)"
 [ "$HUND" -ge 1 ] && ok "vakthunden laddar med egen geometri" || bad "vakthunden gick inte att spawna"
 [ "$NYRAS" -ge 4 ] && ok "Ginger och Domino bär plaggen: $NYRAS/4 (sadel + ryggsäck, has_property)" || bad "de nya raserna satte bara $NYRAS/4 plagg-properties"
+[ "$KOLONI" -ge 1 ] && ok "kolonin: katterna tvättar varandra och kryper ihop på natten" || bad "kolonin fungerade inte (se KOLONI-TEST i $LOG)"
+[ "$SOVHOG" -ge 1 ] && ok "sovhögen är observerbar server-side (mjau:sover=1 driver sovposen)" || bad "ingen katt fick mjau:sover=1"
 [ "$ARMOK" -ge 1 ] && ok "netheritrustningen ger extra liv (överlevde 45 skada)" || bad "rustningsnivån gav inte extra liv — 45 skada dödade katten"
 if [ "$SOFT" -eq 0 ]; then
   ok "inga misslyckade spawns"

@@ -37,6 +37,9 @@ follow.
 - **Carries for you** — a cat in a backpack has a real 15-slot hold, picks up
   what you drop or mine within 4 blocks, and hands the load over when you
   sneak up beside her
+- **Live together** — cats groom each other when they stand close, and at night
+  the flock gathers on cat beds and boxes and curls up in a sleeping pile
+  instead of wandering off one by one. Kittens play with each other
 - **Warns you** — she bristles and calls out when something hostile closes in
   from 8–16 blocks away
 - **Creepers and phantoms flee** from them (they carry the `cat` family)

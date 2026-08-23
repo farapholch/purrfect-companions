@@ -203,6 +203,15 @@
           ],
           "default": 1,
           "client_sync": true
+        },
+        "mjau:sover": {
+          "type": "int",
+          "range": [
+            0,
+            1
+          ],
+          "default": 0,
+          "client_sync": true
         }
       }
     },
@@ -2570,6 +2579,33 @@
           "inventory_size": 15,
           "private": false
         }
+      },
+      "mjau:sovdags": {
+        "minecraft:behavior.move_to_block": {
+          "priority": 19,
+          "tick_interval": 40,
+          "start_chance": 0.9,
+          "search_range": 16,
+          "search_height": 4,
+          "goal_radius": 1.2,
+          "stay_duration": 200,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0,
+            1,
+            0
+          ],
+          "target_blocks": [
+            "mjau:kattbadd",
+            "mjau:kartong"
+          ]
+        },
+        "minecraft:behavior.random_sitting": {
+          "priority": 20,
+          "min_sit_time": 20,
+          "start_chance": 0.3,
+          "stop_chance": 0.02
+        }
       }
     },
     "events": {
@@ -3945,6 +3981,174 @@
                 }
               }
             ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 60
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 1
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 2
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 3
+                }
+              },
+              {
+                "weight": 10,
+                "set_property": {
+                  "mjau:rosett": 4
+                }
+              }
+            ]
+          },
+          {
+            "randomize": [
+              {
+                "weight": 88
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 1
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 2
+                }
+              },
+              {
+                "weight": 4,
+                "set_property": {
+                  "mjau:halsband": 3
+                }
+              }
+            ]
           }
         ]
       },
@@ -3984,6 +4188,40 @@
           }
         ]
       },
+      "mjau:sovdags_pa": {
+        "add": {
+          "component_groups": [
+            "mjau:sovdags"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:fri"
+          ]
+        }
+      },
+      "mjau:sovdags_av": {
+        "add": {
+          "component_groups": [
+            "mjau:fri"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:sovdags"
+          ]
+        }
+      },
+      "mjau:sover_pa": {
+        "set_property": {
+          "mjau:sover": 1
+        }
+      },
+      "mjau:sover_av": {
+        "set_property": {
+          "mjau:sover": 0
+        }
+      },
       "mjau:on_sadel_1": {
         "set_property": {
           "mjau:sadel": 1
@@ -3999,6 +4237,7 @@
             "mjau:carted",
             "mjau:jagar",
             "mjau:fri",
+            "mjau:sovdags",
             "mjau:bladbararen"
           ]
         }
@@ -4018,6 +4257,7 @@
             "mjau:carted",
             "mjau:jagar",
             "mjau:fri",
+            "mjau:sovdags",
             "mjau:bladbararen"
           ]
         }
@@ -4037,6 +4277,7 @@
             "mjau:carted",
             "mjau:jagar",
             "mjau:fri",
+            "mjau:sovdags",
             "mjau:bladbararen"
           ]
         }
@@ -4239,6 +4480,7 @@
             "mjau:saddled",
             "mjau:jagar",
             "mjau:fri",
+            "mjau:sovdags",
             "mjau:bladbararen"
           ]
         }
@@ -4258,6 +4500,7 @@
             "mjau:saddled",
             "mjau:jagar",
             "mjau:fri",
+            "mjau:sovdags",
             "mjau:bladbararen"
           ]
         }
@@ -4277,6 +4520,7 @@
             "mjau:saddled",
             "mjau:jagar",
             "mjau:fri",
+            "mjau:sovdags",
             "mjau:bladbararen"
           ]
         }

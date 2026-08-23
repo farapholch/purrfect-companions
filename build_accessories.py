@@ -664,6 +664,13 @@ def build_rest():
         # humor: 0=hungrig (hängande svans), 1=neutral, 2=glad (hög svans).
         # Godis höjer, timern sänker. client_sync: svans-animationen läser den.
         e["description"]["properties"]["mjau:humor"]={"type":"int","range":[0,2],"default":1,"client_sync":True}
+        # sover: 1 när katten ligger i sovhögen. Sovposen (animation.katt.sova)
+        # hängde tidigare på q.is_sleeping, en vaniljfråga som ALDRIG blir sann
+        # för en katt — staten fanns i styrfilen men gick inte att nå. Med en
+        # egen egenskap går den att nå, och högen ser ut som en hög i stället för
+        # att bara vara en osynlig mekanik. client_sync: animationsstyrningen
+        # körs på klienten och kan inte läsa en egenskap servern inte skickar.
+        e["description"]["properties"]["mjau:sover"]={"type":"int","range":[0,1],"default":0,"client_sync":True}
         for k in [k for k in ev if k.startswith("mjau:on_") and k not in ("mjau:on_tame",)]: del ev[k]
         g.pop("mjau:vagnsplats",None)   # gammal grupp: rideable bor numera bara i mjau:saddled
         inter=[]
@@ -802,7 +809,7 @@ def build_rest():
                     ev[evn]["add"]={"component_groups":["mjau:saddled"]}
                     # jagar + fri måste av när riddjuret sätts — annars styr
                     # katten sig själv under ryttaren (sköts av statisk check)
-                    ev[evn]["remove"]={"component_groups":["mjau:sittable","mjau:carted","mjau:jagar","mjau:fri","mjau:bladbararen"]}
+                    ev[evn]["remove"]={"component_groups":["mjau:sittable","mjau:carted","mjau:jagar","mjau:fri","mjau:sovdags","mjau:bladbararen"]}
                 if cfg.get("seats"):
                     # VAGN: seat 0 I vagnen (styrbar som en släde), seat 1 på ryggen
                     # för en vän. Egen grupp med egna styr-/lastkomponenter; sadel-
@@ -822,7 +829,7 @@ def build_rest():
                             "interact_text":"action.interact.ride",
                             "seats":[{"position":cfg["seats"][0]},{"position":cfg["seats"][1]}]}}
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:carted")
-                    ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).extend(["mjau:sittable","mjau:saddled","mjau:jagar","mjau:fri","mjau:bladbararen"])
+                    ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).extend(["mjau:sittable","mjau:saddled","mjau:jagar","mjau:fri","mjau:sovdags","mjau:bladbararen"])
                 inter.append(entry(f"mjau:{a}_{slug}",evn,cfg["sound"]))   # namnrymd krävs för EGNA föremål
         inter.append(entry("saddle","mjau:on_sadel_1","saddle"))
         # SPINNA/MATA: godis på tam katt höjer humöret
@@ -882,6 +889,40 @@ def build_rest():
             {"weight":4,"set_property":{"mjau:halsband":1}},
             {"weight":4,"set_property":{"mjau:halsband":2}},
             {"weight":4,"set_property":{"mjau:halsband":3}}]})
+        # KOLONIN — NATTENS SOVGRUPP. mjau:fri låter katten stryka omkring och
+        # söka sig till ÅTTA möbeltyper med 40 % chans. På natten ska flocken i
+        # stället samlas, och med åtta mål sprider den sig över matskål,
+        # kattlucka och fiskdamm — då blir det aldrig någon hög. Nattgruppen
+        # söker bara sovplatser (bädd och kartong), med hög chans och lång
+        # liggtid.
+        #
+        # GRUPPEN ERSÄTTER mjau:fri, den läggs INTE ovanpå — men den lånar INTE
+        # dess prioriteter. Första försöket återanvände 12 och 15 med
+        # motiveringen "de är ändå aldrig aktiva samtidigt", och strukturgrinden
+        # underkände det på alla tio katterna. Grinden hade rätt: ingenting i
+        # DATAN garanterar att de är uteslutande — det garanteras bara av att
+        # skriptet råkar byta dem parvis, och nästa händelse som lägger på
+        # mjau:fri skulle ge två move_to_block med samma prioritet, vilket är
+        # odefinierat i Bedrock. 19 och 20 är lediga och ligger under allt
+        # annat, precis som en sysselsättning ska göra.
+        #
+        # tempt och random_stroll finns med flit inte här: en katt som ska sova
+        # ska varken vandra iväg eller lockas av fisk.
+        g["mjau:sovdags"]={
+            "minecraft:behavior.move_to_block":{
+                "priority":19,"tick_interval":40,"start_chance":0.9,
+                "search_range":16,"search_height":4,"goal_radius":1.2,
+                "stay_duration":200,"target_selection_method":"nearest",
+                "target_offset":[0,1,0],
+                "target_blocks":["mjau:kattbadd","mjau:kartong"]},
+            "minecraft:behavior.random_sitting":{
+                "priority":20,"min_sit_time":20,"start_chance":0.3,"stop_chance":0.02}}
+        ev["mjau:sover_pa"]={"set_property":{"mjau:sover":1}}
+        ev["mjau:sover_av"]={"set_property":{"mjau:sover":0}}
+        ev["mjau:sovdags_pa"]={"add":{"component_groups":["mjau:sovdags"]},
+                               "remove":{"component_groups":["mjau:fri"]}}
+        ev["mjau:sovdags_av"]={"add":{"component_groups":["mjau:fri"]},
+                               "remove":{"component_groups":["mjau:sovdags"]}}
         g["mjau:tamed"]["minecraft:interact"]={"interactions":inter}
         json.dump(d,open(f,"w"),indent=2)
 

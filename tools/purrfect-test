@@ -391,12 +391,56 @@ _bd = open(f"{SRC}/PurrfectCompanions_BP/scripts/bokdata.js", encoding="utf-8").
 _plagg = json.loads(re.search(r"export const PLAGG = (\[.*?\]);", _bd, re.S).group(1))
 _bokkrav |= {f"mjau.bok.plagg.{p['id']}" for p in _plagg}
 _bokkrav = {k for k in _bokkrav if not k.endswith(".")}
-for _pack in ("PurrfectCompanions_BP", "PurrfectCompanions_RP"):
-    for _spr in json.load(open(f"{SRC}/{_pack}/texts/languages.json", encoding="utf-8")):
-        _fil = f"{SRC}/{_pack}/texts/{_spr}.lang"
-        _har = {r.split("=", 1)[0] for r in open(_fil, encoding="utf-8").read().split("\n") if "=" in r}
-        for _k in sorted(_bokkrav - _har):
-            bad.append(f"{_pack}/{_spr}.lang saknar Kattbokens nyckel '{_k}'")
+# Även här: klienten läser bara resurspaketets språkfil.
+_RPTX0 = f"{SRC}/PurrfectCompanions_RP/texts"
+for _spr in json.load(open(f"{_RPTX0}/languages.json", encoding="utf-8")):
+    _har = {r.split("=", 1)[0] for r in open(f"{_RPTX0}/{_spr}.lang", encoding="utf-8").read().split("\n") if "=" in r}
+    for _k in sorted(_bokkrav - _har):
+        bad.append(f"RP/{_spr}.lang saknar Kattbokens nyckel '{_k}'")
+# ALLT BOKEN VISAR MÅSTE GÅ ATT ÖVERSÄTTA. Boken renderar rawtext-nycklar för
+# bedrifter, möbler, katter och effekter. Saknas någon av dem visar guiden en
+# RÅ NYCKEL mitt i menyn — och menyn öppnas aldrig av något test, så felet syns
+# först hos en spelare. Nycklarna härleds ur den GENERERADE bokdatan och ur
+# skriptets egna listor, inte ur en kopia här.
+_bokvisar = set()
+for _fam in ("KATT_ORDER", "KATTGARDEN_ORDER"):
+    _m = re.search(rf"const {_fam} = \[(.*?)\];", _bokjs, re.S)
+    if _m:
+        _bokvisar |= {f"mjau.achv.{i}" for i in re.findall(r'"([a-z_]+)"', _m.group(1))}
+_bokvisar |= {f"tile.{b}.name" for b in
+              json.loads(re.search(r"export const MOBLER = (\[.*?\]);", _bd, re.S).group(1))}
+_bokvisar |= {f"entity.{k['id']}.name" for k in
+              json.loads(re.search(r"export const KATTER = (\[.*?\]);", _bd, re.S).group(1))}
+# BARA RESURSPAKETET. Bedrock översätter på KLIENTEN, och klienten får bara
+# resurspaketets språkfil — beteendepaketets kopia skickas aldrig dit. Första
+# versionen av den här grinden krävde nycklarna i båda paketen och underkände
+# sexton bedrifter som har fungerat i femton släpp; de har alltid legat enbart i
+# RP. En grind som kräver något spelet inte läser skapar arbete, inte kvalitet.
+_RPTX = f"{SRC}/PurrfectCompanions_RP/texts"
+for _spr in json.load(open(f"{_RPTX}/languages.json", encoding="utf-8")):
+    _har = {r.split("=", 1)[0] for r in open(f"{_RPTX}/{_spr}.lang", encoding="utf-8").read().split("\n") if "=" in r}
+    for _k in sorted(_bokvisar - _har):
+        bad.append(f"RP/{_spr}.lang saknar '{_k}', som Kattboken visar")
+
+# EFFEKTNYCKLARNA ÄR VANILJAS EGNA och kontrolleras mot MOTORNS språkfil, inte
+# mot vår. Poängen med att låna dem är att effektnamnen blir översatta på alla
+# språk gratis — men en felstavad nyckel ger en rå sträng i stället, och den
+# stavningen är lätt att få fel: prefixet är "potion.", inte "effect.", och
+# hoppkraften heter potion.jump och inte potion.jumpBoost.
+_VLANG = "/opt/bds/server/resource_packs/vanilla/texts/en_US.lang"
+if os.path.exists(_VLANG):
+    _vanilj = {r.split("=", 1)[0] for r in open(_VLANG, encoding="utf-8").read().split("\n") if "=" in r}
+    for _p in json.loads(re.search(r"export const PLAGG = (\[.*?\]);", _bd, re.S).group(1)):
+        if _p["effekt"] and _p["effekt"] not in _vanilj:
+            bad.append(f"Kattboken: effektnyckeln '{_p['effekt']}' ({_p['id']}) finns inte i vanilla")
+
+# VARJE PLAGG BOKEN LISTAR MÅSTE FINNAS SOM FÖREMÅL. Boken läser en genererad
+# tabell; blir tabellen och föremålen osynkade lovar guiden något man inte kan
+# tillverka.
+for _p in json.loads(re.search(r"export const PLAGG = (\[.*?\]);", _bd, re.S).group(1)):
+    if not glob.glob(f"{SRC}/PurrfectCompanions_BP/items/{_p['id']}_*.json"):
+        bad.append(f"Kattboken listar '{_p['id']}' men inget sådant föremål finns")
+
 # EN .lang-RAD MÅSTE VARA EN RAD. Bedrock stödjer inga \n-escapes (vaniljas egen
 # fil har noll stycken), och en flerradig text sprängde filformatet: värdet
 # hamnade som rader utan '=' som spelet tyst hoppar över.

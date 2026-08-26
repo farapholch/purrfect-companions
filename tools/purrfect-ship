@@ -119,6 +119,16 @@ if [ "$CURSEFORGE" -eq 1 ]; then
   # SJÄLV, i stunden, när ett CurseForge-släpp går ut. Major/minor/patch är
   # irrelevant för om det får skickas eller ej (ersätter 2026-08-09-regeln).
   [ -f "$CF_TOKEN_FILE" ] || { echo "❌ ingen CurseForge-token i $CF_TOKEN_FILE"; exit 1; }
+  # PÅMINNELSE, inte spärr. Att en ny funktion saknas i butiksbeskrivningen går
+  # inte att testa — ingen kod vet vad prosan borde nämna. Men det som är NYTT
+  # sedan förra butikssläppet står i changelog-pending.md, och att skriva ut det
+  # här är skillnaden mellan att komma ihåg och att inte göra det. Kolonin och
+  # Kattboken missades båda i description.md första gången.
+  echo "   ── kontrollera innan du släpper ──"
+  grep -h '^## ' /opt/purrfect-companions/changelog-pending.md 2>/dev/null \
+    | sed 's/^## /     nytt: /' || true
+  echo "     står det i publish/description.md och publish/index.html?"
+  echo "   ─────────────────────────────────"
   CHANGELOG=$(cat /opt/purrfect-companions/publish/changelog.md 2>/dev/null || echo "Update $VER")
   # metadata via FIL — skalcitering bryter sönder JSON med radbrytningar/citattecken
   METAFILE=/tmp/cf-metadata.json

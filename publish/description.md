@@ -32,6 +32,7 @@ Each cat meows in its own pitch — Mocha highest, Snow deepest.
 - **Treasure hunting** — cats wearing a backpack dig up string and feathers, and once in a long while, a diamond
 - **She warns you** — a cat at your side bristles and calls out when something hostile closes in
 - **They live together** — cats groom each other when they stand close, kittens play, and at night the flock gathers on beds and boxes and curls up in a sleeping pile instead of wandering off one by one
+- **The Cat Care Book** — craft it from a book and a Cat Treat and it explains the whole pack: every cat, everything she can do, every outfit and what it grants her, the four tiers of your own suit and the rule that the weakest piece decides, the furniture, and how many achievements you have left to find
 - **Breed** two of the same cat for a kitten of that breed — sometimes born wearing a little bow
 - **Gifts** — tamed cats bring you presents in the morning
 - **Creepers and phantoms flee** from them; they stalk and pounce on rabbits and chickens

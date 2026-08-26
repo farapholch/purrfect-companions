@@ -9,9 +9,37 @@ import { world, system, ItemStack } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 import { PLAGG, KATTER, MOBLER } from "./bokdata.js";
 
+// ---------------------------------------------------------------------------
+// TICKBUDGETEN. Paketet har tolv fristående loopar som var och en ser billig ut
+// i sin egen kommentar, och ingen har någonsin mätt vad de kostar TILLSAMMANS
+// med en full kattgård. Hundpaketet mäter sin enda loop; det här paketet är
+// tolv gånger så stort och mätte ingenting.
+//
+// matt() lindar en loop och bokför tid per varv. Kostnaden är ett Date.now()
+// per varv och loop — försumbart mot det den mäter, och den enda som kan svara
+// på om nästa funktion får plats.
+//
+// FESTKANONEN (achievement-firandet) lindas MEDVETET inte: den sparar sitt
+// handtag i en variabel för att kunna stoppa sig själv, och matt() lämnar
+// inget handtag tillbaka.
+const matning = new Map();
+
+function matt(namn, fn, tick) {
+  system.runInterval(() => {
+    const t0 = Date.now();
+    try { fn(); }
+    finally {
+      const m = matning.get(namn) ?? { varv: 0, ms: 0 };
+      m.varv++; m.ms += Date.now() - t0;
+      matning.set(namn, m);
+    }
+  }, tick);
+}
+
+
 const MIDNIGHT = "mjau:midnight";
 
-system.runInterval(() => {
+matt("midnight", () => {
   const t = world.getTimeOfDay();
   if (t < 17000 || t > 19000) return;
   const d = world.getDimension("overworld");
@@ -64,7 +92,7 @@ system.runInterval(() => {
 // djupast. Till skillnad från Midnight kostar det ingen gåva — bara att
 // vara där. Ett Aurora-fynd inom 48 block räcker.
 const AURORA = "mjau:aurora";
-system.runInterval(() => {
+matt("aurora", () => {
   const t = world.getTimeOfDay();
   if (t < 13000 || t > 23000) return;
   const d = world.getDimension("overworld");
@@ -108,7 +136,7 @@ system.runInterval(() => {
 const NOVA = "mjau:nova";
 const BLAD = ["mjau:energisvard_bla", "mjau:energisvard_gron",
               "mjau:energisvard_rod", "mjau:energisvard_lila"];
-system.runInterval(() => {
+matt("nova", () => {
   const d = world.getDimension("overworld");
   let players;
   try { players = world.getAllPlayers(); } catch { return; }
@@ -174,7 +202,7 @@ function gnistra(d, partikel, x, y, z, spridning, antal) {
   }
 }
 
-system.runInterval(() => {
+matt("blad", () => {
   const d = world.getDimension("overworld");
   try {
     for (const pl of world.getAllPlayers()) {
@@ -464,7 +492,7 @@ let hundSedd = false, hundPlats = null;   // vakthunds-vakans minne
 let catHavenWorld = null;   // fyrljuset på känd plats = vi är i Cat Haven
 let starHarbourWorld = null;  // navlyktan i kupolen = vi är i Stjärnhamnen
 
-system.runInterval(() => {
+matt("varld", () => {
   const d = world.getDimension("overworld");
   let cats;
   try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
@@ -667,7 +695,7 @@ const MOBLER = [
 ];
 let moblerLagda = false;
 
-system.runInterval(() => {
+matt("mobler", () => {
   if (moblerLagda || catHavenWorld !== true) return;
   try { if (world.getDynamicProperty("mjau_mobler_lagda")) { moblerLagda = true; return; } } catch { }
   const d = world.getDimension("overworld");
@@ -693,7 +721,7 @@ system.runInterval(() => {
 // och FALLANDE (vingar/batvingar/horn — glitter, "jag landar mjukt!") via
 // lodrät hastighet. Egen snabb loop (var 3:e tick) — huvudloopen (40 tick)
 // är för gles för att fånga ett hopp, som är över på under en sekund.
-system.runInterval(() => {
+matt("kraftluft_mark", () => {
   const d = world.getDimension("overworld");
   let cats;
   try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
@@ -716,7 +744,7 @@ system.runInterval(() => {
 // att se. Långsammare loop (var 60:e tick / 3s) eftersom effekten är
 // permanent, inte ett kort ögonblick som hoppet — ett hjärta då och då
 // räcker för att visa att det pågår utan att spamma.
-system.runInterval(() => {
+matt("kraftluft_flyg", () => {
   const d = world.getDimension("overworld");
   let cats;
   try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
@@ -755,7 +783,7 @@ function tamKatt(c) {
   try { return c.getProperty("mjau:tam") === 1; } catch { return false; }
 }
 
-system.runInterval(() => {
+matt("ryggsack", () => {
   const d = world.getDimension("overworld");
   let cats;
   try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
@@ -907,7 +935,7 @@ const monsterVarnad = new Set();         // mob-id vi redan varnat för
 const VARNING_PAUS = 600;                // 30 s
 const VARNING_NARMAR = 1.5;              // block/sekund som räknas som "kommer mot dig"
 
-system.runInterval(() => {
+matt("varning", () => {
   const d = world.getDimension("overworld");
   let cats;
   try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
@@ -980,7 +1008,7 @@ function delensKrafter(del, niva) {
   return [];
 }
 
-system.runInterval(() => {
+matt("drakt", () => {
   const d = world.getDimension("overworld");
   for (const pl of world.getAllPlayers()) {
     if (!pl) continue;                 // getAllPlayers kan ge tomma platser
@@ -1116,9 +1144,14 @@ const parTyst = new Map();          // "id|id" -> tick då paret får igen
 const sovlage = new Map();          // katt-id -> ligger hon i nattgruppen?
 const sovhogSagd = new Map();       // spelar-id -> dygn vi senast sa till
 
-function kattAvstand(a, b) {
-  return Math.hypot(a.location.x - b.location.x, a.location.y - b.location.y,
-                    a.location.z - b.location.z);
+// AVSTÅND MELLAN TVÅ AVLÄSTA PLATSER, inte mellan två entiteter. entity.location
+// är en INBYGGD getter som bygger ett nytt objekt vid varje anrop, och den
+// gamla versionen läste den sex gånger per par. Med 24 katter är det 276 par,
+// alltså 1 656 inbyggda anrop i sekunden — uthållighetsprovet mätte kolonin
+// till 3,10 ms av paketets 4,30, alltså 72 % av all skriptkostnad för en loop
+// som mest jämför tal. Platserna läses nu EN gång per katt och varv.
+function avstandMellan(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 }
 
 function parNyckel(a, b) {
@@ -1171,13 +1204,19 @@ function koloniVarv() {
   // är det 276 avståndsmätningar i sekunden, vilket är försumbart, men en
   // värld med hundra katter ska inte kunna äta tickbudgeten.
   const flock = tamda.slice(0, KOLONI_TAK);
+  // EN avläsning per katt, inte sex per par.
+  const platser = [];
+  for (const c of flock) {
+    try { platser.push(c.location); } catch { platser.push(null); }
+  }
   const iHog = new Set();        // katt-id som ligger tätt intill en annan katt
   let hog = null;
   for (let i = 0; i < flock.length; i++) {
+    if (!platser[i]) continue;
     for (let j = i + 1; j < flock.length; j++) {
+      if (!platser[j]) continue;
       const a = flock[i], b = flock[j];
-      let avst;
-      try { avst = kattAvstand(a, b); } catch { continue; }
+      const avst = avstandMellan(platser[i], platser[j]);
       if (natt && avst <= KOLONI_HOG_AVSTAND) {
         iHog.add(a.id); iHog.add(b.id);
         if (!hog) hog = [a, b];
@@ -1188,9 +1227,9 @@ function koloniVarv() {
       if ((parTyst.get(nyckel) || 0) > system.currentTick) continue;
       parTyst.set(nyckel, system.currentTick +
                   (ungar ? KOLONI_LEK_PAUS : KOLONI_TVATT_PAUS));
-      const mitt = { x: (a.location.x + b.location.x) / 2,
-                     y: (a.location.y + b.location.y) / 2 + 0.7,
-                     z: (a.location.z + b.location.z) / 2 };
+      const mitt = { x: (platser[i].x + platser[j].x) / 2,
+                     y: (platser[i].y + platser[j].y) / 2 + 0.7,
+                     z: (platser[i].z + platser[j].z) / 2 };
       try {
         if (ungar) {
           d.spawnParticle("minecraft:villager_happy", mitt);
@@ -1241,7 +1280,7 @@ function koloniVarv() {
   } catch { }
 }
 
-system.runInterval(koloniVarv, 20);
+matt("koloni", koloniVarv, 20);
 
 // testkrok: /scriptevent mjau:test_koloni kor ETT kolonivarv pa begaran.
 // Loopen gar en gang i sekunden och tvattningen har 45 sekunders paus per par,
@@ -1390,4 +1429,106 @@ world.afterEvents.itemUse.subscribe(ev => {
     // nästa tick där det är tillåtet.
     system.run(() => visaBoken(ev.source));
   } catch { }
+});
+
+// ---------------------------------------------------------------------------
+// UTHÅLLIGHETSKROKAR. Det som bara syns över TID och SKALA, och som därför inte
+// går att prova i purrfect-test — den river världen vid varje körning, så den
+// kan per definition inte visa att något överlever en omstart.
+//
+// Krokarna kör inga egna kopior av mekaniken: mätningen läser looparnas EGEN
+// bokföring, och tillståndsprovet sätter tillståndet med paketets egna events.
+const UTHALL = "Uthall";
+
+// EGEN LÄSARE. Filen anropar getProperty inline med try/catch överallt och har
+// ingen hjälpare — den första versionen av de här krokarna antog att det fanns
+// en prop() och hade kastat ReferenceError vid körning. node --check godkänner
+// det: den kontrollerar syntax, inte att namn finns.
+function las(e, namn, fallback) {
+  try { const v = e.getProperty(namn); return v === undefined ? fallback : v; }
+  catch { return fallback; }
+}
+
+function uthallKatt() {
+  try {
+    for (const c of world.getDimension("overworld").getEntities({ families: ["mjaukatt"] }))
+      if (c.nameTag === UTHALL) return c;
+  } catch { }
+  return null;
+}
+
+// Det som PÅSTÅS överleva en omstart. Varje post: event som sätter, egenskap
+// att läsa tillbaka, väntat värde.
+const UTHALL_TILLSTAND = [
+  ["mjau:on_keps_2", "mjau:keps", 2],
+  ["mjau:on_rustning_4", "mjau:rustning", 4],
+  ["mjau:on_ryggsack_1", "mjau:ryggsack", 1],
+  ["mjau:on_halsduk_3", "mjau:halsduk", 3],
+];
+
+system.afterEvents.scriptEventReceive.subscribe(ev => {
+  if (!ev.id.startsWith("mjau:test_")) return;
+
+  if (ev.id === "mjau:test_last") {
+    let varv = 0, ms = 0;
+    const delar = [];
+    for (const [namn, m] of matning) {
+      varv += m.varv; ms += m.ms;
+      if (m.varv) delar.push(`${namn} ${(m.ms / m.varv).toFixed(2)}`);
+    }
+    let katter = 0;
+    try { katter = world.getDimension("overworld").getEntities({ families: ["mjaukatt"] }).length; }
+    catch { }
+    // SUMMAN PER TICK är det som betyder något, inte snittet per loop: alla
+    // tolv delar på samma 50 ms, och en loop som är billig i sig kan vara dyr
+    // för att den går ofta.
+    const perVarv = varv ? ms / varv : 0;
+    const perSekund = ms / Math.max(1, varv / matning.size || 1);
+    console.log(`[mjau] LAST-TEST: ${katter} katter, ${varv} varv totalt, `
+      + `${perVarv.toFixed(2)} ms per loopvarv, ${perSekund.toFixed(2)} ms samlat `
+      + `(budget 50 ms/tick) | ${delar.join(", ")}`);
+    matning.clear();
+    return;
+  }
+
+  if (ev.id === "mjau:test_satt") {
+    const c = uthallKatt();
+    if (!c) { console.warn("[mjau] SPARA-TEST FEL: hittar inte " + UTHALL); return; }
+    try {
+      for (const [event] of UTHALL_TILLSTAND) c.triggerEvent(event);
+    } catch (e) { console.warn("[mjau] SPARA-TEST FEL: " + e); return; }
+    // Lastrummet fylls FÖRST nästa tick: ryggsäcken skapar containern via en
+    // komponentgrupp, och gruppen finns inte förrän eventet landat.
+    system.runTimeout(() => {
+      let last = "ingen";
+      try {
+        const box = c.getComponent("minecraft:inventory")?.container;
+        if (box) { box.setItem(0, new ItemStack("minecraft:diamond", 3)); last = "diamant x3"; }
+      } catch (e) { console.warn("[mjau] SPARA-TEST FEL vid last: " + e); }
+      const satta = UTHALL_TILLSTAND.map(([, prop_]) => `${prop_}=${las(c, prop_, "?")}`);
+      console.log(`[mjau] SPARA-TEST: ${satta.join(" ")} last=${last}`);
+    }, 10);
+    return;
+  }
+
+  if (ev.id === "mjau:test_las") {
+    const c = uthallKatt();
+    if (!c) { console.warn("[mjau] LAS-TEST FEL: katten överlevde inte omstarten"); return; }
+    const fel = [];
+    for (const [, prop_, vantat] of UTHALL_TILLSTAND) {
+      const nu = las(c, prop_, null);
+      if (nu !== vantat) fel.push(`${prop_}=${nu} (väntade ${vantat})`);
+    }
+    let diamanter = 0;
+    try {
+      const box = c.getComponent("minecraft:inventory")?.container;
+      const s = box?.getItem(0);
+      if (s?.typeId === "minecraft:diamond") diamanter = s.amount;
+    } catch { }
+    if (diamanter !== 3) fel.push(`ryggsäckens last=${diamanter} (väntade 3)`);
+    if (las(c, "mjau:tam", 0) !== 1) fel.push("tämjningen försvann");
+    if (fel.length) console.warn("[mjau] LAS-TEST FEL: " + fel.join(", "));
+    else console.log(`[mjau] LAS-TEST OK: ${UTHALL_TILLSTAND.length} egenskaper, `
+      + `tämjningen och ryggsäckens last överlevde omstarten`);
+  }
 });

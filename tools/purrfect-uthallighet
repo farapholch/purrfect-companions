@@ -1,0 +1,135 @@
+#!/bin/bash
+# Uthållighetsprov: det som bara syns över TID och SKALA, och som därför inte
+# hör hemma i purrfect-test (som river världen vid varje körning och per
+# definition inte kan visa att något överlever en omstart).
+#
+#   1. ÖVERLEVER TILLSTÅNDET EN OMSTART? Varje katt bär 22 egenskaper, och
+#      ryggsäckskatten har ett riktigt lastrum. Att det överlever står i
+#      kommentarer och har aldrig provats.
+#   2. VAD KOSTAR TOLV LOOPAR MED EN FULL KATTGÅRD? Paketet har tolv fristående
+#      loopar som var för sig ser billiga ut i sin egen kommentar. Ingen har
+#      mätt vad de kostar tillsammans. Hundpaketet mäter sin ENDA loop; det här
+#      paketet är tolv gånger så stort och mätte ingenting.
+#
+# Världen RIVS INTE mellan faserna — det är hela poängen.
+set -u
+if [ "${BDS_LOCK_HELD:-}" != "1" ]; then
+  exec 9>/tmp/bds.lock; flock -w 1200 9 || { echo "kunde inte ta serverlåset"; exit 1; }
+  export BDS_LOCK_HELD=1
+fi
+SRC=/opt/purrfect-companions
+SRV=/opt/bds/server
+WORLD="$SRV/worlds/Kattuthall"
+LOG=/tmp/purrfect-uthall.log
+FAIL=0
+ok(){ echo "  ✅ $1"; }
+bad(){ echo "  ❌ $1"; FAIL=1; }
+
+echo "=== Purrfect uthållighetsprov $(date '+%F %H:%M') ==="
+pkill -9 -x bedrock_server 2>/dev/null; sleep 2
+find "$SRV" -name "ContentLog*" -delete 2>/dev/null
+rm -rf "$WORLD"
+mkdir -p "$WORLD/behavior_packs" "$WORLD/resource_packs"
+cp -r "$SRC/PurrfectCompanions_BP" "$WORLD/behavior_packs/"
+cp -r "$SRC/PurrfectCompanions_RP" "$WORLD/resource_packs/"
+python3 - "$WORLD" <<'PY'
+import json, sys
+W = sys.argv[1]
+bp = json.load(open(f"{W}/behavior_packs/PurrfectCompanions_BP/manifest.json"))["header"]
+rp = json.load(open(f"{W}/resource_packs/PurrfectCompanions_RP/manifest.json"))["header"]
+json.dump([{"pack_id": bp["uuid"], "version": bp["version"]}],
+          open(f"{W}/world_behavior_packs.json", "w"))
+json.dump([{"pack_id": rp["uuid"], "version": rp["version"]}],
+          open(f"{W}/world_resource_packs.json", "w"))
+PY
+# LEVEL-NAME STÄLLS TILLBAKA EFTERÅT. Provet pekar om servern till sin egen
+# värld, och lämnades den så klagade purrfect-test vid nästa körning ("pekar
+# inte på världen Kattest — rättar"). Ett prov som stökar för ett annat prov
+# blir brus man slutar läsa.
+LEVEL_FORE=$(grep -m1 '^level-name=' "$SRV/server.properties" | cut -d= -f2-)
+aterstall_level(){ sed -i "s/^level-name=.*/level-name=$LEVEL_FORE/" "$SRV/server.properties"; }
+trap aterstall_level EXIT
+sed -i 's/^level-name=.*/level-name=Kattuthall/' "$SRV/server.properties"
+cd "$SRV" || exit 1
+
+echo
+echo "[1/3] Sätter tillstånd och stänger av (~1 min)"
+{
+  sleep 30
+  echo "tickingarea add 0 0 0 48 48 48 katt"; sleep 3
+  echo "fill 2 19 2 46 19 22 stone"; sleep 1
+  echo "fill 2 20 2 46 26 22 air"; sleep 1
+  echo "summon mjau:misty \"Uthall\" 10 21 10"; sleep 2
+  echo "event entity @e[name=Uthall] mjau:on_tame"; sleep 2
+  echo "scriptevent mjau:test_satt kor"; sleep 4
+  # SPARA INNAN STOPP. Utan save hold/query/resume kan de sista sekundernas
+  # ändringar ligga kvar i minnet när servern rivs, och provet mäter då att
+  # Bedrock tappar det VI inte hann spara — inte att paketet gör det.
+  echo "save hold"; sleep 2; echo "save query"; sleep 2; echo "save resume"; sleep 1
+  echo "stop"; sleep 10
+} | LD_LIBRARY_PATH=. ./bedrock_server > "$LOG" 2>&1
+pkill -9 -x bedrock_server 2>/dev/null; sleep 2
+SATT=$(grep -o "SPARA-TEST: .*" "$LOG" | tail -1)
+if [ -n "$SATT" ]; then ok "tillståndet satt före omstart — $SATT"
+else bad "kunde inte sätta tillståndet (se $LOG)"; fi
+
+echo
+echo "[2/3] Startar om SAMMA värld och läser tillbaka (~1 min)"
+{
+  sleep 32
+  echo "scriptevent mjau:test_las kor"; sleep 5
+  echo "stop"; sleep 10
+} | LD_LIBRARY_PATH=. ./bedrock_server >> "$LOG" 2>&1
+pkill -9 -x bedrock_server 2>/dev/null; sleep 2
+if grep -q "LAS-TEST OK" "$LOG"; then
+  ok "$(grep -o 'LAS-TEST OK:.*' "$LOG" | tail -1)"
+else
+  bad "tillstånd gick förlorat: $(grep -o 'LAS-TEST FEL:.*' "$LOG" | tail -1)"
+fi
+
+echo
+echo "[3/3] Trettio katter, en minut (~2 min)"
+{
+  sleep 32
+  # En blandning av raser, för looparna filtrerar på olika saker: dräkt-loopen
+  # tittar på spelare, varningen på tämjda katter, kolonin på par.
+  for i in $(seq 1 30); do
+    case $(( i % 3 )) in
+      0) R=mjau:misty;; 1) R=mjau:hazel;; *) R=mjau:snow;;
+    esac
+    echo "summon $R $(( 6 + i % 20 )) 21 $(( 6 + i % 12 ))"
+  done
+  sleep 6
+  # TÄMJDA katter kostar mer än vilda: kolonin, varningen och gåvorna arbetar
+  # bara på dem. Ett prov med trettio VILDA katter hade mätt tomgång.
+  echo "event entity @e[type=mjau:misty] mjau:on_tame"; sleep 2
+  echo "event entity @e[type=mjau:hazel] mjau:on_tame"; sleep 2
+  echo "event entity @e[type=mjau:snow] mjau:on_tame"; sleep 2
+  echo "scriptevent mjau:test_last nollstall"; sleep 2
+  sleep 60
+  echo "scriptevent mjau:test_last kor"; sleep 4
+  echo "stop"; sleep 10
+} | LD_LIBRARY_PATH=. ./bedrock_server >> "$LOG" 2>&1
+pkill -9 -x bedrock_server 2>/dev/null
+SISTA=$(grep -o "LAST-TEST: .*" "$LOG" | tail -1)
+echo "  $SISTA"
+MS=$(echo "$SISTA" | grep -oE "[0-9]+\.[0-9]+ ms samlat" | grep -oE "^[0-9]+\.[0-9]+")
+if [ -n "$MS" ] && awk "BEGIN{exit !($MS < 5)}"; then
+  ok "looparna kostar under 5 ms samlat med full kattgård (budget 50 ms/tick)"
+elif [ -n "$MS" ]; then
+  bad "looparna kostar $MS ms samlat — undersök innan fler funktioner läggs till"
+else
+  bad "ingen mätning kom tillbaka (se $LOG)"
+fi
+HANG=$(grep -ciE "watchdog|hang detected|running behind|shutting down abnormally" "$LOG")
+[ "$HANG" -eq 0 ] && ok "inga watchdog- eller eftersläpningsvarningar" || bad "$HANG varningar om eftersläpning (se $LOG)"
+CL=$(find "$SRV" -name "ContentLog*" 2>/dev/null | head -1)
+CLREST=""
+[ -n "$CL" ] && CLREST=$(grep -v '^[[:space:]]*$' "$CL" | grep -v '\[Scripting\]\[inform\]' || true)
+if [ -n "$CLREST" ]; then
+  bad "innehållsfel under provet"; echo "$CLREST" | head -5 | sed 's/^/     /'
+else ok "inga innehållsfel"; fi
+
+echo
+[ $FAIL -eq 0 ] && echo "=== UTHÅLLIGHET GRÖN ===" || echo "=== FEL HITTADE (logg: $LOG) ==="
+exit $FAIL

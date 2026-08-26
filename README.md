@@ -146,6 +146,17 @@ runs on a stock Python install.
 
 ## Testing
 
+`tools/purrfect-uthallighet` proves the two things the normal chain cannot,
+because it tears the world down on every run: that state survives a world
+restart, and what the twelve script loops cost together with a full clowder.
+
+The measurement pays for itself. The first run put the colony loop at 3.10 ms of
+the pack's 4.30 ms — 72 % of all script cost, for a loop that mostly compares
+numbers. `entity.location` is a native getter that builds a new object on every
+read, and the distance helper read it six times per pair: 1 656 native calls a
+second with 24 cats. Reading each position once per tick took the pack from
+4.30 ms to under 2 ms.
+
 `purrfect-test` validates the packs and then runs them for real: it boots a
 Bedrock dedicated server, spawns every cat, fires every outfit event and checks
 with `has_property` that the cat's state actually changed — not merely that the

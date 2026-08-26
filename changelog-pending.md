@@ -45,3 +45,26 @@ the book cannot drift away from the pack it describes.
   repot ändrade ingenting. Repots kopia är källan nu och kopieras in före varje
   körning.
 
+## Uthållighetsprovet (projektlogg, inte butikstext)
+
+`tools/purrfect-uthallighet` — tre faser, världen rivs INTE emellan:
+
+1. sätter tillstånd på en katt (fyra egenskaper, tämjning, tre diamanter i
+   ryggsäcken), sparar och stänger av
+2. startar om SAMMA värld och läser tillbaka allt
+3. trettio tämjda katter i en minut och mäter vad de tolv looparna kostar
+
+Alla tolv loopar är lindade i `matt()`, som bokför tid per varv. Festkanonen
+lindas medvetet inte — den sparar sitt handtag för att kunna stoppa sig själv.
+
+**Första mätningen betalade för provet direkt.** Kolonislingan stod för 3,10 ms
+av paketets 4,30 ms, alltså 72 % av all skriptkostnad, för en loop som mest
+jämför tal. Orsaken: `entity.location` är en INBYGGD getter som bygger ett nytt
+objekt vid varje anrop, och avståndshjälparen läste den sex gånger per par —
+1 656 inbyggda anrop i sekunden med 24 katter. Platserna läses nu en gång per
+katt och varv: kolonin 3,10 → ~1,0 ms, totalen 4,30 → under 2 ms.
+
+Provet ställer tillbaka `level-name` när det är klart. Utan det klagade
+purrfect-test vid nästa körning, och ett prov som stökar för ett annat prov blir
+brus man slutar läsa.
+

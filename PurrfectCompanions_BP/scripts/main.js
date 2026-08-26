@@ -1469,6 +1469,49 @@ const UTHALL_TILLSTAND = [
 system.afterEvents.scriptEventReceive.subscribe(ev => {
   if (!ev.id.startsWith("mjau:test_")) return;
 
+  if (ev.id === "mjau:test_bok") {
+    // BOKEN HAR ALDRIG ÖPPNATS av något test. Föremålet är bevisat registrerat
+    // och når en klients inventarie, men form.show() hade aldrig anropats — och
+    // hela funktionens värde ligger i menyn.
+    //
+    // Klienten kan inte trigga itemUse: servern kräver fullt modernt
+    // klienthandslag innan den processar interaktionspaket (se kommentaren i
+    // smoke-test.js). Ett scriptevent är serversidigt och går runt det, och
+    // anropar SAMMA visaBoken() som föremålet gör.
+    const pl = world.getAllPlayers()[0];
+    if (!pl) { console.warn("[mjau] BOKMENY-TEST FEL: ingen spelare inne"); return; }
+    system.run(() => {
+      try { visaBoken(pl); console.log("[mjau] BOKMENY-TEST: formuläret skickat"); }
+      catch (e) { console.warn("[mjau] BOKMENY-TEST FEL: " + e); }
+    });
+    return;
+  }
+
+  if (ev.id === "mjau:test_boksidor") {
+    // UNDERSIDORNA. Förstasidan bevisas av modal_form_request i röktestet, men
+    // varje avdelning byggs av en EGEN funktion — och den för bedrifter anropar
+    // hasAward arton gånger. Kastar någon av dem får spelaren en tom eller
+    // utebliven sida, och toppmenyn ser fortfarande felfri ut.
+    //
+    // Sidorna VISAS inte: bara ett formulär åt gången kan vara öppet, och det
+    // som kan gå sönder är bygget, inte visningen.
+    const pl = world.getAllPlayers()[0];
+    if (!pl) { console.warn("[mjau] BOKSIDOR-TEST FEL: ingen spelare inne"); return; }
+    const fel = [];
+    let delar = 0;
+    for (const [rubrik, bygg] of AVDELNINGAR) {
+      try {
+        const kropp = bygg(pl);
+        if (!Array.isArray(kropp) || !kropp.length) fel.push(`${rubrik}: tom`);
+        else delar += kropp.length;
+      } catch (e) { fel.push(`${rubrik}: ${e}`); }
+    }
+    if (fel.length) console.warn("[mjau] BOKSIDOR-TEST FEL: " + fel.join(" | "));
+    else console.log(`[mjau] BOKSIDOR-TEST OK: ${AVDELNINGAR.length} avdelningar, `
+      + `${delar} textdelar`);
+    return;
+  }
+
   if (ev.id === "mjau:test_last") {
     let varv = 0, ms = 0;
     const delar = [];

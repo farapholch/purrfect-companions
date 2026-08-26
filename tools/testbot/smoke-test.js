@@ -16,7 +16,7 @@ const bp = require('bedrock-protocol')
 
 const SRV = '/opt/bds/server'
 const sleep = (ms) => new Promise(r => setTimeout(r, ms))
-const checks = { join: false, registry: 0, give: false, entities: new Set(), props: 0 }
+const checks = { join: false, registry: 0, give: false, entities: new Set(), props: 0, form: '' }
 let srvlog = ''
 
 const srv = spawn('./bedrock_server', [], { cwd: SRV, env: { ...process.env, LD_LIBRARY_PATH: '.' } })
@@ -39,6 +39,11 @@ async function main () {
   })
   client.on('add_entity', (p) => { if (p.entity_type.startsWith('mjau:')) checks.entities.add(p.entity_type) })
   client.on('sync_entity_property', () => { checks.props++ })
+  // KATTBOKENS MENY. Servern skickar modal_form_request när form.show() körs;
+  // nyttolasten är formuläret som JSON, med rawtext-nycklarna OLÖSTA (klienten
+  // översätter dem själv). Att paketet kommer fram bevisar att skriptet byggde
+  // menyn, att servern kunde serialisera den och att den nådde en riktig klient.
+  client.on('modal_form_request', (p) => { checks.form = String(p.data || '') })
   client.on('inventory_content', (p) => {
     for (const s of (p.input || [])) {
       if (!s) continue
@@ -58,6 +63,8 @@ async function main () {
   say('summon mjau:misty 4 102 4')
   say('give Provkatt mjau:sadel_brun')
   say('give Provkatt mjau:kattbok')
+  say('scriptevent mjau:test_bok kor')
+  say('scriptevent mjau:test_boksidor kor')
   await sleep(6000)
 
   const rows = [
@@ -65,6 +72,15 @@ async function main () {
     ['REGISTRY', checks.registry >= 40, `${checks.registry} mjau-föremål`],
     ['GIVE', checks.give, 'mjau:sadel_brun nådde inventariet'],
     ['BOK', checks.bok, 'mjau:kattbok nådde inventariet'],
+    // UNDERSIDORNA rapporteras av SERVERN (console.log), inte till klienten —
+    // därför läses serverloggen och inte ett paket. Kroken kräver en inloggad
+    // spelare, så den hör hemma här och inte i live-testets kommandofas.
+    ['BOKSIDOR', srvlog.includes('BOKSIDOR-TEST OK'),
+      (srvlog.match(/BOKSIDOR-TEST OK: [^\n]*/) || ['inget svar'])[0].replace('BOKSIDOR-TEST OK: ', '')],
+    ['BOKMENY', checks.form.includes('mjau.bok.titel') &&
+       (checks.form.match(/mjau\.bok\.sekt\./g) || []).length >= 6,
+      `formulär ${checks.form.length} tecken, ` +
+      `${(checks.form.match(/mjau\.bok\.sekt\./g) || []).length} avdelningar`],
     ['ENTITIES', checks.entities.size >= 1, [...checks.entities].join(',')],
     ['PROPS', checks.props >= 1, `${checks.props} property-syncs`],
   ]

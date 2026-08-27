@@ -1,3 +1,34 @@
+## 3.33.0 — A book that explains the whole thing, and kittens that are not all identical
+
+**Every kitten was born wearing a bow.** It was meant to be about four in ten,
+and a collar about one in eight — that is what the pack has always said. In
+practice it was every single kitten and almost every collar, and it had been
+that way in every release since the feature was added. Kittens are varied again.
+
+### The book
+
+
+The pack has grown for fifteen releases: ninety-seven items, a dozen mechanics,
+two worlds. None of it is discoverable in the game. A player who installs it
+cold has no way of knowing that a saddled cat fishes for you, that a backpack
+cat digs up diamonds, or that the weakest piece of your suit decides the whole
+bonus. Achievements tell you *after* you have found something.
+
+**The Cat Care Book.** Craft it from a book and a Cat Treat and it opens a menu:
+the cats and where they live, everything a cat can do, every outfit and what it
+grants her, the four tiers of your own suit and the rule that the weakest piece
+decides, the furniture, and how many achievements you have left to find. It does
+not name the ones you have not earned. Some of them are not going to be named at
+all.
+
+The contents are generated from the same tables the outfits are built from, so
+the book cannot drift away from the pack it describes.
+
+Every line in it carries information. A first draft gave each outfit a sentence,
+and fourteen of the twenty just repeated the name — "A cap.", "A scarf." Those
+are gone: for a cap, the name, the colours and the effect are the whole truth.
+Only the six that do something the name does not give away still get a sentence.
+
 ## 3.32.0 — A colony, not nine copies of the same cat
 
 Until now every cat related only to you. Nine cats in a base behaved like nine

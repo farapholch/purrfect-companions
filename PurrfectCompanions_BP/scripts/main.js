@@ -1339,7 +1339,10 @@ function nyckel(k) { return { translate: k }; }
 function plaggrad(p) {
   // "Cat Saddle — Brown, Black, Light", sedan valfri mening, sedan effekten.
   const delar = [txt("§e" + p.namn + "§r — " + p.farger.join(", ") + "\n")];
-  delar.push({ translate: `mjau.bok.plagg.${p.id}` }, txt("\n"));
+  // Bara plagg som gör något namnet inte avslöjar får en mening. Flaggan
+  // kommer ur bokdata.js, för skriptet kan inte se om en språknyckel är tom —
+  // klienten översätter den, inte servern.
+  if (p.prosa) delar.push({ translate: `mjau.bok.plagg.${p.id}` }, txt("\n"));
   if (p.effekt) {
     delar.push(txt("§7"), nyckel("mjau.bok.ger"), txt(" "), nyckel(p.effekt), txt("§r\n"));
   }

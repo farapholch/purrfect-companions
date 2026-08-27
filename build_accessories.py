@@ -39,6 +39,15 @@ TEX = 256
 # är "potion.", inte "effect.", och hoppkraften heter potion.jump och inte
 # potion.jumpBoost. Med vaniljas nycklar står effektnamnen översatta på varje
 # språk spelet stödjer utan att paketet översätter en enda rad.
+# PLAGG DÄR NAMNET INTE RÄCKER. En keps är en keps: namn + färger + effekt är
+# hela sanningen, och en rad som säger "A cap." är fjorton tecken utfyllnad på en
+# sida som redan är lång. Bara de plagg som GÖR något namnet inte avslöjar får en
+# mening — att sadeln betyder ridning, att ryggsäcken har femton fack.
+#
+# Grinden i purrfect-test kräver en språknyckel för dem som står här, så ett nytt
+# plagg tvingar fram ett beslut i stället för att tyst hamna i fel hög.
+_BOKPROSA = {"sadel", "ryggsack", "vagn", "vingar", "rustning", "energisvard"}
+
 _EXTRA_POWERS = {
     "keps":        ("mjau:kepskraft",       "jump_boost",      "potion.jump"),
     "halsduk":     ("mjau:halsdukvarme",    "fire_resistance", "potion.fireResistance"),
@@ -1027,6 +1036,7 @@ def build_rest():
             "namn": cfg["label"],
             "farger": [cfg["names"][i] for i in sorted(cfg["colors"])],
             "effekt": _EXTRA_POWERS[a][2] if a in _EXTRA_POWERS else None,
+            "prosa": a in _BOKPROSA,
         })
     # KATTERNA med sitt biom, läst ur spawnreglerna i stället för ur en lista
     # här. Flyttas en ras till ett annat biom följer boken med av sig själv.

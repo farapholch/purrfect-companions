@@ -8,7 +8,8 @@ export const PLAGG = [
    "Black",
    "Light"
   ],
-  "effekt": null
+  "effekt": null,
+  "prosa": true
  },
  {
   "id": "keps",
@@ -19,7 +20,8 @@ export const PLAGG = [
    "Green",
    "Yellow"
   ],
-  "effekt": "potion.jump"
+  "effekt": "potion.jump",
+  "prosa": false
  },
  {
   "id": "halsduk",
@@ -30,7 +32,8 @@ export const PLAGG = [
    "Green",
    "Yellow"
   ],
-  "effekt": "potion.fireResistance"
+  "effekt": "potion.fireResistance",
+  "prosa": false
  },
  {
   "id": "ryggsack",
@@ -40,7 +43,8 @@ export const PLAGG = [
    "Green",
    "Blue"
   ],
-  "effekt": null
+  "effekt": null,
+  "prosa": true
  },
  {
   "id": "glasogon",
@@ -50,7 +54,8 @@ export const PLAGG = [
    "Gold",
    "Pink"
   ],
-  "effekt": "potion.resistance"
+  "effekt": "potion.resistance",
+  "prosa": false
  },
  {
   "id": "tossor",
@@ -61,7 +66,8 @@ export const PLAGG = [
    "Red",
    "Yellow"
   ],
-  "effekt": "potion.moveSpeed"
+  "effekt": "potion.moveSpeed",
+  "prosa": false
  },
  {
   "id": "vagn",
@@ -71,7 +77,8 @@ export const PLAGG = [
    "Red",
    "Blue"
   ],
-  "effekt": null
+  "effekt": null,
+  "prosa": true
  },
  {
   "id": "halsband",
@@ -81,7 +88,8 @@ export const PLAGG = [
    "Blue",
    "Green"
   ],
-  "effekt": "potion.absorption"
+  "effekt": "potion.absorption",
+  "prosa": false
  },
  {
   "id": "rosett",
@@ -92,7 +100,8 @@ export const PLAGG = [
    "Blue",
    "Yellow"
   ],
-  "effekt": "potion.damageBoost"
+  "effekt": "potion.damageBoost",
+  "prosa": false
  },
  {
   "id": "vingar",
@@ -102,7 +111,8 @@ export const PLAGG = [
    "Black",
    "Gold"
   ],
-  "effekt": null
+  "effekt": null,
+  "prosa": true
  },
  {
   "id": "horn",
@@ -112,7 +122,8 @@ export const PLAGG = [
    "Gold",
    "Pink"
   ],
-  "effekt": "potion.slowFalling"
+  "effekt": "potion.slowFalling",
+  "prosa": false
  },
  {
   "id": "rustning",
@@ -123,7 +134,8 @@ export const PLAGG = [
    "Diamond",
    "Netherite"
   ],
-  "effekt": null
+  "effekt": null,
+  "prosa": true
  },
  {
   "id": "haxhatt",
@@ -132,7 +144,8 @@ export const PLAGG = [
    "Black",
    "Purple"
   ],
-  "effekt": "potion.waterBreathing"
+  "effekt": "potion.waterBreathing",
+  "prosa": false
  },
  {
   "id": "tomteluva",
@@ -141,7 +154,8 @@ export const PLAGG = [
    "Red",
    "Green"
   ],
-  "effekt": "potion.healthBoost"
+  "effekt": "potion.healthBoost",
+  "prosa": false
  },
  {
   "id": "doktorsrock",
@@ -149,7 +163,8 @@ export const PLAGG = [
   "farger": [
    "White"
   ],
-  "effekt": null
+  "effekt": null,
+  "prosa": false
  },
  {
   "id": "batvingar",
@@ -158,7 +173,8 @@ export const PLAGG = [
    "Black",
    "Purple"
   ],
-  "effekt": null
+  "effekt": null,
+  "prosa": false
  },
  {
   "id": "krona",
@@ -167,7 +183,8 @@ export const PLAGG = [
    "Gold",
    "Silver"
   ],
-  "effekt": null
+  "effekt": null,
+  "prosa": false
  },
  {
   "id": "mantel",
@@ -178,7 +195,8 @@ export const PLAGG = [
    "Purple",
    "Black"
   ],
-  "effekt": null
+  "effekt": null,
+  "prosa": false
  },
  {
   "id": "energisvard",
@@ -189,7 +207,8 @@ export const PLAGG = [
    "Red",
    "Purple"
   ],
-  "effekt": "potion.nightVision"
+  "effekt": "potion.nightVision",
+  "prosa": true
  },
  {
   "id": "rymdmantel",
@@ -198,7 +217,8 @@ export const PLAGG = [
    "Starlight",
    "Void"
   ],
-  "effekt": null
+  "effekt": null,
+  "prosa": false
  }
 ];
 export const KATTER = [

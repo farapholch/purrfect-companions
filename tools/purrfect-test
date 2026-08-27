@@ -389,7 +389,10 @@ for _pre, _n in re.findall(r'stycken\("(mjau\.bok\.[a-z.]+)",\s*(\d+)\)', _bokjs
 # ...och en rad per plagg, hämtad ur den GENERERADE bokdatan, inte ur en lista här
 _bd = open(f"{SRC}/PurrfectCompanions_BP/scripts/bokdata.js", encoding="utf-8").read()
 _plagg = json.loads(re.search(r"export const PLAGG = (\[.*?\]);", _bd, re.S).group(1))
-_bokkrav |= {f"mjau.bok.plagg.{p['id']}" for p in _plagg}
+# ...och en rad bara för de plagg som FÅR en. Kravet följer flaggan i den
+# genererade bokdatan, så ett nytt plagg tvingar fram ett beslut: antingen står
+# det i _BOKPROSA och behöver en mening, eller så gör det inte det.
+_bokkrav |= {f"mjau.bok.plagg.{p['id']}" for p in _plagg if p.get("prosa")}
 _bokkrav = {k for k in _bokkrav if not k.endswith(".")}
 # Även här: klienten läser bara resurspaketets språkfil.
 _RPTX0 = f"{SRC}/PurrfectCompanions_RP/texts"

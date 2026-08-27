@@ -37,6 +37,11 @@ all.
 The contents are generated from the same tables the outfits are built from, so
 the book cannot drift away from the pack it describes.
 
+Every line in it carries information. A first draft gave each outfit a sentence,
+and fourteen of the twenty just repeated the name — "A cap.", "A scarf." Those
+are gone: for a cap, the name, the colours and the effect are the whole truth.
+Only the six that do something the name does not give away still get a sentence.
+
 ---
 
 <!-- ALLT NEDANFÖR ÄR PROJEKTETS EGEN LOGG och ska INTE med till butiken. -->

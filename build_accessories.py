@@ -945,9 +945,22 @@ def build_rest():
             if _evn in ev:
                 ev[_evn].setdefault("add",{}).setdefault("component_groups",[]).extend(
                     ["mjau:skattletare","mjau:packad"])
-        # KATTUNGAR föds ibland med rosett
+        # KATTUNGAR föds ibland med rosett.
+        #
+        # SLUMPNINGARNA RENSAS FÖRST. Raderna nedan la tidigare BARA till, och
+        # entiteterna är inte färskgenererade utan patchade — så varje körning
+        # av det här skriptet la på ett par till. Vid upptäckten 2026-08-27 låg
+        # det 32 rosettslumpningar och 31 halsband i varje katt, och effekten
+        # var tyst men total: "ibland född med rosett" är 40 % en gång, men
+        # 1 - 0,6^32 = 100 % trettiotvå gånger. VARJE kattunge föddes med rosett
+        # och 98 % med halsband. Det har legat ute i alla släpp sedan funktionen
+        # kom.
         _born=ev["minecraft:entity_born"]
-        _born.setdefault("sequence",[]).append({"randomize":[
+        _seq=_born.setdefault("sequence",[])
+        _seq[:] = [x for x in _seq if not ("randomize" in x and any(
+            ("mjau:rosett" in json.dumps(o) or "mjau:halsband" in json.dumps(o))
+            for o in x["randomize"]))]
+        _seq.append({"randomize":[
             {"weight":60},
             {"weight":10,"set_property":{"mjau:rosett":1}},
             {"weight":10,"set_property":{"mjau:rosett":2}},
@@ -955,7 +968,7 @@ def build_rest():
             {"weight":10,"set_property":{"mjau:rosett":4}}]})
         # ...och mer sällan med ett halsband (speltest-önskemål: "bygg alla" —
         # kitten-trait-idén, varje kull lite unik utöver bara namn+antal)
-        _born.setdefault("sequence",[]).append({"randomize":[
+        _seq.append({"randomize":[
             {"weight":88},
             {"weight":4,"set_property":{"mjau:halsband":1}},
             {"weight":4,"set_property":{"mjau:halsband":2}},

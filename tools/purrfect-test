@@ -375,6 +375,38 @@ for _pack in ("PurrfectCompanions_BP","PurrfectCompanions_RP"):
             if _l not in _dec:
                 bad.append(f"{_pack}: {_l}.lang finns men är inte deklarerad i languages.json")
 
+# --- generatorer som ACKUMULERAR ------------------------------------------
+# build_accessories.py PATCHAR entiteterna, den skriver dem inte från grunden.
+# Rader som bara la TILL i en händelsesekvens la därför på ett par till vid
+# varje körning, och det syns inte: JSON:en blir bara längre. Vid upptäckten låg
+# det 32 rosettslumpningar i varje katt, och effekten var total — "ibland född
+# med rosett" är 40 % en gång, men 1 - 0,6^32 = 100 % trettiotvå gånger. VARJE
+# kattunge föddes med rosett. Det hade legat ute i alla släpp sedan funktionen
+# kom.
+#
+# Regeln: ingen händelsesekvens får ha två slumpningar som sätter SAMMA
+# egenskap. Två sådana är antingen ackumulation eller en logisk krock, och
+# ingendera är avsiktlig.
+for _f in glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json"):
+    _e = json.load(open(_f, encoding="utf-8"))["minecraft:entity"]
+    for _ev, _kropp in _e.get("events", {}).items():
+        _rakn = {}
+        for _steg in (_kropp.get("sequence") or []):
+            for _gren in (_steg.get("randomize") or []):
+                for _prop in (_gren.get("set_property") or {}):
+                    _rakn[_prop] = _rakn.get(_prop, 0) + 1
+        # varje slumpning har flera grenar som sätter samma egenskap — det är
+        # antalet SLUMPNINGAR som ska vara ett, inte antalet grenar
+        _block = {}
+        for _steg in (_kropp.get("sequence") or []):
+            _satta = {p for g in (_steg.get("randomize") or []) for p in (g.get("set_property") or {})}
+            for _p in _satta:
+                _block[_p] = _block.get(_p, 0) + 1
+        for _p, _n in sorted(_block.items()):
+            if _n > 1:
+                bad.append(f"{os.path.basename(_f)}: {_ev} har {_n} slumpningar som "
+                           f"sätter {_p} — generatorn ackumulerar")
+
 # --- Kattbokens språknycklar ----------------------------------------------
 # BOKEN ÄR EN GUIDE, och en guide som visar "mjau.bok.plagg.krona" i klartext är
 # värre än ingen guide. Innehållet genereras ur ACC, men PROSAN är handskriven

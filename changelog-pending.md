@@ -19,7 +19,15 @@ CurseForge inte har blir en mismatch.)
 
 ---
 
-## 3.33.0 — A book that explains the whole thing
+## 3.33.0 — A book that explains the whole thing, and kittens that are not all identical
+
+**Every kitten was born wearing a bow.** It was meant to be about four in ten,
+and a collar about one in eight — that is what the pack has always said. In
+practice it was every single kitten and almost every collar, and it had been
+that way in every release since the feature was added. Kittens are varied again.
+
+### The book
+
 
 The pack has grown for fifteen releases: ninety-seven items, a dozen mechanics,
 two worlds. None of it is discoverable in the game. A player who installs it

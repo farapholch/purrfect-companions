@@ -1,5 +1,17 @@
 # Ej publicerat på CurseForge ännu
 
+**VID SLÄPP AV 3.33.0, LÄGG TILLBAKA RADEN OM KATTBOKEN i publish/index.html.**
+Den togs bort 2026-08-27 därför att sajten listade boken som funktion medan
+CurseForge stod på 3.32.0 utan den — sidan lovade något man inte kunde hämta.
+Raden lyder:
+
+    <li><b>The Cat Care Book</b> — a book and a Cat Treat, and it explains
+    everything above: every outfit, every suit tier, and how many achievements
+    you have left</li>
+
+(publish/description.md behöll sin rad: den texten når CurseForge först när den
+klistras in vid släppet, alltså samtidigt som versionen finns.)
+
 (tomt — 3.32.0 flyttades in i publish/changelog.md vid släppet 2026-08-23.
 Nya opublicerade poster skrivs HÄR, inte i publish/, eftersom publish_site.sh
 lägger ut publish/*.md på purrfect.pelleops.se och en changelog på sajten som

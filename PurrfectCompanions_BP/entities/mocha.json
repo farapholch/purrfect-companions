@@ -225,12 +225,12 @@
         ]
       },
       "minecraft:health": {
-        "value": 20,
-        "max": 20
+        "value": 16,
+        "max": 16
       },
       "minecraft:collision_box": {
-        "width": 0.7,
-        "height": 0.7
+        "width": 0.59,
+        "height": 0.59
       },
       "minecraft:physics": {},
       "minecraft:pushable": {
@@ -2359,26 +2359,26 @@
       },
       "mjau:armored_1": {
         "minecraft:health": {
-          "value": 40,
-          "max": 40
+          "value": 36,
+          "max": 36
         }
       },
       "mjau:armored_2": {
         "minecraft:health": {
-          "value": 44,
-          "max": 44
+          "value": 40,
+          "max": 40
         }
       },
       "mjau:armored_3": {
         "minecraft:health": {
-          "value": 50,
-          "max": 50
+          "value": 46,
+          "max": 46
         }
       },
       "mjau:armored_4": {
         "minecraft:health": {
-          "value": 60,
-          "max": 60
+          "value": 56,
+          "max": 56
         }
       },
       "mjau:armored": {

@@ -734,6 +734,20 @@ def build_rest():
         # kattgeometri på vakthunden: filtret måste fråga vad entiteten ÄR.
         if "mjau:saddled" not in e["component_groups"]: continue
         g=e["component_groups"]; ev=e["events"]
+        # STORLEKEN SKA MÄRKAS. Katterna hade alla 20 liv och träffytan 0,7 trots
+        # att skalan går från 0,85 (Mocha) till 1,15 (Snow) — farten var det enda
+        # som skilde dem åt. Och minecraft:scale skalar MODELLEN, inte
+        # kollisionslådan: en birma var lika bred att gå in i som en ragdoll.
+        # Samma fel fanns i hundpaketet och rättades där 2026-08-28.
+        #
+        # Båda HÄRLEDS ur skalan som redan står i mjau:adult, så det inte blir
+        # en tabell till att hålla i synk. Livet avrundas till jämna tal —
+        # spelet ritar hjärtan i par, och 17 liv är åtta och ett halvt hjärta.
+        _skala = g.get("mjau:adult",{}).get("minecraft:scale",{}).get("value", 1.0)
+        _liv = max(2, round(20 * _skala / 2) * 2)
+        e["components"]["minecraft:health"]={"value":_liv,"max":_liv}
+        e["components"]["minecraft:collision_box"]={
+            "width": round(0.7 * _skala, 2), "height": round(0.7 * _skala, 2)}
         # client_sync ÄR NÖDVÄNDIG: utan den finns propertyn bara på servern och
         # render controllers (som körs på klienten) kan inte läsa query.property
         # → plaggen sätts på men syns aldrig. Ridning fungerade ändå, eftersom den
@@ -773,7 +787,12 @@ def build_rest():
                     # guld 22, diamant 25, netherit 30 hjärtan (bas 10). Byte av
                     # rustning tar bort de andra nivågrupperna, annars avgör
                     # gruppernas tilläggning vilken hälsa som vinner.
-                    _hp={1:40,2:44,3:50,4:60}[i]
+                    # RUSTNINGEN ADDERAR. Den satte ett FAST värde, så en birma i
+                    # netherit hade exakt lika mycket liv som en ragdoll — och
+                    # storleksskillnaden ovan hade försvunnit i samma sekund
+                    # man satte pansar på katten. Tillägget är detsamma för
+                    # alla; grunden är kattens egen.
+                    _hp=_liv+{1:20,2:24,3:30,4:40}[i]
                     g[f"mjau:armored_{i}"]={"minecraft:health":{"value":_hp,"max":_hp}}
                     # health-gruppen höjer bara MAX — nuvarande hälsa följer inte
                     # med (uppmätt i live-testet). Låt påsättningen läka katten

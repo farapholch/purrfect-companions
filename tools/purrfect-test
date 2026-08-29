@@ -375,6 +375,35 @@ for _pack in ("PurrfectCompanions_BP","PurrfectCompanions_RP"):
             if _l not in _dec:
                 bad.append(f"{_pack}: {_l}.lang finns men är inte deklarerad i languages.json")
 
+# STORLEKEN SKA MÄRKAS. Katterna hade alla 20 liv och träffytan 0,7 trots skala
+# 0,85-1,15, och minecraft:scale skalar MODELLEN men inte kollisionslådan — en
+# birma var lika bred att gå in i som en ragdoll. Båda härleds numera ur skalan,
+# och kontrollen räknar om det: ett handredigerat värde eller en generator som
+# slutar sätta dem faller här.
+for _f in glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json"):
+    _e = json.load(open(_f, encoding="utf-8"))["minecraft:entity"]
+    _g = _e.get("component_groups", {})
+    if "mjau:saddled" not in _g:
+        continue                      # vakthunden och fordonen är inga katter
+    _sk = _g.get("mjau:adult", {}).get("minecraft:scale", {}).get("value")
+    if _sk is None:
+        bad.append(f"{os.path.basename(_f)}: saknar skala i mjau:adult"); continue
+    _vantad_liv = max(2, round(20 * _sk / 2) * 2)
+    _liv = _e["components"].get("minecraft:health", {}).get("value")
+    if _liv != _vantad_liv:
+        bad.append(f"{os.path.basename(_f)}: liv {_liv}, väntade {_vantad_liv} "
+                   f"för skala {_sk} — kör build_accessories.py")
+    _br = _e["components"].get("minecraft:collision_box", {}).get("width")
+    if _br != round(0.7 * _sk, 2):
+        bad.append(f"{os.path.basename(_f)}: träffyta {_br}, väntade "
+                   f"{round(0.7 * _sk, 2)} för skala {_sk} — scale skalar inte lådan")
+    # och rustningen ska ADDERA, inte platta ut skillnaden
+    for _niva, _plus in ((1, 20), (2, 24), (3, 30), (4, 40)):
+        _rh = _g.get(f"mjau:armored_{_niva}", {}).get("minecraft:health", {}).get("value")
+        if _rh is not None and _rh != _liv + _plus:
+            bad.append(f"{os.path.basename(_f)}: rustning {_niva} ger {_rh} liv, "
+                       f"väntade {_liv}+{_plus} — den plattar ut storleken igen")
+
 # --- generatorer som ACKUMULERAR ------------------------------------------
 # build_accessories.py PATCHAR entiteterna, den skriver dem inte från grunden.
 # Rader som bara la TILL i en händelsesekvens la därför på ett par till vid

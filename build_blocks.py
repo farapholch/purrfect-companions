@@ -45,9 +45,37 @@ BLOCKS = {
    height=4),
  "stallning": dict(
    name="Cat Tower",
-   # bottenplatta, sisalstolpe, topplattform med kant
-   cubes=[([-6,0,-6],[12,1,12]), ([-1.5,1,-1.5],[3,10,3]),
-          ([-5,11,-5],[10,1,10]), ([-5,12,-5],[10,1,1]), ([-5,12,4],[10,1,1])],
+   # OMRITAT 2026-08-29. Den gamla var en 3x10-pinne mellan två breda plattor och
+   # läste som en I-BALK, inte som ett klösträd: stolpen för smal, kant bara på
+   # två av fyra sidor, och alla kuber delade samma texturhörn så repet och
+   # mattan såg likadana ut.
+   #
+   # Nu: tjockare sisalstolpe, en MELLANHYLLA som sticker ut (det är den som gör
+   # det till ett träd och inte en pall), kant runt hela toppen, och en boll i
+   # ett snöre — det mest igenkännbara ett klösträd har.
+   cubes=[([-7,0,-7],[14,1,14],"tra"),           # bottenplatta
+          ([-2.5,1,-2.5],[5,10,5],"rep"),        # sisalstolpe
+          ([-8,6,-3],[6,1,6],"matta"),           # mellanhylla
+          ([-6,11,-6],[12,1,12],"matta"),        # topplattform
+          ([-6,12,-6],[12,1,1],"kant"),          # kant: fram
+          ([-6,12,5],[12,1,1],"kant"),           # kant: bak
+          ([-6,12,-5],[1,1,10],"kant"),          # kant: vänster
+          ([5,12,-5],[1,1,10],"kant"),           # kant: höger
+          ([-5.5,4,-0.5],[1,2,1],"rep"),         # snöre
+          ([-6,2,-1],[2,2,2],"boll")],           # leksaksboll
+   material={
+     # SISAL: täta vågräta varv. Ett rep känns igen på varvet, inte på färgen.
+     "rep":   lambda x,y: (188,156,104,255) if y % 2 else (150,118,74,255),
+     # MATTA: tät luddig väv i varm sand, inte grå. Första omgången låg på
+     # (214,206,192) och läste som betong bredvid det mörka träet.
+     "matta": lambda x,y: (226,206,170,255) if (x + y) % 3 else (204,182,146,255),
+     # KANT: samma väv en tydlig aning mörkare. Kanten hade samma material som
+     # plattformen och FÖRSVANN — en upphöjd list man inte ser är ingen list.
+     "kant":  lambda x,y: (186,162,124,255) if (x + y) % 3 else (164,140,104,255),
+     # TRÄ: plankor med mörka fogar
+     "tra":   lambda x,y: (108,78,50,255) if y % 5 == 0 else (146,110,72,255),
+     "boll":  lambda x,y: (214,96,88,255) if (x + y) % 4 else (240,150,140,255),
+   },
    base=(196,176,140), accent=(150,118,84), sound="wood",
    recipe=dict(pattern=["WWW"," S ","PPP"],
      key={"W":{"item":"minecraft:white_wool"},"S":{"item":"minecraft:string"},
@@ -77,6 +105,7 @@ BLOCKS = {
    height=4),
  "kattlucka": dict(
    name="Cat Door",
+   genomgang=True,          # en lucka man kan gå igenom, inte en vägg
    # ram med lucka — dekorativ, ställs i en dörröppning
    cubes=[([-6,0,-1],[2,14,2]), ([4,0,-1],[2,14,2]), ([-6,14,-1],[12,2,2]),
           ([-4,2,-0.5],[8,10,1])],
@@ -109,8 +138,61 @@ def write_png(p, w, h, px):
                         + ch(b"IDAT", zlib.compress(bytes(raw), 9)) + ch(b"IEND", b""))
 
 
+
+# --- flera ytor på samma block ----------------------------------------------
+# ALLA KUBER DELADE SAMMA TEXTURHÖRN. uv låg hårdkodat på [0,0] och texturen var
+# 16x16, så stolpen, mattan och träet på ett klösträd samplade exakt samma
+# pixlar — ett rep kunde inte se ut som ett rep. Klösträdet läste som en I-balk.
+#
+# En kub får därför ange ett MATERIAL som tredje fält. Gör den det packas UV:n
+# ut på en större duk och varje material målas för sig. Kuber utan tredje fält
+# beter sig precis som förut, så de sju andra möblerna är orörda.
+#
+# Bedrocks utfällning av en kub (b,h,d) är 2*(d+b) bred och d+h hög — samma
+# räkning som kattens och grisens kroppar använder.
+DUK = (128, 64)
+
+def packa_kuber(kuber):
+    rutor = [(i, 2 * (k[1][2] + k[1][0]), k[1][2] + k[1][1]) for i, k in enumerate(kuber)]
+    x = y = radhojd = 0
+    uv = {}
+    for i, w, h in sorted(rutor, key=lambda r: -r[2]):
+        w, h = int(w + 0.999), int(h + 0.999)
+        if x + w > DUK[0]:
+            x, y, radhojd = 0, y + radhojd, 0
+        if y + h > DUK[1]:
+            raise SystemExit(f"blockets UV-yta räcker inte till ({DUK[0]}x{DUK[1]})")
+        uv[i] = [x, y]
+        x += w
+        radhojd = max(radhojd, h)
+    return uv
+
+
+def mala_ytor(bid, cfg, uv):
+    """Målar en duk där varje kub får sitt materials mönster i sin egen ruta."""
+    W, H = DUK
+    px = [[(0, 0, 0, 0)] * W for _ in range(H)]
+    for i, kub in enumerate(cfg["cubes"]):
+        mat = kub[2]
+        f = cfg["material"][mat]
+        u, v = uv[i]
+        b, h, d = kub[1]
+        bw, bh = int(2 * (d + b) + 0.999), int(d + h + 0.999)
+        for yy in range(v, min(H, v + bh)):
+            for xx in range(u, min(W, u + bw)):
+                px[yy][xx] = f(xx - u, yy - v)
+    return W, H, px
+
 def texture(bid, cfg):
-    """16x16 blocktextur: bas med vävt/nystat mönster."""
+    """16x16 blocktextur: bas med vävt/nystat mönster.
+
+    Block som anger MATERIAL per kub målas i stället på den packade duken, där
+    varje kub får sin egen ruta — det är enda sättet att låta ett rep och en
+    matta se olika ut på samma block."""
+    if "material" in cfg:
+        w, h, px = mala_ytor(bid, cfg, packa_kuber(cfg["cubes"]))
+        write_png(f"{RP}/textures/blocks/pc_{bid}.png", w, h, px)
+        return
     S = 16
     base = cfg["base"] + (255,)
     acc = cfg["accent"] + (255,)
@@ -182,10 +264,16 @@ def build():
         terrain.pop(f"pc_{bid}")
 
         # geometri
+        _flera = "material" in cfg
+        _uv = packa_kuber(cfg["cubes"]) if _flera else None
         json.dump({"format_version": "1.16.0", "minecraft:geometry": [{
-            "description": {"identifier": f"geometry.{bid}", "texture_width": 16, "texture_height": 16},
+            "description": {"identifier": f"geometry.{bid}",
+                            "texture_width": DUK[0] if _flera else 16,
+                            "texture_height": DUK[1] if _flera else 16},
             "bones": [{"name": bid, "pivot": [0, 0, 0],
-                       "cubes": [{"origin": o, "size": s, "uv": [0, 0]} for o, s in cfg["cubes"]]}]}]},
+                       "cubes": [{"origin": k[0], "size": k[1],
+                                  "uv": _uv[i] if _flera else [0, 0]}
+                                 for i, k in enumerate(cfg["cubes"])]}]}]},
             open(f"{RP}/models/blocks/{bid}.geo.json", "w"), indent=2)
 
         h = cfg["height"]
@@ -196,7 +284,11 @@ def build():
                 # opaque på gles modell cullar grannblockens ytor -> "grop i golvet"
                 # (2.6.1-läxan för kattluckan, gällde förstås ALLA glesa modeller)
                 "minecraft:material_instances": {"*": {"texture": f"pc_{bid}", "render_method": "alpha_test"}},
-                "minecraft:collision_box": {"origin": [-8, 0, -8], "size": [16, h, 16]},
+                # KATTLUCKAN SKA GÅ ATT GÅ IGENOM — den är en lucka. Filen stod
+                # handrättad till false och generatorn hade skrivit över den vid
+                # nästa körning; nu säger blocket det själv.
+                "minecraft:collision_box": (False if cfg.get("genomgang")
+                                            else {"origin": [-8, 0, -8], "size": [16, h, 16]}),
                 "minecraft:selection_box": {"origin": [-8, 0, -8], "size": [16, h, 16]},
                 "minecraft:destructible_by_mining": {"seconds_to_destroy": 0.4},
                 "minecraft:destructible_by_explosion": {"explosion_resistance": 0.5},
@@ -234,6 +326,13 @@ def build():
     targets = [f"mjau:{b}" for b in BLOCKS]
     for f in sorted(glob.glob(f"{BP}/entities/*.json")):
         d = json.load(open(f)); ent = d["minecraft:entity"]
+        # SKEPPET OCH FORDONEN HAR INGA KOMPONENTGRUPPER. Loopen tog alla
+        # entitetsfiler och kraschade på den första utan grupper — samma klass
+        # av fel som build_accessories fick fixad 2026-08-13, och den hade
+        # legat kvar här hela tiden: skriptet dog EFTER att blocken skrivits,
+        # så bygget såg ut att lyckas ända tills man läste sista raden.
+        if "component_groups" not in ent:
+            continue
         c = ent["component_groups"].setdefault("mjau:fri", {})
         c["minecraft:behavior.move_to_block"] = {
             "priority": 12, "tick_interval": 40, "start_chance": 0.4,
@@ -252,7 +351,21 @@ def build():
                  "minecraft:behavior.look_at_player", "minecraft:behavior.random_look_around"]
         P = {k: i for i, k in enumerate(order)}
         # OBS: c pekar på mjau:fri sedan frivilje-flytten — basen måste med separat
-        for bucket in [ent["components"]] + list(ent.get("component_groups", {}).values()):
+        # GRUPPER MED MEDVETET VALDA PRIORITETER LÄMNAS IFRED. Omnumreringen
+        # sätter move_to_block till 12 och random_sitting till 15 ÖVERALLT, och
+        # skrev därmed sönder mjau:sovdags, som fått 19 och 20 just för att inte
+        # krocka med mjau:fri:s. Två beteenden med samma prioritet är odefinierat
+        # i Bedrock, så kolonins nattgrupp slutade fungera i tysthet varje gång
+        # det här skriptet kördes EFTER build_accessories.
+        #
+        # En grupp vars prioriteter är valda med avsikt måste stå här. Glöms den
+        # fäller strukturgrindens prioritetskontroll bygget, så felet kan inte
+        # nå ett släpp — men det är billigare att slippa felsöka det.
+        SKYDDADE = {"mjau:sovdags"}
+        for namn, bucket in [("", ent["components"])] + \
+                            list(ent.get("component_groups", {}).items()):
+            if namn in SKYDDADE:
+                continue
             for k, v in bucket.items():
                 if k in P and isinstance(v, dict): v["priority"] = P[k]
         json.dump(d, open(f, "w"), indent=2)

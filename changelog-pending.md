@@ -7,7 +7,22 @@ CurseForge inte har blir en mismatch.)
 
 ---
 
-## 3.34.0 — Big cats are big
+## 3.34.0 — Big cats are big, and hungry cats say so
+
+**Feeding your cats matters now.** The pack has always tracked whether a cat is
+hungry — that is what the tail has been telling you — but nothing came of it. A
+cat that had not eaten in a quarter of an hour behaved exactly like a fed one.
+
+A hungry cat stops bringing you morning gifts and stops digging up treasure
+until you feed her. Nothing you depend on ever breaks: she still follows, still
+carries, still lets you ride her, still warns you. Cod, salmon or a Cat Treat and
+she is back at it. The Cat Care Book tells you how many are waiting.
+
+Cats also get hungry far more slowly than the tail used to suggest — it was six
+to twelve minutes from a full bowl, which would have made this a chore instead of
+a habit. It is twenty to forty now.
+
+### 3.34.0 — Big cats are big
 
 Snow the Ragdoll now has more health than Mocha the Birman, and takes up more
 room. Until now every cat had the same twenty health and the same hitbox no

@@ -204,6 +204,14 @@
           "default": 1,
           "client_sync": true
         },
+        "mjau:hungrig": {
+          "type": "int",
+          "range": [
+            0,
+            1
+          ],
+          "default": 0
+        },
         "mjau:sover": {
           "type": "int",
           "range": [
@@ -288,8 +296,8 @@
       },
       "minecraft:timer": {
         "time": [
-          180,
-          360
+          600,
+          1200
         ],
         "looping": true,
         "time_down_event": {
@@ -2046,40 +2054,6 @@
               "interact_text": "action.interact.mjau_equip"
             }
           ]
-        },
-        "minecraft:behavior.drop_item_for": {
-          "priority": 3,
-          "seconds_before_pickup": 0,
-          "cooldown": 300,
-          "drop_item_chance": 0.7,
-          "offering_distance": 5,
-          "minimum_teleport_distance": 2,
-          "target_range": [
-            5,
-            5,
-            5
-          ],
-          "teleport_offset": [
-            0,
-            1,
-            0
-          ],
-          "time_of_day_range": [
-            0.74,
-            0.83
-          ],
-          "speed_multiplier": 1,
-          "search_range": 5,
-          "search_height": 2,
-          "search_count": 0,
-          "goal_radius": 1,
-          "entity_types": {
-            "filters": {
-              "test": "is_owner",
-              "subject": "other"
-            }
-          },
-          "loot_table": "loot_tables/entities/cat_gift.json"
         }
       },
       "mjau:adult": {
@@ -2606,6 +2580,42 @@
           "start_chance": 0.3,
           "stop_chance": 0.02
         }
+      },
+      "mjau:gavor": {
+        "minecraft:behavior.drop_item_for": {
+          "priority": 3,
+          "seconds_before_pickup": 0,
+          "cooldown": 300,
+          "drop_item_chance": 0.7,
+          "offering_distance": 5,
+          "minimum_teleport_distance": 2,
+          "target_range": [
+            5,
+            5,
+            5
+          ],
+          "teleport_offset": [
+            0,
+            1,
+            0
+          ],
+          "time_of_day_range": [
+            0.74,
+            0.83
+          ],
+          "speed_multiplier": 1,
+          "search_range": 5,
+          "search_height": 2,
+          "search_count": 0,
+          "goal_radius": 1,
+          "entity_types": {
+            "filters": {
+              "test": "is_owner",
+              "subject": "other"
+            }
+          },
+          "loot_table": "loot_tables/entities/cat_gift.json"
+        }
       }
     },
     "events": {
@@ -2615,7 +2625,11 @@
             "mjau:tamed",
             "mjau:sittable",
             "mjau:fri",
-            "mjau:jagar"
+            "mjau:jagar",
+            "mjau:gavor",
+            "mjau:gavor",
+            "mjau:gavor",
+            "mjau:gavor"
           ]
         },
         "set_property": {
@@ -2790,6 +2804,44 @@
         "set_property": {
           "mjau:sover": 0
         }
+      },
+      "mjau:hungrig_pa": {
+        "set_property": {
+          "mjau:hungrig": 1
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:gavor",
+            "mjau:skattletare"
+          ]
+        }
+      },
+      "mjau:matt_igen": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:hungrig": 0
+            },
+            "add": {
+              "component_groups": [
+                "mjau:gavor"
+              ]
+            }
+          },
+          {
+            "filters": {
+              "test": "int_property",
+              "domain": "mjau:ryggsack",
+              "operator": ">",
+              "value": 0
+            },
+            "add": {
+              "component_groups": [
+                "mjau:skattletare"
+              ]
+            }
+          }
+        ]
       },
       "mjau:on_sadel_1": {
         "set_property": {

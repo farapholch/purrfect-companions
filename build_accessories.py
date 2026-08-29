@@ -767,6 +767,12 @@ def build_rest():
         # egen egenskap går den att nå, och högen ser ut som en hög i stället för
         # att bara vara en osynlig mekanik. client_sync: animationsstyrningen
         # körs på klienten och kan inte läsa en egenskap servern inte skickar.
+        # hungrig: gör hungerns VERKAN observerbar. Komponentgrupper syns inte i
+        # selektorer, så utan den här kan inget test se att gåvorna och
+        # skattgrävandet faktiskt pausades — bara att humöret ändrades. Samma
+        # skäl som mjau:tam finns av. Ingen renderare läser den, alltså ingen
+        # client_sync.
+        e["description"]["properties"]["mjau:hungrig"]={"type":"int","range":[0,1],"default":0}
         e["description"]["properties"]["mjau:sover"]={"type":"int","range":[0,1],"default":0,"client_sync":True}
         for k in [k for k in ev if k.startswith("mjau:on_") and k not in ("mjau:on_tame",)]: del ev[k]
         g.pop("mjau:vagnsplats",None)   # gammal grupp: rideable bor numera bara i mjau:saddled
@@ -1026,6 +1032,49 @@ def build_rest():
                                "remove":{"component_groups":["mjau:fri"]}}
         ev["mjau:sovdags_av"]={"add":{"component_groups":["mjau:fri"]},
                                "remove":{"component_groups":["mjau:sovdags"]}}
+        # HUNGERN SKA BETYDA NÅGOT. Systemet fanns redan — en timer sänker
+        # mjau:humor, mat höjer det — men det ENDA i hela paketet som läste det
+        # var svansens vinkel i animationen. En katt som inte fått mat på en
+        # kvart betedde sig exakt som en mätt katt.
+        #
+        # REGELN: hungern rör bara BONUSARNA. En hungrig katt följer, bär, bärs,
+        # vaktar och varnar precis som vanligt — hon slutar bara gräva fram
+        # skatter och komma med morgongåvor tills hon fått mat. Det man är
+        # BEROENDE av får aldrig gå sönder för att man glömt en fisk.
+        #
+        # GÅVORNA FLYTTAS TILL EN EGEN GRUPP. De låg i mjau:tamed, som måste
+        # sitta kvar (den bär is_tamed och interaktionerna) — en grupp går bara
+        # att stänga av genom att ta bort den, så beteendet behöver bo för sig.
+        _gavor = g["mjau:tamed"].pop("minecraft:behavior.drop_item_for", None)
+        if _gavor is not None:
+            g["mjau:gavor"] = {"minecraft:behavior.drop_item_for": _gavor}
+        ev["mjau:on_tame"].setdefault("add", {}).setdefault(
+            "component_groups", []).append("mjau:gavor")
+        # mjau:packad rörs ALDRIG av hungern: den bär lastrummet, och att ta bort
+        # minecraft:inventory är att slänga kattens last.
+        ev["mjau:hungrig_pa"] = {"set_property": {"mjau:hungrig": 1},
+                                 "remove": {"component_groups":
+                                            ["mjau:gavor", "mjau:skattletare"]}}
+        # SET_PROPERTY BREDVID EN SEQUENCE IGNORERAS TYST. Först stod den som
+        # syskon till "sequence" och hände helt enkelt inte — eventet kördes,
+        # grupperna lades på, men egenskapen stod kvar. Det syntes inte i någon
+        # logg; det upptäcktes genom att köra eventet DIREKT från konsolen och
+        # se att testfor ändå inte matchade. Åtgärden är att lägga den i första
+        # steget INNE i sekvensen. (mjau:hungrig_pa har ingen sequence och
+        # fungerade därför hela tiden — vilket gjorde felet ännu mer förvirrande.)
+        ev["mjau:matt_igen"] = {"sequence": [
+            {"set_property": {"mjau:hungrig": 0},
+             "add": {"component_groups": ["mjau:gavor"]}},
+            # skattletaren tillbaka BARA om katten faktiskt bär ryggsäck —
+            # annars börjar en katt utan väska spotta ur sig tråd och fjädrar
+            {"filters": {"test": "int_property", "domain": "mjau:ryggsack",
+                         "operator": ">", "value": 0},
+             "add": {"component_groups": ["mjau:skattletare"]}}]}
+        # TIMERN FÖRLÄNGS. Två steg à 3-6 minuter betyder mätt till hungrig på
+        # sex till tolv minuter. Blir hungern mekanisk är katterna hungriga
+        # nästan jämt, och då är det ett gnat och inte en omsorgsslinga. Tio till
+        # tjugo minuter per steg ger tjugo till fyrtio minuter från full skål.
+        e["components"]["minecraft:timer"]["time"] = [600, 1200]
         g["mjau:tamed"]["minecraft:interact"]={"interactions":inter}
         json.dump(d,open(f,"w"),indent=2)
 

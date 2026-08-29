@@ -800,6 +800,22 @@ cd "$SRV" || exit 1
   # grispaketets bökningstest: testet får inte tävla mot mobbens AI.
   echo "tp @e[type=mjau:hazel] 14 20 14"; sleep 1
   echo "scriptevent mjau:test_koloni kor"; sleep 4
+  # HUNGERN. Timern sänker humöret av sig själv, men den tar tio till tjugo
+  # minuter per steg — testet kan inte vänta ut den, så eventet körs direkt.
+  # Det som ska bevisas är att skriptet SPEGLAR humöret till komponentgrupper:
+  # mjau:hungrig görs observerbar just därför att grupper inte syns i selektorer.
+  echo "summon mjau:mocha \"Hungertest\" 16 20 16"; sleep 2
+  echo "event entity @e[name=Hungertest] mjau:on_tame"; sleep 2
+  echo "event entity @e[name=Hungertest] mjau:hungrigare"; sleep 3
+  echo "testfor @e[name=Hungertest,has_property={mjau:hungrig=1}]"; sleep 1
+  # ...och att mat tar tillbaka bonusarna
+  echo "event entity @e[name=Hungertest] mjau:on_matad"; sleep 3
+  # maten ska höja humöret...
+  echo "testfor @e[name=Hungertest,has_property={mjau:humor=2}]"; sleep 1
+  # ...och skriptet ska spegla det tillbaka till grupperna, utan att någon kör
+  # mjau:matt_igen för hand
+  echo "testfor @e[name=Hungertest,has_property={mjau:hungrig=0}]"; sleep 1
+  echo "kill @e[name=Hungertest]"; sleep 1
   # ...och högen ska vara OBSERVERBAR utifrån. mjau:sover driver sovposen på
   # klienten; att servern satt den går att fråga om med has_property.
   echo "testfor @e[type=mjau:hazel,has_property={mjau:sover=1}]"; sleep 1
@@ -835,6 +851,7 @@ VAKUUM=$(grep -c "VAKUUM-TEST OK" "$LOG")
 NYRAS=$(grep -cE "Found entity\.mjau:(ginger|domino)" "$LOG")
 KOLONI=$(grep -c "KOLONI-TEST OK" "$LOG")
 SOVHOG=$(grep -c "Found entity.mjau:hazel" "$LOG")
+HUNGER=$(grep -c "Found Hungertest" "$LOG")
 HUND=$(grep -c "Found entity.mjau:vakthund" "$LOG")
 # Syntax-/komponentfel är ALLTID allvarliga. "Unable to summon" kan vara flakigt
 # för första spawnen precis när tickingarea laddas → tolerera högst 1.
@@ -851,6 +868,7 @@ SOFT=$(grep -c "Unable to summon" "$LOG")
 [ "$HUND" -ge 1 ] && ok "vakthunden laddar med egen geometri" || bad "vakthunden gick inte att spawna"
 [ "$NYRAS" -ge 4 ] && ok "Ginger och Domino bär plaggen: $NYRAS/4 (sadel + ryggsäck, has_property)" || bad "de nya raserna satte bara $NYRAS/4 plagg-properties"
 [ "$KOLONI" -ge 1 ] && ok "kolonin: katterna tvättar varandra och kryper ihop på natten" || bad "kolonin fungerade inte (se KOLONI-TEST i $LOG)"
+[ "$HUNGER" -ge 3 ] && ok "hungern pausar bonusarna, maten höjer humöret och skriptet speglar tillbaka ($HUNGER/3)" || bad "hungerspeglingen gav $HUNGER/3"
 [ "$SOVHOG" -ge 1 ] && ok "sovhögen är observerbar server-side (mjau:sover=1 driver sovposen)" || bad "ingen katt fick mjau:sover=1"
 [ "$ARMOK" -ge 1 ] && ok "netheritrustningen ger extra liv (överlevde 45 skada)" || bad "rustningsnivån gav inte extra liv — 45 skada dödade katten"
 if [ "$SOFT" -eq 0 ]; then

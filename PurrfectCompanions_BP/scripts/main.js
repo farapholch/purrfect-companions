@@ -1143,6 +1143,13 @@ const KOLONI_TAK = 24;              // så många katter räknas mot varandra
 const parTyst = new Map();          // "id|id" -> tick då paret får igen
 const sovlage = new Map();          // katt-id -> ligger hon i nattgruppen?
 const sovhogSagd = new Map();       // spelar-id -> dygn vi senast sa till
+// HUNGERN. mjau:humor sänks av en timer i entiteten och höjs av mat; fram till
+// nu läste bara svansanimationen den. Skriptet speglar den till komponentgrupper
+// så att en hungrig katt PAUSAR sina bonusar — gåvorna och skattgrävandet — men
+// aldrig något man är beroende av.
+const hungerlage = new Map();       // katt-id -> senast sedda humör
+const hungerSagd = new Map();       // spelar-id -> tick då nästa påminnelse får komma
+const HUNGER_PAUS = 6000;           // fem minuter mellan påminnelser, per spelare
 
 // AVSTÅND MELLAN TVÅ AVLÄSTA PLATSER, inte mellan två entiteter. entity.location
 // är en INBYGGD getter som bygger ett nytt objekt vid varje anrop, och den
@@ -1188,6 +1195,44 @@ function koloniVarv() {
   const tamda = cats.filter(tamKatt);
   if (!tamda.length) return;
   if (parTyst.size > 600) parTyst.clear();
+
+  // HUNGERN SPEGLAS TILL GRUPPER. Egenskapen ändras av entitetens egen timer,
+  // som skriptet inte får någon signal om — men värdet går att läsa, och en
+  // ändring sedan förra varvet betyder att hon just blev hungrig eller mätt.
+  // Första gången en katt ses tillämpas läget oavsett: en värld som laddas in
+  // kan ha katter som stod hungriga när den sparades.
+  let nyssHungrig = null;
+  for (const c of tamda) {
+    const humor = las(c, "mjau:humor", 1);
+    const forra = hungerlage.get(c.id);
+    if (forra !== humor) {
+      try {
+        if (humor === 0) { c.triggerEvent("mjau:hungrig_pa"); if (forra !== undefined) nyssHungrig = c; }
+        else if (forra === 0 || forra === undefined) c.triggerEvent("mjau:matt_igen");
+      } catch { }
+      hungerlage.set(c.id, humor);
+    }
+  }
+  // EN påminnelse per spelare och fem minuter, inte en per katt. Nio katter som
+  // blir hungriga samtidigt får inte bli nio rader — varningssystemet ovanför
+  // bär en hel kommentar om vad som händer när paketet tjatar.
+  //
+  // MOTTAGAREN HITTAS PÅ NÄRHET, som paketets övriga meddelanden gör. Första
+  // versionen anropade agare() — hundpaketets hjälpare, som inte finns här.
+  // node --check godkände det: syntaxen är giltig, namnet finns bara inte, och
+  // felet syntes först som en ReferenceError i ContentLog varje varv.
+  if (nyssHungrig) {
+    const hp = nyssHungrig.location;
+    for (const pl of world.getAllPlayers()) {
+      if (!pl) continue;
+      try {
+        if (Math.hypot(pl.location.x - hp.x, pl.location.y - hp.y, pl.location.z - hp.z) > 16) continue;
+        if ((hungerSagd.get(pl.id) || 0) > system.currentTick) continue;
+        hungerSagd.set(pl.id, system.currentTick + HUNGER_PAUS);
+        pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.hungrig" }] });
+      } catch { }
+    }
+  }
 
   // NATTEN: gruppen byts bara vid ÖVERGÅNGEN. Att lägga på och ta bort en
   // komponentgrupp startar om beteendena, och en katt vars mål nollställs varje
@@ -1370,6 +1415,15 @@ function bokSida(pl, rubrik, kropp) {
 const AVDELNINGAR = [
   ["mjau.bok.sekt.katterna", pl => {
     const rader = [nyckel("mjau.bok.katterna.txt"), txt("\n\n")];
+    // ...och hur många som väntar på mat just nu. Boken vet det ändå, och det
+    // är billigare att fråga den än att gå runt och titta på svansar.
+    let hungriga = 0;
+    try {
+      for (const c of world.getDimension("overworld").getEntities({ families: ["mjaukatt"] }))
+        if (tamKatt(c) && las(c, "mjau:humor", 1) === 0) hungriga++;
+    } catch { }
+    if (hungriga) rader.push({ translate: "mjau.bok.hungriga", with: [String(hungriga)] },
+                             txt("\n\n"));
     for (const k of KATTER) {
       rader.push(txt("§e"), nyckel(`entity.${k.id}.name`), txt("§r"));
       if (k.biom) rader.push(txt(" — " + k.biom));

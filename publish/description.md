@@ -17,7 +17,7 @@ Each cat meows in its own pitch — Mocha highest, Snow deepest.
 
 ### They live like cats
 
-- **Moods.** A happy cat walks with its tail high; a hungry one lets it droop. Feed a Cat Treat to cheer them up — hunger creeps back over time.
+- **Hunger.** A happy cat carries its tail high; a hungry one lets it droop — and a hungry cat stops bringing you morning gifts and stops digging up treasure until you feed her. Nothing you depend on ever stops: she still follows, carries, warns and lets you ride her. Cod, salmon or a Cat Treat puts it right
 - **Naps.** They curl up flat and doze off purring, and wake the moment they move.
 - **Purring.** A sitting cat purrs, with the occasional heart.
 - Full walk cycle with legs in diagonal pairs, swaying tails, heads that follow you.

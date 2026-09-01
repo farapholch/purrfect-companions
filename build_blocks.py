@@ -235,18 +235,25 @@ def texture(bid, cfg):
         # det är den ljusa ytan bara ett hål i en brun ram.
         for x in range(3, 13):
             px[2][x] = dark
-        # KATTHÅLET. En liten mörk båge nedtill i luckan — samma silhuett som
-        # spelaren just har jagat en katt igenom.
-        for y in range(8, 14):
-            for x in range(5, 11):
-                if abs(x - 7.5) + max(0, 10 - y) * 0.7 < 3.2:
-                    px[y][x] = tuple(int(c * 0.55) for c in cfg["base"]) + (255,)
+        # KATTHÅLET. En mörk båge nedtill i luckan — samma silhuett som spelaren
+        # just jagat en katt igenom. Formen ritas RAD FÖR RAD i stället för med
+        # ett avståndsuttryck: uttrycket gav en oregelbunden klump som såg ut som
+        # en fläck, inte som ett hål, och på 16x16 texlar syns skillnaden direkt.
+        hal = tuple(int(c * 0.55) for c in cfg["base"]) + (255,)
+        for y, (x0, x1) in zip(range(8, 14),
+                               [(6, 9), (5, 10), (5, 10), (5, 10), (5, 10), (5, 10)]):
+            for x in range(x0, x1 + 1):
+                px[y][x] = hal
     if bid == "kattoa":
         for y in range(S):
             for x in range(S):
                 d2 = max(abs(x - 7.5), abs(y - 7.5))
                 if d2 > 6: px[y][x] = dark                        # kant
-                elif (x * 7 + y * 3) % 5 == 0: px[y][x] = acc     # strö
+                # STRÖT SKA VARA KORN, inte ränder. (x*7+y*3)%5 ger diagonala
+                # linjer; det såg ut som strö bara så länge garnets felaktiga
+                # brus låg ovanpå och bröt upp dem. En hash av båda koordinaterna
+                # sprider kornen utan mönster.
+                elif (x * 37 + y * 101 + x * y * 7) % 11 < 4: px[y][x] = acc
     if bid == "stallning":
         for y in range(S):
             for x in range(S):
@@ -267,7 +274,13 @@ def texture(bid, cfg):
         for i in range(S):                       # söm längs kanten
             for e in (0, 1, S - 2, S - 1):
                 px[e][i] = dark; px[i][e] = dark
-    else:
+    if bid == "garnnystan":
+        # DET HÄR VAR ETT else PÅ KATTBÄDDEN, inte ett eget block. Garnets
+        # trådmönster målades alltså över SJU av åtta block: matskålen, lådan,
+        # kattlådan, klösträdet, dammen och kattluckan fick alla samma
+        # slumpmässiga prickar ovanpå sitt eget mönster. Det syntes som "brus"
+        # och togs för stil, men luckans katthål försvann i det, och en enfärgad
+        # brun lucka full av prickar är precis vad barnen kallade jord.
         for y in range(S):                       # garntrådar på tvären
             for x in range(S):
                 if (x * 2 + y) % 5 == 0: px[y][x] = acc

@@ -159,9 +159,12 @@ def mala(namn, texvag):
         # hårt; det ljusas mot nosens rosa — en antydan till kindrodnad.
         satt(yttre, 4, blanda(mork, (206, 132, 138), 0.40), alfa)
 
-    # BAKOM NOSEN. Raderna 3-4 i mitten bar förr nosen och munnen; nu skyms de
-    # helt av nos-kuben. De målas i nospartiets färg så inget rosa kan blinka
-    # fram i skarven om modellen någon gång flyttas en tiondel.
+    # BAKOM NOSEN — OCH HAKAN. Raderna 3-4 i mitten bar förr nosen och munnen.
+    # Nu skyms de av nos-kuben, utom den nedersta biten: nosen sitter 0,6 enheter
+    # ÖVER hakan, så remsan under den syns och är kattens haka. Först satt nosen
+    # i liv med huvudets underkant och katten hade ingen haka alls — hela nedre
+    # framkanten stack ut i ett stycke. Båda raderna målas i nospartiets ljusa
+    # färg: det som skyms behöver bara vara ofarligt, det som syns blir haka.
     for kol in MITT_KOL:
         for rad in (3, 4):
             satt(kol, rad, nosparti, alfa)

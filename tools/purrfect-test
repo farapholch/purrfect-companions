@@ -47,7 +47,7 @@ fi
 
 echo "[2/4] Struktur & kända fallgropar"
 python3 - "$SRC" > /tmp/purrfect-struct.txt 2>/tmp/purrfect-struct.err <<'PY'
-import json,glob,os,re,sys
+import json,glob,math,os,re,sys
 sys.path.insert(0, "/opt/purrfect-companions")
 import render_regression as rr
 from collections import Counter as _Counter
@@ -709,6 +709,59 @@ else:
             # kände till fyra raser.
             bad.append(f"{_ras}: nosens framsida är enfärgad {_rutor[0][:3]} — "
                        f"ingen nos och ingen mun, kör tools/make_cat_faces.py")
+
+# --- ingen kroppsdel får vara ett enda färgfält ---------------------------
+# En spelare som är konstnär skrev att katterna är jobbiga att titta på. Mätt
+# per kroppsdel hade hen rätt och det gick att sätta siffror på: huvudet hade
+# tolv toner, men Snows SVANS var 100 % en enda ton, hennes ben 95 %, och
+# Aurora, Nova, Midnight och Spökkatten hade noll variation alls utanför
+# huvudet. Minecraft skuggar hela ytor efter väderstreck men aldrig inuti en
+# yta, så ett färgfält förblir ett färgfält hur bra motorn än lyser.
+_kbones = {b["name"]: b.get("cubes", []) for b in _bas["bones"]}
+def _fot(_k):
+    _u, _v = _k["uv"]; _b, _h, _d = _k["size"]
+    return (int(math.ceil(_u - 1e-6)), int(math.floor(_u + 2 * (_d + _b) + 1e-6)),
+            int(math.ceil(_v - 1e-6)), int(math.floor(_v + _d + _h + 1e-6)))
+for _ras, _texvag in _KATTER:
+    _tf = f"{SRC}/PurrfectCompanions_RP/{_texvag}.png"
+    if not os.path.exists(_tf): continue
+    _w, _h, _p = rr.read_png(_tf)
+    _ton = {}
+    for _bn in ("body", "leg0", "tail"):
+        _c = _Counter()
+        for _k in _kbones.get(_bn, []):
+            _xa, _xb, _ya, _yb = _fot(_k)
+            for _y in range(_ya, _yb):
+                for _x in range(_xa, _xb):
+                    if _p[_y][_x][3]: _c[tuple(_p[_y][_x][:3])] += 1
+        if not _c: continue
+        _ton[_bn] = _c
+        _tot = sum(_c.values()); _dom, _n = _c.most_common(1)[0]
+        if len(_c) < 2:
+            bad.append(f"{_ras}: {_bn} är EN enda ton {_dom} — ett färgfält, "
+                       f"kör tools/make_cat_shading.py")
+        elif _n / _tot > 0.94:
+            bad.append(f"{_ras}: {_bn} är {_n * 100 // _tot} % en enda ton {_dom} "
+                       f"— för platt")
+    # POINTS. Skiljer örat tydligt från kroppen är katten pointad, och då MÅSTE
+    # örats färg finnas på svans och ben. Snow hade grå öron men helvit svans —
+    # ragdollens points fanns på en av fyra ställen.
+    if "body" in _ton and "tail" in _ton:
+        _kropp = _ton["body"].most_common(1)[0][0]
+        _oc = _Counter()
+        for _k in _kbones["head"]:
+            if _k["uv"] not in ([32, 10], [40, 10]): continue
+            _xa, _xb, _ya, _yb = _fot(_k)
+            for _y in range(_ya, _yb):
+                for _x in range(_xa, _xb):
+                    if _p[_y][_x][3]: _oc[tuple(_p[_y][_x][:3])] += 1
+        _ora = _oc.most_common(1)[0][0]
+        if sum(abs(_kropp[_i] - _ora[_i]) for _i in range(3)) / 3 >= 25:
+            for _bn in ("tail", "leg0"):
+                if _ora not in _ton.get(_bn, {}):
+                    bad.append(f"{_ras}: örat {_ora} skiljer sig från kroppen "
+                               f"{_kropp} — katten är pointad, men {_bn} saknar "
+                               f"pointfärgen")
 
 # --- innerörat: centrerat, synligt, och inte utanför framsidan -------------
 # Mätt över alla tio katterna var det ett lapptäcke: fyra hade inget inneröra

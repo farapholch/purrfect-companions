@@ -7,8 +7,6 @@ CurseForge inte har blir en mismatch.)
 
 ---
 
-## 3.37.0 — Softer faces, and a cat door that stops shedding dirt
-
 **The head is not a box any more.** It was a 6x5x4 cube, and it read as exactly
 that. Cats are widest at the cheeks and narrow toward the muzzle, so there are
 cheek tufts now that flare out at the jaw — the outline changes width three times
@@ -18,6 +16,35 @@ head, but it stops reading as a brick.
 (The ears were rebuilt three times on the way to that — tapered, smaller, wider
 and lower — and every version was worse than the ones that were already there.
 The ears were never the problem. They are untouched.)
+
+## 3.38.0 — The bodies stop being flat colour
+
+Same player, a follow-up: they are an artist, and said as kindly as they could
+that the kittens are hard for them to look at. Measured per body part they were
+right, and it could be put in numbers. The head has twelve tones. Snow's **tail
+was one single tone across 100% of it**, her legs 95%, her body 79% — and
+Aurora, Nova, Midnight and the ghost had no variation at all outside the head.
+Minecraft shades whole *faces* by direction but never inside a face, so a flat
+colour field stays a flat colour field however well the engine lights it.
+
+Two of those were not "flat" so much as **the wrong breed**:
+
+* **Snow is a Ragdoll.** Her *ears* were already grey against a white body — the
+  points were in the art — but her tail and legs were pure white. Points belong
+  on ears, face, tail and legs; she had them in one place out of four. She has
+  them everywhere now, with white feet.
+* **Mocha is a Birman** and had her points everywhere, but a Birman's signature
+  is white *gloves*. Her legs ran brown all the way down. They don't now.
+
+The rest is breed-neutral and applies to every cat: light from above on the
+body, and a contact shadow where the legs and the tail meet it. No body part is
+a single tone any more.
+
+Which cat is pointed is derived, not listed: if the ear colour differs clearly
+from the body, the cat is pointed and the ear colour *is* the point colour. That
+catches Snow and Mocha and nobody else, without a list to keep in sync.
+
+## 3.37.0 — Softer faces, a nose, and a cat door that stops shedding dirt
 
 **Every cat has a proper inner ear.** Measured across all ten, this was a
 patchwork: Aurora, Midnight, Nova and the ghost had no inner ear at all, Domino

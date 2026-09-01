@@ -18,8 +18,9 @@ skriptet målar den. Samma åtgärd som grisarnas trynskiva, av exakt samma skä
 KÖRORDNING (viktig):
     1. make_cat_markings.py   teckningar på kropparna (rör aldrig huvudet)
     2. make_cat_textures.py   Ginger, Domino, Aurora, Nova, Spökkatt, Midnight
-    3. make_cat_faces.py      DEN HÄR — ansiktet, på ALLA katter
-    4. build_accessories.py   plaggens UV-ytor målas in igen
+    3. make_cat_shading.py    points, tassar och form (rör aldrig huvudet)
+    4. make_cat_faces.py      DEN HÄR — ansiktet, på ALLA katter
+    5. build_accessories.py   plaggens UV-ytor målas in igen
 
 ANSIKTET MÅLAS SIST OCH PÅ ALLA. Först låg det här steget före härledningen, och
 då fick bara de fyra grundraserna och de två som härleds ur dem ett ansikte.

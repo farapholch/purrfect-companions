@@ -13,9 +13,11 @@ den tekniken fanns — det här är den, portad hit.
     python3 tools/make_cat_markings.py
 
 KÖRORDNING (viktig):
-    1. make_cat_markings.py   teckningar på grundpälsarna
-    2. make_cat_textures.py   Ginger och Domino härleds ur de MÅLADE
-    3. build_accessories.py   plaggens UV-ytor målas in igen
+    1. make_cat_markings.py   DEN HÄR — teckningar på grundpälsarna
+    2. make_cat_textures.py   Ginger, Domino och de hemliga härleds ur de MÅLADE
+    3. make_cat_shading.py    points, tassar och form på kroppen
+    4. make_cat_faces.py      ansiktet, på alla katter
+    5. build_accessories.py   plaggens UV-ytor målas in igen
 
 KÄLLAN ÄR art/kattpalsar/, inte paketet. Målas det i paketet blir en andra
 körning en dubbelmålning — ränderna blir mörkare för varje gång någon råkar

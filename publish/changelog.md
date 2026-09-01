@@ -1,3 +1,14 @@
+## 3.35.0 — The cat tower looks like a cat tower
+
+It was a thin post between two wide plates, and it read as an I-beam. Worse,
+every part of it sampled the same corner of a single 16×16 texture, so the sisal
+post and the carpet platform looked identical — a rope could not look like rope.
+
+It has a thicker sisal post with visible wraps, a plank base, carpeted
+platforms, a rim all the way round the top instead of on two sides only, a
+mid-level shelf that makes it a tower rather than a stool, and a ball on a
+string hanging under the shelf.
+
 ## 3.34.0 — Big cats are big, and hungry cats say so
 
 **Feeding your cats matters now.** The pack has always tracked whether a cat is

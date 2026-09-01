@@ -626,8 +626,17 @@ _hd = next(b for b in _G["minecraft:geometry"][0]["bones"] if b["name"] == "head
 _sk = max(_hd["cubes"], key=lambda c: c["size"][0] * c["size"][1])
 _fx, _fy, _fw, _fh = rr.faces(_sk["uv"][0], _sk["uv"][1], *_sk["size"])["north"]
 _fx, _fy = int(_fx), int(_fy)
-for _ras in ("misty", "hazel", "mocha", "snow"):
-    _tf = f"{SRC}/PurrfectCompanions_RP/textures/entity/{_ras}.png"
+# ALLA KATTER, inte en handskriven lista. Först stod fyra namn här, och då
+# missades Aurora, Nova, Spökkatten och Midnight helt — de byggs av egna recept
+# och hade kvar det gamla ansiktet plus en omålad nos. En lista som ska hållas i
+# synk med paketet är alltid samma fälla.
+_KATTER = []
+for _ef in sorted(glob.glob(f"{SRC}/PurrfectCompanions_RP/entity/*.json")):
+    _ed = json.load(open(_ef))["minecraft:client_entity"]["description"]
+    if _ed.get("geometry", {}).get("default") == "geometry.katt":
+        _KATTER.append((_ed["identifier"].split(":")[1], _ed["textures"]["default"]))
+for _ras, _texvag in _KATTER:
+    _tf = f"{SRC}/PurrfectCompanions_RP/{_texvag}.png"
     if not os.path.exists(_tf): continue
     _w, _h, _p = rr.read_png(_tf)
     _at = lambda k, r: tuple(_p[_fy + r][_fx + k])[:3]
@@ -639,9 +648,56 @@ for _ras in ("misty", "hazel", "mocha", "snow"):
                        f"tools/make_cat_faces.py efter make_cat_markings.py")
             break
     # MUNNEN SKA VARA VARM, inte det svarta strecket (26,18,14).
+    # MUNNEN SITTER PÅ NOS-KUBEN nu, inte på skallens platta framsida. Rutan
+    # bakom nosen ska vara nospartiets ljusa färg — är den mörk ligger det gamla
+    # svarta strecket kvar där.
     if sum(_at(2, 4)) < 120:
         bad.append(f"{_ras}: munnen är tillbaka som svart streck {_at(2, 4)} — kör "
-                   f"tools/make_cat_faces.py efter make_cat_markings.py")
+                   f"tools/make_cat_faces.py sist i kedjan")
+
+# --- huvudet får inte vara platt -----------------------------------------
+# Katthuvudet var länge EN enda kub, så hela ansiktet låg i ett plan och varje
+# drag var målat. Omdömet från soffan blev "ansiktena är väldigt platta", och
+# det var bokstavligt sant: i profil var katten en tegelsten. Nosen är nu en
+# egen kub som sticker fram. Den spärren finns för att ingen ska kunna städa
+# bort den i en geometriuppstädning utan att märka vad som försvann.
+_bas = next(g for g in _G["minecraft:geometry"]
+            if g["description"]["identifier"] == "geometry.katt")
+_hd2 = next(b for b in _bas["bones"] if b["name"] == "head")
+_sk2 = max(_hd2["cubes"], key=lambda c: c["size"][0] * c["size"][1])
+_fram = _sk2["origin"][2]                       # skallens framkant
+_nosar = [c for c in _hd2["cubes"] if c["origin"][2] < _fram - 0.1]
+if not _nosar:
+    bad.append("katt.geo.json: huvudet har ingen kub framför skallen — ansiktet "
+               "är platt igen (nosen ska sticka ut)")
+else:
+    _n2 = min(_nosar, key=lambda c: c["origin"][2])
+    if _fram - _n2["origin"][2] < 0.5:
+        bad.append(f"katt.geo.json: nosen sticker bara ut "
+                   f"{_fram - _n2['origin'][2]:.2f} enheter — det syns inte")
+    # NOSEN FÅR INTE TÄCKA ÖGONEN. Ögonen sitter i kolumn 0-1 och 4-5 av sex,
+    # alltså utanför x -1..1; en bredare nos skymmer dem inifrån.
+    if _n2["origin"][0] < -1.05 or _n2["origin"][0] + _n2["size"][0] > 1.05:
+        bad.append(f"katt.geo.json: nosen är {_n2['size'][0]} bred och når "
+                   f"utanför x -1..1 — den skymmer ögonen")
+    # ...och den måste vara målad. En omålad kub är genomskinlig och syns inte,
+    # vilket ser exakt ut som att den inte finns.
+    _nf = rr.faces(_n2["uv"][0], _n2["uv"][1], *_n2["size"])["north"]
+    for _ras, _texvag in _KATTER:
+        _tf = f"{SRC}/PurrfectCompanions_RP/{_texvag}.png"
+        if not os.path.exists(_tf): continue
+        _w, _h, _p = rr.read_png(_tf)
+        _rutor = [tuple(_p[_y][_x]) for _y in range(int(_nf[1]), int(_nf[1] + _nf[3]))
+                  for _x in range(int(_nf[0]), int(_nf[0] + _nf[2]))]
+        if any(_c[3] == 0 for _c in _rutor):
+            bad.append(f"{_ras}: nosens framsida är omålad — kör "
+                       f"tools/make_cat_faces.py sist i kedjan")
+        elif len({_c[:3] for _c in _rutor}) < 2:
+            # EN ENFÄRGAD NOS ÄR EN BLANK LÅDA i ansiktet. Det var precis vad
+            # Aurora, Nova, Spökkatten och Midnight fick när ansiktssteget bara
+            # kände till fyra raser.
+            bad.append(f"{_ras}: nosens framsida är enfärgad {_rutor[0][:3]} — "
+                       f"ingen nos och ingen mun, kör tools/make_cat_faces.py")
 
 # --- inget block får se ut som JORD när det går sönder --------------------
 # Bedrock plockar sönderslagningspartiklarna ur blockets egen textur, och ett

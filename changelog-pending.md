@@ -9,12 +9,17 @@ CurseForge inte har blir en mismatch.)
 
 ## 3.37.0 — Softer faces, and a cat door that stops shedding dirt
 
-**The faces are cuter.** The kids asked, and once I measured it they were right
-about *why*. Each eye was 2x2 in a face that is only 5 texels tall, the mouth was
-a hard black bar straight across, and the brow was a near-black band. Correct,
-but stern. The eyes are now 2x3 — a kitten's proportions rather than an adult
-cat's — with the highlight kept, the brow softened toward the fur, and the mouth
-warmed from near-black to a soft brown. Nothing was added; the same handful of
+**The cats have a nose now.** The head was a single cube, so the entire face lay
+in one plane and every feature was painted on. In profile a cat was a brick. There
+is a small muzzle in front of the skull now — pink nose, mouth below it, and a
+lighter muzzle patch, which is what makes it read as a nose rather than a bump.
+Every cat has it, including Aurora, Nova, Midnight and the ghost.
+
+**The faces are also softer.** Each eye was 2x2 in a face only 5 texels tall, the
+mouth was a hard black bar straight across, and the brow was a near-black band.
+Correct, but stern. The eyes are 2x3 now — a kitten's proportions rather than an
+adult cat's — the highlight stays, the brow is softened toward the fur, and the
+mouth is a warm brown instead of black. Nothing was added; the same handful of
 texels simply sit where a young face has them.
 
 **The cat door no longer breaks into dirt.** Break a block in Bedrock and the

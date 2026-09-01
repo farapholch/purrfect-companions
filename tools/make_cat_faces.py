@@ -1,31 +1,43 @@
 #!/usr/bin/env python3
-"""Målar om KATTERNAS ANSIKTEN — större ögon, mjukare drag.
+"""Målar KATTERNAS ANSIKTEN — nosen som sticker ut, större ögon, mjukare drag.
 
-Bakgrund: ungarna bad om sötare katter. Ansiktet var 6x5 texlar med ögon på
-2x2, en hård svart mun och nästan svarta kinder — korrekt, men strängt. Det som
-gör ett ansikte sött är inte fler detaljer utan RÄTT proportioner: stora ögon
-lågt i ansiktet, mjuka kanter, en glansprick. Det är samma barnschema vanilla
-använder på axolotl och panda.
+Bakgrund, i två steg:
+
+  1. Ungarna bad om sötare katter. Ansiktet var 6x5 texlar med ögon på 2x2, en
+     hård svart mun och nästan svarta kinder — korrekt, men strängt.
+  2. Med större ögon på plats kom nästa omdöme: ansiktena är "väldigt platta".
+     Det var bokstavligt sant. Huvudet var EN enda kub, så hela ansiktet låg i
+     ett plan och varje drag var målat. En katt har en nos som sticker ut; utan
+     den är profilen en tegelsten oavsett hur bra texturen är.
+
+Nosen är därför en egen kub i geometrin (2x2x1 rakt fram, uv 53,0) och det här
+skriptet målar den. Samma åtgärd som grisarnas trynskiva, av exakt samma skäl.
 
     python3 tools/make_cat_faces.py
 
 KÖRORDNING (viktig):
     1. make_cat_markings.py   teckningar på kropparna (rör aldrig huvudet)
-    2. make_cat_faces.py      DEN HÄR — ansiktet, och bara ansiktet
-    3. make_cat_textures.py   Ginger och Domino härleds ur de målade
+    2. make_cat_textures.py   Ginger, Domino, Aurora, Nova, Spökkatt, Midnight
+    3. make_cat_faces.py      DEN HÄR — ansiktet, på ALLA katter
     4. build_accessories.py   plaggens UV-ytor målas in igen
 
-VARFÖR EN EGEN FIL och inte en gren i make_cat_markings.py: den filen har en
-uttrycklig regel om att huvudet ALDRIG rörs, eftersom ett filter som "bara päls"
-förr eller senare råkar ta med en ögonvrå. Regeln är bra och får stå kvar. Det
-här skriptet rör bara huvudet, och gör det med uppmätta koordinater i stället
-för med ett filter.
+ANSIKTET MÅLAS SIST OCH PÅ ALLA. Först låg det här steget före härledningen, och
+då fick bara de fyra grundraserna och de två som härleds ur dem ett ansikte.
+Aurora, Nova, Spökkatten och Midnight byggs av egna recept med det GAMLA
+ansiktet inbakat — de fick en nos-kub i enfärgad päls, alltså en blank låda mitt
+i ansiktet. Härledningen först, ansiktet sedan, så finns det bara ett ställe
+som äger hur en katt ser ut i ansiktet.
 
-IDEMPOTENT: varje pixel SÄTTS till en uträknad färg, ingen skalas. Två körningar
-ger exakt samma fil. Det var den egenskapen build_accessories.py saknade när den
-hann samla på sig 32 kopior av samma rockad.
+IDEMPOTENT UTAN KNEP: varje färg som skrivs räknas fram ur pixlar som skriptet
+självt aldrig skriver (pälsen och nospartiet), eller skrivs tillbaka oförändrad
+(irisen). Läser man en pixel man också skriver drar färgen iväg en bit för varje
+körning — det är ackumulering, samma fälla som en gång gjorde "ibland född med
+rosett" till hundra procent.
+
+GENOMSKINLIGHETEN BEVARAS. Spökkatten har alfa 150 i hela pälsen; skriver man
+255 blir hon plötsligt solid i ansiktet och slutar vara ett spöke.
 """
-import json, os, sys
+import json, glob, os, sys
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASE)
@@ -33,90 +45,125 @@ import render_regression as rr
 
 RP = f"{BASE}/PurrfectCompanions_RP"
 
-# ANSIKTET LÄSES UR GEOMETRIN. Skallen är den största kuben i huvudbenet;
-# öronen är de två små. Ändras modellen följer ansiktet med i stället för att
-# hamna en texel fel utan att någon märker det.
+# ANSIKTET LÄSES UR GEOMETRIN. Skallen är den största kuben i huvudbenet, nosen
+# den som sticker längst fram (minst z). Ändras modellen följer ansiktet med i
+# stället för att hamna en texel fel utan att någon märker det.
 _geo = json.load(open(f"{RP}/models/entity/katt.geo.json"))["minecraft:geometry"][0]
 _head = next(b for b in _geo["bones"] if b["name"] == "head")
 _skalle = max(_head["cubes"], key=lambda c: c["size"][0] * c["size"][1])
-_u, _v = _skalle["uv"]
-_b, _h, _d = _skalle["size"]
-FX, FY, FW, FH = rr.faces(_u, _v, _b, _h, _d)["north"]
-FX, FY, FW, FH = int(FX), int(FY), int(FW), int(FH)
+_nos = min(_head["cubes"], key=lambda c: c["origin"][2])
+if _nos is _skalle:
+    raise SystemExit("geometrin saknar nos-kub — kör inte skriptet mot en platt modell")
 
-# Ansiktet är 6x5. Kolumnerna 0-1 och 4-5 är ögon, 2-3 är nosryggen.
+_ytor = lambda c: {k: tuple(int(t) for t in v)
+                   for k, v in rr.faces(c["uv"][0], c["uv"][1], *c["size"]).items()}
+SK, NOS = _ytor(_skalle), _ytor(_nos)
+FX, FY = SK["north"][0], SK["north"][1]
+
+# Ansiktet är 6x5. Kolumnerna 0-1 och 4-5 är ögon, 2-3 är nospartiet.
 OGON_KOL = ((0, 1), (4, 5))
 MITT_KOL = (2, 3)
-GLANS = (255, 255, 255, 255)
+ROSA = (226, 140, 160)          # nosens rosa
+GLANS = (255, 255, 255)
 
 
 def blanda(a, b, t):
-    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3)) + (255,)
+    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
 
 
-def mala(ras):
-    w, h, px = rr.read_png(f"{RP}/textures/entity/{ras}.png")
+def katterna():
+    """Alla entiteter som faktiskt använder kattmodellen. Läses ur paketet, så
+    en ny ras får ett ansikte utan att någon minns att lägga till den här."""
+    ut = []
+    for f in sorted(glob.glob(f"{RP}/entity/*.json")):
+        d = json.load(open(f))["minecraft:client_entity"]["description"]
+        if d.get("geometry", {}).get("default") == "geometry.katt":
+            ut.append((d["identifier"].split(":")[1], d["textures"]["default"]))
+    return ut
 
-    def p(kol, rad):
-        return px[FY + rad][FX + kol]
 
-    def satt(kol, rad, farg):
-        px[FY + rad][FX + kol] = farg
+def mala(namn, texvag):
+    w, h, px = rr.read_png(f"{RP}/{texvag}.png")
 
-    # FÄRGERNA LÄSES UR ANSIKTET SOM REDAN FINNS. Misty har gröna ögon, Snow
-    # blå — en tabell här hade varit ett andra ställe att hålla i synk, och det
-    # är exakt den fällan hundpaketet gick i tre gånger.
-    iris_ljus = tuple(p(0, 2))[:3]        # den klara irisfärgen, rad 2
-    iris_mork = tuple(p(0, 1))[:3]        # den mörka ögonvrån, rad 1
-    kind = tuple(p(0, 4))[:3]             # kindens mörka kontur, rad 4
+    def las(kol, rad):
+        return tuple(px[FY + rad][FX + kol])
+
+    def satt(kol, rad, rgb, alfa):
+        px[FY + rad][FX + kol] = tuple(rgb) + (alfa,)
+
+    def yta(sida, rgb, alfa, rad=None):
+        x0, y0, fw, fh = NOS[sida]
+        for y in range(y0, y0 + fh):
+            if rad is not None and y - y0 != rad:
+                continue
+            for x in range(x0, x0 + fw):
+                px[y][x] = tuple(rgb) + (alfa,)
+
+    # KÄLLFÄRGER. Pälsen och nospartiet skrivs aldrig av skriptet, så de kan
+    # läsas om och om igen; irisen skrivs tillbaka oförändrad.
+    pals = las(2, 0)[:3]
+    alfa = las(2, 0)[3]                       # spökkattens 150 måste överleva
+    iris_ljus = las(0, 2)[:3]
+    iris_mork = las(0, 1)[:3]
+    # MÖRKRET RÄKNAS UR PÄLSEN, inte ur konturpixeln. Konturpixeln är en av dem
+    # skriptet skriver över, och att läsa den vore att läsa sin egen förra
+    # körning.
+    mork = blanda(pals, (0, 0, 0), 0.80)
+    # NOSPARTIET LJUSAS ALLTID UPP. På Hazel och Snow är rutan bredvid munnen en
+    # vit haklapp, men på Misty och Mocha är den bara päls — och en nos i exakt
+    # pälsfärg syns inte att den sticker ut, hur mycket geometri man än lägger
+    # på. En riktig katt har ljusare nosparti; det är den kontrasten som gör att
+    # nosen läser som en nos i stället för som en bula.
+    nosparti = blanda(las(1, 4)[:3], (255, 255, 255), 0.30)
 
     for kols in OGON_KOL:
         yttre, inre = (kols[0], kols[1]) if kols[0] < 2 else (kols[1], kols[0])
         # RAD 1: mörk ögonvrå ute, glansprick inne. Glansen är det enda som
         # skiljer ett öga från en knapp.
-        satt(yttre, 1, iris_mork + (255,))
-        satt(inre, 1, GLANS)
+        satt(yttre, 1, iris_mork, alfa)
+        satt(inre, 1, GLANS, alfa)
         # RAD 2: klar iris, båda texlarna.
-        for k in kols:
-            satt(k, 2, iris_ljus + (255,))
-        # RAD 3 ÄR NYTT — ÖGAT VÄXER NEDÅT. Ett öga på 2x2 i ett ansikte som är
-        # 5 texlar högt är ett vuxet öga; 2x3 är ett kattungeöga, och det är
-        # hela skillnaden mellan "katt" och "gullig katt". Nedre kanten är en
-        # mörkare ton av irisen, inte den klara — annars buktar ögat ut.
-        for k in kols:
-            satt(k, 3, blanda(iris_ljus, iris_mork, 0.45))
+        for kol in kols:
+            satt(kol, 2, iris_ljus, alfa)
+        # RAD 3: ÖGAT VÄXER NEDÅT. Ett öga på 2x2 i ett ansikte som är 5 texlar
+        # högt är ett vuxet öga; 2x3 är ett kattungeöga, och det är hela
+        # skillnaden mellan "katt" och "gullig katt". Nedre kanten är en mörkare
+        # ton av irisen, inte den klara — annars buktar ögat ut.
+        for kol in kols:
+            satt(kol, 3, blanda(iris_ljus, iris_mork, 0.45), alfa)
+        # PANNAN VAR ETT SVART BAND tvärs över ansiktet, och ett band som det
+        # ensamt gör en katt bister. Den mjukas mot pälsen så pannan blir en
+        # skugga i stället för en ram.
+        for kol in kols:
+            satt(kol, 0, blanda(mork, pals, 0.34), alfa)
+        # KINDEN. Ytterhörnet nedtill var nästan svart och ramade in ansiktet
+        # hårt; det ljusas mot nosens rosa — en antydan till kindrodnad.
+        satt(yttre, 4, blanda(mork, (206, 132, 138), 0.40), alfa)
 
-    # PANNAN VAR ETT SVART BAND. Rad 0 ytterst är nästan svart hela vägen och
-    # bildade ett tjockt ögonbryn tvärs över ansiktet — det ensamt gör en katt
-    # bister. Den mjukas mot pälsen så pannan blir en skugga i stället för en
-    # ram. Pälsfärgen tas ur nosryggen (kolumn 2), som alltid är päls.
-    pals = tuple(p(2, 0))[:3]
-    for kols in OGON_KOL:
-        for k in kols:
-            satt(k, 0, blanda(tuple(p(k, 0))[:3], pals, 0.34))
+    # BAKOM NOSEN. Raderna 3-4 i mitten bar förr nosen och munnen; nu skyms de
+    # helt av nos-kuben. De målas i nospartiets färg så inget rosa kan blinka
+    # fram i skarven om modellen någon gång flyttas en tiondel.
+    for kol in MITT_KOL:
+        for rad in (3, 4):
+            satt(kol, rad, nosparti, alfa)
 
-    # MUNNEN VAR ETT SVART STRECK. (26,18,14) tvärs över två texlar rakt under
-    # nosen läser som ett streck, inte som en mun — och ett streck gör vilket
-    # ansikte som helst bistert. En varm, ljusare ton mjukar upp den utan att
-    # ta bort den.
-    for k in MITT_KOL:
-        satt(k, 4, blanda(kind, (150, 108, 104), 0.55))
+    # NOS-KUBEN. Ljust nosparti runt om, rosa nos överst på framsidan och en varm
+    # mun under den. Munnen var förr ett svart streck rakt över två texlar; på en
+    # platt yta blev det ett bistert drag, på en kub som sticker ut blir samma
+    # två texlar en mun.
+    for sida in ("top", "bottom", "north", "south", "east", "west"):
+        yta(sida, nosparti, alfa)
+    yta("bottom", blanda(nosparti, mork, 0.35), alfa)          # skugga under hakan
+    yta("north", ROSA, alfa, rad=0)                            # nosen
+    yta("north", blanda(mork, (150, 108, 104), 0.55), alfa, rad=1)   # munnen
 
-    # KINDERNA. Ytterhörnen nedtill var nästan svarta och ramade in ansiktet
-    # hårt. De ljusas upp mot nosens rosa — det blir en antydan till kindrodnad
-    # utan att bli en clownkind.
-    for kols in OGON_KOL:
-        yttre = kols[0] if kols[0] < 2 else kols[1]
-        satt(yttre, 4, blanda(kind, (206, 132, 138), 0.40))
+    rr.write_png(f"{RP}/{texvag}.png", w, h, px)
+    return iris_ljus, alfa
 
-    rr.write_png(f"{RP}/textures/entity/{ras}.png", w, h, px)
-    return iris_ljus
-
-
-RASER = ("misty", "hazel", "mocha", "snow")
 
 if __name__ == "__main__":
-    print(f"ansiktsytan: {FW}x{FH} texlar @ ({FX},{FY})")
-    for ras in RASER:
-        iris = mala(ras)
-        print(f"  {ras:7s} iris {iris}  ögon 2x3, mjukad mun och kind")
+    print(f"ansikte {SK['north'][2]}x{SK['north'][3]} @ {SK['north'][:2]}  "
+          f"nos {NOS['north'][2]}x{NOS['north'][3]} @ {NOS['north'][:2]}")
+    for namn, tex in katterna():
+        iris, alfa = mala(namn, tex)
+        print(f"  {namn:10s} iris {str(iris):18s} alfa {alfa}")

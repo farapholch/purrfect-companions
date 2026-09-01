@@ -9,6 +9,16 @@ CurseForge inte har blir en mismatch.)
 
 ## 3.37.0 — Softer faces, and a cat door that stops shedding dirt
 
+**The head is not a box any more.** It was a 6x5x4 cube, and it read as exactly
+that. Cats are widest at the cheeks and narrow toward the muzzle, so there are
+cheek tufts now that flare out at the jaw — the outline changes width three times
+on the way up instead of going straight. Together with the muzzle it is the same
+head, but it stops reading as a brick.
+
+(The ears were rebuilt three times on the way to that — tapered, smaller, wider
+and lower — and every version was worse than the ones that were already there.
+The ears were never the problem. They are untouched.)
+
 **The cats have a nose now.** The head was a single cube, so the entire face lay
 in one plane and every feature was painted on. In profile a cat was a brick. There
 is a small muzzle in front of the skull now — pink nose, mouth below it, and a

@@ -55,6 +55,25 @@ _nos = min(_head["cubes"], key=lambda c: c["origin"][2])
 if _nos is _skalle:
     raise SystemExit("geometrin saknar nos-kub — kör inte skriptet mot en platt modell")
 
+# HUVUDETS ÖVRIGA KUBER, klassade på var de SITTER — inte på uv-nummer. Ett
+# uv-nummer är ett andra ställe att hålla i synk; läget i modellen är samma sak
+# som formen, och det är formen reglerna handlar om.
+_topp = _skalle["origin"][1] + _skalle["size"][1]
+_x0 = _skalle["origin"][0]
+_x1 = _x0 + _skalle["size"][0]
+# ÖRONEN RÖRS INTE. Jag byggde om dem i tre omgångar — bas plus spets, mindre,
+# bredare-lägre — och varje variant blev SÄMRE än originalet: två torn med en
+# knopp på, eller ett inneröra som täckte hela spetsen. Öronen var aldrig
+# problemet; huvudet var. Konsten i art/kattpalsar/ äger dem, som förr.
+# KINDERNA: kuber som sticker ut i sidled OCH sitter nedanför skallens topp.
+# Utan höjdvillkoret fastnade ÖRONEN i regeln — de börjar på x -3,2 mot skallens
+# -3,0 och sticker alltså också ut i sidled — och målades platta i pälsfärg.
+# Det rosa innerörat försvann utan ett ord, och det syntes bara för att jag
+# renderade. En regel som beskriver läge måste beskriva HELA läget.
+_KINDER = [c for c in _head["cubes"]
+           if c["origin"][1] < _topp - 0.5
+           and (c["origin"][0] < _x0 - 0.05 or c["origin"][0] + c["size"][0] > _x1 + 0.05)]
+
 _ytor = lambda c: {k: tuple(int(t) for t in v)
                    for k, v in rr.faces(c["uv"][0], c["uv"][1], *c["size"]).items()}
 SK, NOS = _ytor(_skalle), _ytor(_nos)
@@ -91,8 +110,8 @@ def mala(namn, texvag):
     def satt(kol, rad, rgb, alfa):
         px[FY + rad][FX + kol] = tuple(rgb) + (alfa,)
 
-    def yta(sida, rgb, alfa, rad=None):
-        x0, y0, fw, fh = NOS[sida]
+    def yta(sida, rgb, alfa, rad=None, ytor=None):
+        x0, y0, fw, fh = (ytor or NOS)[sida]
         for y in range(y0, y0 + fh):
             if rad is not None and y - y0 != rad:
                 continue
@@ -157,6 +176,29 @@ def mala(namn, texvag):
     yta("north", ROSA, alfa, rad=0)                            # nosen
     yta("north", blanda(mork, (150, 108, 104), 0.55), alfa, rad=1)   # munnen
 
+    # KINDTOTTARNA OCH ÖRONSPETSARNA. Nya kuber som bryter rektangeln; de måste
+    # målas här eftersom konsten i art/kattpalsar/ inte känner till dem, och en
+    # omålad kub är genomskinlig — alltså osynlig, vilket ser exakt ut som att
+    # den inte finns.
+    #
+    # KINDEN ÄR NÅGOT MÖRKARE än pälsen. Lika ljus som huvudet smälter den ihop
+    # med det och tar bort hela vinsten; för mörk blir den en fläck. En tiondel
+    # mot mörkret räcker för att konturen ska läsa som en tott och inte som en
+    # utbuktning.
+    # KINDERNA MÅLAS I EXAKT PÄLSFÄRG. Första försöket gjorde dem en aning
+    # mörkare för att "synas", och då lossnade de från huvudet och såg ut som två
+    # påklistrade flikar. Silhuetten gör redan jobbet — det är att konturen byter
+    # bredd som läser som en kind, inte att ytan har en annan ton.
+    for kub in _KINDER:
+        for sida in ("top", "bottom", "north", "south", "east", "west"):
+            yta(sida, pals, alfa, ytor=_ytor(kub))
+
+    # ÖRONEN ÄGS HÄR NU. De var två kuber på 2,4x2,5 — halva huvudets bredd och
+    # halva dess höjd var — och det var de som gjorde huvudet fyrkantigt: två
+    # torn ovanpå en låda. Nu är de en bred låg bas och en smal hög spets, alltså
+    # en kontur som smalnar av på vägen upp. Konsten i art/kattpalsar/ målar
+    # fortfarande den gamla örats uv-ruta, men den rutan har bytt storlek, så
+    # skriptet målar om båda kuberna från grunden.
     rr.write_png(f"{RP}/{texvag}.png", w, h, px)
     return iris_ljus, alfa
 

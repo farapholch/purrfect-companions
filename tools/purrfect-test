@@ -680,6 +680,17 @@ else:
     if _n2["origin"][0] < -1.05 or _n2["origin"][0] + _n2["size"][0] > 1.05:
         bad.append(f"katt.geo.json: nosen är {_n2['size'][0]} bred och når "
                    f"utanför x -1..1 — den skymmer ögonen")
+    # KINDTOTTARNA. Huvudet var en 6x5x4-låda och lästes som en låda; kinderna
+    # gör det bredare nedtill än upptill, så konturen byter bredd och slutar
+    # vara en rektangel. Utan dem är omdömet "fyrkantigt" tillbaka.
+    _kinder = [c for c in _hd2["cubes"]
+               if c["origin"][1] < _sk2["origin"][1] + _sk2["size"][1] - 0.5
+               and (c["origin"][0] < _sk2["origin"][0] - 0.05
+                    or c["origin"][0] + c["size"][0]
+                    > _sk2["origin"][0] + _sk2["size"][0] + 0.05)]
+    if len(_kinder) != 2:
+        bad.append(f"katt.geo.json: hittade {len(_kinder)} kindtottar, ska vara 2 "
+                   f"— utan dem är huvudet en rektangel igen")
     # ...och den måste vara målad. En omålad kub är genomskinlig och syns inte,
     # vilket ser exakt ut som att den inte finns.
     _nf = rr.faces(_n2["uv"][0], _n2["uv"][1], *_n2["size"])["north"]

@@ -37,7 +37,7 @@ rosett" till hundra procent.
 GENOMSKINLIGHETEN BEVARAS. Spökkatten har alfa 150 i hela pälsen; skriver man
 255 blir hon plötsligt solid i ansiktet och slutar vara ett spöke.
 """
-import json, glob, os, sys
+import json, glob, math, os, sys
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASE)
@@ -61,10 +61,17 @@ if _nos is _skalle:
 _topp = _skalle["origin"][1] + _skalle["size"][1]
 _x0 = _skalle["origin"][0]
 _x1 = _x0 + _skalle["size"][0]
-# ÖRONEN RÖRS INTE. Jag byggde om dem i tre omgångar — bas plus spets, mindre,
-# bredare-lägre — och varje variant blev SÄMRE än originalet: två torn med en
-# knopp på, eller ett inneröra som täckte hela spetsen. Öronen var aldrig
-# problemet; huvudet var. Konsten i art/kattpalsar/ äger dem, som förr.
+# ÖRONENS FORM RÖRS INTE. Jag byggde om dem i tre omgångar — bas plus spets,
+# mindre, bredare-lägre — och varje variant blev SÄMRE än originalet: två torn
+# med en knopp på. Öronen var aldrig problemet; huvudet var.
+#
+# MEN INNERÖRAT ÄGS HÄR. Mätt över alla tio katterna var det ett lapptäcke:
+# Aurora, Midnight, Nova och Spökkatten hade inget alls, Domino och Ginger hade
+# ett som skilde tjugo steg från pälsen och alltså inte syntes, Misty och Hazel
+# hade rosa och Mocha och Snow vitt i tre kolumner. På ALLA satt det dessutom en
+# halv texel snett och läckte ut på örats SIDA — framsidan börjar på x 33,30, så
+# texel 33 ligger till en tredjedel på västsidan.
+_ORON = [c for c in _head["cubes"] if c is not _nos and c["origin"][1] >= _topp - 0.5]
 # KINDERNA: kuber som sticker ut i sidled OCH sitter nedanför skallens topp.
 # Utan höjdvillkoret fastnade ÖRONEN i regeln — de börjar på x -3,2 mot skallens
 # -3,0 och sticker alltså också ut i sidled — och målades platta i pälsfärg.
@@ -74,10 +81,31 @@ _KINDER = [c for c in _head["cubes"]
            if c["origin"][1] < _topp - 0.5
            and (c["origin"][0] < _x0 - 0.05 or c["origin"][0] + c["size"][0] > _x1 + 0.05)]
 
-_ytor = lambda c: {k: tuple(int(t) for t in v)
-                   for k, v in rr.faces(c["uv"][0], c["uv"][1], *c["size"]).items()}
+# YTORNA HÅLLS I FLYTTAL. Först trunkerades de till heltal, och då hamnade
+# innerörat på en rad som till 30 % ligger på örats OVANSIDA: örats framsida
+# börjar på y 11,30, men int() gjorde 11 av det. Det är exakt samma halvtexel-
+# fälla som tog grisarnas näsborrar, i ett annat paket — en yta vars kant ligger
+# mellan två texlar delar den texeln med grannytan, och en detalj som placeras
+# där hamnar till en del på grannen.
+_ytor = lambda c: rr.faces(c["uv"][0], c["uv"][1], *c["size"])
+
+
+def _tacker(f0, fl):
+    """Texelintervall som TÄCKER en yta helt — för att måla grundfärg."""
+    return int(math.floor(f0 + 1e-6)), int(math.ceil(f0 + fl - 1e-6))
+
+
+def _inre(f0, fl):
+    """Texelintervall som ligger HELT inne i en yta — för att placera detaljer."""
+    a = int(math.ceil(f0 - 1e-6))
+    return a, max(a + 1, int(math.floor(f0 + fl + 1e-6)))
 SK, NOS = _ytor(_skalle), _ytor(_nos)
-FX, FY = SK["north"][0], SK["north"][1]
+# ANSIKTETS FRAMSIDA har heltalskanter (uv 32,0 med måtten 6x5x4), så här är
+# int() ofarligt — men det skrivs ut i klartext så nästa modelländring inte
+# tyst ärver ett antagande som slutat gälla.
+FX, FY = int(SK["north"][0]), int(SK["north"][1])
+assert (FX, FY) == (SK["north"][0], SK["north"][1]), \
+    "skallens framsida ligger inte på hela texlar — ansiktsrutnätet stämmer inte"
 
 # Ansiktet är 6x5. Kolumnerna 0-1 och 4-5 är ögon, 2-3 är nospartiet.
 OGON_KOL = ((0, 1), (4, 5))
@@ -112,10 +140,12 @@ def mala(namn, texvag):
 
     def yta(sida, rgb, alfa, rad=None, ytor=None):
         x0, y0, fw, fh = (ytor or NOS)[sida]
-        for y in range(y0, y0 + fh):
-            if rad is not None and y - y0 != rad:
+        ya, yb = _tacker(y0, fh)
+        xa, xb = _tacker(x0, fw)
+        for y in range(ya, yb):
+            if rad is not None and y - ya != rad:
                 continue
-            for x in range(x0, x0 + fw):
+            for x in range(xa, xb):
                 px[y][x] = tuple(rgb) + (alfa,)
 
     # KÄLLFÄRGER. Pälsen och nospartiet skrivs aldrig av skriptet, så de kan
@@ -202,6 +232,38 @@ def mala(namn, texvag):
     # en kontur som smalnar av på vägen upp. Konsten i art/kattpalsar/ målar
     # fortfarande den gamla örats uv-ruta, men den rutan har bytt storlek, så
     # skriptet målar om båda kuberna från grunden.
+    # INNERÖRAT. En texelkolumn mitt på framsidan, plus de rader som ligger HELT
+    # inne i den. Framsidan är 2,4 texlar bred och börjar på ,30 — en jämnbred
+    # fläck går därför inte att centrera, men EN kolumn gör det exakt: texel 34
+    # spänner 34–35 och framsidans mitt ligger på 34,50.
+    #
+    # ÖRATS EGEN FÄRG LÄSES UR ÖRAT, inte ur ansiktet. Snow är ragdoll och Mocha
+    # birma — de har mörkare "points" på just öronen än i ansiktet, och att måla
+    # om örat i ansiktets färg hade tagit bort hela rasmarkeringen.
+    for kub in _ORON:
+        ytor = _ytor(kub)
+        fx, fy, fw, fh = ytor["north"]
+        rakn = {}
+        for y in range(*_tacker(fy, fh)):
+            for x in range(*_tacker(fx, fw)):
+                rakn[tuple(px[y][x][:3])] = rakn.get(tuple(px[y][x][:3]), 0) + 1
+        oronpals = max(rakn, key=rakn.get)
+        # HELA KUBEN MÅLAS OM först, så det gamla snedställda innerörat och dess
+        # läckage ut på sidoytan försvinner. Örat bär ingen annan teckning.
+        for sida in ("top", "bottom", "north", "south", "east", "west"):
+            yta(sida, oronpals, alfa, ytor=ytor)
+        # BLANDNINGEN ÄR ADAPTIV. En fast andel gav Misty kontrast 19 och Snow 24:
+        # grått och rosa ligger nära varandra i ljushet, så samma steg mot rosa
+        # syns mycket sämre på en grå katt än på en svart. Andelen ökas tills
+        # skillnaden räcker, och taket 0,88 finns för att ett inneröra som är
+        # RENT rosa ser målat ut i stället för hudfärgat.
+        avst = sum(abs(ROSA[i] - oronpals[i]) for i in range(3)) / 3
+        t = 0.60 if avst <= 0 else min(0.88, max(0.60, 28.0 / avst))
+        kol = int(fx + fw / 2)
+        ya, yb = _inre(fy, fh)
+        for y in range(ya, yb):
+            px[y][kol] = blanda(oronpals, ROSA, t) + (alfa,)
+
     rr.write_png(f"{RP}/{texvag}.png", w, h, px)
     return iris_ljus, alfa
 

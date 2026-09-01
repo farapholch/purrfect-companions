@@ -710,6 +710,53 @@ else:
             bad.append(f"{_ras}: nosens framsida är enfärgad {_rutor[0][:3]} — "
                        f"ingen nos och ingen mun, kör tools/make_cat_faces.py")
 
+# --- innerörat: centrerat, synligt, och inte utanför framsidan -------------
+# Mätt över alla tio katterna var det ett lapptäcke: fyra hade inget inneröra
+# alls, två hade ett som skilde tjugo steg från pälsen och alltså inte syntes,
+# två hade rosa och två vitt. På alla satt det dessutom en halv texel snett och
+# läckte ut på örats SIDA, eftersom framsidan börjar på x 33,30 och texel 33
+# därmed till en tredjedel ligger på västsidan. Ingen spärr hade sagt något,
+# för varje enskild fil var giltig.
+_oronkuber = [c for c in _hd2["cubes"]
+              if c is not _sk2 and c["origin"][2] >= _sk2["origin"][2] - 0.1
+              and c["origin"][1] >= _sk2["origin"][1] + _sk2["size"][1] - 0.5]
+for _ok in _oronkuber:
+    _of = rr.faces(_ok["uv"][0], _ok["uv"][1], *_ok["size"])
+    _fx, _fy, _fw, _fh = _of["north"]
+    for _ras, _texvag in _KATTER:
+        _tf = f"{SRC}/PurrfectCompanions_RP/{_texvag}.png"
+        if not os.path.exists(_tf): continue
+        _w, _h, _p = rr.read_png(_tf)
+        _r = {}
+        for _y in range(int(_fy), int(_fy + _fh) + 1):
+            for _x in range(int(_fx), int(_fx + _fw) + 1):
+                _r.setdefault(tuple(_p[_y][_x][:3]), []).append(_x)
+        _pals = max(_r, key=lambda k: len(_r[k]))
+        _inner = [k for k in _r if k != _pals]
+        if not _inner:
+            bad.append(f"{_ras}: örat uv{_ok['uv']} saknar inneröra"); continue
+        _ip = _inner[0]
+        _kol = sorted(set(_r[_ip]))
+        _kontrast = sum(abs(_ip[_i] - _pals[_i]) for _i in range(3)) / 3
+        if _kontrast < 22:
+            bad.append(f"{_ras}: innerörat {_ip} skiljer bara {_kontrast:.0f} från "
+                       f"örat {_pals} — det syns inte")
+        if len(_kol) != 1:
+            bad.append(f"{_ras}: innerörat ligger på {len(_kol)} kolumner "
+                       f"{_kol} — en jämnbred fläck går inte att centrera på "
+                       f"en framsida som är {_fw} texlar bred")
+        elif abs((_kol[0] + 0.5) - (_fx + _fw / 2)) > 0.01:
+            bad.append(f"{_ras}: innerörats mitt {_kol[0] + 0.5} ligger inte på "
+                       f"framsidans mitt {_fx + _fw / 2}")
+        # ...och det får inte finnas på sidoytorna. Där är det läckage, och det
+        # syns som en rosa fläck på utsidan av örat.
+        for _sida in ("west", "east", "top"):
+            _sx, _sy, _sw, _sh = _of[_sida]
+            if any(tuple(_p[_y][_x][:3]) == _ip
+                   for _y in range(int(_sy), int(_sy + _sh))
+                   for _x in range(int(_sx), int(_sx + _sw))):
+                bad.append(f"{_ras}: innerörat läcker ut på örats {_sida}-sida")
+
 # --- inget block får se ut som JORD när det går sönder --------------------
 # Bedrock plockar sönderslagningspartiklarna ur blockets egen textur, och ett
 # block utan kollisionslåda sprutar dem i HELA kubens volym. Kattluckan var

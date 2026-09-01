@@ -19,6 +19,15 @@ head, but it stops reading as a brick.
 and lower — and every version was worse than the ones that were already there.
 The ears were never the problem. They are untouched.)
 
+**Every cat has a proper inner ear.** Measured across all ten, this was a
+patchwork: Aurora, Midnight, Nova and the ghost had no inner ear at all, Domino
+and Ginger had one twenty steps from their fur — invisible — and the rest were
+split between pink and white. On every one of them it also sat half a texel off
+centre and bled onto the *side* of the ear, because the ear's front face starts
+at x 33.30 and that first texel is a third of the way onto the side. The
+generator owns it now: one texel, dead centre, in a pink mixed far enough toward
+the fur that it stays visible on a black cat and a white one alike.
+
 **The cats have a nose now.** The head was a single cube, so the entire face lay
 in one plane and every feature was painted on. In profile a cat was a brick. There
 is a small muzzle in front of the skull now — pink nose, mouth below it, and a

@@ -48,6 +48,9 @@ fi
 echo "[2/4] Struktur & kända fallgropar"
 python3 - "$SRC" > /tmp/purrfect-struct.txt 2>/tmp/purrfect-struct.err <<'PY'
 import json,glob,os,re,sys
+sys.path.insert(0, "/opt/purrfect-companions")
+import render_regression as rr
+from collections import Counter as _Counter
 SRC=sys.argv[1]; bad=[]
 bp=json.load(open(f"{SRC}/PurrfectCompanions_BP/manifest.json")); rp=json.load(open(f"{SRC}/PurrfectCompanions_RP/manifest.json"))
 V=bp["header"]["version"]
@@ -435,6 +438,21 @@ for _f in glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json"):
             if _n > 1:
                 bad.append(f"{os.path.basename(_f)}: {_ev} har {_n} slumpningar som "
                            f"sätter {_p} — generatorn ackumulerar")
+        # SAMMA ACKUMULERING, ANNAN LISTA. Spärren ovan bevakade bara
+        # randomize-blocken, för det var där felet hittades förra gången. Under
+        # tiden växte mjau:on_tame sin component_groups-lista till NIO kopior av
+        # mjau:gavor, en per bygge, utan att någon sa något — motorn struntar i
+        # dubbletter, så det syns bara i diffen. En spärr som bara känner igen
+        # det fel den redan sett är halva spärren; den här tar alla listor.
+        for _plats in ("add", "remove"):
+            for _kalla in ([_kropp] + (_kropp.get("sequence") or [])
+                           + [_g for _st in ([_kropp] + (_kropp.get("sequence") or []))
+                              for _g in (_st.get("randomize") or [])]):
+                _cg = (_kalla.get(_plats) or {}).get("component_groups")
+                if isinstance(_cg, list) and len(_cg) != len(set(_cg)):
+                    _dubb = sorted({c for c in _cg if _cg.count(c) > 1})
+                    bad.append(f"{os.path.basename(_f)}: {_ev}/{_plats} har "
+                               f"dubbletter av {', '.join(_dubb)} — generatorn ackumulerar")
 
 # --- Kattbokens språknycklar ----------------------------------------------
 # BOKEN ÄR EN GUIDE, och en guide som visar "mjau.bok.plagg.krona" i klartext är
@@ -595,6 +613,60 @@ if os.path.exists(_kl):
     if _klc.get("minecraft:collision_box") is not False:
         bad.append("kattlucka: har kollisionslåda — då kan man inte gå igenom "
                    "kattdörren (sätt collision_box: false)")
+
+# --- ansiktena måste vara målade -----------------------------------------
+# make_cat_markings.py läser den orörda konsten i art/kattpalsar/ och skriver
+# HELA texturen — även huvudet, som den inte målar. Kör man den ensam nollas
+# alltså ansiktet som make_cat_faces.py målat, utan ett ord någonstans.
+# Körordningen står bara i docstrings, och en körordning som bara står i text
+# är precis den sortens "två ställen att hålla i synk" som det här paketet har
+# gått i förr. Den här spärren är det andra stället, fast körbart.
+_G = json.load(open(f"{SRC}/PurrfectCompanions_RP/models/entity/katt.geo.json"))
+_hd = next(b for b in _G["minecraft:geometry"][0]["bones"] if b["name"] == "head")
+_sk = max(_hd["cubes"], key=lambda c: c["size"][0] * c["size"][1])
+_fx, _fy, _fw, _fh = rr.faces(_sk["uv"][0], _sk["uv"][1], *_sk["size"])["north"]
+_fx, _fy = int(_fx), int(_fy)
+for _ras in ("misty", "hazel", "mocha", "snow"):
+    _tf = f"{SRC}/PurrfectCompanions_RP/textures/entity/{_ras}.png"
+    if not os.path.exists(_tf): continue
+    _w, _h, _p = rr.read_png(_tf)
+    _at = lambda k, r: tuple(_p[_fy + r][_fx + k])[:3]
+    # ÖGAT SKA VARA 2x3. Rad 3 under irisen ska ligga i samma färgfamilj som
+    # irisen på rad 2 — gör den inte det är ansiktet det gamla 2x2-ögat.
+    for _k in (0, 1, 4, 5):
+        if sum(abs(_at(_k, 3)[_i] - _at(_k, 2)[_i]) for _i in range(3)) / 3 > 70:
+            bad.append(f"{_ras}: ögat är tillbaka på 2x2 — kör "
+                       f"tools/make_cat_faces.py efter make_cat_markings.py")
+            break
+    # MUNNEN SKA VARA VARM, inte det svarta strecket (26,18,14).
+    if sum(_at(2, 4)) < 120:
+        bad.append(f"{_ras}: munnen är tillbaka som svart streck {_at(2, 4)} — kör "
+                   f"tools/make_cat_faces.py efter make_cat_markings.py")
+
+# --- inget block får se ut som JORD när det går sönder --------------------
+# Bedrock plockar sönderslagningspartiklarna ur blockets egen textur, och ett
+# block utan kollisionslåda sprutar dem i HELA kubens volym. Kattluckan var
+# enfärgat (142,104,66) — åtta enheter från vanillas jordblock — så att slå
+# sönder den gav ett brunt jordmoln mitt i vardagsrummet. Barnen rapporterade
+# det som "den har jord-effekt när man tar bort den", vilket var exakt rätt.
+_JORDAR = [(134, 96, 67), (150, 108, 74), (119, 85, 59)]   # dirt, coarse, podzol
+for _tf in sorted(glob.glob(f"{SRC}/PurrfectCompanions_RP/textures/blocks/*.png")):
+    _w, _h, _px = rr.read_png(_tf)
+    _c = _Counter(tuple(p[:3]) for _row in _px for p in _row if p[3] > 0)
+    if not _c: continue
+    _dom, _n = _c.most_common(1)[0]
+    if _n / (_w * _h) < 0.35:
+        continue                       # brokig textur, partiklarna blir brokiga
+    # MEDELAVVIKELSE, inte största kanalskillnad. Kattbädden är plommonlila
+    # (108,61,79) och skiljer sig 35 i en enda kanal men bara 18 i snitt — den
+    # LÄSER inte som jord, och en spärr som klagar på den lär mig att ignorera
+    # den. Jorden är brun i alla tre kanalerna samtidigt; det är snittet som
+    # fångar det.
+    _nara = min(sum(abs(_dom[i] - _j[i]) for i in range(3)) / 3 for _j in _JORDAR)
+    if _nara < 14:
+        bad.append(f"{os.path.basename(_tf)}: {_n * 100 // (_w * _h)}% av texturen är "
+                   f"{_dom}, som ligger {_nara} från jord — partiklarna när blocket "
+                   f"går sönder ser ut som ett jordblock")
 
 print("VERSION="+".".join(map(str,V)))
 for b in bad: print("BAD="+b)

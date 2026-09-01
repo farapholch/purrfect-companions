@@ -7,6 +7,34 @@ CurseForge inte har blir en mismatch.)
 
 ---
 
+## 3.37.0 — Softer faces, and a cat door that stops shedding dirt
+
+**The faces are cuter.** The kids asked, and once I measured it they were right
+about *why*. Each eye was 2x2 in a face that is only 5 texels tall, the mouth was
+a hard black bar straight across, and the brow was a near-black band. Correct,
+but stern. The eyes are now 2x3 — a kitten's proportions rather than an adult
+cat's — with the highlight kept, the brow softened toward the fur, and the mouth
+warmed from near-black to a soft brown. Nothing was added; the same handful of
+texels simply sit where a young face has them.
+
+**The cat door no longer breaks into dirt.** Break a block in Bedrock and the
+particles are sampled from its own texture, and a block with no collision box
+sprays them through the whole cube. The cat door's texture was a single flat
+brown — eight units from vanilla dirt — so knocking one down produced a cloud of
+what looked exactly like dirt in the middle of your living room. The kids
+reported it as "it has a dirt effect when you take it away", which is precisely
+what it was.
+
+The door now has a dark frame, a pale flap and a visible hinge, so it reads as a
+door and its particles read as anything but soil. The same check caught the
+**food bowl**, whose rim colour was four units from dirt; it is light birch now.
+
+**A generator was quietly accumulating again.** `mjau:on_tame` had grown to nine
+copies of the same component group, one per build. Harmless to the engine, but it
+is the same fault that once made every kitten spawn wearing a bow, and the old
+guard only knew how to recognise that one shape. It checks every list now.
+
+
 ## 3.36.0 — The cats have markings now
 
 A player wrote in and asked, very politely, whether the textures could be

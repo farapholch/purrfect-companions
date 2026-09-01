@@ -1048,8 +1048,16 @@ def build_rest():
         _gavor = g["mjau:tamed"].pop("minecraft:behavior.drop_item_for", None)
         if _gavor is not None:
             g["mjau:gavor"] = {"minecraft:behavior.drop_item_for": _gavor}
-        ev["mjau:on_tame"].setdefault("add", {}).setdefault(
-            "component_groups", []).append("mjau:gavor")
+        # EN GÅNG, inte en gång per körning. Utan kontrollen växer listan med
+        # en kopia varje bygge — den stod på nio när felet upptäcktes. Motorn
+        # bryr sig inte (att lägga till en grupp som redan lagts till är en
+        # nulloperation), men det är exakt samma ackumulering som en gång gjorde
+        # "ibland född med rosett" till 100 %, och den gången var den inte
+        # ofarlig. Skriptet ska vara idempotent, punkt.
+        _tame_add = ev["mjau:on_tame"].setdefault("add", {}).setdefault(
+            "component_groups", [])
+        if "mjau:gavor" not in _tame_add:
+            _tame_add.append("mjau:gavor")
         # mjau:packad rörs ALDRIG av hungern: den bär lastrummet, och att ta bort
         # minecraft:inventory är att slänga kattens last.
         ev["mjau:hungrig_pa"] = {"set_property": {"mjau:hungrig": 1},

@@ -27,7 +27,10 @@ BLOCKS = {
    # låg skål med kant och "mat" i mitten
    cubes=[([-5,0,-5],[10,1,10]), ([-5,1,-5],[10,2,1]), ([-5,1,4],[10,2,1]),
           ([-5,1,-4],[1,2,8]), ([4,1,-4],[1,2,8]), ([-3,1,-3],[6,1,6])],
-   base=(188,148,96), accent=(120,78,52), sound="wood",
+   # LJUS BJÖRK, inte mörkt trä. Skålens kantfärg härleds som bas*0,72 och
+   # blev (135,106,69) — fyra enheter från vanillas jordblock, och kanten är
+   # 43 % av duken. Samma jordmoln som kattluckan hade när man slog sönder den.
+   base=(214,190,150), accent=(120,78,52), sound="wood",
    recipe=dict(pattern=[" F ","PBP"],
      key={"B":{"item":"minecraft:bowl"},"P":{"item":"minecraft:planks"},
           "F":{"item":"minecraft:cod"}},
@@ -109,7 +112,15 @@ BLOCKS = {
    # ram med lucka — dekorativ, ställs i en dörröppning
    cubes=[([-6,0,-1],[2,14,2]), ([4,0,-1],[2,14,2]), ([-6,14,-1],[12,2,2]),
           ([-4,2,-0.5],[8,10,1])],
-   base=(142,104,66), accent=(190,160,120), sound="wood",
+   # FÄRGEN VAR PROBLEMET, inte modellen. (142,104,66) ligger åtta enheter från
+   # vanillas jordblock, och HELA texturen var den tonen — så när man slog
+   # sönder luckan blev partikelmolnet ett brunt jordmoln. Ungarna sa "den har
+   # jord-effekt när man tar bort den" och hade helt rätt.
+   #
+   # Karmen är nu mörkare och kallare än jord, och SJÄLVA LUCKAN är nästan vit.
+   # Partiklarna plockas ur hela duken, så en ljus lucka ger ett ljust moln som
+   # ingen förväxlar med jord.
+   base=(120,92,74), accent=(232,226,214), sound="wood",
    recipe=dict(pattern=["PPP","P P","PWP"],
      key={"P":{"item":"minecraft:planks"},"W":{"item":"minecraft:white_wool"}},
      unlock=[{"item":"minecraft:planks"}]),
@@ -211,10 +222,25 @@ def texture(bid, cfg):
                     px[y][x] = acc                                # vatten
                     if (x * 3 + y * 5) % 7 == 0: px[y][x] = (110, 176, 224, 255)
     if bid == "kattlucka":
+        # KARM RUNT OM, LUCKA I MITTEN. Den gamla varianten strök bara vartannat
+        # streck i accentfärgen över en brun platta — det läste som en planka,
+        # inte som en lucka man kan gå igenom.
         for y in range(S):
             for x in range(S):
-                if x < 2 or x > 13 or y < 2: px[y][x] = dark      # karm
-                elif (y % 5) == 0: px[y][x] = acc                 # panel
+                if x < 2 or x > 13 or y < 2 or y > 14:
+                    px[y][x] = dark                               # karm
+                else:
+                    px[y][x] = acc                                # själva luckan
+        # GÅNGJÄRNET ÖVERST är det som gör att luckan läser som en LUCKA: utan
+        # det är den ljusa ytan bara ett hål i en brun ram.
+        for x in range(3, 13):
+            px[2][x] = dark
+        # KATTHÅLET. En liten mörk båge nedtill i luckan — samma silhuett som
+        # spelaren just har jagat en katt igenom.
+        for y in range(8, 14):
+            for x in range(5, 11):
+                if abs(x - 7.5) + max(0, 10 - y) * 0.7 < 3.2:
+                    px[y][x] = tuple(int(c * 0.55) for c in cfg["base"]) + (255,)
     if bid == "kattoa":
         for y in range(S):
             for x in range(S):

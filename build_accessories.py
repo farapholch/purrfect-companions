@@ -387,33 +387,22 @@ def build_geometry():
 
 # ---------------------------------------------------------------- textur
 def paint_accessories():
-    # Katten själv bor inte i atlaset längre (se PALS). Raderna ovanför det
-    # första plagget töms så ingen luras av en gammal 1x-katt som ligger kvar
-    # där utan att någon ritar den.
-    kattrader=min(v for cfg in ACC.values() for (_u,v) in cfg["uv"].values())
-    for f in glob.glob(f"{RP}/entity/*.json"):
-        d=json.load(open(f))["minecraft:client_entity"]["description"]
-        if d.get("geometry",{}).get("default")!="geometry.katt": continue
-        p=f"{RP}/{d['textures']['default']}.png"; w,h,px=read_png(p)
-        for y in range(min(h,kattrader)): px[y]=[(0,0,0,0)]*w
-        write_png(p,w,h,px)
-    for cid in KATTER:
-        p=f"{RP}/textures/entity/{cid}.png"; w,h,px=read_png(p)
-        def rect(x0,y0,ww,hh,c):
-            for y in range(y0,y0+hh):
-                for x in range(x0,x0+ww):
-                    if 0<=x<w and 0<=y<h: px[y][x]=c
-        for a,cfg in ACC.items():
-            for i,(slug,col) in cfg["colors"].items():
-                u,v=cfg["uv"][i]
-                for (o,s,(du,dv)) in cfg["cubes"]:
-                    fw,fh=uv_footprint(s)
-                    rect(u+du,v+dv,fw,fh,sh(col,1.0))
-                    rect(u+du,v+dv,fw,1,sh(col,1.2))          # ljus ovankant
-                    rect(u+du,v+dv+fh-1,fw,1,sh(col,0.68))    # mörk underkant
-                    for x in range(u+du,u+du+fw):
-                        if (x-u-du)%4==0: rect(x,v+dv,1,fh,sh(col,0.86))   # tyg-/läderstruktur
-        write_png(p,w,h,px)
+    """Plaggens ark: ETT delat `textures/entity/plagg.png` för alla katter, i
+    PLAGG_SKALA texlar per uv-enhet (TEX x TEX enheter). Materialen bor i
+    tools/plaggmaterial.py — läder, ull, plåt, trä, fjädrar, glas, glöd.
+
+    Förut målades plaggen in i varje katts egen 256-atlas som färgade
+    rektanglar. De hemliga katternas atlas var dessutom härledda ur Mistys
+    med pälsens färgtransform, så Midnight bar en svart sadel. Ett ark, en
+    sanning."""
+    import sys; sys.path.insert(0, f"{BASE}/tools")
+    from plaggmaterial import mala_plagg, SKALA as PLAGG_SKALA
+    from make_cat_pals import Duk
+    duk = Duk(TEX * PLAGG_SKALA, TEX * PLAGG_SKALA)
+    for a, cfg in ACC.items():
+        for i, (slug, col) in cfg["colors"].items():
+            mala_plagg(duk, a, cfg, i, col)
+    write_png(f"{RP}/textures/entity/plagg.png", duk.w, duk.h, duk.px)
 
 # ---------------------------------------------------------------- ikoner
 # EN EGEN SILUETT PER PLAGGTYP. Förut hade bara glasögon, mantel, vagn och
@@ -621,7 +610,9 @@ def build_rest():
         d=json.load(open(f)); desc=d["minecraft:client_entity"]["description"]
         if desc.get("identifier") not in _katter: continue   # t.ex. vakthunden
         desc["geometry"]=gmap
-        desc["textures"]["pals"]=desc["textures"]["default"]+"_pals"
+        # katten ur sitt pälsark, plaggen ur det delade plaggarket
+        _kort=desc["identifier"].split(":")[1]
+        desc["textures"]={"default":"textures/entity/plagg","pals":f"textures/entity/{_kort}_pals"}
         desc["render_controllers"]=["controller.render.katt"]+[f"controller.render.katt_{a}" for a in ACC]
         # animationer: gångcykel, svanssvaj, huvudet följer spelaren, hopkurad sittpose
         desc["animations"]={

@@ -114,13 +114,18 @@ def texturer(cat, enheter=None):
     enheter = geometrins deklarerade (texture_width, texture_height) för atlaset;
     utelämnad betyder en texel per enhet (kattens plaggatlas). Dräkten deklarerar
     64x64 men ritas ur ett 256x256-ark, och skickar in sina enheter."""
-    tw, th, tex = read_png(f"{RP}/textures/entity/{cat}.png")
-    ut = {"default": (tex, tw, th, tw / enheter[0] if enheter else 1.0)}
-    pp = f"{RP}/textures/entity/{cat}_pals.png"
-    if os.path.exists(pp):
-        pw, ph, ptex = read_png(pp)
+    ent = f"{RP}/entity/{cat}.json"
+    if os.path.exists(ent):
+        # En katt: default = det delade plaggarket (i plagg-geometriernas
+        # uv-enheter), pals = kattens eget pälsark.
+        texs = json.load(open(ent))["minecraft:client_entity"]["description"]["textures"]
+        tw, th, tex = read_png(f"{RP}/{texs['default']}.png")
+        ut = {"default": (tex, tw, th, tw / GEO["geometry.katt.empty"]["description"]["texture_width"])}
+        pw, ph, ptex = read_png(f"{RP}/{texs['pals']}.png")
         ut["pals"] = (ptex, pw, ph, pw / GEO["geometry.katt"]["description"]["texture_width"])
-    return ut
+        return ut
+    tw, th, tex = read_png(f"{RP}/textures/entity/{cat}.png")
+    return {"default": (tex, tw, th, tw / enheter[0] if enheter else 1.0)}
 
 
 def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16, ram=None, enheter=None):

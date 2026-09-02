@@ -139,7 +139,8 @@ manually in sync.
 
 | Script | Owns |
 |---|---|
-| `build_accessories.py` | Outfits: geometry, textures, render controllers, entity properties and events, interactions, items, icons, recipes, language keys |
+| `build_accessories.py` | Outfits: geometry, render controllers, entity properties and events, interactions, items, icons, recipes, language keys |
+| `tools/plaggmaterial.py` | The outfits' textures: one shared 1024x1024 sheet at four texels per unit, one material painter per outfit (leather, knit, metal, planks, feathers, glass, glow) |
 | `build_blocks.py` | Cat Bed and Yarn Ball, plus the behaviour that makes cats seek them out |
 | `tools/make_cat_pals.py` | The coats: every cat's fur sheet (`<cat>_pals.png`, 512x128), painted from a per-cat table onto the UV layout read from the geometry |
 | `tools/make_cat_textures.py` | The spawn-egg icons of the derived and secret breeds |

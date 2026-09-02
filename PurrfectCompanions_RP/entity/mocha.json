@@ -7,7 +7,7 @@
         "default": "entity_alphatest"
       },
       "textures": {
-        "default": "textures/entity/mocha",
+        "default": "textures/entity/plagg",
         "pals": "textures/entity/mocha_pals"
       },
       "geometry": {

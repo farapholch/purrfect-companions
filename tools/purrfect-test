@@ -63,22 +63,21 @@ GEOALL=json.load(open(f"{SRC}/PurrfectCompanions_RP/models/entity/katt.geo.json"
 # Texturstorleken i VARJE geometri måste matcha den faktiska PNG-filen, annars
 # läses UV i fel skala och modellen blir obegriplig i spelet (servern märker inget).
 import struct as _st
-_d=open(f"{SRC}/PurrfectCompanions_RP/textures/entity/misty.png","rb").read()
+# KATTEN ritas ur sitt pälsark och PLAGGEN ur det delade plaggarket; båda får
+# vara en HELTALSMULTIPEL av geometrins deklarerade uv-enheter (fyra texlar
+# per enhet), aldrig en annan proportion. Arken slås upp i Mistys
+# klientdefinition — hårdkodade filnamn har ljugit förr.
+_mt=json.load(open(f"{SRC}/PurrfectCompanions_RP/entity/misty.json"))["minecraft:client_entity"]["description"]["textures"]
+_d=open(f"{SRC}/PurrfectCompanions_RP/{_mt['default']}.png","rb").read()
 _tw,_th=_st.unpack(">II",_d[16:24])
-# KATTEN SJÄLV ritas ur pälsarket, som får vara en HELTALSMULTIPEL av det
-# deklarerade (fyra texlar per uv-enhet sedan 3.40.0). Plaggen ritas ur
-# atlaset och måste matcha det exakt som förut.
-_pd=open(f"{SRC}/PurrfectCompanions_RP/textures/entity/misty_pals.png","rb").read()
+_pd=open(f"{SRC}/PurrfectCompanions_RP/{_mt['pals']}.png","rb").read()
 _pw,_ph=_st.unpack(">II",_pd[16:24])
 for _g in GEOALL:
     _dsc=_g["description"]
-    if _dsc["identifier"]=="geometry.katt":
-        _kx,_ky=_pw/_dsc["texture_width"],_ph/_dsc["texture_height"]
-        if _kx!=_ky or _kx!=int(_kx) or _kx<1:
-            bad.append(f"geometry.katt: pälsarket {_pw}x{_ph} är inte en heltalsmultipel av {_dsc['texture_width']}x{_dsc['texture_height']} uv-enheter")
-        continue
-    if (_dsc.get("texture_width"),_dsc.get("texture_height"))!=(_tw,_th):
-        bad.append(f"{_dsc['identifier']}: texturstorlek {_dsc.get('texture_width')}x{_dsc.get('texture_height')} != PNG {_tw}x{_th}")
+    _aw,_ah=((_pw,_ph) if _dsc["identifier"]=="geometry.katt" else (_tw,_th))
+    _kx,_ky=_aw/_dsc["texture_width"],_ah/_dsc["texture_height"]
+    if _kx!=_ky or _kx!=int(_kx) or _kx<1:
+        bad.append(f"{_dsc['identifier']}: arket {_aw}x{_ah} är inte en heltalsmultipel av {_dsc['texture_width']}x{_dsc['texture_height']} uv-enheter")
 # Varje katt ska ha ett ark med samma mått som Mistys — ett ark i annan skala
 # ritar den katten med förskjutna uv-rutor.
 for _cf in sorted(glob.glob(f"{SRC}/PurrfectCompanions_RP/entity/*.json")):

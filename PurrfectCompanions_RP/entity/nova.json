@@ -7,7 +7,7 @@
         "default": "entity_alphatest"
       },
       "textures": {
-        "default": "textures/entity/nova",
+        "default": "textures/entity/plagg",
         "pals": "textures/entity/nova_pals"
       },
       "geometry": {

@@ -7,6 +7,27 @@ CurseForge inte har blir en mismatch.)
 
 ---
 
+## 3.42.0 — The outfits get their materials
+
+The outfits were the last flat colour left. A saddle was a brown box, a cart a
+tan one, and a crown a yellow slab with the same three shades as the cap.
+
+Every outfit now draws from one shared sheet at four texels per unit, and each
+one is painted as what it is made of. Leather has stitching along the edges.
+Wool is knitted, with ribs, and the scarf has a fringe. Metal has bevelled
+edges, a highlight and rivets — the armour has a ridge down the back. The cart
+is planks with nails, and its wheels have a rim, a hub and spokes. The glasses
+have real lenses with a highlight. The wings have rows of feathers, the bat
+wings have finger bones and a ragged trailing edge. The crown has three jewels
+and points along the top. The cape has folds and a gold border. The witch hat
+has a band and a buckle, the santa hat a white fluffy brim and pompom, and the
+collar a real gold bell. The energy blade glows from a white core, and the Void
+cloak has stars and a nebula in it.
+
+This also fixes something nobody had reported: the secret cats' outfits were
+tinted by their own coat, so a saddle on Midnight was black. One sheet for
+everyone means one saddle.
+
 ## 3.41.0 — The cat suit gets the same fur
 
 The player's cat suit was the last thing still drawn at one texel per unit,
@@ -26,6 +47,17 @@ guards and toe caps. You can tell the tier at a distance now.
 ---
 
 <!-- ALLT NEDANFÖR ÄR PROJEKTETS EGEN LOGG och ska INTE med till butiken. -->
+
+## Plaggen (projektlogg, 3.42.0)
+
+Plaggen bor i ETT delat ark `textures/entity/plagg.png` (1024x1024, plagg-
+geometrierna deklarerar 256x256 → fyra texlar per enhet). Materialen bor i
+`tools/plaggmaterial.py`: en funktion per plagg, uppslagen på namnet i
+MATERIAL; nytt plagg utan rad får tyg. Kuber som delar uv-ruta målas en gång.
+Klientdefinitionernas `textures.default` pekar på plagg.png för alla katter;
+de tio per-katt-atlasen är borttagna (git rm). Renderarna slår upp texturerna
+i klientdefinitionen när en sådan finns, annars `<namn>.png` (dräkten,
+hunden). Kronans tinnar är HÅL i texturen (alpha 0, entity_alphatest).
 
 ## Dräkten (projektlogg, 3.41.0)
 

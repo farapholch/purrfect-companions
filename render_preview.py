@@ -56,13 +56,16 @@ def cubes_for(accessories):
 
 def texturer(cat):
     """Atlas och pälsark som (bild, bredd, höjd, texlar per uv-enhet)."""
-    tw,th,tex=read_png(f"{RP}/textures/entity/{cat}.png")
-    ut={"default":(tex,tw,th,1.0)}
-    pp=f"{RP}/textures/entity/{cat}_pals.png"
-    if os.path.exists(pp):
-        pw,ph,ptex=read_png(pp)
+    ent=f"{RP}/entity/{cat}.json"
+    if os.path.exists(ent):
+        texs=json.load(open(ent))["minecraft:client_entity"]["description"]["textures"]
+        tw,th,tex=read_png(f"{RP}/{texs['default']}.png")
+        ut={"default":(tex,tw,th,tw/GEO["geometry.katt.empty"]["description"]["texture_width"])}
+        pw,ph,ptex=read_png(f"{RP}/{texs['pals']}.png")
         ut["pals"]=(ptex,pw,ph,pw/GEO["geometry.katt"]["description"]["texture_width"])
-    return ut
+        return ut
+    tw,th,tex=read_png(f"{RP}/textures/entity/{cat}.png")
+    return {"default":(tex,tw,th,1.0)}
 
 def faces(U,V,w,h,d):
     return dict(top=(U+d,V,w,d),bottom=(U+d+w,V,w,d),west=(U,V+d,d,h),

@@ -7,7 +7,7 @@
         "default": "entity_alphatest"
       },
       "textures": {
-        "default": "textures/entity/aurora",
+        "default": "textures/entity/plagg",
         "pals": "textures/entity/aurora_pals"
       },
       "geometry": {

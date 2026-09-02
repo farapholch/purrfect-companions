@@ -32,12 +32,18 @@ avskalad).
 import json, math, os, sys
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, BASE)
+sys.path.insert(0, BASE); sys.path.insert(0, f"{BASE}/tools")
 import render_regression as rr
+from make_cat_pals import Duk, korn, blanda, skala, avst_segment, _h, ROSA, GLANS
 
 BP = f"{BASE}/PurrfectCompanions_BP"
 RP = f"{BASE}/PurrfectCompanions_RP"
-TW = TH = 64
+TW = TH = 64          # geometrins UV-ENHETER — arket är SKALA gånger det
+# FYRA TEXLAR PER ENHET sedan 3.41.0, samma mekanism som katternas pälsark:
+# geometrin deklarerar 64x64, PNG:en är 256x256 och Bedrock läser den tätare.
+# Innan dess bestod byxorna av tre färger och varje sida var ett färgfält —
+# bredvid katterna med ny päls såg spelaren ut som en kartong.
+SKALA = 4
 
 PALS      = (150, 140, 128, 255)   # varm kattgrå — syns mot både gräs och sten
 PALS_MORK = (112, 104, 95, 255)
@@ -199,57 +205,187 @@ def geometri(namn, cfg):
 
 
 def textur(namn, cfg, niv):
-    px = [[(0, 0, 0, 0)] * TW for _ in range(TH)]
+    """Dräktens ark. Läderdräkten är en tabbykatt (ringar runt kropp, armar och
+    ben, M i pannan, ränder över hjässan); metallnivåerna behåller pälsen i
+    nivåns ton och får PLÅTAR på: pannband, bröstplåt, axelkappor, bälte,
+    knäskydd och tåhättor. Så syns det på avstånd vilken nivå någon bär."""
+    n = NIVAER[niv]
+    duk = Duk(TW * SKALA, TH * SKALA)
+    pals, mork, ljus = n["pals"][:3], n["mork"][:3], n["ljus"][:3]
+    metall = bool(niv)
+    rand = None if metall else blanda(mork, (0, 0, 0), 0.30)
+    plat = blanda(ljus, pals, 0.35)
+    plat_ljus, plat_mork = blanda(plat, (255, 255, 255), 0.35), blanda(plat, (0, 0, 0), 0.40)
+    OG_MORK = (150, 100, 20)
 
-    def rect(x0, y0, w, h, c):
-        for y in range(int(y0), int(y0 + h)):
-            for x in range(int(x0), int(x0 + w)):
-                if 0 <= x < TW and 0 <= y < TH:
-                    px[y][x] = c
-    for b, origin, size, uv, farg0, _i in cfg["kuber"]:
-        farg = farga(farg0, niv)
+    def ytor(uv, size):
+        return {k: tuple(v * SKALA for v in r)
+                for k, r in rr.faces(uv[0], uv[1], *size).items()}
+
+    def pals_fn(bas, ringar=False, ring_rader=(0.30, 0.62)):
+        def fn(a, b, x, y):
+            c = skala(bas, 1.06 - 0.16 * b)
+            if rand and ringar:
+                for rb in ring_rader:
+                    if abs(b - rb + 0.02 * math.sin(a * 9)) < 0.045 and not (_h(x, y, 5) < 0.2):
+                        c = blanda(rand, c, 0.2)
+            return korn(c, x, y)
+        return fn
+
+    def plat_fn(rekt, nitar=True):
+        X0, Y0, FW, FH = rekt
+
+        def fn(a, b, x, y):
+            X, Y = a * FW, b * FH
+            c = plat
+            if X < 1.5 or Y < 1.5:
+                c = plat_ljus
+            elif X > FW - 1.5 or Y > FH - 1.5:
+                c = plat_mork
+            if nitar:
+                for nx in (3.0, FW - 3.0):
+                    for ny in (3.0, FH - 3.0):
+                        if abs(X - nx) < 1.0 and abs(Y - ny) < 1.0:
+                            c = plat_mork
+            return korn(c, x, y, 0.3)
+        return fn
+
+    def band(fn_pals, fn_plat, villkor):
+        """Plåt där villkor(a, b) gäller, päls annars."""
+        return lambda a, b, x, y: (fn_plat(a, b, x, y) if villkor(a, b) else fn_pals(a, b, x, y))
+
+    for b_, origin, size, uv, farg0, _i in cfg["kuber"]:
+        farg = farga(farg0, niv)[:3]
+        F = ytor(uv, size)
         w, h, d = size
-        fw, fh = fot(size)
-        rect(uv[0], uv[1], fw, fh, farg)
-        rect(uv[0], uv[1], fw, math.ceil(d), sh(farg, 1.14))
-        rect(uv[0], uv[1] + fh - 1, fw, 1, sh(farg, 0.72))
-        # KATTANSIKTET målas på huvudkubens framsida — utan det är luvan en
-        # slät låda på skallen, vilket är exakt vad som rapporterades från
-        # Xbox ("inga ögon"). Ögonen är bärnsten i alla nivåer: de ska läsa
-        # som katt även när materialet är diamant.
-        if b in ("leftLeg", "rightLeg"):
-            # KANTLINJE PÅ FRAM- OCH BAKSIDAN. Första försöket mörkade benens
-            # INNERSIDOR — men de ytorna sitter mellan benen och syns aldrig:
-            # när två lådor står kant i kant är ytorna mot varandra dolda.
-            # Det som syns är fram- och baksidan, så varje ben får en mörk
-            # pixelkant där. Då läser paret som två ben i stället för en
-            # pelare, vilket var felet: "fötterna smälter ihop".
-            _d, _w, _h = math.ceil(d), math.ceil(w), math.ceil(h)
-            for _fx in (uv[0] + _d, uv[0] + 2 * _d + _w):        # north, south
-                rect(_fx, uv[1] + _d, 1, _h, sh(farg, 0.72))
-                rect(_fx + _w - 1, uv[1] + _d, 1, _h, sh(farg, 0.72))
-        if b in ("leftArm", "rightArm"):
-            # MANSCHETT: sidytornas nedersta rader ligger sist i kubens
-            # utfällning (först djupet som topp/botten, sedan höjden). En ljus
-            # kant där ger armen ett tydligt slut i stället för att tona ut i
-            # spelarens hud.
-            rect(uv[0], uv[1] + fh - 3, fw, 2, farga(MAGE, niv))
+        SIDOR = ("north", "south", "east", "west")
+
         if namn == "luva" and size == [8, 8, 8]:
-            fx, fy = uv[0] + d, uv[1] + d
-            rect(fx + 1, fy + 2, 2, 2, OGON)          # vänster öga
-            # HÖGDAGERN SPEGLAS: båda låg på ögats vänstra pixel, vilket gav
-            # vänster öga glansen på utsidan och höger på insidan — ansiktet
-            # läste som att det sneglade ("ögonen sitter snett"). Allt annat i
-            # ansiktet var redan spegelsymmetriskt, uppmätt pixel för pixel.
-            rect(fx + 5, fy + 2, 2, 2, OGON)          # höger öga
-            rect(fx + 1, fy + 2, 1, 1, OGON_GLANS)
-            rect(fx + 6, fy + 2, 1, 1, OGON_GLANS)
-            rect(fx + 3, fy + 4, 2, 1, ORA_IN)        # nos
-            rect(fx + 2, fy + 5, 1, 1, sh(farg, 0.55))   # mungipor
-            rect(fx + 5, fy + 5, 1, 1, sh(farg, 0.55))
-            for mx in (fx, fx + 7):                   # morrhår
-                rect(mx, fy + 4, 1, 1, sh(farg, 1.3))
-    rr.write_png(f"{RP}/textures/entity/mjau_{ident(namn, niv)}.png", TW, TH, px)
+            # HJÄSSAN: ränder längs huvudet på läderdräkten, pannband på metall.
+            def hjassa(a, b, x, y):
+                c = skala(farg, 1.06)
+                if rand:
+                    for ca in (0.2, 0.5, 0.8):
+                        if abs(a - ca) < 0.045 + 0.02 * math.sin(b * 9 + ca * 5) and b > 0.1:
+                            c = blanda(rand, c, 0.15)
+                return korn(c, x, y)
+            duk.yta(F["top"], hjassa, 255)
+            duk.yta(F["bottom"], lambda a, b, x, y: korn(skala(farg, 0.7), x, y), 255)
+            for sida in ("east", "west", "south"):
+                fn = pals_fn(farg)
+                if metall:
+                    fn = band(fn, plat_fn(F[sida], nitar=False), lambda a, b: b < 0.2)
+                duk.yta(F[sida], fn, 255)
+            # ANSIKTET, samma anatomi som katternas: mandelögon med kant, iris
+            # i bärnsten, lodrät pupill och glans, rosa nos och ett ω-leende.
+            X0, Y0, FW, FH = F["north"]
+            OGON_C = [(FW * 0.25, FH * 0.42, +1), (FW * 0.75, FH * 0.42, -1)]
+            RX, RY = FW * 0.11, FH * 0.15
+            mork_ans = blanda(farg, (0, 0, 0), 0.75)
+            nosparti = blanda(farg, (255, 255, 255), 0.30)
+            mun = blanda(mork_ans, (150, 108, 104), 0.55)
+
+            def ansikte(a, b, x, y):
+                X, Y = a * FW, b * FH
+                c = farg
+                if metall and b < 0.2:
+                    return plat_fn(F["north"], nitar=False)(a, b, x, y)
+                if abs(a - 0.5) < 0.2 and b > 0.5:
+                    c = blanda(c, nosparti, min(1.0, (b - 0.5) / 0.25))
+                if rand and b < 0.36:
+                    m = [((8, 11), (12, 3)), ((12, 3), (16, 9)), ((16, 9), (20, 3)), ((20, 3), (24, 11))]
+                    m = [((p[0] * FW / 32, p[1] * FH / 32), (q[0] * FW / 32, q[1] * FH / 32)) for p, q in m]
+                    if min(avst_segment(X, Y, *p, *q) for p, q in m) < 0.8:
+                        c = blanda(rand, c, 0.15)
+                for cx, cy, _ in OGON_C:
+                    if abs(X - cx) < RX + 0.6 and Y < cy - RY:
+                        c = blanda(c, mork_ans, 0.28 * max(0.0, 1 - (cy - RY - Y) / (FH * 0.15)))
+                # morrhårsprickar
+                if abs(b - 0.62) < 0.05 and (a < 0.12 or a > 0.88) and _h(x, y, 7) < 0.5:
+                    c = blanda(c, (255, 255, 255), 0.35)
+                c = korn(c, x, y, 0.7)
+                # nosen och munnen
+                if abs(X - FW / 2) < 2.6 - (Y - FH * 0.55) * 0.9 and FH * 0.55 <= Y < FH * 0.68:
+                    return ROSA
+                if abs(X - FW / 2) < 0.9 and FH * 0.66 <= Y < FH * 0.76:
+                    return mun
+                if FH * 0.74 <= Y < FH * 0.80 and abs(X - FW / 2) < FW * 0.10:
+                    return mun
+                if FH * 0.69 <= Y < FH * 0.76 and FW * 0.09 < abs(X - FW / 2) < FW * 0.15:
+                    return mun
+                for cx, cy, inat in OGON_C:
+                    dx, dy = (X - cx) / RX, (Y - cy) / RY
+                    r = math.hypot(dx, dy)
+                    if r > 1.0:
+                        continue
+                    if r > 0.86:
+                        return mork_ans
+                    iris = blanda(OGON[:3], OG_MORK, max(0.0, min(1.0, 0.15 + 0.55 * (dy + 1) / 2)))
+                    if abs(X - cx) < 0.75 and abs(Y - cy) < RY * 0.70:
+                        iris = blanda(OG_MORK, (0, 0, 0), 0.75)
+                    if math.hypot(X - (cx + inat * RX * 0.42), Y - (cy - RY * 0.42)) < 1.15:
+                        iris = GLANS
+                    return iris
+                return c
+            duk.yta(F["north"], ansikte, 255)
+            continue
+
+        if farg0 == ORA_IN or farg0 == DYNA:
+            # inneröron och trampdynor: rosa, en aning mörkare nedåt
+            for sida in F:
+                duk.yta(F[sida], lambda a, b, x, y: blanda(farg, (0, 0, 0), 0.12 * b), 255)
+            continue
+
+        if namn == "luva":                                      # öronen
+            for sida in F:
+                fn = pals_fn(farg)
+                if metall:
+                    fn = band(fn, plat_fn(F[sida], nitar=False), lambda a, b: b < 0.25)
+                duk.yta(F[sida], fn, 255)
+            continue
+
+        if namn == "vast" and farg0 == MAGE:                    # bringan
+            for sida in F:
+                fn = plat_fn(F[sida]) if metall else pals_fn(farg)
+                duk.yta(F[sida], fn, 255)
+            continue
+
+        # KROPP, ARMAR, BEN, FÖTTER — päls med ringar på lädret, plåtar på metall.
+        for sida in ("top", "bottom"):
+            fn = pals_fn(farg)
+            if metall and namn == "tassar" and sida == "top":
+                fn = band(fn, plat_fn(F[sida], nitar=False), lambda a, b: b < 0.5)
+            duk.yta(F[sida], fn, 255)
+        for sida in SIDOR:
+            rekt = F[sida]
+            fn = pals_fn(farg, ringar=(namn != "tassar"))       # tassar är ljusa, inte randiga
+            if metall:
+                if b_ == "body" and namn == "byxor":
+                    fn = band(fn, plat_fn(rekt, nitar=False), lambda a, b: b < 0.14)     # bälte
+                elif b_ in ("leftArm", "rightArm"):
+                    fn = band(fn, plat_fn(rekt), lambda a, b: b < 0.27)                 # axelkappa
+                elif b_ in ("leftLeg", "rightLeg") and namn == "byxor" and sida == "north":
+                    fn = band(fn, plat_fn(rekt), lambda a, b: 0.40 < b < 0.62)          # knäskydd
+                elif namn == "tassar" and sida == "north":
+                    fn = band(fn, plat_fn(rekt, nitar=False), lambda a, b: b < 0.38)    # tåhätta
+
+            def kant(fn0, sida=sida, rekt=rekt):
+                X0, Y0, FW, FH = rekt
+
+                def fn2(a, b, x, y):
+                    X, Y = a * FW, b * FH
+                    c = fn0(a, b, x, y)
+                    if b_ in ("leftLeg", "rightLeg") and sida in ("north", "south") and (X < 1.5 or X > FW - 1.5):
+                        return blanda(c, (0, 0, 0), 0.30)        # skarven mellan benen
+                    if b_ in ("leftArm", "rightArm") and b > 0.84:
+                        return korn(blanda(ljus, c, 0.25), x, y)  # manschett
+                    if namn == "tassar" and sida == "north" and b > 0.78 and (abs(a - 0.33) < 0.05 or abs(a - 0.67) < 0.05):
+                        return blanda(c, (0, 0, 0), 0.2)         # tåspringor
+                    return c
+                return fn2
+            duk.yta(rekt, kant(fn), 255)
+
+    rr.write_png(f"{RP}/textures/entity/mjau_{ident(namn, niv)}.png", TW * SKALA, TH * SKALA, duk.px)
 
 
 def attachable(namn, cfg, niv):
@@ -391,7 +527,7 @@ def forhandsbild():
                 ben.append((b["name"], b["pivot"], kub))
             rr.bones_for = lambda acc, _l=ben: _l
             vy = rr.render(f"mjau_{ident(namn, niv)}", [], {}, W=RUTA, H=RUTA,
-                           yaw=10, pitch=3, ram=RAM)
+                           yaw=10, pitch=3, ram=RAM, enheter=(TW, TH))
             if lager is None:
                 lager = [list(r) for r in vy]
                 bg = vy[0][0]

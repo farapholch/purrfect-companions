@@ -109,10 +109,13 @@ def faces(U, V, w, h, d):
 SH = {"top": 1.00, "bottom": 0.45, "north": 0.92, "south": 0.55, "east": 0.72, "west": 0.66}
 
 
-def texturer(cat):
-    """Atlas och (om den finns) pälsark, som (bild, bredd, höjd, texlar per uv-enhet)."""
+def texturer(cat, enheter=None):
+    """Atlas och (om den finns) pälsark, som (bild, bredd, höjd, texlar per uv-enhet).
+    enheter = geometrins deklarerade (texture_width, texture_height) för atlaset;
+    utelämnad betyder en texel per enhet (kattens plaggatlas). Dräkten deklarerar
+    64x64 men ritas ur ett 256x256-ark, och skickar in sina enheter."""
     tw, th, tex = read_png(f"{RP}/textures/entity/{cat}.png")
-    ut = {"default": (tex, tw, th, 1.0)}
+    ut = {"default": (tex, tw, th, tw / enheter[0] if enheter else 1.0)}
     pp = f"{RP}/textures/entity/{cat}_pals.png"
     if os.path.exists(pp):
         pw, ph, ptex = read_png(pp)
@@ -120,8 +123,8 @@ def texturer(cat):
     return ut
 
 
-def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16, ram=None):
-    TEX = texturer(cat)
+def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16, ram=None, enheter=None):
+    TEX = texturer(cat, enheter)
     bones = bones_for(acc)
     ya, pa = math.radians(yaw), math.radians(pitch)
 

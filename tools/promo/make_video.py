@@ -22,6 +22,7 @@ import math, multiprocessing, os, shutil, subprocess, sys
 
 BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, BASE)
+import json
 import render_regression as rr
 
 W, H, FPS = 480, 270, 30
@@ -190,6 +191,12 @@ def trio_ruta(t, yaw):
     return img
 
 
+def drakt_enheter():
+    """Dräktgeometrins deklarerade uv-storlek — arket är större (4 texlar/enhet)."""
+    d = json.load(open(f"{rr.RP}/models/entity/mjau_luva.geo.json"))["minecraft:geometry"][0]["description"]
+    return (d["texture_width"], d["texture_height"])
+
+
 def drakt_ruta(niv, yaw):
     """Hela dräkten i en ruta: fyra renderingar lagda på varandra."""
     bild = bg = None
@@ -198,7 +205,7 @@ def drakt_ruta(niv, yaw):
         rr.bones_for = lambda acc, _l=drakt_ben(del_): _l
         try:
             vy = rr.render(f"mjau_{del_}{niv}", [], {}, W=W, H=H,
-                           yaw=yaw, pitch=4, ram=DRAKT_RAM)
+                           yaw=yaw, pitch=4, ram=DRAKT_RAM, enheter=drakt_enheter())
         finally:
             rr.bones_for = orig
         if bild is None:

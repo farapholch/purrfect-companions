@@ -113,8 +113,11 @@ for _af in sorted(glob.glob(f"{SRC}/PurrfectCompanions_RP/attachables/*.json")):
             bad.append(f"{_namn}: textur {_a['textures']['default']} saknas"); continue
         _td=open(_tex,"rb").read(); _tw2,_th2=_st.unpack(">II",_td[16:24])
         _d2=_g["description"]
-        if (_d2.get("texture_width"),_d2.get("texture_height"))!=(_tw2,_th2):
-            bad.append(f"{_namn}: texturstorlek {_d2.get('texture_width')}x{_d2.get('texture_height')} != PNG {_tw2}x{_th2}")
+        # Arket får vara en HELTALSMULTIPEL av det deklarerade (dräkten ritas i
+        # fyra texlar per enhet sedan 3.41.0), men aldrig annan proportion.
+        _k2x,_k2y=_tw2/_d2.get("texture_width",1),_th2/_d2.get("texture_height",1)
+        if _k2x!=_k2y or _k2x!=int(_k2x) or _k2x<1:
+            bad.append(f"{_namn}: arket {_tw2}x{_th2} är inte en heltalsmultipel av {_d2.get('texture_width')}x{_d2.get('texture_height')} uv-enheter")
         for _b in _g["bones"]:
             if _b["name"] not in SPELARBEN:
                 bad.append(f"{_namn}: benet '{_b['name']}' finns inte i spelarskelettet")

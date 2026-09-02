@@ -7,7 +7,37 @@ CurseForge inte har blir en mismatch.)
 
 ---
 
+## 3.41.0 — The cat suit gets the same fur
+
+The player's cat suit was the last thing still drawn at one texel per unit,
+and next to the new cats it looked like cardboard: the trousers were three
+colours in total. It is on its own 256x256 sheet now, four texels per unit,
+like the cats.
+
+The **leather suit is a tabby**: rings round the body, arms and legs, an M on
+the forehead, and a face with the same almond eyes, vertical pupil, pink nose
+and small smile as the cats. Paws are light with pads and toe splits.
+
+The **metal tiers** used to be the same suit in another colour. They keep the
+fur, in iron, diamond or netherite tint, and wear plates on top of it: a brow
+band on the hood, a chest plate with rivets, shoulder caps, a belt, knee
+guards and toe caps. You can tell the tier at a distance now.
+
+---
+
 <!-- ALLT NEDANFÖR ÄR PROJEKTETS EGEN LOGG och ska INTE med till butiken. -->
+
+## Dräkten (projektlogg, 3.41.0)
+
+`tools/make_player_gear.py` målar dräkten i SKALA=4 på ett 256x256-ark
+(geometrin deklarerar fortfarande 64x64); hjälparna importeras från
+make_cat_pals (Duk, korn, blanda …). Renderaren fick `enheter=` för att kunna
+sampla ett ark i annan skala än geometrin — dräkt- och hundrenderingar skickar
+tretupler och fick förut alltid en texel per enhet. purrfect-test tillåter
+heltalsmultipel för attachables. OBS: förhandsbildens lager läggs luva → väst →
+byxor → tassar och byxornas bålkub täcker västens ljusa bringa i BILDEN; i
+spelet ligger bringan 0,05 framför (inflate) och syns, verifierat på Xbox
+tidigare. Renderaren slänger inflate.
 
 ## Pälsarket (projektlogg, 3.40.0)
 

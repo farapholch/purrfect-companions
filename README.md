@@ -117,8 +117,12 @@ and you get the leather bonus.
 | **Cat Trousers** | legs | Darker fur |
 | **Cat Paws** | feet | Pale paws with pink pads |
 
-Every piece keeps the ears and pads across all four tiers; only the material
-colour changes.
+Every piece keeps the ears and pads across all four tiers. The leather suit
+is a tabby — rings round the body, arms and legs, an M on the forehead, a
+face with the same almond eyes as the cats — and the metal tiers keep the fur
+in their own colour and add plates on top: a brow band, a chest plate,
+shoulder caps, a belt, knee guards and toe caps. The suit is drawn on its own
+256x256 sheet at four texels per model unit, like the cats.
 
 These are the pack's first **attachables** — the parts that draw on the player
 body rather than on a cat. `tools/make_player_gear.py` emits the geometry,

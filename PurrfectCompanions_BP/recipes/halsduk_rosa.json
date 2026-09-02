@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:halsduk_rosa"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "WW",
+      "WW"
+    ],
+    "key": {
+      "W": {
+        "item": "minecraft:pink_wool"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:pink_wool"
+      }
+    ],
+    "result": {
+      "item": "mjau:halsduk_rosa"
+    }
+  }
+}

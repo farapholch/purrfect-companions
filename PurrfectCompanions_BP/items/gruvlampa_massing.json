@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:gruvlampa_massing",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_gruvlampa_massing"
+      },
+      "minecraft:display_name": {
+        "value": "Mining Lamp (Brass)"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

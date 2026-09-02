@@ -80,7 +80,7 @@ Craftable, applied to a tamed cat, and all wearable at the same time.
 |---|---|---|
 | **Cat Saddle** | brown, black, light | 3 leather + 2 string (+ dye). A vanilla saddle gives brown |
 | **Cat Cap** | cyan, red, green, yellow | 3 wool + 1 leather |
-| **Cat Scarf** | red, blue, green, yellow | 4 wool |
+| **Cat Scarf** | red, blue, green, yellow, pink, purple | 4 wool |
 | **Cat Backpack** | brown, green, blue | 5 leather + 2 string + dye. **Holds 15 slots**, auto-collects nearby drops, gives them back when you sneak beside her |
 | **Cat Glasses** | black, gold, pink | 2 glass panes + dye or gold nugget |
 | **Cat Cape** | red, blue, purple, black | 6 wool + 2 string |
@@ -90,6 +90,9 @@ Craftable, applied to a tamed cat, and all wearable at the same time.
 | **Cat Wings** | white, black, gold | 4 feathers + colour material |
 | **Cat Crown** | gold, silver | 5 ingots + 1 emerald |
 | **Cat Cart** | wood, red, blue | 3 planks + 2 sticks + 2 slabs. Adds a **second seat** — a friend rides along |
+| **Mining Lamp** | brass, iron | 1 glowstone dust + 2 nuggets + 1 leather. **Lights up the cave** around her: the script keeps an invisible light block at her head |
+| **Life Vest** | orange, yellow, blue | 4 wool + 3 leather. Conduit power: she swims fast and sees underwater |
+| **Raincoat** | yellow, green | 6 wool + 1 slime ball. Keeps her dry and content: she gets hungry three times slower |
 
 **Cat Treat** — cod + wheat, works as a taming treat.
 

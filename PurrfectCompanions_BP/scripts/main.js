@@ -225,6 +225,47 @@ matt("blad", () => {
 }, 5);
 
 // ---------------------------------------------------------------------------
+// GRUVLAMPAN: katten lyser upp grottan. Bedrock har inget ljus per entitet, så
+// lampan sätter ett osynligt ljusblock i LUFTEN vid kattens huvud och plockar
+// bort det när hon flyttat sig. Bara luft rörs, och bara block som skriptet
+// själv satt tas bort. Ljusblocken är plattade sedan 1.21.40: light_block_14.
+const LJUS = "minecraft:light_block_14";
+const lampor = new Map();   // katt-id -> {dim, x, y, z}
+
+function lampBort(l) {
+  try {
+    const b = world.getDimension(l.dim).getBlock(l);
+    if (b && b.typeId === LJUS) b.setType("minecraft:air");
+  } catch { }
+}
+
+matt("gruvlampa", () => {
+  const kvar = new Set();
+  for (const dim of ["overworld", "nether", "the_end"]) {
+    let d, katter;
+    try { d = world.getDimension(dim); katter = d.getEntities({ families: ["mjaukatt"] }); }
+    catch { continue; }
+    for (const c of katter) {
+      let nr = 0;
+      try { nr = c.getProperty("mjau:gruvlampa") ?? 0; } catch { continue; }
+      if (!nr) continue;
+      const L = c.location;
+      const p = { dim, x: Math.floor(L.x), y: Math.floor(L.y + 1), z: Math.floor(L.z) };
+      kvar.add(c.id);
+      const prev = lampor.get(c.id);
+      if (prev && prev.dim === p.dim && prev.x === p.x && prev.y === p.y && prev.z === p.z) continue;
+      if (prev) lampBort(prev);
+      lampor.delete(c.id);
+      try {
+        const b = d.getBlock(p);
+        if (b && b.isAir) { b.setType(LJUS); lampor.set(c.id, p); }
+      } catch { }
+    }
+  }
+  for (const [id, l] of [...lampor]) if (!kvar.has(id)) { lampBort(l); lampor.delete(id); }
+}, 4);
+
+// ---------------------------------------------------------------------------
 // UPPDRAGS-UTMÄRKELSER: titel + fanfar när milstolpar nås. Plattforms-
 // achievements går inte att ge från paket — det här är vårt eget system.
 // Texterna är translate-nycklar (mjau.achv.*) i språkfilerna, så familje-

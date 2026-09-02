@@ -29,7 +29,7 @@
           "type": "int",
           "range": [
             0,
-            4
+            6
           ],
           "default": 0,
           "client_sync": true
@@ -179,6 +179,33 @@
           "client_sync": true
         },
         "mjau:rymdmantel": {
+          "type": "int",
+          "range": [
+            0,
+            2
+          ],
+          "default": 0,
+          "client_sync": true
+        },
+        "mjau:gruvlampa": {
+          "type": "int",
+          "range": [
+            0,
+            2
+          ],
+          "default": 0,
+          "client_sync": true
+        },
+        "mjau:flytvast": {
+          "type": "int",
+          "range": [
+            0,
+            3
+          ],
+          "default": 0,
+          "client_sync": true
+        },
+        "mjau:regnrock": {
           "type": "int",
           "range": [
             0,
@@ -619,6 +646,62 @@
                   ]
                 },
                 "event": "mjau:on_halsduk_4",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:halsduk_rosa"
+                    }
+                  ]
+                },
+                "event": "mjau:on_halsduk_5",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:halsduk_lila"
+                    }
+                  ]
+                },
+                "event": "mjau:on_halsduk_6",
                 "target": "self"
               },
               "use_item": true,
@@ -2014,6 +2097,202 @@
                       "test": "has_equipment",
                       "domain": "hand",
                       "subject": "other",
+                      "value": "mjau:gruvlampa_massing"
+                    }
+                  ]
+                },
+                "event": "mjau:on_gruvlampa_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_generic",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:gruvlampa_jarn"
+                    }
+                  ]
+                },
+                "event": "mjau:on_gruvlampa_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_generic",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:flytvast_orange"
+                    }
+                  ]
+                },
+                "event": "mjau:on_flytvast_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:flytvast_gul"
+                    }
+                  ]
+                },
+                "event": "mjau:on_flytvast_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:flytvast_bla"
+                    }
+                  ]
+                },
+                "event": "mjau:on_flytvast_3",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:regnrock_gul"
+                    }
+                  ]
+                },
+                "event": "mjau:on_regnrock_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "mjau:regnrock_gron"
+                    }
+                  ]
+                },
+                "event": "mjau:on_regnrock_2",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_leather",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
                       "value": "saddle"
                     }
                   ]
@@ -2616,6 +2895,31 @@
           },
           "loot_table": "loot_tables/entities/cat_gift.json"
         }
+      },
+      "mjau:flytvastkraft": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "conduit_power",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
+      },
+      "mjau:regnrock_torr": {
+        "minecraft:timer": {
+          "time": [
+            1800,
+            3600
+          ],
+          "looping": true,
+          "time_down_event": {
+            "event": "mjau:hungrigare",
+            "target": "self"
+          }
+        }
       }
     },
     "events": {
@@ -2973,6 +3277,26 @@
       "mjau:on_halsduk_4": {
         "set_property": {
           "mjau:halsduk": 4
+        },
+        "add": {
+          "component_groups": [
+            "mjau:halsdukvarme"
+          ]
+        }
+      },
+      "mjau:on_halsduk_5": {
+        "set_property": {
+          "mjau:halsduk": 5
+        },
+        "add": {
+          "component_groups": [
+            "mjau:halsdukvarme"
+          ]
+        }
+      },
+      "mjau:on_halsduk_6": {
+        "set_property": {
+          "mjau:halsduk": 6
         },
         "add": {
           "component_groups": [
@@ -3544,6 +3868,66 @@
         "add": {
           "component_groups": [
             "mjau:supermantel"
+          ]
+        }
+      },
+      "mjau:on_gruvlampa_1": {
+        "set_property": {
+          "mjau:gruvlampa": 1
+        }
+      },
+      "mjau:on_gruvlampa_2": {
+        "set_property": {
+          "mjau:gruvlampa": 2
+        }
+      },
+      "mjau:on_flytvast_1": {
+        "set_property": {
+          "mjau:flytvast": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:flytvastkraft"
+          ]
+        }
+      },
+      "mjau:on_flytvast_2": {
+        "set_property": {
+          "mjau:flytvast": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:flytvastkraft"
+          ]
+        }
+      },
+      "mjau:on_flytvast_3": {
+        "set_property": {
+          "mjau:flytvast": 3
+        },
+        "add": {
+          "component_groups": [
+            "mjau:flytvastkraft"
+          ]
+        }
+      },
+      "mjau:on_regnrock_1": {
+        "set_property": {
+          "mjau:regnrock": 1
+        },
+        "add": {
+          "component_groups": [
+            "mjau:regnrock_torr"
+          ]
+        }
+      },
+      "mjau:on_regnrock_2": {
+        "set_property": {
+          "mjau:regnrock": 2
+        },
+        "add": {
+          "component_groups": [
+            "mjau:regnrock_torr"
           ]
         }
       },

@@ -1,0 +1,37 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:gruvlampa_jarn"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      " G ",
+      "NLN"
+    ],
+    "key": {
+      "G": {
+        "item": "minecraft:glowstone_dust"
+      },
+      "N": {
+        "item": "minecraft:iron_nugget"
+      },
+      "L": {
+        "item": "minecraft:leather"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:glowstone_dust"
+      },
+      {
+        "item": "minecraft:iron_nugget"
+      }
+    ],
+    "result": {
+      "item": "mjau:gruvlampa_jarn"
+    }
+  }
+}

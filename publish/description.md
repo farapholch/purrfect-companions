@@ -44,9 +44,9 @@ Cats seek all of these out on their own:
 
 **Cat Bed** · **Yarn Ball** · **Food Bowl** · **Litter Box** · **Cat Tower** · **Cardboard Box** (cats love boxes) · **Fish Pond** · **Cat Door**
 
-### Twenty craftable outfits
+### Twenty-three craftable outfits
 
-All wearable at the same time, in any combination — **sixty colour variants**.
+All wearable at the same time, in any combination — **sixty-nine colour variants**.
 
 | Outfit | Notes |
 |---|---|
@@ -60,6 +60,9 @@ All wearable at the same time, in any combination — **sixty colour variants**.
 | **Bat Wings** | Leather or phantom membrane |
 | **Energy Blade** | Blue, green, red or violet. Hits like netherite — and a cat given one fights at your side |
 | **Star Cloak** | Dark weave with a drift of stars across the back |
+| **Mining Lamp** | Brass or iron. She lights up the cave around her |
+| **Life Vest** | Orange, yellow or blue. Conduit power: she swims fast and sees underwater |
+| **Raincoat** | Yellow or green. Keeps her dry and content: she gets hungry three times slower |
 | **Cap, Scarf, Backpack, Glasses, Booties, Collar, Bow, Crown, Cape** | In many colours |
 
 **Cat Treat** — cod + wheat: tames, and cheers them up.

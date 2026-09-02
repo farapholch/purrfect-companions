@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:flytvast_gul",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_flytvast_gul"
+      },
+      "minecraft:display_name": {
+        "value": "Life Vest (Yellow)"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

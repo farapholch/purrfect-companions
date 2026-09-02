@@ -975,6 +975,122 @@
     },
     {
       "description": {
+        "identifier": "geometry.katt.halsduk5",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.4,
+                7.5,
+                -5.6
+              ],
+              "size": [
+                6.8,
+                2,
+                1.6
+              ],
+              "uv": [
+                96,
+                72
+              ]
+            },
+            {
+              "origin": [
+                -1,
+                5,
+                -5.7
+              ],
+              "size": [
+                2,
+                2.5,
+                1
+              ],
+              "uv": [
+                96,
+                78
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.halsduk6",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.4,
+                7.5,
+                -5.6
+              ],
+              "size": [
+                6.8,
+                2,
+                1.6
+              ],
+              "uv": [
+                120,
+                72
+              ]
+            },
+            {
+              "origin": [
+                -1,
+                5,
+                -5.7
+              ],
+              "size": [
+                2,
+                2.5,
+                1
+              ],
+              "uv": [
+                120,
+                78
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
         "identifier": "geometry.katt.ryggsack1",
         "texture_width": 256,
         "texture_height": 256,
@@ -4401,6 +4517,572 @@
               "uv": [
                 136,
                 211
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.gruvlampa1",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "head",
+          "pivot": [
+            0,
+            7,
+            -5
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.3,
+                10.0,
+                -9.1
+              ],
+              "size": [
+                6.6,
+                0.7,
+                4.6
+              ],
+              "uv": [
+                0,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -1.0,
+                9.0,
+                -10.3
+              ],
+              "size": [
+                2.0,
+                1.4,
+                1.3
+              ],
+              "uv": [
+                0,
+                6
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.gruvlampa2",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "head",
+          "pivot": [
+            0,
+            7,
+            -5
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.3,
+                10.0,
+                -9.1
+              ],
+              "size": [
+                6.6,
+                0.7,
+                4.6
+              ],
+              "uv": [
+                24,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -1.0,
+                9.0,
+                -10.3
+              ],
+              "size": [
+                2.0,
+                1.4,
+                1.3
+              ],
+              "uv": [
+                24,
+                6
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.flytvast1",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.7,
+                4.6,
+                -4.6
+              ],
+              "size": [
+                0.7,
+                3.8,
+                8.4
+              ],
+              "uv": [
+                48,
+                0
+              ]
+            },
+            {
+              "origin": [
+                3.0,
+                4.6,
+                -4.6
+              ],
+              "size": [
+                0.7,
+                3.8,
+                8.4
+              ],
+              "uv": [
+                48,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -3.4,
+                5.0,
+                -5.55
+              ],
+              "size": [
+                6.8,
+                3.2,
+                0.6
+              ],
+              "uv": [
+                67,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -3.4,
+                8.9,
+                -4.5
+              ],
+              "size": [
+                6.8,
+                0.5,
+                8.2
+              ],
+              "uv": [
+                48,
+                13
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.flytvast2",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.7,
+                4.6,
+                -4.6
+              ],
+              "size": [
+                0.7,
+                3.8,
+                8.4
+              ],
+              "uv": [
+                84,
+                0
+              ]
+            },
+            {
+              "origin": [
+                3.0,
+                4.6,
+                -4.6
+              ],
+              "size": [
+                0.7,
+                3.8,
+                8.4
+              ],
+              "uv": [
+                84,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -3.4,
+                5.0,
+                -5.55
+              ],
+              "size": [
+                6.8,
+                3.2,
+                0.6
+              ],
+              "uv": [
+                103,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -3.4,
+                8.9,
+                -4.5
+              ],
+              "size": [
+                6.8,
+                0.5,
+                8.2
+              ],
+              "uv": [
+                84,
+                13
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.flytvast3",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.7,
+                4.6,
+                -4.6
+              ],
+              "size": [
+                0.7,
+                3.8,
+                8.4
+              ],
+              "uv": [
+                120,
+                0
+              ]
+            },
+            {
+              "origin": [
+                3.0,
+                4.6,
+                -4.6
+              ],
+              "size": [
+                0.7,
+                3.8,
+                8.4
+              ],
+              "uv": [
+                120,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -3.4,
+                5.0,
+                -5.55
+              ],
+              "size": [
+                6.8,
+                3.2,
+                0.6
+              ],
+              "uv": [
+                139,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -3.4,
+                8.9,
+                -4.5
+              ],
+              "size": [
+                6.8,
+                0.5,
+                8.2
+              ],
+              "uv": [
+                120,
+                13
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.regnrock1",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.5,
+                4.2,
+                -4.8
+              ],
+              "size": [
+                0.6,
+                4.6,
+                9.4
+              ],
+              "uv": [
+                72,
+                176
+              ]
+            },
+            {
+              "origin": [
+                2.9,
+                4.2,
+                -4.8
+              ],
+              "size": [
+                0.6,
+                4.6,
+                9.4
+              ],
+              "uv": [
+                72,
+                176
+              ]
+            },
+            {
+              "origin": [
+                -3.5,
+                8.8,
+                -4.8
+              ],
+              "size": [
+                7,
+                0.8,
+                9.4
+              ],
+              "uv": [
+                72,
+                191
+              ]
+            },
+            {
+              "origin": [
+                -3.4,
+                8.4,
+                -6.0
+              ],
+              "size": [
+                6.8,
+                1.4,
+                1.4
+              ],
+              "uv": [
+                105,
+                191
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.regnrock2",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.5,
+                4.2,
+                -4.8
+              ],
+              "size": [
+                0.6,
+                4.6,
+                9.4
+              ],
+              "uv": [
+                124,
+                176
+              ]
+            },
+            {
+              "origin": [
+                2.9,
+                4.2,
+                -4.8
+              ],
+              "size": [
+                0.6,
+                4.6,
+                9.4
+              ],
+              "uv": [
+                124,
+                176
+              ]
+            },
+            {
+              "origin": [
+                -3.5,
+                8.8,
+                -4.8
+              ],
+              "size": [
+                7,
+                0.8,
+                9.4
+              ],
+              "uv": [
+                124,
+                191
+              ]
+            },
+            {
+              "origin": [
+                -3.4,
+                8.4,
+                -6.0
+              ],
+              "size": [
+                6.8,
+                1.4,
+                1.4
+              ],
+              "uv": [
+                157,
+                191
               ]
             }
           ]

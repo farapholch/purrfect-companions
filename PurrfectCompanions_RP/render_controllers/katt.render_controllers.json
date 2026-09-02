@@ -63,7 +63,9 @@
             "Geometry.halsduk1",
             "Geometry.halsduk2",
             "Geometry.halsduk3",
-            "Geometry.halsduk4"
+            "Geometry.halsduk4",
+            "Geometry.halsduk5",
+            "Geometry.halsduk6"
           ]
         }
       },
@@ -423,6 +425,67 @@
         }
       },
       "geometry": "Array.rymdmantel[query.property('mjau:rymdmantel')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_gruvlampa": {
+      "arrays": {
+        "geometries": {
+          "Array.gruvlampa": [
+            "Geometry.empty",
+            "Geometry.gruvlampa1",
+            "Geometry.gruvlampa2"
+          ]
+        }
+      },
+      "geometry": "Array.gruvlampa[query.property('mjau:gruvlampa')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_flytvast": {
+      "arrays": {
+        "geometries": {
+          "Array.flytvast": [
+            "Geometry.empty",
+            "Geometry.flytvast1",
+            "Geometry.flytvast2",
+            "Geometry.flytvast3"
+          ]
+        }
+      },
+      "geometry": "Array.flytvast[query.property('mjau:flytvast')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
+    },
+    "controller.render.katt_regnrock": {
+      "arrays": {
+        "geometries": {
+          "Array.regnrock": [
+            "Geometry.empty",
+            "Geometry.regnrock1",
+            "Geometry.regnrock2"
+          ]
+        }
+      },
+      "geometry": "Array.regnrock[query.property('mjau:regnrock')]",
       "materials": [
         {
           "*": "Material.default"

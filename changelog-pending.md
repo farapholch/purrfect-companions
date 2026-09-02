@@ -7,6 +7,24 @@ CurseForge inte har blir en mismatch.)
 
 ---
 
+## 3.43.0 — Three new outfits, and a scarf in two more colours
+
+**Mining Lamp** (brass or iron) — a leather strap over the head and a lamp on
+the forehead with a glowing lens. She lights up the cave around her: Bedrock
+has no light per creature, so the pack keeps an invisible light block in the
+air at her head and moves it with her. It only ever touches air, and only
+removes blocks it placed itself.
+
+**Life Vest** (orange, yellow or blue) — nylon with reflective stripes, buckles
+at the chest and a strap over the back. Conduit power: she swims fast and sees
+underwater.
+
+**Raincoat** (yellow or green) — slick fabric with a sheen, raindrops on it and
+the hood folded down at the neck. Keeps her dry and content: she gets hungry
+three times slower while she wears it.
+
+The **Cat Scarf** now also comes in pink and purple.
+
 ## 3.42.0 — The outfits get their materials
 
 The outfits were the last flat colour left. A saddle was a brown box, a cart a

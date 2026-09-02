@@ -1,0 +1,35 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:regnrock_gron"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "W W",
+      "WWW",
+      "WSW"
+    ],
+    "key": {
+      "W": {
+        "item": "minecraft:green_wool"
+      },
+      "S": {
+        "item": "minecraft:slime_ball"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:green_wool"
+      },
+      {
+        "item": "minecraft:slime_ball"
+      }
+    ],
+    "result": {
+      "item": "mjau:regnrock_gron"
+    }
+  }
+}

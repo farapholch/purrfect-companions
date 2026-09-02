@@ -24,6 +24,8 @@
         "halsduk2": "geometry.katt.halsduk2",
         "halsduk3": "geometry.katt.halsduk3",
         "halsduk4": "geometry.katt.halsduk4",
+        "halsduk5": "geometry.katt.halsduk5",
+        "halsduk6": "geometry.katt.halsduk6",
         "ryggsack1": "geometry.katt.ryggsack1",
         "ryggsack2": "geometry.katt.ryggsack2",
         "ryggsack3": "geometry.katt.ryggsack3",
@@ -72,7 +74,14 @@
         "energisvard3": "geometry.katt.energisvard3",
         "energisvard4": "geometry.katt.energisvard4",
         "rymdmantel1": "geometry.katt.rymdmantel1",
-        "rymdmantel2": "geometry.katt.rymdmantel2"
+        "rymdmantel2": "geometry.katt.rymdmantel2",
+        "gruvlampa1": "geometry.katt.gruvlampa1",
+        "gruvlampa2": "geometry.katt.gruvlampa2",
+        "flytvast1": "geometry.katt.flytvast1",
+        "flytvast2": "geometry.katt.flytvast2",
+        "flytvast3": "geometry.katt.flytvast3",
+        "regnrock1": "geometry.katt.regnrock1",
+        "regnrock2": "geometry.katt.regnrock2"
       },
       "render_controllers": [
         "controller.render.katt",
@@ -95,7 +104,10 @@
         "controller.render.katt_krona",
         "controller.render.katt_mantel",
         "controller.render.katt_energisvard",
-        "controller.render.katt_rymdmantel"
+        "controller.render.katt_rymdmantel",
+        "controller.render.katt_gruvlampa",
+        "controller.render.katt_flytvast",
+        "controller.render.katt_regnrock"
       ],
       "animations": {
         "walk": "animation.katt.walk",

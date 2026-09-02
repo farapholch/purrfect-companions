@@ -545,6 +545,73 @@ def m_rymdmantel(duk, kuber, col, i, cfg):
     alla(duk, kuber, gor)
 
 
+def m_gruvlampa(duk, kuber, col, i, cfg):
+    """Läderrem över hjässan och en lampa av metall med en glödande lins."""
+    LENS = (255, 244, 170)
+
+    def gor(sida, rekt, kub):
+        o, s, uv = kub
+        if s[1] < 1:                                      # remmen
+            return lader((70, 52, 36), rekt, som=True)
+        fn = metall(col, rekt, nitar=False)
+        X0, Y0, FW, FH = rekt
+        if sida == "north":
+            def fn2(a, b, x, y):
+                r = math.hypot((a - 0.5) * FW / (FW * 0.36), (b - 0.5) * FH / (FH * 0.38))
+                if r < 0.75:
+                    return blanda(LENS, (255, 255, 255), max(0.0, 0.6 - r))
+                if r < 1.0:
+                    return blanda(col, (0, 0, 0), 0.45)       # linsens ram
+                return fn(a, b, x, y)
+            return fn2
+        return fn
+    alla(duk, kuber, gor)
+
+
+def m_flytvast(duk, kuber, col, i, cfg):
+    """Nylon med reflexband, spännen fram och en mörk rem över ryggen."""
+    reflex = (222, 224, 226)
+    spanne = (34, 34, 38)
+
+    def gor(sida, rekt, kub):
+        o, s, uv = kub
+        X0, Y0, FW, FH = rekt
+        if s[1] <= 0.5:                                   # ryggremmen: mörk väv
+            return lambda a, b, x, y: korn(blanda(col, (0, 0, 0), 0.55 if (y % 3) else 0.65), x, y, 0.3)
+        fn = tyg(col, rekt, 0.04)
+
+        def fn2(a, b, x, y):
+            if sida in ("north", "south", "east", "west"):
+                if abs(b - 0.32) < 0.06 or abs(b - 0.68) < 0.06:
+                    return korn(reflex, x, y, 0.3)          # reflexbanden
+                if s[0] > 6 and sida == "north" and 0.4 < a < 0.6 and (0.12 < b < 0.24 or 0.76 < b < 0.88):
+                    return spanne if not (0.45 < a < 0.55 and (0.15 < b < 0.21 or 0.79 < b < 0.85)) else (150, 150, 156)
+            return fn(a, b, x, y)
+        return fn2
+    alla(duk, kuber, gor)
+
+
+def m_regnrock(duk, kuber, col, i, cfg):
+    """Blankt regntyg: lodräta ljusstrimmor, regndroppar och en nedfälld huva."""
+    def gor(sida, rekt, kub):
+        o, s, uv = kub
+        X0, Y0, FW, FH = rekt
+        bas = blanda(col, (0, 0, 0), 0.15) if s[1] > 1 and s[0] > 6 else col   # huvan mörkare
+
+        def fn(a, b, x, y):
+            X, Y = a * FW, b * FH
+            c = grund(bas, b, 0.14)
+            if (X + 0.3 * Y) % 9 < 1.5:
+                c = blanda(c, (255, 255, 255), 0.22)         # glansstrimman
+            if _h(x // 2, y // 2, 61) > 0.965:
+                return blanda(c, (255, 255, 255), 0.55)      # en droppe
+            if s[0] < 1 and sida in ("east", "west") and abs(b - 0.5) < 0.04:
+                c = blanda(c, (0, 0, 0), 0.25)               # sömmen runt midjan
+            return korn(c, x, y, 0.25)
+        return kantad(fn, rekt, 0.8)
+    alla(duk, kuber, gor)
+
+
 def m_tyg(duk, kuber, col, i, cfg):
     alla(duk, kuber, lambda sida, rekt, kub: tyg(col, rekt))
 
@@ -556,6 +623,7 @@ MATERIAL = {
     "haxhatt": m_haxhatt, "tomteluva": m_tomteluva, "doktorsrock": m_doktorsrock,
     "batvingar": m_batvingar, "krona": m_krona, "mantel": m_mantel,
     "energisvard": m_energisvard, "rymdmantel": m_rymdmantel,
+    "gruvlampa": m_gruvlampa, "flytvast": m_flytvast, "regnrock": m_regnrock,
 }
 
 

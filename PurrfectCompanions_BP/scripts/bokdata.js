@@ -30,7 +30,9 @@ export const PLAGG = [
    "Red",
    "Blue",
    "Green",
-   "Yellow"
+   "Yellow",
+   "Pink",
+   "Purple"
   ],
   "effekt": "potion.fireResistance",
   "prosa": false
@@ -219,6 +221,37 @@ export const PLAGG = [
   ],
   "effekt": null,
   "prosa": false
+ },
+ {
+  "id": "gruvlampa",
+  "namn": "Mining Lamp",
+  "farger": [
+   "Brass",
+   "Iron"
+  ],
+  "effekt": null,
+  "prosa": true
+ },
+ {
+  "id": "flytvast",
+  "namn": "Life Vest",
+  "farger": [
+   "Orange",
+   "Yellow",
+   "Blue"
+  ],
+  "effekt": "potion.conduitPower",
+  "prosa": false
+ },
+ {
+  "id": "regnrock",
+  "namn": "Raincoat",
+  "farger": [
+   "Yellow",
+   "Green"
+  ],
+  "effekt": null,
+  "prosa": true
  }
 ];
 export const KATTER = [

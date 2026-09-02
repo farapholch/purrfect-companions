@@ -52,7 +52,8 @@ PALS = (128, 32)
 #
 # Grinden i purrfect-test kräver en språknyckel för dem som står här, så ett nytt
 # plagg tvingar fram ett beslut i stället för att tyst hamna i fel hög.
-_BOKPROSA = {"sadel", "ryggsack", "vagn", "vingar", "rustning", "energisvard"}
+_BOKPROSA = {"sadel", "ryggsack", "vagn", "vingar", "rustning", "energisvard",
+             "gruvlampa", "regnrock"}
 
 _EXTRA_POWERS = {
     "keps":        ("mjau:kepskraft",       "jump_boost",      "potion.jump"),
@@ -65,6 +66,7 @@ _EXTRA_POWERS = {
     "haxhatt":     ("mjau:haxbrygd",        "water_breathing", "potion.waterBreathing"),
     "energisvard": ("mjau:bladsken",        "night_vision",    "potion.nightVision"),
     "tomteluva":   ("mjau:tomtegava",       "health_boost",    "potion.healthBoost"),
+    "flytvast":    ("mjau:flytvastkraft",   "conduit_power",   "potion.conduitPower"),
 }
 
 ACC = {
@@ -90,12 +92,14 @@ ACC = {
    mats={1:"minecraft:cyan_wool",2:"minecraft:red_wool",3:"minecraft:green_wool",4:"minecraft:yellow_wool"}),
 
  "halsduk": dict(label="Cat Scarf", bone="body", sound="armor.equip_leather",
-   uv={1:(0,72),2:(24,72),3:(48,72),4:(72,72)},
-   colors={1:("rod",(198,62,55)),2:("bla",(64,116,200)),3:("gron",(76,168,84)),4:("gul",(238,196,62))},
-   names={1:"Red",2:"Blue",3:"Green",4:"Yellow"},
+   uv={1:(0,72),2:(24,72),3:(48,72),4:(72,72),5:(96,72),6:(120,72)},
+   colors={1:("rod",(198,62,55)),2:("bla",(64,116,200)),3:("gron",(76,168,84)),4:("gul",(238,196,62)),
+           5:("rosa",(238,138,186)),6:("lila",(134,66,186))},
+   names={1:"Red",2:"Blue",3:"Green",4:"Yellow",5:"Pink",6:"Purple"},
    cubes=[([-3.4,7.5,-5.6],[6.8,2,1.6],(0,0)), ([-1,5,-5.7],[2,2.5,1],(0,6))],
    recipe=lambda mat: dict(pattern=["WW","WW"], key={"W":{"item":mat}}, unlock=[{"item":mat}]),
-   mats={1:"minecraft:red_wool",2:"minecraft:blue_wool",3:"minecraft:green_wool",4:"minecraft:yellow_wool"}),
+   mats={1:"minecraft:red_wool",2:"minecraft:blue_wool",3:"minecraft:green_wool",4:"minecraft:yellow_wool",
+         5:"minecraft:pink_wool",6:"minecraft:purple_wool"}),
 
  "ryggsack": dict(label="Cat Backpack", bone="body", sound="armor.equip_leather",
    uv={1:(0,88),2:(24,88),3:(48,88)},
@@ -313,6 +317,48 @@ ACC = {
             "G":{"item":"minecraft:glowstone_dust"}},
        unlock=[{"item":mat},{"item":"minecraft:glowstone_dust"}]),
    mats={1:"minecraft:light_blue_wool",2:"minecraft:black_wool"}),
+
+ # TRE PLAGG TILL (2026-09-02, "bygg alla"). Band v0-25 i arket blev ledigt
+ # när katten flyttade till sitt eget pälsark; regnrocken bor i det lediga
+ # högra fältet v176-210.
+ "gruvlampa": dict(label="Mining Lamp", bone="head", sound="armor.equip_generic",
+   # LJUSET sköts av skriptet (main.js, "gruvlampa"): Bedrock har inget ljus
+   # per entitet, så lampan sätter ett osynligt ljusblock i luften vid huvudet.
+   uv={1:(0,0),2:(24,0)},
+   colors={1:("massing",(214,170,70)),2:("jarn",(150,152,160))},
+   names={1:"Brass",2:"Iron"},
+   cubes=[([-3.3,10.0,-9.1],[6.6,0.7,4.6],(0,0)),     # remmen över hjässan
+          ([-1.0,9.0,-10.3],[2.0,1.4,1.3],(0,6))],     # lampan i pannan, ovanför ögonen
+   recipe=lambda mat: dict(pattern=[" G ","NLN"],
+       key={"G":{"item":"minecraft:glowstone_dust"},"N":{"item":mat},"L":{"item":"minecraft:leather"}},
+       unlock=[{"item":"minecraft:glowstone_dust"},{"item":mat}]),
+   mats={1:"minecraft:gold_nugget",2:"minecraft:iron_nugget"}),
+
+ "flytvast": dict(label="Life Vest", bone="body", sound="armor.equip_leather",
+   uv={1:(48,0),2:(84,0),3:(120,0)},
+   colors={1:("orange",(255,140,40)),2:("gul",(238,196,62)),3:("bla",(64,116,200))},
+   names={1:"Orange",2:"Yellow",3:"Blue"},
+   cubes=[([-3.7,4.6,-4.6],[0.7,3.8,8.4],(0,0)),       # sidopanel vänster
+          ([3.0,4.6,-4.6],[0.7,3.8,8.4],(0,0)),        # sidopanel höger (delar uv)
+          ([-3.4,5.0,-5.55],[6.8,3.2,0.6],(19,0)),     # bröststycket med spännen
+          ([-3.4,8.9,-4.5],[6.8,0.5,8.2],(0,13))],     # ryggremmen
+   recipe=lambda mat: dict(pattern=["L L","WWW","LWL"],
+       key={"W":{"item":mat},"L":{"item":"minecraft:leather"}},
+       unlock=[{"item":mat},{"item":"minecraft:leather"}]),
+   mats={1:"minecraft:orange_wool",2:"minecraft:yellow_wool",3:"minecraft:blue_wool"}),
+
+ "regnrock": dict(label="Raincoat", bone="body", sound="armor.equip_leather",
+   uv={1:(72,176),2:(124,176)},
+   colors={1:("gul",(238,196,62)),2:("gron",(76,168,84))},
+   names={1:"Yellow",2:"Green"},
+   cubes=[([-3.5,4.2,-4.8],[0.6,4.6,9.4],(0,0)),
+          ([2.9,4.2,-4.8],[0.6,4.6,9.4],(0,0)),
+          ([-3.5,8.8,-4.8],[7,0.8,9.4],(0,15)),
+          ([-3.4,8.4,-6.0],[6.8,1.4,1.4],(33,15))],    # huvan, nedfälld i nacken
+   recipe=lambda mat: dict(pattern=["W W","WWW","WSW"],
+       key={"W":{"item":mat},"S":{"item":"minecraft:slime_ball"}},
+       unlock=[{"item":mat},{"item":"minecraft:slime_ball"}]),
+   mats={1:"minecraft:yellow_wool",2:"minecraft:green_wool"}),
 }
 
 # ---------------------------------------------------------------- hjälpare
@@ -441,6 +487,18 @@ def icon(a,col,path):
     elif a=="keps":
         rect(4,5,11,9,col); rect(5,4,10,4,ljus)
         rect(3,10,14,11,mork)
+    elif a=="gruvlampa":
+        rect(2,4,13,6,mork); rect(2,4,13,4,col)                 # remmen
+        rect(5,6,10,11,col); rect(6,7,9,10,(255,244,170,255))   # lampan med lins
+        rect(7,8,8,9,(255,255,255,255))
+    elif a=="flytvast":
+        rect(3,3,12,13,col); rect(6,3,9,13,mork)                # väst med öppning
+        rect(3,6,12,6,(220,220,220,255)); rect(3,10,12,10,(220,220,220,255))   # reflexband
+        rect(6,5,9,5,djup); rect(6,9,9,9,djup)                  # spännen
+    elif a=="regnrock":
+        rect(4,1,11,3,mork); rect(5,0,10,1,mork)                # huvan
+        rect(3,4,12,14,col); rect(3,4,12,4,ljus); rect(7,5,8,14,mork)   # rocken med knäppning
+        sp(5,7,ljus); sp(10,9,ljus); sp(4,11,ljus)              # regndroppar
     elif a=="halsduk":
         # band runt halsen med TVÅ hängande ändar — ett rakt streck med en
         # snibb under läste som ett T, inte som en halsduk
@@ -888,6 +946,13 @@ def build_rest():
                         {"effect":"regeneration","duration":999999,"amplifier":0,
                          "display_on_screen_animation":False}]}}
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:lakarrock")
+                if a=="regnrock":
+                    # REGNROCKEN: torr och nöjd — hungertimern går tre gånger
+                    # långsammare. En komponentgrupp med minecraft:timer
+                    # skuggar bastimern (600-1200 s) medan plagget sitter på.
+                    g["mjau:regnrock_torr"]={"minecraft:timer":{"time":[1800,3600],"looping":True,
+                        "time_down_event":{"event":"mjau:hungrigare","target":"self"}}}
+                    ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:regnrock_torr")
                 if a=="krona":
                     # KRONAN: alltid synlig (glowing genom väggar) — kungligt och
                     # lätt att hitta katten i mörkret.

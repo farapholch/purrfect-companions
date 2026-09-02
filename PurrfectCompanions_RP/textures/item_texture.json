@@ -268,6 +268,33 @@
     },
     "pc_kattbok": {
       "textures": "textures/items/pc_kattbok"
+    },
+    "pc_halsduk_rosa": {
+      "textures": "textures/items/pc_halsduk_rosa"
+    },
+    "pc_halsduk_lila": {
+      "textures": "textures/items/pc_halsduk_lila"
+    },
+    "pc_gruvlampa_massing": {
+      "textures": "textures/items/pc_gruvlampa_massing"
+    },
+    "pc_gruvlampa_jarn": {
+      "textures": "textures/items/pc_gruvlampa_jarn"
+    },
+    "pc_flytvast_orange": {
+      "textures": "textures/items/pc_flytvast_orange"
+    },
+    "pc_flytvast_gul": {
+      "textures": "textures/items/pc_flytvast_gul"
+    },
+    "pc_flytvast_bla": {
+      "textures": "textures/items/pc_flytvast_bla"
+    },
+    "pc_regnrock_gul": {
+      "textures": "textures/items/pc_regnrock_gul"
+    },
+    "pc_regnrock_gron": {
+      "textures": "textures/items/pc_regnrock_gron"
     }
   }
 }

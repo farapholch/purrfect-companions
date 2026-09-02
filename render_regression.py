@@ -86,7 +86,11 @@ def rot(p, pivot, deg):
 
 
 def bones_for(accessories):
-    out = [(b.get("name"), b.get("pivot", [0, 0, 0]), b.get("cubes", []))
+    # Kattens egna ben märks "pals": de ritas ur pälsarket (<katt>_pals.png, i
+    # SKALA gånger geometrins uv-enheter). Plaggens ben saknar märkning och ritas
+    # ur atlaset som förut. Andra anropare (dräkten, hunden) skickar in egna
+    # tretupler och får därmed atlaset.
+    out = [(b.get("name"), b.get("pivot", [0, 0, 0]), b.get("cubes", []), "pals")
            for b in GEO["geometry.katt"]["bones"]]
     for a in accessories:
         g = GEO.get(f"geometry.katt.{a}")
@@ -105,8 +109,19 @@ def faces(U, V, w, h, d):
 SH = {"top": 1.00, "bottom": 0.45, "north": 0.92, "south": 0.55, "east": 0.72, "west": 0.66}
 
 
-def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16, ram=None):
+def texturer(cat):
+    """Atlas och (om den finns) pälsark, som (bild, bredd, höjd, texlar per uv-enhet)."""
     tw, th, tex = read_png(f"{RP}/textures/entity/{cat}.png")
+    ut = {"default": (tex, tw, th, 1.0)}
+    pp = f"{RP}/textures/entity/{cat}_pals.png"
+    if os.path.exists(pp):
+        pw, ph, ptex = read_png(pp)
+        ut["pals"] = (ptex, pw, ph, pw / GEO["geometry.katt"]["description"]["texture_width"])
+    return ut
+
+
+def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16, ram=None):
+    TEX = texturer(cat)
     bones = bones_for(acc)
     ya, pa = math.radians(yaw), math.radians(pitch)
 
@@ -136,7 +151,9 @@ def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16, ram=None):
     offy = pad - miny * sc + (H - 2 * pad - (maxy - miny) * sc) / 2
     cv = [[(20, 22, 28, 255)] * W for _ in range(H)]
     zb = [[9e9] * W for _ in range(H)]
-    for name, pivot, cubes in bones:
+    for ben in bones:
+        name, pivot, cubes = ben[:3]
+        tex, tw, th, k = TEX.get(ben[3] if len(ben) > 3 else "default", TEX["default"])
         deg = pose.get(name, (0, 0, 0))
         for c in cubes:
             ox, oy, oz = c["origin"]; w, h, d = c["size"]; U, V = c["uv"]
@@ -157,7 +174,7 @@ def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16, ram=None):
                         px = int(X * sc + offx); py = int(H - (Y * sc + offy))
                         if not (0 <= px < W and 0 <= py < H): continue
                         if Z >= zb[py][px]: continue
-                        col = tex[min(th - 1, max(0, int(v0 + b * fh)))][min(tw - 1, max(0, int(u0 + a * fw)))]
+                        col = tex[min(th - 1, max(0, int((v0 + b * fh) * k)))][min(tw - 1, max(0, int((u0 + a * fw) * k)))]
                         if col[3] < 8: continue
                         cv[py][px] = (int(col[0] * shd), int(col[1] * shd), int(col[2] * shd), 255)
                         zb[py][px] = Z

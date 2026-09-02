@@ -28,6 +28,12 @@ KATTER = ("misty", "hazel", "mocha", "snow", "ginger", "domino")
 # (Xbox-bild). Ett ansikte avslöjar ingen ritual; de låg redan i kreativlistan.
 SPAWNAGG = KATTER + ("vakthund", "midnight", "aurora", "nova", "spokkatt")
 TEX = 256
+# PÄLSEN HAR ETT EGET ARK sedan 3.40.0: geometry.katt deklarerar PALS uv-enheter
+# och tools/make_cat_pals.py skriver <katt>_pals.png i SKALA gånger det, så
+# katten ritas i fyra texlar per modellenhet. Plaggen bor kvar i 256-atlaset
+# (TEX) — de är egna geometrier med egen render controller. Bedrock läser en PNG
+# som är större än det deklarerade tätare; det är så alla HD-paket fungerar.
+PALS = (128, 32)
 
 # ---------------------------------------------------------------- definition
 # uv: startpunkt i texturen. cubes: (origin, size, uv-offset från plaggets uv)
@@ -356,11 +362,11 @@ def build_geometry():
     base=[x for x in g["minecraft:geometry"] if x["description"]["identifier"]=="geometry.katt"][0]
     for b in base["bones"]:
         b["cubes"]=[c for c in b.get("cubes",[]) if c["uv"][1] < 26]   # bara katten själv
-    # KRITISKT: bas-geometrin måste deklarera samma texturstorlek som filen.
-    # Missas det läses alla UV i fel skala och katten blir obegriplig i spelet
-    # (tillbehören såg rätt ut eftersom de byggs om med rätt TEX varje gång).
-    base["description"]["texture_width"]=TEX
-    base["description"]["texture_height"]=TEX
+    # KRITISKT: bas-geometrin måste deklarera pälsarkets UV-ENHETER (PALS), inte
+    # atlasets. Missas det läses alla UV i fel skala och katten blir obegriplig i
+    # spelet (tillbehören såg rätt ut eftersom de byggs om med rätt TEX varje gång).
+    base["description"]["texture_width"]=PALS[0]
+    base["description"]["texture_height"]=PALS[1]
     desc=lambda i:{"identifier":i,"texture_width":TEX,"texture_height":TEX,
                    "visible_bounds_width":2,"visible_bounds_height":1.5,"visible_bounds_offset":[0,0.5,0]}
     geos=[base,{"description":desc("geometry.katt.empty"),"bones":[{"name":"tom","pivot":[0,0,0]}]}]
@@ -381,6 +387,16 @@ def build_geometry():
 
 # ---------------------------------------------------------------- textur
 def paint_accessories():
+    # Katten själv bor inte i atlaset längre (se PALS). Raderna ovanför det
+    # första plagget töms så ingen luras av en gammal 1x-katt som ligger kvar
+    # där utan att någon ritar den.
+    kattrader=min(v for cfg in ACC.values() for (_u,v) in cfg["uv"].values())
+    for f in glob.glob(f"{RP}/entity/*.json"):
+        d=json.load(open(f))["minecraft:client_entity"]["description"]
+        if d.get("geometry",{}).get("default")!="geometry.katt": continue
+        p=f"{RP}/{d['textures']['default']}.png"; w,h,px=read_png(p)
+        for y in range(min(h,kattrader)): px[y]=[(0,0,0,0)]*w
+        write_png(p,w,h,px)
     for cid in KATTER:
         p=f"{RP}/textures/entity/{cid}.png"; w,h,px=read_png(p)
         def rect(x0,y0,ww,hh,c):
@@ -577,8 +593,9 @@ def icon_bok():
 # ---------------------------------------------------------------- allt övrigt
 def build_rest():
     # render controllers
+    # Katten ritas ur pälsarket (Texture.pals), plaggen ur atlaset (Texture.default).
     rcs={"controller.render.katt":{"geometry":"Geometry.default",
-         "materials":[{"*":"Material.default"}],"textures":["Texture.default"]}}
+         "materials":[{"*":"Material.default"}],"textures":["Texture.pals"]}}
     for a,cfg in ACC.items():
         arr=["Geometry.empty"]+[f"Geometry.{a}{i}" for i in sorted(cfg["colors"])]
         rcs[f"controller.render.katt_{a}"]={
@@ -604,6 +621,7 @@ def build_rest():
         d=json.load(open(f)); desc=d["minecraft:client_entity"]["description"]
         if desc.get("identifier") not in _katter: continue   # t.ex. vakthunden
         desc["geometry"]=gmap
+        desc["textures"]["pals"]=desc["textures"]["default"]+"_pals"
         desc["render_controllers"]=["controller.render.katt"]+[f"controller.render.katt_{a}" for a in ACC]
         # animationer: gångcykel, svanssvaj, huvudet följer spelaren, hopkurad sittpose
         desc["animations"]={

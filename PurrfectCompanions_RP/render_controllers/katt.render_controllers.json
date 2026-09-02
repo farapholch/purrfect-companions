@@ -9,7 +9,7 @@
         }
       ],
       "textures": [
-        "Texture.default"
+        "Texture.pals"
       ]
     },
     "controller.render.katt_sadel": {

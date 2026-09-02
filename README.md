@@ -21,11 +21,13 @@ Minecraft **Bedrock** add-on: six hand-made cats you can tame, ride, breed and d
 Each meows in its own pitch — Mocha highest, Snow deepest.
 
 Misty, Hazel, Mocha and Snow spawn on plains; Ginger in forests, Domino in
-taiga. None of the coats are drawn by hand: `tools/make_cat_textures.py`
-transforms an existing cat deterministically (Ginger out of Misty, Domino out
-of Hazel), leaving the measured face palette — eyes, nose, the white spot of
-gloss — untouched. Change a base coat and the breeds that descend from it
-follow.
+taiga. None of the coats are drawn by hand: `tools/make_cat_pals.py` paints
+every cat from one table of colours and traits (tabby stripes, points, bib,
+paws, gloves) onto its own fur sheet at **four texels per model unit** — the
+body's side is 40x20 texels instead of 10x5, which is what makes real stripes,
+shading and fur grain possible. The outfits stay in the 256x256 atlas; they are
+separate geometries with their own render controller. Change a colour in the
+table and the cat, its spawn-egg icon and the preview images follow.
 
 ## Features
 
@@ -135,7 +137,8 @@ manually in sync.
 |---|---|
 | `build_accessories.py` | Outfits: geometry, textures, render controllers, entity properties and events, interactions, items, icons, recipes, language keys |
 | `build_blocks.py` | Cat Bed and Yarn Ball, plus the behaviour that makes cats seek them out |
-| `tools/make_cat_textures.py` | The coats and spawn-egg icons of the derived breeds (Ginger, Domino) |
+| `tools/make_cat_pals.py` | The coats: every cat's fur sheet (`<cat>_pals.png`, 512x128), painted from a per-cat table onto the UV layout read from the geometry |
+| `tools/make_cat_textures.py` | The spawn-egg icons of the derived and secret breeds |
 | `tools/make_player_gear.py` | The player's cat suit: geometry, textures, attachables, items, recipes |
 | `tools/make_dog.py` | The guard dog: geometry, coat and spawn-egg face |
 | `render_preview.py` | The preview images, with a small z-buffered renderer — no image library required |
@@ -165,7 +168,10 @@ command was accepted.
 The static half encodes the mistakes this add-on has already made, so none of
 them can come back:
 
-- a texture whose declared size no longer matches the actual PNG
+- an outfit atlas whose declared size no longer matches the actual PNG, or a
+  fur sheet that is not a whole multiple of the geometry's UV size
+- a cat whose eyes lost their gloss or pupil, whose nose lost its pink or its
+  mouth, whose body is a single flat tone, or whose points stop at the ears
 - `has_equipment` filters missing the `mjau:` namespace, which silently makes an
   outfit impossible to equip
 - an entity property read by a render controller but missing `client_sync`, so

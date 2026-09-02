@@ -1,40 +1,31 @@
 #!/usr/bin/env python3
-"""Genererar de nya rasernas texturer och spawnägg-ikoner ur de befintliga.
+"""Spawnägg-ikonerna för de härledda och hemliga katterna.
 
-Samma princip som make_midnight_texture.py: ingen ny bild ritas för hand, utan
-varje ny päls är en DETERMINISTISK transform av en katt som redan finns. Då
-följer nya raser automatiskt med när grundtexturen ändras (plaggens UV-ytor
-målas t.ex. in i efterhand av build_accessories.py), och två katter kan aldrig
-glida isär i teckning.
+Pälsarna målas av tools/make_cat_pals.py sedan 3.40.0 — det här skriptet äger
+bara IKONERNA, och de härleds fortfarande i stället för att ritas för hand:
 
-  Ginger  <- misty.png   grå tabby  -> varm ingefära, teckningen kvar
-  Domino  <- hazel.png   brun-vit   -> kolsvart där brunt var, vitt orört
-
-Ansiktet (ögon, nos, glans) lämnas i fred i båda fallen. Plaggens UV-ytor
-målas om av build_accessories.py efteråt, så de behöver inget skydd här.
-
-Körs om när grundtexturerna ändras:
+  pc_ginger  <- pc_misty   grå -> varm ingefära, ansiktet kvar
+  pc_domino  <- pc_hazel   brunt -> kolsvart, vitt orört
+  midnight, aurora, nova, spökkatten, domino  <- pc_misty omfärgad till kattens
+                                                 egen päls och ögon ur KATTER
 
     python3 tools/make_cat_textures.py
 """
 import os, sys
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, BASE)
+sys.path.insert(0, BASE); sys.path.insert(0, f"{BASE}/tools")
 import render_regression as rr
+from make_cat_pals import KATTER
 
 RP = f"{BASE}/PurrfectCompanions_RP"
 
 
-# ANSIKTET är inte päls. De här färgerna är UPPMÄTTA i huvudets UV-yta
-# (x 30-56, y 0-12) i både misty.png och hazel.png och är identiska i båda:
-# två gröna ögontoner, en vit glansprick och en rosa nos. Regelbaserade filter
-# ("lämna mättade pixlar") gick inte att lita på — hazels bruna päls är mer
-# mättad än en del av ansiktet, så Domino blev brun med svarta ögon. Ändras
-# grundtexturernas ansikte måste den här listan mätas om.
+# ANSIKTET är inte päls. De här färgerna är de som pc_misty och pc_hazel ritades
+# med: två gröna ögontoner, en vit glansprick och en rosa nos. Regelbaserade
+# filter ("lämna mättade pixlar") gick inte att lita på — hazels bruna päls är
+# mer mättad än en del av ansiktet, så Domino blev brun med svarta ögon.
 ANSIKTE = {(122, 201, 67), (67, 110, 36), (255, 255, 255), (226, 140, 160)}
-
-
 def vit(r, g, b):
     """Hazels vita haklapp och tassar. Höga kanaler OCH nästan neutral kulör —
     annars fastnar även den ljusaste brunbeigen i filtret och Domino blir
@@ -98,25 +89,10 @@ MISTY_OGA_MORK = (61, 100, 33)
 
 
 def prova_huvud(cat):
-    """Pälsfärg och ögonfärg ur huvudets UV-yta (x 30-56, y 0-12).
-
-    Pälsen är den vanligaste färgen där. Ögonen är den mättade färg som
-    förekommer FÅ gånger — brun päls är mättad nog att lura ett rent
-    mättnadsfilter, men den är aldrig sällsynt."""
-    from collections import Counter
-    w, h, px = rr.read_png(f"{RP}/textures/entity/{cat}.png")
-    alla = Counter()
-    for y in range(0, 12):
-        for x in range(30, 56):
-            p = px[y][x]
-            if len(p) > 3 and p[3] == 0:
-                continue
-            alla[(p[0], p[1], p[2])] += 1
-    pals = alla.most_common(1)[0][0]
-    kandidater = [(c, n) for c, n in alla.items()
-                  if max(c) - min(c) > 60 and n <= 20 and c != pals]
-    oga = max(kandidater, key=lambda t: t[1])[0] if kandidater else MISTY_OGA
-    return pals, oga
+    """Huvudets pälsfärg och irisfärg — ur samma tabell som pälsen målas ur, så
+    ikonen och katten kan aldrig glida isär."""
+    K = KATTER[cat]
+    return (K.get("huvud") or K["pals"]), K["iris"]
 
 
 def ikon_ur_mall(cat):
@@ -184,8 +160,7 @@ def kor(dst, src, fn, mapp, vad):
 
 
 for dst, src, fn in JOBB:
-    print(f"{dst} <- {src}")
-    kor(dst, src, fn, "textures/entity", "päls")
+    print(f"pc_{dst} <- pc_{src}")
     kor(f"pc_{dst}", f"pc_{src}", fn, "textures/items", "spawnägg")
 
 # Domino är kolsvart och blev samma svarta klump i hotbaren som de hemliga

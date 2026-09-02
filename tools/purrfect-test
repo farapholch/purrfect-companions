@@ -65,10 +65,32 @@ GEOALL=json.load(open(f"{SRC}/PurrfectCompanions_RP/models/entity/katt.geo.json"
 import struct as _st
 _d=open(f"{SRC}/PurrfectCompanions_RP/textures/entity/misty.png","rb").read()
 _tw,_th=_st.unpack(">II",_d[16:24])
+# KATTEN SJÄLV ritas ur pälsarket, som får vara en HELTALSMULTIPEL av det
+# deklarerade (fyra texlar per uv-enhet sedan 3.40.0). Plaggen ritas ur
+# atlaset och måste matcha det exakt som förut.
+_pd=open(f"{SRC}/PurrfectCompanions_RP/textures/entity/misty_pals.png","rb").read()
+_pw,_ph=_st.unpack(">II",_pd[16:24])
 for _g in GEOALL:
     _dsc=_g["description"]
+    if _dsc["identifier"]=="geometry.katt":
+        _kx,_ky=_pw/_dsc["texture_width"],_ph/_dsc["texture_height"]
+        if _kx!=_ky or _kx!=int(_kx) or _kx<1:
+            bad.append(f"geometry.katt: pälsarket {_pw}x{_ph} är inte en heltalsmultipel av {_dsc['texture_width']}x{_dsc['texture_height']} uv-enheter")
+        continue
     if (_dsc.get("texture_width"),_dsc.get("texture_height"))!=(_tw,_th):
         bad.append(f"{_dsc['identifier']}: texturstorlek {_dsc.get('texture_width')}x{_dsc.get('texture_height')} != PNG {_tw}x{_th}")
+# Varje katt ska ha ett ark med samma mått som Mistys — ett ark i annan skala
+# ritar den katten med förskjutna uv-rutor.
+for _cf in sorted(glob.glob(f"{SRC}/PurrfectCompanions_RP/entity/*.json")):
+    _cd=json.load(open(_cf))["minecraft:client_entity"]["description"]
+    if _cd.get("geometry",{}).get("default")!="geometry.katt": continue
+    _pt=_cd.get("textures",{}).get("pals")
+    _pf=f"{SRC}/PurrfectCompanions_RP/{_pt}.png" if _pt else None
+    if not _pf or not os.path.exists(_pf):
+        bad.append(f"{_cd['identifier']}: pälsark saknas ({_pt}) — kör tools/make_cat_pals.py"); continue
+    _qd=open(_pf,"rb").read(); _qw,_qh=_st.unpack(">II",_qd[16:24])
+    if (_qw,_qh)!=(_pw,_ph):
+        bad.append(f"{_cd['identifier']}: pälsarket är {_qw}x{_qh}, Mistys {_pw}x{_ph}")
 GEOIDS={g["description"]["identifier"] for g in GEOALL}
 
 # KATTDRÄKTEN (3.28.0) ritas på SPELAREN via attachables, och där kan tre fel
@@ -614,46 +636,155 @@ if os.path.exists(_kl):
         bad.append("kattlucka: har kollisionslåda — då kan man inte gå igenom "
                    "kattdörren (sätt collision_box: false)")
 
-# --- ansiktena måste vara målade -----------------------------------------
-# make_cat_markings.py läser den orörda konsten i art/kattpalsar/ och skriver
-# HELA texturen — även huvudet, som den inte målar. Kör man den ensam nollas
-# alltså ansiktet som make_cat_faces.py målat, utan ett ord någonstans.
-# Körordningen står bara i docstrings, och en körordning som bara står i text
-# är precis den sortens "två ställen att hålla i synk" som det här paketet har
-# gått i förr. Den här spärren är det andra stället, fast körbart.
+# --- pälsarket --------------------------------------------------------------
+# Pälsen målas av tools/make_cat_pals.py på ett EGET ark (<katt>_pals.png) i
+# flera texlar per uv-enhet; plaggen bor kvar i atlaset. Spärrarna nedan läser
+# arket och räknar i uv-enheter gånger skalan, så de följer med om skalan
+# ändras. Varje spärr är ett fel som redan hänt: ögat som föll tillbaka till
+# 2x2, den svarta munnen, den omålade nosen, färgfältet, ragdollen utan points
+# på svansen, innerörat som saknades eller läckte ut på örats sida.
 _G = json.load(open(f"{SRC}/PurrfectCompanions_RP/models/entity/katt.geo.json"))
-_hd = next(b for b in _G["minecraft:geometry"][0]["bones"] if b["name"] == "head")
-_sk = max(_hd["cubes"], key=lambda c: c["size"][0] * c["size"][1])
-_fx, _fy, _fw, _fh = rr.faces(_sk["uv"][0], _sk["uv"][1], *_sk["size"])["north"]
-_fx, _fy = int(_fx), int(_fy)
-# ALLA KATTER, inte en handskriven lista. Först stod fyra namn här, och då
-# missades Aurora, Nova, Spökkatten och Midnight helt — de byggs av egna recept
-# och hade kvar det gamla ansiktet plus en omålad nos. En lista som ska hållas i
-# synk med paketet är alltid samma fälla.
+_bas = next(g for g in _G["minecraft:geometry"]
+            if g["description"]["identifier"] == "geometry.katt")
+_hd2 = next(b for b in _bas["bones"] if b["name"] == "head")
+_sk2 = max(_hd2["cubes"], key=lambda c: c["size"][0] * c["size"][1])
+# ALLA KATTER, inte en handskriven lista — fyra namn här missade en gång
+# Aurora, Nova, Spökkatten och Midnight helt.
 _KATTER = []
 for _ef in sorted(glob.glob(f"{SRC}/PurrfectCompanions_RP/entity/*.json")):
     _ed = json.load(open(_ef))["minecraft:client_entity"]["description"]
-    if _ed.get("geometry", {}).get("default") == "geometry.katt":
-        _KATTER.append((_ed["identifier"].split(":")[1], _ed["textures"]["default"]))
-for _ras, _texvag in _KATTER:
+    if _ed.get("geometry", {}).get("default") != "geometry.katt": continue
+    if "pals" not in _ed.get("textures", {}):
+        bad.append(f"{_ed['identifier']}: saknar textures.pals — katten ritas ur "
+                   f"atlaset i fel skala (kör build_accessories.py)"); continue
+    _KATTER.append((_ed["identifier"].split(":")[1], _ed["textures"]["pals"]))
+
+def _ark(_texvag):
+    """(texlar, texlar per uv-enhet) för ett pälsark, None om filen saknas."""
     _tf = f"{SRC}/PurrfectCompanions_RP/{_texvag}.png"
-    if not os.path.exists(_tf): continue
+    if not os.path.exists(_tf): return None
     _w, _h, _p = rr.read_png(_tf)
-    _at = lambda k, r: tuple(_p[_fy + r][_fx + k])[:3]
-    # ÖGAT SKA VARA 2x3. Rad 3 under irisen ska ligga i samma färgfamilj som
-    # irisen på rad 2 — gör den inte det är ansiktet det gamla 2x2-ögat.
-    for _k in (0, 1, 4, 5):
-        if sum(abs(_at(_k, 3)[_i] - _at(_k, 2)[_i]) for _i in range(3)) / 3 > 70:
-            bad.append(f"{_ras}: ögat är tillbaka på 2x2 — kör "
-                       f"tools/make_cat_faces.py efter make_cat_markings.py")
-            break
-    # MUNNEN SKA VARA VARM, inte det svarta strecket (26,18,14).
-    # MUNNEN SITTER PÅ NOS-KUBEN nu, inte på skallens platta framsida. Rutan
-    # bakom nosen ska vara nospartiets ljusa färg — är den mörk ligger det gamla
-    # svarta strecket kvar där.
-    if sum(_at(2, 4)) < 120:
-        bad.append(f"{_ras}: munnen är tillbaka som svart streck {_at(2, 4)} — kör "
-                   f"tools/make_cat_faces.py sist i kedjan")
+    return _p, _w / _bas["description"]["texture_width"]
+
+def _rekt(_kub, _sida, _S):
+    """Ytans texelrektangel, rundad INÅT — att mäta är inte att måla."""
+    _x0, _y0, _fw, _fh = rr.faces(_kub["uv"][0], _kub["uv"][1], *_kub["size"])[_sida]
+    return (int(math.ceil(_x0 * _S - 1e-6)), int(math.floor((_x0 + _fw) * _S + 1e-6)),
+            int(math.ceil(_y0 * _S - 1e-6)), int(math.floor((_y0 + _fh) * _S + 1e-6)))
+
+def _texlar(_p, _r):
+    _xa, _xb, _ya, _yb = _r
+    return [tuple(_p[_y][_x]) for _y in range(_ya, _yb) for _x in range(_xa, _xb)]
+
+def _medel(_ts):
+    _ts = [t for t in _ts if t[3]]
+    return tuple(sum(t[i] for t in _ts) / len(_ts) for i in range(3)) if _ts else None
+
+def _avst(_a, _b):
+    return sum(abs(_a[i] - _b[i]) for i in range(3)) / 3
+
+def _lum(_c):
+    return (_c[0] * 3 + _c[1] * 5 + _c[2] * 2) / 10
+
+def _ar_rosa(_t):
+    """Rosa, inte brunt: Mochas öra (107,74,53) har också mer rött än grönt,
+    men rosa har blått i sig och brunt har det inte."""
+    return _t[0] - _t[1] > 25 and _t[2] >= _t[1] - 10
+
+_nosar = [c for c in _hd2["cubes"] if c["origin"][2] < _sk2["origin"][2] - 0.1]
+_nos2 = min(_nosar, key=lambda c: c["origin"][2]) if _nosar else None
+
+for _ras, _texvag in _KATTER:
+    _A = _ark(_texvag)
+    if _A is None:
+        bad.append(f"{_ras}: pälsarket {_texvag}.png saknas — kör tools/make_cat_pals.py"); continue
+    _p, _S = _A
+    # --- ÖGONEN: ett öga har en kant, en iris, en pupill och en glans. Utan
+    # glansen är det en knapp; utan pupillen en färgfläck.
+    _xa, _xb, _ya, _yb = _rekt(_sk2, "north", _S)
+    _fw3 = (_xb - _xa) // 3
+    for _oga, (_ox0, _ox1) in (("vänster", (_xa, _xa + _fw3)), ("höger", (_xb - _fw3, _xb))):
+        _ts = _texlar(_p, (_ox0, _ox1, _ya + (_yb - _ya) // 5, _yb - (_yb - _ya) // 5))
+        _glans = any(min(t[:3]) >= 230 for t in _ts)
+        _iris = any(max(t[:3]) - min(t[:3]) >= 45 and _lum(t) > 60 for t in _ts)
+        _pupill = any(_lum(t) < 60 for t in _ts)
+        if not (_glans and _iris and _pupill):
+            bad.append(f"{_ras}: {_oga} öga saknar "
+                       f"{'glans ' if not _glans else ''}{'iris ' if not _iris else ''}"
+                       f"{'pupill' if not _pupill else ''}— kör tools/make_cat_pals.py")
+    # --- NOSEN: målad, rosa, och med en mun under sig.
+    if _nos2 is not None:
+        _ts = _texlar(_p, _rekt(_nos2, "north", _S))
+        if any(t[3] == 0 for t in _ts):
+            bad.append(f"{_ras}: nosens framsida är omålad — kör tools/make_cat_pals.py")
+        else:
+            _rosa = any(t[0] > 190 and t[2] > 120 and t[0] - t[1] > 50 for t in _ts)
+            _mun = any(_lum(t) < 0.72 * _lum(max(_ts, key=_lum)) for t in _ts)
+            if not _rosa:
+                bad.append(f"{_ras}: nosen saknar rosa — ingen nos, kör tools/make_cat_pals.py")
+            if not _mun:
+                bad.append(f"{_ras}: nosen saknar mun — kör tools/make_cat_pals.py")
+    # --- INGEN KROPPSDEL FÅR VARA ETT FÄRGFÄLT. Minecraft skuggar hela ytor
+    # efter väderstreck men aldrig inuti en yta.
+    _kbones = {b["name"]: b.get("cubes", []) for b in _bas["bones"]}
+    _medel_del = {}
+    for _bn in ("body", "leg0", "tail"):
+        _ts = []
+        for _k in _kbones.get(_bn, []):
+            for _sida in ("north", "south", "east", "west", "top", "bottom"):
+                _ts += _texlar(_p, _rekt(_k, _sida, _S))
+        _ts = [t for t in _ts if t[3]]
+        if not _ts: continue
+        _c = _Counter(t[:3] for t in _ts)
+        _dom, _n = _c.most_common(1)[0]
+        _medel_del[_bn] = _medel(_ts)
+        if len(_c) < 2:
+            bad.append(f"{_ras}: {_bn} är EN enda ton {_dom} — ett färgfält, kör tools/make_cat_pals.py")
+        elif _n / len(_ts) > 0.80:
+            bad.append(f"{_ras}: {_bn} är {_n * 100 // len(_ts)} % en enda ton {_dom} "
+                       f"— för platt (kör tools/make_cat_pals.py)")
+    # --- POINTS. Skiljer örat tydligt från kroppen är katten pointad, och då
+    # ska svans och ben ligga NÄRMARE örats färg än kroppens. Snow hade grå
+    # öron men helvit svans — ragdollens points fanns på ett av fyra ställen.
+    _oronkuber = [c for c in _hd2["cubes"]
+                  if c is not _sk2 and c is not _nos2
+                  and c["origin"][1] >= _sk2["origin"][1] + _sk2["size"][1] - 0.5]
+    # Bara SIDORNA räknas: benets ovansida sitter inne i bålen och undersidan är
+    # trampdynor, och en ragdoll med vita vantar har sina points på en bit av
+    # benet — det ska synas som en tydlig förskjutning mot örats färg, inte som
+    # en majoritet.
+    _ora = _medel(sum((_texlar(_p, _rekt(_k, "east", _S)) for _k in _oronkuber), []))
+    if _ora and "body" in _medel_del and _avst(_medel_del["body"], _ora) >= 25:
+        for _bn in ("tail", "leg0"):
+            _sid = _medel(sum((_texlar(_p, _rekt(_k, _sida, _S))
+                               for _k in _kbones[_bn] for _sida in ("north", "south", "east", "west")), []))
+            if _sid and _avst(_medel_del["body"], _sid) < 0.35 * _avst(_medel_del["body"], _ora):
+                bad.append(f"{_ras}: örat skiljer sig från kroppen — katten är pointad, "
+                           f"men {_bn} har knappt något av örats färg")
+    # --- INNERÖRAT: finns, syns, sitter mitt på framsidan och läcker inte ut
+    # på örats sida. Mätt över tio katter var det en gång ett lapptäcke: fyra
+    # saknade det, två hade ett osynligt, och alla satt en halv texel snett.
+    for _ok in _oronkuber:
+        _xa, _xb, _ya, _yb = _rekt(_ok, "north", _S)
+        _rosa_x = []
+        _fram = _Counter()
+        for _y in range(_ya, _yb):
+            for _x in range(_xa, _xb):
+                _t = tuple(_p[_y][_x])
+                _fram[_t[:3]] += 1
+                if _ar_rosa(_t):
+                    _rosa_x.append(_x + 0.5)
+        _orapals = _fram.most_common(1)[0][0]
+        if not _rosa_x:
+            bad.append(f"{_ras}: örat uv{_ok['uv']} saknar inneröra"); continue
+        _mitt = sum(_rosa_x) / len(_rosa_x)
+        if abs(_mitt - (_xa + _xb) / 2) > 0.75:
+            bad.append(f"{_ras}: innerörats mitt {_mitt:.1f} ligger inte på "
+                       f"framsidans mitt {(_xa + _xb) / 2:.1f}")
+        for _sida in ("west", "east", "top"):
+            for _t in _texlar(_p, _rekt(_ok, _sida, _S)):
+                if _t[3] and _ar_rosa(_t):
+                    bad.append(f"{_ras}: innerörat läcker ut på örats {_sida}-sida"); break
 
 # --- huvudet får inte vara platt -----------------------------------------
 # Katthuvudet var länge EN enda kub, så hela ansiktet låg i ett plan och varje
@@ -691,129 +822,6 @@ else:
     if len(_kinder) != 2:
         bad.append(f"katt.geo.json: hittade {len(_kinder)} kindtottar, ska vara 2 "
                    f"— utan dem är huvudet en rektangel igen")
-    # ...och den måste vara målad. En omålad kub är genomskinlig och syns inte,
-    # vilket ser exakt ut som att den inte finns.
-    _nf = rr.faces(_n2["uv"][0], _n2["uv"][1], *_n2["size"])["north"]
-    for _ras, _texvag in _KATTER:
-        _tf = f"{SRC}/PurrfectCompanions_RP/{_texvag}.png"
-        if not os.path.exists(_tf): continue
-        _w, _h, _p = rr.read_png(_tf)
-        _rutor = [tuple(_p[_y][_x]) for _y in range(int(_nf[1]), int(_nf[1] + _nf[3]))
-                  for _x in range(int(_nf[0]), int(_nf[0] + _nf[2]))]
-        if any(_c[3] == 0 for _c in _rutor):
-            bad.append(f"{_ras}: nosens framsida är omålad — kör "
-                       f"tools/make_cat_faces.py sist i kedjan")
-        elif len({_c[:3] for _c in _rutor}) < 2:
-            # EN ENFÄRGAD NOS ÄR EN BLANK LÅDA i ansiktet. Det var precis vad
-            # Aurora, Nova, Spökkatten och Midnight fick när ansiktssteget bara
-            # kände till fyra raser.
-            bad.append(f"{_ras}: nosens framsida är enfärgad {_rutor[0][:3]} — "
-                       f"ingen nos och ingen mun, kör tools/make_cat_faces.py")
-
-# --- ingen kroppsdel får vara ett enda färgfält ---------------------------
-# En spelare som är konstnär skrev att katterna är jobbiga att titta på. Mätt
-# per kroppsdel hade hen rätt och det gick att sätta siffror på: huvudet hade
-# tolv toner, men Snows SVANS var 100 % en enda ton, hennes ben 95 %, och
-# Aurora, Nova, Midnight och Spökkatten hade noll variation alls utanför
-# huvudet. Minecraft skuggar hela ytor efter väderstreck men aldrig inuti en
-# yta, så ett färgfält förblir ett färgfält hur bra motorn än lyser.
-_kbones = {b["name"]: b.get("cubes", []) for b in _bas["bones"]}
-def _fot(_k):
-    _u, _v = _k["uv"]; _b, _h, _d = _k["size"]
-    return (int(math.ceil(_u - 1e-6)), int(math.floor(_u + 2 * (_d + _b) + 1e-6)),
-            int(math.ceil(_v - 1e-6)), int(math.floor(_v + _d + _h + 1e-6)))
-for _ras, _texvag in _KATTER:
-    _tf = f"{SRC}/PurrfectCompanions_RP/{_texvag}.png"
-    if not os.path.exists(_tf): continue
-    _w, _h, _p = rr.read_png(_tf)
-    _ton = {}
-    for _bn in ("body", "leg0", "tail"):
-        _c = _Counter()
-        for _k in _kbones.get(_bn, []):
-            _xa, _xb, _ya, _yb = _fot(_k)
-            for _y in range(_ya, _yb):
-                for _x in range(_xa, _xb):
-                    if _p[_y][_x][3]: _c[tuple(_p[_y][_x][:3])] += 1
-        if not _c: continue
-        _ton[_bn] = _c
-        _tot = sum(_c.values()); _dom, _n = _c.most_common(1)[0]
-        if len(_c) < 2:
-            bad.append(f"{_ras}: {_bn} är EN enda ton {_dom} — ett färgfält, "
-                       f"kör tools/make_cat_shading.py")
-        elif _n / _tot > 0.80:
-            # TRÖSKELN VAR 0,94 när den skrevs, för att bara fånga de värsta.
-            # Efter pälskornet ligger den sämsta delen på 72 %, så gränsen kan
-            # skärpas till 0,80 utan att klaga på något som finns — och en spärr
-            # med luft ända upp till 94 % hade tillåtit halva förbättringen att
-            # försvinna utan ett ord.
-            bad.append(f"{_ras}: {_bn} är {_n * 100 // _tot} % en enda ton {_dom} "
-                       f"— för platt (kör tools/make_cat_shading.py)")
-    # POINTS. Skiljer örat tydligt från kroppen är katten pointad, och då MÅSTE
-    # örats färg finnas på svans och ben. Snow hade grå öron men helvit svans —
-    # ragdollens points fanns på en av fyra ställen.
-    if "body" in _ton and "tail" in _ton:
-        _kropp = _ton["body"].most_common(1)[0][0]
-        _oc = _Counter()
-        for _k in _kbones["head"]:
-            if _k["uv"] not in ([32, 10], [40, 10]): continue
-            _xa, _xb, _ya, _yb = _fot(_k)
-            for _y in range(_ya, _yb):
-                for _x in range(_xa, _xb):
-                    if _p[_y][_x][3]: _oc[tuple(_p[_y][_x][:3])] += 1
-        _ora = _oc.most_common(1)[0][0]
-        if sum(abs(_kropp[_i] - _ora[_i]) for _i in range(3)) / 3 >= 25:
-            for _bn in ("tail", "leg0"):
-                if _ora not in _ton.get(_bn, {}):
-                    bad.append(f"{_ras}: örat {_ora} skiljer sig från kroppen "
-                               f"{_kropp} — katten är pointad, men {_bn} saknar "
-                               f"pointfärgen")
-
-# --- innerörat: centrerat, synligt, och inte utanför framsidan -------------
-# Mätt över alla tio katterna var det ett lapptäcke: fyra hade inget inneröra
-# alls, två hade ett som skilde tjugo steg från pälsen och alltså inte syntes,
-# två hade rosa och två vitt. På alla satt det dessutom en halv texel snett och
-# läckte ut på örats SIDA, eftersom framsidan börjar på x 33,30 och texel 33
-# därmed till en tredjedel ligger på västsidan. Ingen spärr hade sagt något,
-# för varje enskild fil var giltig.
-_oronkuber = [c for c in _hd2["cubes"]
-              if c is not _sk2 and c["origin"][2] >= _sk2["origin"][2] - 0.1
-              and c["origin"][1] >= _sk2["origin"][1] + _sk2["size"][1] - 0.5]
-for _ok in _oronkuber:
-    _of = rr.faces(_ok["uv"][0], _ok["uv"][1], *_ok["size"])
-    _fx, _fy, _fw, _fh = _of["north"]
-    for _ras, _texvag in _KATTER:
-        _tf = f"{SRC}/PurrfectCompanions_RP/{_texvag}.png"
-        if not os.path.exists(_tf): continue
-        _w, _h, _p = rr.read_png(_tf)
-        _r = {}
-        for _y in range(int(_fy), int(_fy + _fh) + 1):
-            for _x in range(int(_fx), int(_fx + _fw) + 1):
-                _r.setdefault(tuple(_p[_y][_x][:3]), []).append(_x)
-        _pals = max(_r, key=lambda k: len(_r[k]))
-        _inner = [k for k in _r if k != _pals]
-        if not _inner:
-            bad.append(f"{_ras}: örat uv{_ok['uv']} saknar inneröra"); continue
-        _ip = _inner[0]
-        _kol = sorted(set(_r[_ip]))
-        _kontrast = sum(abs(_ip[_i] - _pals[_i]) for _i in range(3)) / 3
-        if _kontrast < 22:
-            bad.append(f"{_ras}: innerörat {_ip} skiljer bara {_kontrast:.0f} från "
-                       f"örat {_pals} — det syns inte")
-        if len(_kol) != 1:
-            bad.append(f"{_ras}: innerörat ligger på {len(_kol)} kolumner "
-                       f"{_kol} — en jämnbred fläck går inte att centrera på "
-                       f"en framsida som är {_fw} texlar bred")
-        elif abs((_kol[0] + 0.5) - (_fx + _fw / 2)) > 0.01:
-            bad.append(f"{_ras}: innerörats mitt {_kol[0] + 0.5} ligger inte på "
-                       f"framsidans mitt {_fx + _fw / 2}")
-        # ...och det får inte finnas på sidoytorna. Där är det läckage, och det
-        # syns som en rosa fläck på utsidan av örat.
-        for _sida in ("west", "east", "top"):
-            _sx, _sy, _sw, _sh = _of[_sida]
-            if any(tuple(_p[_y][_x][:3]) == _ip
-                   for _y in range(int(_sy), int(_sy + _sh))
-                   for _x in range(int(_sx), int(_sx + _sw))):
-                bad.append(f"{_ras}: innerörat läcker ut på örats {_sida}-sida")
 
 # --- inget block får se ut som JORD när det går sönder --------------------
 # Bedrock plockar sönderslagningspartiklarna ur blockets egen textur, och ett

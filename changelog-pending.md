@@ -17,6 +17,28 @@ head, but it stops reading as a brick.
 and lower — and every version was worse than the ones that were already there.
 The ears were never the problem. They are untouched.)
 
+## 3.40.0 — Four texels per unit
+
+Four versions of texture work had gone into the cats, and every one of them
+was fighting the same ceiling: the model was drawn at **one texel per model
+unit**. The side of a cat's body was 10x5 texels, a leg 2x4. On that canvas the
+stripes had to be every third column because there was no room for anything
+else, and no amount of painting skill changes that.
+
+The cats now have their own fur sheet at **four texels per unit**. The body's
+side is 40x20, the face 24x20, and that is the difference between "a texture"
+and fur: mackerel stripes that curve and taper, a dorsal stripe and bars across
+the back, a tabby M on the forehead and a cheek stripe behind the eye, points
+that darken toward the paws, white bibs with a soft edge, toe splits, pink paw
+pads, almond eyes with an outline, a vertical pupil and a highlight, a proper
+nose with nostrils and a small smile under it. Every coat has a fine grain
+worked through it — structured, not random, and scaled to the fur's lightness
+so a black cat gets visible grain without a white one looking dirty.
+
+Every cat is painted from **one table** of colours and traits, so nothing is
+derived from another cat any more and nothing accumulates between builds. The
+outfits are untouched: they live in the old atlas, on their own geometries.
+
 ## 3.39.0 — Fur grain
 
 The flat-colour cats — Aurora, Nova, Midnight and the ghost — were still 79–86%
@@ -121,7 +143,28 @@ cat.
 
 <!-- ALLT NEDANFÖR ÄR PROJEKTETS EGEN LOGG och ska INTE med till butiken. -->
 
-## Kattteckningarna (projektlogg)
+## Pälsarket (projektlogg, 3.40.0)
+
+Hela texturkedjan — make_cat_markings, make_cat_textures (pälsdelen),
+make_cat_shading, make_cat_faces, make_midnight_texture, make_spokkatt_texture
+och art/kattpalsar — ersatt av EN generator, `tools/make_cat_pals.py`, som
+målar `<katt>_pals.png` (512x128) från en tabell per katt. Geometrin
+deklarerar 128x32 uv-enheter (PALS i build_accessories) och Bedrock läser
+arket fyra gånger tätare. Plaggen ligger kvar i 256-atlaset; katten ritas ur
+`Texture.pals`, plaggen ur `Texture.default`. Atlasets kattrader (v < 26) töms
+vid bygget så ingen luras av den gamla 1x-katten.
+
+Renderarna (render_regression, render_preview) samplar per kub ur rätt textur
+med rätt skala. make_variant döper om `_pals`-arket också (samma \b-fälla som
+pc_-ikonerna). Spärrarna i purrfect-test läser arket i uv-enheter gånger skala.
+
+Två fällor på vägen: ränder som vaggade 1,2 texlar var elfte rad blev
+S-formade sömmar (nu 0,7 och långsammare), och en mun som går nedåt i
+vinklarna — som på en riktig katt — läser som bister på en kub; den går uppåt
+nu, ett ω. Testets rosa-test tog först Mochas bruna öra för inneröra: rosa
+har blått i sig, brunt har det inte.
+
+## Kattteckningarna (projektlogg, 3.36.0 — kedjan är ersatt, se ovan)
 
 Hund- och grispaketen har haft mönstermaskineri hela tiden (fläckar, sadel,
 bringa, strumpor, ullkrus). Katterna är det ÄLDSTA paketet och byggdes innan

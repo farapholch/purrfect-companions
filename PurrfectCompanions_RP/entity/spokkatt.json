@@ -7,7 +7,8 @@
         "default": "entity_alphablend"
       },
       "textures": {
-        "default": "textures/entity/spokkatt"
+        "default": "textures/entity/spokkatt",
+        "pals": "textures/entity/spokkatt_pals"
       },
       "geometry": {
         "default": "geometry.katt",

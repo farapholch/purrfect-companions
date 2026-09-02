@@ -7,7 +7,8 @@
         "default": "entity_alphatest"
       },
       "textures": {
-        "default": "textures/entity/snow"
+        "default": "textures/entity/snow",
+        "pals": "textures/entity/snow_pals"
       },
       "geometry": {
         "default": "geometry.katt",

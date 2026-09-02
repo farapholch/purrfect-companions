@@ -7,7 +7,8 @@
         "default": "entity_alphatest"
       },
       "textures": {
-        "default": "textures/entity/aurora"
+        "default": "textures/entity/aurora",
+        "pals": "textures/entity/aurora_pals"
       },
       "geometry": {
         "default": "geometry.katt",

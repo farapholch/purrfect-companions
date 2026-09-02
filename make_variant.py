@@ -43,6 +43,7 @@ def build(variant, outdir):
                 # döps filerna om medan item_texture.json pekar kvar på gamla
                 # namnet → spawn-äggen blir rutiga "saknad textur" i spelet.
                 s = s.replace(f"pc_{src}", f"pc_{slug}")
+                s = s.replace(f"{src}_pals", f"{slug}_pals")     # pälsarket, samma fälla
                 s = re.sub(rf"\b{src}\b", slug, s)
                 s = re.sub(rf"\b{src.capitalize()}\b", disp, s)
             if s != o: open(f, "w", encoding="utf-8").write(s)
@@ -52,6 +53,7 @@ def build(variant, outdir):
                       f"{outdir}/PurrfectCompanions_BP/spawn_rules/{src}.json",
                       f"{outdir}/PurrfectCompanions_RP/entity/{src}.json",
                       f"{outdir}/PurrfectCompanions_RP/textures/entity/{src}.png",
+                      f"{outdir}/PurrfectCompanions_RP/textures/entity/{src}_pals.png",
                       f"{outdir}/PurrfectCompanions_RP/textures/items/pc_{src}.png"):
                 if os.path.exists(p):
                     d = os.path.dirname(p); b = os.path.basename(p).replace(src, slug)

@@ -3,15 +3,16 @@
 
 Bakgrund: en spelare som är konstnär skrev att hen gärna skulle hjälpa till med
 texturerna, men trodde att det krävde att man kan Minecraft-texturer. Det gör
-det inte i det här projektet. Konsten är vanliga 256x256-PNG:er i
-art/kattpalsar/, och generatorn bygger paketet ur dem. Det enda som saknades var
-en bild som visar VAD som är vad — utan den är texturytan en obegriplig samling
-rutor, och det är rimligt att tacka nej till att måla på den.
+det inte i det här projektet. Pälsen är ett vanligt PNG-ark (512x128, fyra
+texlar per modellenhet) som tools/make_cat_pals.py genererar; ett handmålat ark
+med samma mått i art/pals/<katt>.png används i stället för det genererade. Det
+enda som saknades var en bild som visar VAD som är vad — utan den är arket en
+obegriplig samling rutor, och det är rimligt att tacka nej till att måla på den.
 
     python3 tools/make_art_template.py
 
 Skriver publish/art-template.png: varje kubs utfällning inramad och namngiven,
-med den befintliga pälsen svagt under så man ser vilken ruta som är vilken.
+med Mistys päls svagt under så man ser vilken ruta som är vilken.
 
 MÅLGRUPPEN KAN INTE PAKETET. Därför står måtten i klartext och rutorna är
 namngivna på engelska — det här är den enda filen i projektet som talar till
@@ -26,7 +27,7 @@ import render_regression as rr
 import make_video as mv
 
 RP = f"{BASE}/PurrfectCompanions_RP"
-SKALA = 4                      # 256 -> 1024, så texten får plats
+SKALA = 2                      # 512x128 -> 1024x256, så texten får plats
 BAKGRUND = (26, 28, 36, 255)
 RAM = (120, 200, 255, 255)
 TEXT = (226, 238, 250, 255)
@@ -45,9 +46,13 @@ def rutor():
     geo = [g for g in json.load(open(f"{RP}/models/entity/katt.geo.json"))["minecraft:geometry"]
            if g["description"]["identifier"] == "geometry.katt"][0]
     ut = []
+    # Uv-enheter -> texlar: arket är större än geometrins deklarerade storlek.
+    tw, _, _ = rr.read_png(f"{RP}/textures/entity/misty_pals.png")
+    k = tw / geo["description"]["texture_width"]
     for b in geo["bones"]:
         for c in b.get("cubes", []):
-            F = rr.faces(c["uv"][0], c["uv"][1], *c["size"])
+            F = {n: tuple(v * k for v in r)
+                 for n, r in rr.faces(c["uv"][0], c["uv"][1], *c["size"]).items()}
             x0 = min(v[0] for v in F.values())
             y0 = min(v[1] for v in F.values())
             x1 = max(v[0] + v[2] for v in F.values())
@@ -57,7 +62,7 @@ def rutor():
 
 
 def main():
-    tw, th, tex = rr.read_png(f"{RP}/textures/entity/misty.png")
+    tw, th, tex = rr.read_png(f"{RP}/textures/entity/misty_pals.png")
     W, H = tw * SKALA, th * SKALA
     mv.W, mv.H = W, H
     duk = [[BAKGRUND] * W for _ in range(H)]

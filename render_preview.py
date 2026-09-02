@@ -46,12 +46,23 @@ GEO={g["description"]["identifier"]:g
      for g in json.load(open(f"{RP}/models/entity/katt.geo.json"))["minecraft:geometry"]}
 
 def cubes_for(accessories):
-    """Kattens kuber + valda tillbehörs kuber."""
-    out=[(c["origin"],c["size"],c["uv"]) for b in GEO["geometry.katt"]["bones"] for c in b.get("cubes",[])]
+    """Kattens kuber + valda tillbehörs kuber, med vilken textur de ritas ur:
+    katten ur pälsarket ("pals"), plaggen ur atlaset ("default")."""
+    out=[(c["origin"],c["size"],c["uv"],"pals") for b in GEO["geometry.katt"]["bones"] for c in b.get("cubes",[])]
     for a in accessories:
         g=GEO.get(f"geometry.katt.{a}")
-        if g: out+=[(c["origin"],c["size"],c["uv"]) for b in g["bones"] for c in b.get("cubes",[])]
+        if g: out+=[(c["origin"],c["size"],c["uv"],"default") for b in g["bones"] for c in b.get("cubes",[])]
     return out
+
+def texturer(cat):
+    """Atlas och pälsark som (bild, bredd, höjd, texlar per uv-enhet)."""
+    tw,th,tex=read_png(f"{RP}/textures/entity/{cat}.png")
+    ut={"default":(tex,tw,th,1.0)}
+    pp=f"{RP}/textures/entity/{cat}_pals.png"
+    if os.path.exists(pp):
+        pw,ph,ptex=read_png(pp)
+        ut["pals"]=(ptex,pw,ph,pw/GEO["geometry.katt"]["description"]["texture_width"])
+    return ut
 
 def faces(U,V,w,h,d):
     return dict(top=(U+d,V,w,d),bottom=(U+d+w,V,w,d),west=(U,V+d,d,h),
@@ -61,9 +72,9 @@ C=math.cos(math.radians(30)); Sn=math.sin(math.radians(30))
 def proj(x,y,z): return ((x-z)*C,(x+z)*Sn-y)
 
 def render(cat, accessories, W, H, bg=(30,33,41,255), pad=18):
-    tw,th,tex=read_png(f"{RP}/textures/entity/{cat}.png")
+    TEX=texturer(cat)
     cubes=cubes_for(accessories)
-    pts=[proj(o[0]+dx,o[1]+dy,o[2]+dz) for (o,s,_) in cubes
+    pts=[proj(o[0]+dx,o[1]+dy,o[2]+dz) for (o,s,_,_) in cubes
          for dx in(0,s[0]) for dy in(0,s[1]) for dz in(0,s[2])]
     minx,maxx=min(p[0] for p in pts),max(p[0] for p in pts)
     miny,maxy=min(p[1] for p in pts),max(p[1] for p in pts)
@@ -72,15 +83,16 @@ def render(cat, accessories, W, H, bg=(30,33,41,255), pad=18):
     offy=pad-miny*scale+(H-2*pad-(maxy-miny)*scale)/2
     cv=[[bg]*W for _ in range(H)]
     fl=[]
-    for (o,sz,uv) in cubes:
+    for (o,sz,uv,tk) in cubes:
         ox,oy,oz=o; w,h,d=sz; U,V=uv; F=faces(U,V,w,h,d)
         for reg,shd,fn in [
             (F["top"],1.00,lambda a,b,ox=ox,oy=oy,oz=oz,w=w,h=h,d=d:(ox+a*w,oy+h,oz+b*d)),
             (F["north"],0.80,lambda a,b,ox=ox,oy=oy,oz=oz,w=w,h=h,d=d:(ox+a*w,oy+(1-b)*h,oz)),
             (F["east"],0.62,lambda a,b,ox=ox,oy=oy,oz=oz,w=w,h=h,d=d:(ox+w,oy+(1-b)*h,oz+a*d))]:
-            cx,cy,cz=fn(0.5,0.5); fl.append((cx+cy-cz,reg,shd,fn))
+            cx,cy,cz=fn(0.5,0.5); fl.append((cx+cy-cz,reg,shd,fn,tk))
     fl.sort(key=lambda f:f[0])
-    for _,(u0,v0,fw,fh),shd,fn in fl:
+    for _,(u0,v0,fw,fh),shd,fn,tk in fl:
+        tex,tw,th,k=TEX.get(tk,TEX["default"])
         steps=max(int(max(fw,fh)*scale*2.6),12)
         for i in range(steps+1):
             for j in range(steps+1):
@@ -88,7 +100,7 @@ def render(cat, accessories, W, H, bg=(30,33,41,255), pad=18):
                 x,y,z=fn(a,b); sx,sy=proj(x,y,z)
                 px=int(sx*scale+offx); py=int(sy*scale+offy)
                 if not(0<=px<W and 0<=py<H): continue
-                col=tex[min(th-1,max(0,int(v0+b*fh)))][min(tw-1,max(0,int(u0+a*fw)))]
+                col=tex[min(th-1,max(0,int((v0+b*fh)*k)))][min(tw-1,max(0,int((u0+a*fw)*k)))]
                 if col[3]<8: continue
                 cv[py][px]=(int(col[0]*shd),int(col[1]*shd),int(col[2]*shd),255)
     return cv
@@ -98,13 +110,13 @@ def render3d(cat, acc, W, H, yaw_deg=32, pitch_deg=20, bg=(24,27,36,255), pad_fr
     """Z-buffrad rendering med fri kameravinkel (yaw 0 = rakt framifrån).
     Ersätter den gamla painter's-algoritmen: den ritade ben ÖVER tossor."""
     import math
-    tw,th,tex=read_png(f"{RP}/textures/entity/{cat}.png")
+    TEX=texturer(cat)
     cubes=cubes_for(acc)
     ya=math.radians(yaw_deg); pa=math.radians(pitch_deg)
     def pj(x,y,z):
         xr=x*math.cos(ya)+z*math.sin(ya); zr=-x*math.sin(ya)+z*math.cos(ya)
         return (xr, y*math.cos(pa)-zr*math.sin(pa), zr*math.cos(pa)+y*math.sin(pa))
-    pts=[pj(o[0]+dx,o[1]+dy,o[2]+dz) for (o,s,_) in cubes
+    pts=[pj(o[0]+dx,o[1]+dy,o[2]+dz) for (o,s,_,_) in cubes
          for dx in(0,s[0]) for dy in(0,s[1]) for dz in(0,s[2])]
     minx=min(p[0] for p in pts); maxx=max(p[0] for p in pts)
     miny=min(p[1] for p in pts); maxy=max(p[1] for p in pts)
@@ -114,7 +126,8 @@ def render3d(cat, acc, W, H, yaw_deg=32, pitch_deg=20, bg=(24,27,36,255), pad_fr
     offy=pad-miny*sc+(H-2*pad-(maxy-miny)*sc)/2
     cv=[[bg]*W for _ in range(H)]; zb=[[9e9]*W for _ in range(H)]
     SH={"top":1.00,"bottom":0.45,"north":0.92,"south":0.55,"east":0.72,"west":0.66}
-    for (o,s,uv) in cubes:
+    for (o,s,uv,tk) in cubes:
+        tex,tw,th,k=TEX.get(tk,TEX["default"])
         ox,oy,oz=o; w,h,d=s; U,V=uv; F=faces(U,V,w,h,d)
         fns={"top":lambda a,b:(ox+a*w,oy+h,oz+b*d), "bottom":lambda a,b:(ox+a*w,oy,oz+b*d),
              "north":lambda a,b:(ox+a*w,oy+(1-b)*h,oz), "south":lambda a,b:(ox+a*w,oy+(1-b)*h,oz+d),
@@ -129,7 +142,7 @@ def render3d(cat, acc, W, H, yaw_deg=32, pitch_deg=20, bg=(24,27,36,255), pad_fr
                     px=int(X*sc+offx); py=int(H-(Y*sc+offy))
                     if not(0<=px<W and 0<=py<H): continue
                     if Z>=zb[py][px]: continue
-                    col=tex[min(th-1,max(0,int(v0+b*fh)))][min(tw-1,max(0,int(u0+a*fw)))]
+                    col=tex[min(th-1,max(0,int((v0+b*fh)*k)))][min(tw-1,max(0,int((u0+a*fw)*k)))]
                     if col[3]<8: continue
                     cv[py][px]=(int(col[0]*shd),int(col[1]*shd),int(col[2]*shd),255)
                     zb[py][px]=Z

@@ -7,7 +7,8 @@
         "default": "entity_alphatest"
       },
       "textures": {
-        "default": "textures/entity/misty"
+        "default": "textures/entity/misty",
+        "pals": "textures/entity/misty_pals"
       },
       "geometry": {
         "default": "geometry.katt",

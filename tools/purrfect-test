@@ -740,9 +740,14 @@ for _ras, _texvag in _KATTER:
         if len(_c) < 2:
             bad.append(f"{_ras}: {_bn} är EN enda ton {_dom} — ett färgfält, "
                        f"kör tools/make_cat_shading.py")
-        elif _n / _tot > 0.94:
+        elif _n / _tot > 0.80:
+            # TRÖSKELN VAR 0,94 när den skrevs, för att bara fånga de värsta.
+            # Efter pälskornet ligger den sämsta delen på 72 %, så gränsen kan
+            # skärpas till 0,80 utan att klaga på något som finns — och en spärr
+            # med luft ända upp till 94 % hade tillåtit halva förbättringen att
+            # försvinna utan ett ord.
             bad.append(f"{_ras}: {_bn} är {_n * 100 // _tot} % en enda ton {_dom} "
-                       f"— för platt")
+                       f"— för platt (kör tools/make_cat_shading.py)")
     # POINTS. Skiljer örat tydligt från kroppen är katten pointad, och då MÅSTE
     # örats färg finnas på svans och ben. Snow hade grå öron men helvit svans —
     # ragdollens points fanns på en av fyra ställen.

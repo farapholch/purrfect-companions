@@ -17,6 +17,23 @@ head, but it stops reading as a brick.
 and lower — and every version was worse than the ones that were already there.
 The ears were never the problem. They are untouched.)
 
+## 3.39.0 — Fur grain
+
+The flat-colour cats — Aurora, Nova, Midnight and the ghost — were still 79–86%
+a single tone after 3.38.0, because they have no markings to build on. A black
+cat *should* be mostly black, but even a black cat in decent pixel art has three
+or four blacks in it, not one.
+
+They have a grain now: a slightly darker and a slightly lighter fleck worked
+through the fur in a fixed pattern. Nothing is above 72% one tone any more, down
+from 86%.
+
+The grain is **structured, not random**, and only lands on a part's base tone.
+Random speckle over a design is exactly what was wrecking the block textures a
+few versions ago — the cat door's hole vanished into it. The difference here is
+that the design *is* a flat field, so the grain adds instead of hiding, and by
+only touching the base tone it cannot eat a stripe, a point or a glove.
+
 ## 3.38.0 — The bodies stop being flat colour
 
 Same player, a follow-up: they are an artist, and said as kindly as they could

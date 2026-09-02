@@ -65,8 +65,18 @@ _geo = [g for g in json.load(open(f"{RP}/models/entity/katt.geo.json"))["minecra
 BEN = {b["name"]: b.get("cubes", []) for b in _geo["bones"]}
 
 
+# Pälskornets två toner. De står här för att MÄTNINGEN måste kunna räkna
+# tillbaka dem till sin grundfärg — annars ändrar kornet delens dominerande ton
+# och nästa körning mäter fel. Se kommentaren vid ton().
+KORN_MORK, KORN_LJUS = 0.09, 0.07
+
+
 def blanda(a, b, t):
     return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
+
+
+def korntoner(f):
+    return blanda(f, (0, 0, 0), KORN_MORK), blanda(f, (255, 255, 255), KORN_LJUS)
 
 
 def fotavtryck(kub):
@@ -88,7 +98,16 @@ def mala(texvag):
     w, h, px = rr.read_png(f"{RP}/{texvag}.png")
 
     def ton(kub, undanta=()):
-        """Kubens dominerande färg, utan de rader som kommer att målas."""
+        """Kubens dominerande färg, utan de rader som kommer att målas — och med
+        pälskornet RÄKNAT TILLBAKA till sin grundfärg.
+
+        Utan den återräkningen ändrar kornet vilken ton som dominerar. Domino och
+        Hazel har vita tassar på mörka ben, och där låg vitt bara någon procent
+        före svart: kornet tog bort en fjärdedel av de vita texlarna, svart tog
+        över som dominerande ton, och nästa körning målade kontaktskuggan i fel
+        färg. Två körningar gav olika filer. Det är tredje gången samma regel
+        gäller i den här filen — mät aldrig en texel du själv skriver, och om du
+        måste, räkna bort din egen påverkan först."""
         xa, xb, ya, yb = fotavtryck(kub)
         c = Counter()
         for y in range(ya, yb):
@@ -97,7 +116,13 @@ def mala(texvag):
             for x in range(xa, xb):
                 if px[y][x][3]:
                     c[tuple(px[y][x][:3])] += 1
-        return c.most_common(1)[0][0] if c else None
+        if not c:
+            return None
+        korn = set()
+        for f in c:
+            korn.update(korntoner(f))
+        kandidater = [f for f in c if f not in korn] or list(c)
+        return max(kandidater, key=lambda f: c[f] + sum(c.get(k, 0) for k in korntoner(f)))
 
     def sat(kub, sidor, rader, rgb):
         F = rr.faces(kub["uv"][0], kub["uv"][1], *kub["size"])
@@ -159,6 +184,37 @@ def mala(texvag):
     sat(tass, SIDOR, {ta}, blanda(tassgrund, (0, 0, 0), 0.22))
     sat(svans, SIDOR, {sb - 1}, blanda(svansgrund, (0, 0, 0), 0.22))
     gjort.append("ljus uppifrån på bålen, kontaktskugga vid ben och svansfäste")
+
+    # PÄLSKORN. Efter points och skuggning låg de enfärgade katterna — Aurora,
+    # Nova, Midnight och Spökkatten — fortfarande på 79–86 % en enda ton, för de
+    # har ingen teckning att bygga på. En svart katt SKA vara mestadels svart,
+    # men även en svart katt i bra pixelkonst har tre eller fyra svarta toner,
+    # inte en.
+    #
+    # KORNET ÄR STRUKTURERAT, INTE SLUMPAT. Ett slumpmönster ovanpå en design är
+    # precis det som förstörde blockens texturer — kattluckans katthål försvann
+    # i garnets prickar. Skillnaden här är att designen ÄR ett fält: kornet
+    # tillför i stället för att dölja. Mönstret är en hash av koordinaterna, så
+    # det är samma varje bygge och går att resonera om.
+    #
+    # BARA PÅ GRUNDTONEN. Ränder, points, handskar och skuggrader har alla en
+    # annan färg än delens dominerande ton och rörs därför inte — kornet kan inte
+    # äta upp en teckning. Det gör det också idempotent: efter första körningen
+    # är korntexlarna inte längre grundtonen, så nästa körning hittar dem inte.
+    for bennamn, grund in (("body", kropp), ("leg0", tassgrund), ("tail", svansgrund)):
+        mork, ljus = korntoner(grund)
+        for kub in BEN[bennamn]:
+            xa, xb, ya, yb = fotavtryck(kub)
+            for y in range(ya, yb):
+                for x in range(xa, xb):
+                    if not px[y][x][3] or tuple(px[y][x][:3]) != grund:
+                        continue
+                    v = (x * 7 + y * 13 + x * y * 3) % 11
+                    if v < 2:
+                        px[y][x] = mork + (px[y][x][3],)
+                    elif v == 5:
+                        px[y][x] = ljus + (px[y][x][3],)
+    gjort.append("pälskorn")
 
     rr.write_png(f"{RP}/{texvag}.png", w, h, px)
     return pointad, gjort

@@ -54,6 +54,7 @@ a Norwegian Forest Cat and a tuxedo shorthair.</p>
 
 <a class="cta" href="https://www.curseforge.com/minecraft-bedrock/addons/purrfect-companions">Get it on CurseForge</a>
 <a class="cta mcpedl" href="https://mcpedl.com/purrfect-companions/">Get it on MCPEDL</a>
+<!-- Cat Haven-marknadsföringen dold på Pelles order 2026-09-03 (världen finns kvar på CurseForge)
 <img class="hero" src="cathaven-teaser.gif" alt="Cat Haven — the cats walk the hills at night while the lighthouse sweeps its beam">
 <p><b>Cat Haven</b> — a ready-made starter world, on CurseForge now. You are
 the shelter's new caretaker: meet the cats, ride to the lighthouse, dig up the
@@ -61,17 +62,14 @@ old caretaker's savings — and find the missing cat, whose trail of white fur
 leads into a dark forest where pale, nameless <b>ghost cats</b> drift between
 the trees. The handbook says not to fear them. Everything ships in one file.</p>
 <a class="cta" href="https://www.curseforge.com/minecraft-bedrock/maps/cat-haven">Get Cat Haven on CurseForge</a>
+-->
 <p class="dl-count" id="dlCount" hidden>⬇ <b id="dlNum"></b> downloads and counting</p>
-<p class="dl-count" id="cathavenCount" hidden>⬇ <b id="cathavenNum"></b> Cat Haven downloads</p>
+<!-- <p class="dl-count" id="cathavenCount" hidden>⬇ <b id="cathavenNum"></b> Cat Haven downloads</p> -->
 <p class="dl-count"><a href="changelog.html" style="color:#8fd7ff;text-decoration:none">What's new in v__VERSION__ →</a></p>
 <script>
 fetch('downloads.json').then(r=>r.json()).then(d=>{
   document.getElementById('dlNum').textContent=d.total.toLocaleString('en-US');
   document.getElementById('dlCount').hidden=false;
-  if (d.cathaven_total) {
-    document.getElementById('cathavenNum').textContent=d.cathaven_total.toLocaleString('en-US');
-    document.getElementById('cathavenCount').hidden=false;
-  }
 }).catch(()=>{});
 </script>
 

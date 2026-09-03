@@ -1,0 +1,54 @@
+#!/bin/bash
+# TRION TILLSAMMANS: bootar en värld med Purrfect Companions, Loyal Companions
+# och Snuffle Pigs på samma gång och kräver att alla tre laddar utan fel och
+# att en katt, en hund och en gris går att spawna. Bakgrund: en spelare skrev
+# (2026-09-03) att två paket "will conflict" — barnen installerar gärna alla
+# tre, så det ska vara bevisat att de inte gör det.
+set -u
+if [ "${BDS_LOCK_HELD:-}" != "1" ]; then
+  exec 9>/tmp/bds.lock; flock -w 1200 9 || { echo "kunde inte ta serverlåset"; exit 1; }
+  export BDS_LOCK_HELD=1
+fi
+SRV=/opt/bds/server; W="$SRV/worlds/TrioTest"; LOG=/tmp/trio-test.log
+PAKET=(/opt/purrfect-companions/PurrfectCompanions_BP /opt/purrfect-companions/PurrfectCompanions_RP
+       /opt/loyal-companions/LoyalCompanions_BP /opt/loyal-companions/LoyalCompanions_RP
+       /opt/snuffle-companions/SnuffleCompanions_BP /opt/snuffle-companions/SnuffleCompanions_RP)
+rm -rf "$W"; mkdir -p "$W/behavior_packs" "$W/world_resource_packs" "$W/resource_packs"
+cp "$SRV/worlds/Kattest/level.dat" "$W/"; echo -n "TrioTest" > "$W/levelname.txt"
+python3 - "$W" "${PAKET[@]}" <<'PY'
+import json, os, shutil, sys
+W, paket = sys.argv[1], sys.argv[2:]
+bp, rp = [], []
+for p in paket:
+    m = json.load(open(f"{p}/manifest.json")); post = {"pack_id": m["header"]["uuid"], "version": m["header"]["version"]}
+    dst = f"{W}/{'behavior_packs' if p.endswith('_BP') else 'resource_packs'}/{os.path.basename(p)}"
+    shutil.copytree(p, dst, ignore=shutil.ignore_patterns("__pycache__"))
+    (bp if p.endswith('_BP') else rp).append(post)
+json.dump(bp, open(f"{W}/world_behavior_packs.json", "w")); json.dump(rp, open(f"{W}/world_resource_packs.json", "w"))
+print(f"   {len(bp)} beteendepaket + {len(rp)} resurspaket i världen")
+PY
+pkill -9 -x bedrock_server 2>/dev/null; sleep 2
+PROPS="$SRV/server.properties"; cp "$PROPS" /tmp/trio-props.bak
+sed -i "s/^level-name=.*/level-name=TrioTest/" "$PROPS"
+rm -f "$LOG"; cd "$SRV"
+{ until grep -q "Server started" "$LOG" 2>/dev/null; do sleep 2; done; sleep 8
+  echo "tickingarea add 0 0 0 32 40 32 trio"; sleep 8
+  # SÖK DIREKT EFTER VARJE SUMMON: utan spelare i världen despawnar en vild
+  # gris inom några sekunder (persistensen togs bort i Snuffle 1.2 med flit),
+  # och första körningen sökte fyra sekunder för sent och trodde på en krock.
+  for t in "mjau:misty 10" "hund:rufus 14" "gris:nilla 18"; do
+    set -- $t; echo "summon $1 $2 20 10"; sleep 1
+    echo "testfor @e[type=$1,x=$2,y=20,z=10,r=8]"; sleep 1
+  done
+  echo "give @s mjau:kattbok"; sleep 1
+  echo "stop"; sleep 5; } | LD_LIBRARY_PATH=. ./bedrock_server > "$LOG" 2>&1
+pkill -9 -x bedrock_server 2>/dev/null
+cp /tmp/trio-props.bak "$PROPS"; rm -rf "$W"
+FAIL=0
+for t in mjau:misty hund:rufus gris:nilla; do
+  grep -q "Found ${t#*:}\|Found entity.*${t#*:}\|Found ${t}" "$LOG" && echo "  ✅ $t spawnade och hittades" || { echo "  ❌ $t hittades inte"; FAIL=1; }
+done
+if grep -iE "\[Scripting\].*(error|exception)|ContentLog.*error|duplicate|conflict" "$LOG" | grep -v "errorMessage=(null)" | head -5 | sed 's/^/  ❌ /' | grep -q .; then FAIL=1; else echo "  ✅ inga skript- eller innehållsfel i loggen"; fi
+grep -c "Script.*loaded\|Pack Stack\|Loading" "$LOG" >/dev/null
+[ $FAIL -eq 0 ] && echo "=== TRION GRÖN — alla tre paketen laddar och fungerar tillsammans ===" || echo "=== TRION FÖLL (logg: $LOG) ==="
+exit $FAIL

@@ -404,6 +404,7 @@ def build_structures(outdir, t, disp, cats):
         item(3, "minecraft:netherite_boots", 1),
         item(4, "minecraft:netherite_sword", 1),
         item(5, "mjau:rustning_netherit", 1),
+        item(6, "mjau:totem_guld", 1),            # katt-totemet (3.46.0)
     ]))
     s.emit(f"{st}/atticchest.mcstructure")
 

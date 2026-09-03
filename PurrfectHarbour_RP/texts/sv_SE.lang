@@ -22,3 +22,6 @@ mjau.bok.plagg.mantel=En mantel. En hjältes sköld: extra hjärtan ovanpå henn
 mjau.bok.plagg.rymdmantel=En stjärnmantel. Hon glöder hela natten, så du tappar aldrig bort henne i mörkret.
 mjau.bok.plagg.krona=En krona. Hon syns alltid, och varje katt inom sex block från henne är skyddad.
 mjau.bok.plagg.doktorsrock=En doktorsrock. Hon läker sig själv och gör sin rond: varje katt inom sex block läks också.
+item.mjau:totem_guld=Cat Totem (Gold)
+mjau.bok.plagg.totem=Räddar henne från döden en gång. När ett slag skulle ta henne tar totemet det i stället och går sönder — läk henne, och tillverka ett nytt.
+mjau.totem.raddad=Totemet räddade %s! Det gick sönder — tillverka ett nytt.

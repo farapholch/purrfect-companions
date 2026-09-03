@@ -494,6 +494,25 @@
       "textures": [
         "Texture.default"
       ]
+    },
+    "controller.render.katt_totem": {
+      "arrays": {
+        "geometries": {
+          "Array.totem": [
+            "Geometry.empty",
+            "Geometry.totem1"
+          ]
+        }
+      },
+      "geometry": "Array.totem[query.property('mjau:totem')]",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default"
+      ]
     }
   }
 }

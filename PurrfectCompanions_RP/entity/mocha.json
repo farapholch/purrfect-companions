@@ -81,7 +81,8 @@
         "flytvast2": "geometry.katt.flytvast2",
         "flytvast3": "geometry.katt.flytvast3",
         "regnrock1": "geometry.katt.regnrock1",
-        "regnrock2": "geometry.katt.regnrock2"
+        "regnrock2": "geometry.katt.regnrock2",
+        "totem1": "geometry.katt.totem1"
       },
       "spawn_egg": {
         "texture": "pc_mocha",
@@ -111,7 +112,8 @@
         "controller.render.katt_rymdmantel",
         "controller.render.katt_gruvlampa",
         "controller.render.katt_flytvast",
-        "controller.render.katt_regnrock"
+        "controller.render.katt_regnrock",
+        "controller.render.katt_totem"
       ],
       "animations": {
         "walk": "animation.katt.walk",

@@ -5088,6 +5088,64 @@
           ]
         }
       ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.katt.totem1",
+        "texture_width": 256,
+        "texture_height": 256,
+        "visible_bounds_width": 2,
+        "visible_bounds_height": 1.5,
+        "visible_bounds_offset": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -1.0,
+                3.8,
+                -5.55
+              ],
+              "size": [
+                2.0,
+                1.7,
+                0.7
+              ],
+              "uv": [
+                160,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -0.4,
+                5.5,
+                -5.45
+              ],
+              "size": [
+                0.8,
+                0.5,
+                0.5
+              ],
+              "uv": [
+                166,
+                0
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

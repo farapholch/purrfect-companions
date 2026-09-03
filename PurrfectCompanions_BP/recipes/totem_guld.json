@@ -1,0 +1,38 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:totem_guld"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "GEG",
+      "EKE",
+      "GEG"
+    ],
+    "key": {
+      "G": {
+        "item": "minecraft:gold_ingot"
+      },
+      "E": {
+        "item": "minecraft:emerald"
+      },
+      "K": {
+        "item": "mjau:godis"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:emerald"
+      },
+      {
+        "item": "mjau:godis"
+      }
+    ],
+    "result": {
+      "item": "mjau:totem_guld"
+    }
+  }
+}

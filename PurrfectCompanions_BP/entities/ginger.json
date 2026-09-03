@@ -214,6 +214,15 @@
           "default": 0,
           "client_sync": true
         },
+        "mjau:totem": {
+          "type": "int",
+          "range": [
+            0,
+            1
+          ],
+          "default": 0,
+          "client_sync": true
+        },
         "mjau:tam": {
           "type": "int",
           "range": [
@@ -2293,6 +2302,34 @@
                       "test": "has_equipment",
                       "domain": "hand",
                       "subject": "other",
+                      "value": "mjau:totem_guld"
+                    }
+                  ]
+                },
+                "event": "mjau:on_totem_1",
+                "target": "self"
+              },
+              "use_item": true,
+              "play_sounds": "armor.equip_generic",
+              "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
                       "value": "saddle"
                     }
                   ]
@@ -3980,6 +4017,11 @@
           "component_groups": [
             "mjau:regnrock_torr"
           ]
+        }
+      },
+      "mjau:on_totem_1": {
+        "set_property": {
+          "mjau:totem": 1
         }
       },
       "mjau:on_matad": {

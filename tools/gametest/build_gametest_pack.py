@@ -212,6 +212,44 @@ gt.registerAsync("mjau", "vagn", async (test) => {
   .structureName("mjau:arena")
   .maxTicks(2400);
 
+// KATT-TOTEMET: lager 1 (nara doden -> lakt till fullt, totemet forbrukat)
+// och lager 2 (dodad -> ny katt med samma namn pa platsen). Skadan kommer
+// fran /damage, som ar samma vag som fall och explosioner tar i motorn.
+gt.registerAsync("mjau", "totem", async (test) => {
+  const d = test.getDimension();
+  const cat = test.spawn("mjau:misty", { x: 20, y: 2, z: 21 });
+  await test.idle(10);
+  cat.nameTag = "GTTotemkatt";
+  try { cat.triggerEvent("mjau:grow_up"); } catch { }
+  try { cat.triggerEvent("mjau:on_tame"); } catch { }
+  try { cat.triggerEvent("mjau:on_totem_1"); } catch { }
+  await test.idle(10);
+  if ((cat.getProperty("mjau:totem") ?? 0) !== 1) return done(test, "totem: plagget gick inte pa", false);
+  const h = cat.getComponent("minecraft:health");
+  const max = h.effectiveMax;
+  // LAGER 1: ett slag som lamnar 2 liv
+  try { cat.applyDamage(max - 2); } catch (e) { return done(test, "totem: applyDamage foll: " + e, false); }
+  await test.idle(10);
+  const efter = h.currentValue;
+  console.warn(`[MJAU-GT] totem lager 1: liv ${efter}/${max}, totem=${cat.getProperty("mjau:totem")}`);
+  if (efter < max - 0.5) return done(test, "totem: lakte inte till fullt efter nara-doden-slaget", false);
+  if ((cat.getProperty("mjau:totem") ?? 0) !== 0) return done(test, "totem: forbrukades inte", false);
+  // LAGER 2: nytt totem, dodligt slag -> ny katt med samma namn inom en sekund
+  try { cat.triggerEvent("mjau:on_totem_1"); } catch { }
+  await test.idle(10);
+  const L = cat.location;
+  try { cat.applyDamage(max * 5); } catch (e) { return done(test, "totem: dodsslaget foll: " + e, false); }
+  await test.idle(30);
+  let ny = null;
+  try { ny = d.getEntities({ families: ["mjaukatt"], location: L, maxDistance: 6 }).find(e => e.nameTag === "GTTotemkatt"); } catch { }
+  if (!ny) return done(test, "totem: ingen katt kom tillbaka efter dodsslaget", false);
+  console.warn(`[MJAU-GT] totem lager 2: ${ny.nameTag} tillbaka, tam=${ny.getProperty("mjau:tam")}, totem=${ny.getProperty("mjau:totem")}`);
+  if ((ny.getProperty("mjau:totem") ?? 0) !== 0) return done(test, "totem: den nya katten bar fortfarande totemet", false);
+  done(test, "totem: nara doden lakt + dodad kom tillbaka", true);
+})
+  .structureName("mjau:arena")
+  .maxTicks(1200);
+
 // SATESHOJD PER KATTSTORLEK. Xbox-rapport: "man sitter pa huvudet ibland,
 // Maja verkar ha det problemet". Katterna har OLIKA skala (mocha 0.85,
 // misty/hazel 1.0, snow/Maja 1.15) men sitspositionen ar hardkodad till

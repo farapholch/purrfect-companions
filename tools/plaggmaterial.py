@@ -612,6 +612,29 @@ def m_regnrock(duk, kuber, col, i, cfg):
     alla(duk, kuber, gor)
 
 
+def m_totem(duk, kuber, col, i, cfg):
+    """Guldberlock med en smaragd i mitten och en mörk ögla upptill."""
+    SMARAGD, SM_LJUS = (60, 190, 90), (170, 245, 190)
+
+    def gor(sida, rekt, kub):
+        o, s, uv = kub
+        if s[1] < 1:                                      # öglan
+            return lambda a, b, x, y: korn(blanda(col, (0, 0, 0), 0.55), x, y, 0.2)
+        fn = metall(col, rekt, nitar=False)
+        X0, Y0, FW, FH = rekt
+        if sida in ("north", "south"):
+            def fn2(a, b, x, y):
+                r = math.hypot((a - 0.5) / 0.30, (b - 0.5) / 0.32)
+                if r < 0.72:
+                    return SM_LJUS if (a < 0.5 and b < 0.45) else SMARAGD
+                if r < 1.0:
+                    return blanda(col, (0, 0, 0), 0.45)       # infattningen
+                return fn(a, b, x, y)
+            return fn2
+        return fn
+    alla(duk, kuber, gor)
+
+
 def m_tyg(duk, kuber, col, i, cfg):
     alla(duk, kuber, lambda sida, rekt, kub: tyg(col, rekt))
 
@@ -624,6 +647,7 @@ MATERIAL = {
     "batvingar": m_batvingar, "krona": m_krona, "mantel": m_mantel,
     "energisvard": m_energisvard, "rymdmantel": m_rymdmantel,
     "gruvlampa": m_gruvlampa, "flytvast": m_flytvast, "regnrock": m_regnrock,
+    "totem": m_totem,
 }
 
 

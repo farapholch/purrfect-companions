@@ -53,7 +53,7 @@ PALS = (128, 32)
 # Grinden i purrfect-test kräver en språknyckel för dem som står här, så ett nytt
 # plagg tvingar fram ett beslut i stället för att tyst hamna i fel hög.
 _BOKPROSA = {"sadel", "ryggsack", "vagn", "vingar", "rustning", "energisvard",
-             "gruvlampa", "regnrock", "rymdmantel", "krona", "doktorsrock"}
+             "gruvlampa", "regnrock", "rymdmantel", "krona", "doktorsrock", "totem"}
 
 # FORMAT: (komponentgrupp, effekter, språknyckel). Effekter är antingen ett
 # effekt-id (styrka 0) eller en lista av (id, styrka) — vingarna och
@@ -368,6 +368,27 @@ ACC = {
        key={"W":{"item":mat},"S":{"item":"minecraft:slime_ball"}},
        unlock=[{"item":mat},{"item":"minecraft:slime_ball"}]),
    mats={1:"minecraft:yellow_wool",2:"minecraft:green_wool"}),
+
+ # KATT-TOTEM (Pelle 2026-09-03: "om man kraschar ner från himlen får man en
+ # totem tydligen"). En berlock av guld och smaragd vid halsen som räddar
+ # katten från döden EN gång och sedan är borta. Kraften bor i main.js
+ # ("totem"): Bedrock låter inte ett paket stoppa ett dödligt slag i förväg,
+ # så det är två lager — läkning när ett slag lämnar henne nära döden, och
+ # återkomst på platsen om slaget ändå tog henne.
+ "totem": dict(label="Cat Totem", bone="body", sound="armor.equip_generic",
+   uv={1:(160,0)},
+   colors={1:("guld",(238,198,72))},
+   names={1:"Gold"},
+   # UNDER HAKAN, inte på bröstet: huvudet (y 5-10, z -9..-5) täcker bålens
+   # övre framsida, så en berlock på y 6,6-8,8 låg inuti huvudets låda och
+   # syntes aldrig (renderingen 2026-09-03). Bålens synliga framsida under
+   # hakan är y 4-5; berlocken hänger där och sticker ut en halv enhet.
+   cubes=[([-1.0,3.8,-5.55],[2.0,1.7,0.7],(0,0)),      # berlocken under hakan
+          ([-0.4,5.5,-5.45],[0.8,0.5,0.5],(6,0))],     # öglan (skyms av huvudet)
+   recipe=lambda mat: dict(pattern=["GEG","EKE","GEG"],
+       key={"G":{"item":"minecraft:gold_ingot"},"E":{"item":mat},"K":{"item":"mjau:godis"}},
+       unlock=[{"item":mat},{"item":"mjau:godis"}]),
+   mats={1:"minecraft:emerald"}),
 }
 
 # ---------------------------------------------------------------- hjälpare
@@ -508,6 +529,10 @@ def icon(a,col,path):
         rect(4,1,11,3,mork); rect(5,0,10,1,mork)                # huvan
         rect(3,4,12,14,col); rect(3,4,12,4,ljus); rect(7,5,8,14,mork)   # rocken med knäppning
         sp(5,7,ljus); sp(10,9,ljus); sp(4,11,ljus)              # regndroppar
+    elif a=="totem":
+        rect(6,2,9,4,mork); rect(7,3,8,3,(20,20,24,255))       # öglan
+        rect(4,5,11,13,col); rect(5,5,10,5,ljus); rect(4,13,11,13,mork)
+        rect(6,7,9,11,(60,190,90,255)); rect(7,8,8,9,(150,240,170,255))   # smaragden
     elif a=="halsduk":
         # band runt halsen med TVÅ hängande ändar — ett rakt streck med en
         # snibb under läste som ett T, inte som en halsduk

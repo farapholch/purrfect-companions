@@ -295,6 +295,9 @@
     },
     "pc_regnrock_gron": {
       "textures": "textures/items/pc_regnrock_gron"
+    },
+    "pc_totem_guld": {
+      "textures": "textures/items/pc_totem_guld"
     }
   }
 }

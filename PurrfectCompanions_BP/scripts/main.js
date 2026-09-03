@@ -266,6 +266,81 @@ matt("gruvlampa", () => {
 }, 4);
 
 // ---------------------------------------------------------------------------
+// KATT-TOTEMET: räddar katten från döden EN gång, som totem of undying gör
+// för spelaren. Bedrock låter inte ett paket stoppa ett dödligt slag innan
+// det landar, så det är två lager:
+//   1) efter varje slag: bär hon totemet och ligger på <= 30 % liv läks hon
+//      till fullt, totemet förbrukas (egenskapen nollas), totemljus och -ljud
+//   2) tog slaget henne ändå (fall från himlen, creeper): en ny katt av samma
+//      ras med samma namn och samma plagg står upp på platsen, tämjd — men
+//      ägarlänken går inte att kopiera i den stabila API:n, så hon behöver
+//      en fisk av sin människa för att följa igen. Det står i Kattboken.
+const TOTEM_TROSKEL = 0.30;
+const PLAGG_PROPS = PLAGG.map(pl => "mjau:" + pl.id);
+
+function totemFyrverkeri(d, L) {
+  try { d.playSound("random.totem", L); } catch { }
+  try {
+    for (let i = 0; i < 14; i++)
+      d.spawnParticle("minecraft:totem_particle", { x: L.x + (Math.random() - 0.5) * 1.2, y: L.y + 0.6 + Math.random(), z: L.z + (Math.random() - 0.5) * 1.2 });
+  } catch { }
+}
+
+function totemMeddela(d, L, namn) {
+  try {
+    for (const pl of d.getPlayers({ location: L, maxDistance: 32 }))
+      pl.sendMessage({ rawtext: [{ text: "✨ " }, { translate: "mjau.totem.raddad", with: [namn || "?"] }] });
+  } catch { }
+}
+
+try {
+  world.afterEvents.entityHurt.subscribe(ev => {
+    const c = ev.hurtEntity;
+    try {
+      if (!c || !c.typeId.startsWith("mjau:") || !c.getComponent("minecraft:type_family")?.hasTypeFamily("mjaukatt")) return;
+      if ((c.getProperty("mjau:totem") ?? 0) <= 0) return;
+      const h = c.getComponent("minecraft:health");
+      if (!h || h.currentValue > h.effectiveMax * TOTEM_TROSKEL) return;
+      h.setCurrentValue(h.effectiveMax);
+      c.setProperty("mjau:totem", 0);
+      const d = c.dimension;
+      totemFyrverkeri(d, c.location);
+      totemMeddela(d, c.location, c.nameTag);
+      console.log("[mjau] totem: " + (c.nameTag || c.typeId) + " lakt till fullt, totemet forbrukat");
+    } catch { }
+  });
+} catch { }
+
+try {
+  world.afterEvents.entityDie.subscribe(ev => {
+    const c = ev.deadEntity;
+    let typ, L, namn, d, props = {}, tam = 0;
+    try {
+      if (!c || !c.typeId.startsWith("mjau:") || !c.getComponent("minecraft:type_family")?.hasTypeFamily("mjaukatt")) return;
+      if ((c.getProperty("mjau:totem") ?? 0) <= 0) return;
+      typ = c.typeId; L = c.location; namn = c.nameTag; d = c.dimension;
+      tam = c.getProperty("mjau:tam") ?? 0;
+      for (const pr of PLAGG_PROPS) { try { props[pr] = c.getProperty(pr) ?? 0; } catch { } }
+    } catch { return; }
+    try {
+      const ny = d.spawnEntity(typ, L);
+      if (namn) ny.nameTag = namn;
+      try { ny.triggerEvent("mjau:grow_up"); } catch { }
+      if (tam === 1) { try { ny.triggerEvent("mjau:on_tame"); } catch { } }
+      system.runTimeout(() => {
+        for (const [pr, v] of Object.entries(props)) {
+          if (pr === "mjau:totem" || !v) continue;
+          try { ny.triggerEvent("mjau:on_" + pr.slice(5) + "_" + v); } catch { }
+        }
+      }, 2);
+      totemFyrverkeri(d, L);
+      totemMeddela(d, L, namn);
+      console.log("[mjau] totem: " + (namn || typ) + " kom tillbaka, totemet forbrukat");
+    } catch (e) { console.warn("[mjau] totem: aterkomsten foll: " + e); }
+  });
+} catch { }
+
+// ---------------------------------------------------------------------------
 // AUROR: tre plagg vars kraft inte är en effekt på katten själv utan något
 // runt omkring henne, och därför inte får plats i spell_effects:
 //   stjärnmanteln  glöder om natten (syns genom väggar) — bara mellan skymning

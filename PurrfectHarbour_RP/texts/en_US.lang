@@ -22,3 +22,6 @@ mjau.bok.plagg.mantel=A cape. A hero's shield: extra hearts on top of her own.
 mjau.bok.plagg.rymdmantel=A star cloak. She glows through the night, so you never lose her in the dark.
 mjau.bok.plagg.krona=A crown. She is always visible, and every cat within six blocks of her is protected.
 mjau.bok.plagg.doktorsrock=A doctor's coat. She heals herself, and does her rounds: every cat within six blocks heals too.
+item.mjau:totem_guld=Cat Totem (Gold)
+mjau.bok.plagg.totem=Saves her from death once. When a blow would take her, the totem takes it instead and shatters — heal her, then craft another.
+mjau.totem.raddad=The totem saved %s! It shattered — craft a new one.

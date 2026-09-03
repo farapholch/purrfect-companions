@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:totem_guld",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_totem_guld"
+      },
+      "minecraft:display_name": {
+        "value": "Cat Totem (Gold)"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

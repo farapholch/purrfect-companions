@@ -252,6 +252,15 @@ export const PLAGG = [
   ],
   "effekt": null,
   "prosa": true
+ },
+ {
+  "id": "totem",
+  "namn": "Cat Totem",
+  "farger": [
+   "Gold"
+  ],
+  "effekt": null,
+  "prosa": true
  }
 ];
 export const KATTER = [

@@ -125,8 +125,13 @@ def katt(img, cat, plagg, cx, cy, hojd, yaw, t):
     src = rr.render(cat, plagg, mv.walk_pose(t), W=260, H=260, yaw=yaw, pitch=9)
     bg = src[0][0]
 
+    # EXAKT matchning mot renderarens bakgrund, inte "nära". Bakgrunden är en
+    # enda konstant färg (20,22,28), men Dominos och Midnights päls ligger
+    # inom 18 steg från den — med närhetsnyckling blev de svarta katterna
+    # genomskinliga och gräset lyste igenom som gröna prickar (hyllbilden
+    # 2026-09-03). Pälskornet gör att ingen pälstexel råkar bli exakt bakgrund.
     def nara(p):
-        return abs(p[0] - bg[0]) + abs(p[1] - bg[1]) + abs(p[2] - bg[2]) < 18
+        return p[0] == bg[0] and p[1] == bg[1] and p[2] == bg[2]
     nyckl = [[(p[0], p[1], p[2], 0 if nara(p) else 255) for p in row] for row in src]
     # SKUGGAN måste ligga där tassarna landar, inte där mitten av bilden är:
     # renderingen har luft under katten, så en skugga vid cy hamnade en bit

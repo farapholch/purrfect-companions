@@ -1071,46 +1071,6 @@ def build_commands(cats, disp, dog_name):
     c.append(f"testforblock 17 {g} 7 water")           # vattnet i dammen
     c.append(f"testforblock 0 {g+20} 56 glowstone")    # fyrljuset (höjt ur huvudhöjd)
     c.append(("sleep", 2))
-    # katterna: namngivna (persistenta), vuxna, otama — att hitta dem är uppdraget
-    # mocha z=16 (INTE 13): 13 var samma cell som garnnystanet ("mjau:garnnystan"
-    # i samma rad nedan) — katten spawnade bokstavligen INUTI bollen
-    # (Xbox-rapport). z=16 är luckan mellan de mittersta sängarna, tomt golv.
-    spots = {"misty": (-9, f), "hazel": (16, f), "mocha": (0, f + 1), "snow": (-52, f)}
-    zs = {"misty": 33, "hazel": 8, "mocha": 16, "snow": 66}
-    # VAKT: en katt fick en gång exakt samma (x,z) som en möbel och spawnade
-    # inuti den. Möblernas fotavtryck (från setblocken ovan) — inga katt-spots
-    # får träffa någon av dem.
-    FURNITURE_XZ = {(-4, 13), (-3, 13), (-5, 14), (5, 14), (0, 13), (5, 9),
-                    (-4, 16), (-2, 16), (2, 16), (4, 16), (12, 7)}
-    for src, (x, y) in spots.items():
-        assert (x, zs[src]) not in FURNITURE_XZ, f"{src} spawnar i en möbel vid ({x},{zs[src]})"
-    for src, (x, y) in spots.items():
-        c.append(f'summon mjau:{cats[src]} "{disp[src]}" {x} {y} {zs[src]}')
-        c.append(("sleep", 1))
-        c.append(f"event entity @e[type=mjau:{cats[src]}] mjau:grow_up")
-    c.append(("sleep", 1))
-    # DE TVÅ NYA RASERNA (3.30.0). Kattgården byggdes när det fanns fyra
-    # katter; Ginger och Domino fanns inte i världen alls, bara i naturen
-    # utanför den. Nu har de var sitt hem här — och var sitt uppdrag.
-    #
-    # Platserna är valda för att de är BEVISAD MARK: skogslundens nyckelkista
-    # laddas på f vid (-39,79) och fyrkullens band på f vid (-6,50), så de
-    # cellerna ligger garanterat i dagsljus på gräs. En katt summonad på fri
-    # höjd eller inne i en kulle dör innan spelaren hinner fram — det har
-    # kostat en felsökning förr.
-    nya = {"ginger": (-41, 77), "domino": (-8, 48)}
-    for src, (nx, nz) in nya.items():
-        c.append(f'summon mjau:{src} "{src.capitalize()}" {nx} {f} {nz}')
-        c.append(("sleep", 1))
-        c.append(f"event entity @e[type=mjau:{src},x={nx},y={f},z={nz},r=8] mjau:grow_up")
-        c.append(("sleep", 1))
-        c.append(f"testfor @e[type=mjau:{src},x={nx},y={f},z={nz},r=20]")
-        c.append(("sleep", 1))
-    # konsol-testfor behöver positionsbundna selektorer (samma som purrfect-test)
-    for src, (x, y) in spots.items():
-        c.append(f"testfor @e[type=mjau:{cats[src]},x={x},y={y},z={zs[src]},r=60]")
-        c.append(("sleep", 1))
-
     # SJÖN: en ny sjö med undervattensgrotta, öster om allt annat byggt
     # (speltest-önskemål: "underwater cave zone" — katterna simmar/fiskar
     # redan, men det fanns bara EN damm, och den är redan full av
@@ -1288,6 +1248,57 @@ def build_commands(cats, disp, dog_name):
     c.append(("sleep", 3))
     c.append(f"testforblock {_fx0 + 3} {g + 1} {_fz0 + 3} spruce_log")   # stammen sitter lokalt (3,*,3) i strukturen
     c.append(("sleep", 1))
+    # KATTERNA SIST AV ALLT (2026-09-03). De placerades förut mitt i bygget och
+    # hade en–två minuter att ströva, falla i något eller hamna i en struktur-
+    # box innan servern stängde: två av sex saknades i den paketerade
+    # familjevärlden trots att bygget verifierat alla sex. Sist i kön hinner de
+    # ingenting före sparningen. Verifieringen (testfor) ligger kvar i blocket.
+    # MEN FÖRE tickingarea remove: allra sist i kön låg de i oladdade chunkar
+    # ("Unable to summon object") — första omflyttningen bet i det.
+    # katterna: namngivna (persistenta), vuxna, otama — att hitta dem är uppdraget
+    # mocha z=16 (INTE 13): 13 var samma cell som garnnystanet ("mjau:garnnystan"
+    # i samma rad nedan) — katten spawnade bokstavligen INUTI bollen
+    # (Xbox-rapport). z=16 är luckan mellan de mittersta sängarna, tomt golv.
+    spots = {"misty": (-9, f), "hazel": (16, f), "mocha": (0, f + 1), "snow": (-52, f)}
+    zs = {"misty": 33, "hazel": 8, "mocha": 16, "snow": 66}
+    # VAKT: en katt fick en gång exakt samma (x,z) som en möbel och spawnade
+    # inuti den. Möblernas fotavtryck (från setblocken ovan) — inga katt-spots
+    # får träffa någon av dem.
+    FURNITURE_XZ = {(-4, 13), (-3, 13), (-5, 14), (5, 14), (0, 13), (5, 9),
+                    (-4, 16), (-2, 16), (2, 16), (4, 16), (12, 7)}
+    for src, (x, y) in spots.items():
+        assert (x, zs[src]) not in FURNITURE_XZ, f"{src} spawnar i en möbel vid ({x},{zs[src]})"
+    for src, (x, y) in spots.items():
+        c.append(f'summon mjau:{cats[src]} "{disp[src]}" {x} {y} {zs[src]}')
+        c.append(("sleep", 1))
+        c.append(f"event entity @e[type=mjau:{cats[src]}] mjau:grow_up")
+    c.append(("sleep", 1))
+    # DE TVÅ NYA RASERNA (3.30.0). Kattgården byggdes när det fanns fyra
+    # katter; Ginger och Domino fanns inte i världen alls, bara i naturen
+    # utanför den. Nu har de var sitt hem här — och var sitt uppdrag.
+    #
+    # Platserna är valda för att de är BEVISAD MARK: skogslundens nyckelkista
+    # laddas på f vid (-39,79) och fyrkullens band på f vid (-6,50), så de
+    # cellerna ligger garanterat i dagsljus på gräs. En katt summonad på fri
+    # höjd eller inne i en kulle dör innan spelaren hinner fram — det har
+    # kostat en felsökning förr.
+    # DOMINO STOD I BACKEN. (-8,48) ligger på fyrkullens fot där gräset är två
+    # block högt (f och f+1): hon summonades INUTI gräset, kvävdes och var borta
+    # i varje paketerad värld sedan 3.30.0 — byggets egna testfor hann se henne
+    # levande. (-4,40) är plan mark vid vägen, fortfarande "vid fyren".
+    nya = {"ginger": (-41, 77), "domino": (-4, 40)}
+    for src, (nx, nz) in nya.items():
+        c.append(f'summon mjau:{src} "{src.capitalize()}" {nx} {f} {nz}')
+        c.append(("sleep", 1))
+        c.append(f"event entity @e[type=mjau:{src},x={nx},y={f},z={nz},r=8] mjau:grow_up")
+        c.append(("sleep", 1))
+        c.append(f"testfor @e[type=mjau:{src},x={nx},y={f},z={nz},r=20]")
+        c.append(("sleep", 1))
+    # konsol-testfor behöver positionsbundna selektorer (samma som purrfect-test)
+    for src, (x, y) in spots.items():
+        c.append(f"testfor @e[type=mjau:{cats[src]},x={x},y={y},z={zs[src]},r=60]")
+        c.append(("sleep", 1))
+
     c.append("tickingarea remove ramvast")
     c.append("tickingarea remove ramost")
     c.append("tickingarea remove ramnord")
@@ -1298,6 +1309,7 @@ def build_commands(cats, disp, dog_name):
     c.append(("sleep", 1))
     c.append("tickingarea remove bygge")
     c.append(("sleep", 2))
+
     return c
 
 # ------------------------------------------------------------- huvudflöde ----

@@ -241,6 +241,47 @@ PY
 fi
 
 echo
+echo "[3b/5] Alla katter och hunden överlever paketeringen — BÅDA varianterna (~2 min)"
+# Xbox-rapport 2026-09-03: "inga katter alls, även hunden borta". Boot-testet
+# ovan bootar bara den publika världen och letar bara efter Misty; i den
+# paketerade FAMILJEVÄRLDEN saknades Vinda och Domino fast bygget verifierat
+# alla sex. Här bootas varje skeppad .mcworld och alla sex katter + hunden
+# krävs på sina platser (r=80 — de strövar).
+katt_boot() {   # <mcworld> <suffix-lista: id x z ...>
+  local W="$1"; shift
+  local VANTAT=$#   # set -- i loopen nedan skriver över $# — räkna FÖRE
+  local KB="$SRV/worlds/KattBoot"; rm -rf "$KB"; mkdir -p "$KB"; ( cd "$KB" && unzip -qq "$W" )
+  python3 - "$KB" <<'PY'
+import sys
+sys.path.insert(0, "/opt/purrfect-companions/tools/gametest")
+import nbt
+v, root = nbt.read_level_dat(f"{sys.argv[1]}/level.dat")
+root.v["commandsEnabled"] = nbt.Val(nbt.TAG_BYTE, 1)
+nbt.write_level_dat(f"{sys.argv[1]}/level.dat", v, root)
+PY
+  pkill -9 -x bedrock_server 2>/dev/null; sleep 2
+  local PROPS="$SRV/server.properties"; cp "$PROPS" /tmp/kattboot-props.bak
+  sed -i "s/^level-name=.*/level-name=KattBoot/" "$PROPS"
+  local KLOG=/tmp/kattboot-$(basename "$W" .mcworld).log
+  { sleep 28
+    echo "tickingarea add -60 -64 -10 30 -40 90 alla"; sleep 8
+    for t in "$@"; do set -- $t; echo "testfor @e[type=mjau:$1,x=$2,y=-60,z=$3,r=80]"; sleep 1; done
+    echo "stop"; sleep 8
+  } | ( cd "$SRV" && LD_LIBRARY_PATH=. ./bedrock_server ) > "$KLOG" 2>&1
+  pkill -9 -x bedrock_server 2>/dev/null; cp /tmp/kattboot-props.bak "$PROPS"; rm -rf "$KB"
+  local saknas=""
+  for t in "$@"; do set -- $t; grep -q "^\[.*\] INFO\] Found " <(grep -A0 "" "$KLOG") || true
+  done
+  local n=$(grep -c "INFO\] Found " "$KLOG")
+  if [ "$n" -ge "$VANTAT" ]; then ok "$(basename "$W"): alla $n figurer på plats efter paketering"
+  else bad "$(basename "$W"): bara $n av $VANTAT figurer hittades efter paketering (logg: $KLOG)"; fi
+}
+PUB=$(ls "$OUT"/cat-haven-*.mcworld 2>/dev/null | head -1)
+PRIV=$(ls "$OUT"/kattgarden-*-familj.mcworld 2>/dev/null | head -1)
+[ -n "$PUB" ]  && katt_boot "$PUB"  "misty -9 33" "hazel 16 8" "mocha 0 16" "snow -52 66" "ginger -41 77" "domino -4 40" "vakthund -52 66"
+[ -n "$PRIV" ] && katt_boot "$PRIV" "vinda -9 33" "vilma 16 8" "lillen 0 16" "maja -52 66" "ginger -41 77" "domino -4 40" "vakthund -52 66"
+
+echo
 echo "[4/5] Genomspelning: simulerad spelare spelar alla uppdrag (~4 min)"
 if "$SRC/tools/cathaven-playthrough" 2>&1 | sed 's/^/  /' | tail -12 && [ ${PIPESTATUS[0]} -eq 0 ]; then
   ok "alla kapitel avklarade"

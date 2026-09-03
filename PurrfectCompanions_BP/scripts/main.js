@@ -387,6 +387,11 @@ const ITEM_REWARD = {
 
 function give(pl, id) {
   if (hasAward(pl, id)) return;
+  // KVITTO i serverloggen — läsbart för människor och för testkedjan. OBS:
+  // GameTest:s SimulatedPlayer syns inte alls för den stabila API:n (varken
+  // getAllPlayers eller getEntities type=player), så i genomspelningen delas
+  // ingen utmärkelse ut; kvittot bevisar utdelningar hos riktiga spelare.
+  try { console.log("[mjau] utmarkelse " + id + " till " + (pl.name ?? "?")); } catch { }
   try { pl.setDynamicProperty("mjau_achv_" + id, true); } catch { }
   try { pl.addTag("mjau_achv_" + id); } catch { }   // taggar syns ÖVER paketgränser
   try { awarded.set(pl.id + ":" + id, true); } catch { }

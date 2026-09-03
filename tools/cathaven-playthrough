@@ -89,6 +89,16 @@ if grep -qE "\[mjau\] (vakthunden fälld|vakan: hunden borta)" "$LOG"; then
 else
   echo "[playthrough] ❌ ingen Befriaren-kvittens i loggen"; exit 1
 fi
+# UTMÄRKELSERNA GÅR INTE ATT BEVISA HÄR (2026-09-03): den stabila API:n som
+# main.js kör på ser inte GameTest:s SimulatedPlayer — varken getAllPlayers()
+# eller getEntities({type:"minecraft:player"}) — så give() körs aldrig för
+# testspelaren. Kapitlen bevisar VILLKOREN (plats, kista, lampkatt intill), inte
+# utdelningen. Dyker kvittot ändå upp (API:n ändras) räknas det som bonus.
+if grep -q "\[mjau\] utmarkelse" "$LOG"; then
+  echo "[playthrough] ✅ utmärkelser kvitterade i loggen: $(grep -o '\[mjau\] utmarkelse [a-z_]*' "$LOG" | sort -u | wc -l)"
+else
+  echo "[playthrough] ℹ️  inga utmärkelser utdelade — SimulatedPlayer syns inte för stabila API:n (villkoren är kontrollerade per kapitel)"
+fi
 if grep -q "MJAU-PT\] GENOMSPELNING KLAR" "$LOG"; then
   echo "[playthrough] ✅ alla kapitel avklarade av simulerad spelare"
   exit 0

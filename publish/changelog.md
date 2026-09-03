@@ -1,3 +1,101 @@
+## 3.45.3 — Fur, materials, seven new powers, three new outfits and the Old Mine
+
+Five releases since the last one on CurseForge, summed up:
+
+* **Fur.** Every cat is drawn four times as finely — curving tabby stripes,
+  points, soft-edged bibs, almond eyes with a pupil and a highlight, a nose
+  with nostrils and a small smile. The cat suit you wear got the same.
+* **Materials.** Every outfit is made of something: stitched leather, knitted
+  wool, riveted metal, planks with real wheels, jewels on the crown.
+* **Three new outfits** — Mining Lamp (she lights up the dark), Life Vest
+  (conduit power) and Raincoat (hungry three times slower). The scarf comes in
+  pink and purple too.
+* **Every outfit does something now** — wings, bat wings, cape, star cloak,
+  crown and doctor coat all got a power of their own. Twenty-three outfits,
+  sixty-nine colour variants.
+* **The Old Mine** in Cat Haven, and the award The Mine Cat.
+
+Details per release below.
+
+## 3.45.0 — The Old Mine (Cat Haven)
+
+A new award for Cat Haven players, **The Mine Cat**: reach the deepest chamber
+of the Old Mine with a tamed cat wearing the Mining Lamp at your side. The
+mine itself lives in the world download; this release carries the award and
+the book text that goes with it.
+
+## 3.44.0 — Every outfit does something now
+
+Six outfits were only for looks. Not any more:
+
+* **Cat Wings** — her leaps carry her twice as far (Jump Boost II), on top of
+  never taking fall damage.
+* **Bat Wings** — she sees in the dark and drifts down instead of falling.
+* **Cat Cape** — a hero's shield: extra hearts on top of her own.
+* **Star Cloak** — she glows through the night, so you never lose her in the
+  dark. Only between dusk and dawn; by day it is just a cloak.
+* **Cat Crown** — she is always visible, and every cat within six blocks of
+  her is protected.
+* **Doctor Coat** — she still heals herself, and now does her rounds: every cat
+  within six blocks heals too.
+
+The Cat Care Book describes all of it.
+
+## 3.43.0 — Three new outfits, and a scarf in two more colours
+
+**Mining Lamp** (brass or iron) — a leather strap over the head and a lamp on
+the forehead with a glowing lens. She lights up the cave around her: Bedrock
+has no light per creature, so the pack keeps an invisible light block in the
+air at her head and moves it with her. It only ever touches air, and only
+removes blocks it placed itself.
+
+**Life Vest** (orange, yellow or blue) — nylon with reflective stripes, buckles
+at the chest and a strap over the back. Conduit power: she swims fast and sees
+underwater.
+
+**Raincoat** (yellow or green) — slick fabric with a sheen, raindrops on it and
+the hood folded down at the neck. Keeps her dry and content: she gets hungry
+three times slower while she wears it.
+
+The **Cat Scarf** now also comes in pink and purple.
+
+## 3.42.0 — The outfits get their materials
+
+The outfits were the last flat colour left. A saddle was a brown box, a cart a
+tan one, and a crown a yellow slab with the same three shades as the cap.
+
+Every outfit now draws from one shared sheet at four texels per unit, and each
+one is painted as what it is made of. Leather has stitching along the edges.
+Wool is knitted, with ribs, and the scarf has a fringe. Metal has bevelled
+edges, a highlight and rivets — the armour has a ridge down the back. The cart
+is planks with nails, and its wheels have a rim, a hub and spokes. The glasses
+have real lenses with a highlight. The wings have rows of feathers, the bat
+wings have finger bones and a ragged trailing edge. The crown has three jewels
+and points along the top. The cape has folds and a gold border. The witch hat
+has a band and a buckle, the santa hat a white fluffy brim and pompom, and the
+collar a real gold bell. The energy blade glows from a white core, and the Void
+cloak has stars and a nebula in it.
+
+This also fixes something nobody had reported: the secret cats' outfits were
+tinted by their own coat, so a saddle on Midnight was black. One sheet for
+everyone means one saddle.
+
+## 3.41.0 — The cat suit gets the same fur
+
+The player's cat suit was the last thing still drawn at one texel per unit,
+and next to the new cats it looked like cardboard: the trousers were three
+colours in total. It is on its own 256x256 sheet now, four texels per unit,
+like the cats.
+
+The **leather suit is a tabby**: rings round the body, arms and legs, an M on
+the forehead, and a face with the same almond eyes, vertical pupil, pink nose
+and small smile as the cats. Paws are light with pads and toe splits.
+
+The **metal tiers** used to be the same suit in another colour. They keep the
+fur, in iron, diamond or netherite tint, and wear plates on top of it: a brow
+band on the hood, a chest plate with rivets, shoulder caps, a belt, knee
+guards and toe caps. You can tell the tier at a distance now.
+
 ## 3.40.0 — Four texels per unit
 
 Four versions of texture work had gone into the cats, and every one of them

@@ -422,7 +422,7 @@ const KATT_ORDER = ["forsta_vannen", "hela_flocken", "ryttaren", "fiskarkatten",
 const KATTGARDEN_ORDER = ["befriaren", "fyrvaktaren", "lados_hemlighet", "alla_hemma",
                           "trippelskatten", "bergsbestigaren", "regnbagssamlaren",
                           "hinderbanan", "djuphavsdykaren", "handelsman",
-                          "skogens_vakt", "fyrens_skugga"];
+                          "skogens_vakt", "fyrens_skugga", "gruvarbetaren"];
 const ACHV_ORDER = [...KATT_ORDER, ...KATTGARDEN_ORDER];
 const rapportTyst = new Map();   // spelar-id -> tick då nästa rapport tillåts
 
@@ -659,6 +659,16 @@ matt("varld", () => {
       if (L.y > -52 && Math.hypot(L.x - 26, L.z - 80) < 5) give(pl, "bergsbestigaren");
       if (L.y > -58 && Math.hypot(L.x - 113, L.z - 10) < 4) give(pl, "hinderbanan");
       if (Math.hypot(L.x - 65, L.z - 49) < 3 && L.y < -60) give(pl, "djuphavsdykaren");
+      // GAMLA GRUVAN: djupaste kammaren, MED en tämjd katt som bär gruvlampan
+      // inom åtta block — det är lampan som är uppdraget, inte kammaren.
+      if (L.y < -58 && Math.hypot(L.x - 111, L.z - 41) < 4 &&
+          tamed.some(c2 => {
+            try {
+              const K = c2.location;
+              return (c2.getProperty("mjau:gruvlampa") ?? 0) > 0 &&
+                     Math.hypot(K.x - L.x, K.z - L.z) < 8;
+            } catch { return false; }
+          })) give(pl, "gruvarbetaren");
       // VINDEN: hemlig (utanför ACHV_ORDER, samma tanke som norrsken —
       // hemligheter ska inte höja kravet för Kattmästare-finalen)
       if (L.y > -56 && L.y < -50 && L.x > -6 && L.x < 6 && L.z > 12 && L.z < 17)

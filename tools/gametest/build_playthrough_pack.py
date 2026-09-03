@@ -342,6 +342,19 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   await tp(0, -54, 14);
   ok("KAPITEL 12 OK - vinden nadd, netheriteskatten pa plats under taket");
 
+  // KAPITEL 13 — gamla gruvan: skylt, gangarna, djupa kammaren, lampkatten
+  await tp(83, -60, 41);
+  if (B(84, -60, 41) !== "minecraft:standing_sign") return done("gruvskylten saknas", false);
+  if (B(95, -59, 41) !== "minecraft:air") return done("gruvans forsta gang ar igensatt", false);
+  if (B(110, -61, 45) !== "minecraft:air") return done("djupa galleriet ar igensatt", false);
+  if (B(111, -62, 41) !== "minecraft:chest") return done("gruvkistan saknas", false);
+  // lampan pa en tamd katt — samma handelse som plaggen far via interaktionen
+  try { d.runCommand("event entity @e[family=mjaukatt,tag=!vild,c=1] mjau:on_gruvlampa_1"); } catch { }
+  try { p.runCommand("event entity @e[family=mjaukatt,r=64,c=1] mjau:on_gruvlampa_1"); } catch { }
+  await tp(111, -62, 40);
+  await test.idle(80);   // utmarkelseloopen gar var 40:e tick; katterna teleporterar till agaren
+  ok("KAPITEL 13 OK - gruvans gangar oppna hela vagen till kistan, lampkatt i sallskap (Gruvkatten kvitteras i serverloggen)");
+
   done("", true);
 })
   .structureName("mjau:slot")

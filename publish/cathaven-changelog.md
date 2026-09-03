@@ -1,3 +1,36 @@
+## New fur, new outfits, and the cats look the part
+
+The world now ships with Purrfect Companions 3.44.0 inside it, and that is
+most of what changed: everything in it looks different.
+
+**The cats have fur.** Every cat is drawn four times as finely as before —
+tabby stripes that curve, points on the Birman and the Ragdoll, white bibs
+with soft edges, almond eyes with a pupil and a highlight, a nose with
+nostrils and a little smile. The hidden cats got the same.
+
+**Every outfit is made of something.** Leather has stitching, wool is
+knitted, the armour has rivets, the cart is planks with real wheels, the crown
+has jewels, the santa hat a fluffy brim. The cat suit you wear yourself got
+the same treatment, and the metal tiers wear plates now.
+
+**Three new outfits, placed where they belong.** A **Mining Lamp** waits in
+the crystal cave — put it on a cat and she lights up the dark around her. A
+**Life Vest** lies in the chest at the bottom of the deep lake. A **Raincoat**
+is hidden in the grove where the third key is. Twenty-three outfits now, and
+every single one does something — the wings, the bat wings, the cape, the star
+cloak, the crown and the doctor coat all got a power of their own.
+
+**A new place: the Old Mine.** East of the lake, where a new path ends, a
+hill hides an abandoned mine. It is dark all the way in — no lanterns — with
+rails on the floor, timber props, cobwebs in the corners and ore veins in the
+walls that only show when something lights them. That something is the Mining
+Lamp from the crystal cave: put it on a cat and let her walk ahead of you. The
+deepest chamber keeps what the miners left, and reaching it with a lamp cat at
+your side earns a new award, **The Mine Cat**. Task 11 in the book.
+
+Everything else about the quests, the map and the keys is unchanged. Your
+saves keep working.
+
 ## The world grew — a lot
 
 Everything below is new since the first Cat Haven release.

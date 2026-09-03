@@ -58,6 +58,7 @@ TEXTS = {
         "silverfish_name": "§bThe Silver Fish",
         "meadow_sign": "THE MEADOW\n& beyond:\ncave, wood\nand a mountain",
         "start_sign": "Start here:\nread the book\nin the chest\ninside ->",
+        "mine_sign": "THE OLD MINE\nDark inside.\nBring a cat\nwith a lamp.",
         "chest_sign": "The handbook\nis in here!",
         "diary_title": "The Old Caretaker's Diary",
         "diary_author": "The Old Caretaker",
@@ -81,6 +82,7 @@ TEXTS = {
             "TASK 8 - THE DEEP LAKE\n\nEast of everything else, past the meadow and the mountain, a lake hides more than fish. Dive to the bottom and swim through the tunnel - hold your breath.\n\nSomething waits in the dark at the far end.",
             "TASK 9 - THE TRADING POST\n\nA backpack cat's finds pile up fast. There is a barrel behind the house, east of the garden, that will take three string, three feathers and a diamond off your hands - and give something back.\n\nThe first trade brings out my old CAPE. Put it on a cat and go for a ride - you will see why I kept it.",
             "TASK 10 - TWO MORE OF US\n\nTwo cats came to the haven after I wrote the rest of this book.\n\nGINGER, a big ginger tabby from the north, keeps to the GROVE where the third key lies. She is not shy, only busy.\n\nDOMINO, black with white paws, sits by the LIGHTHOUSE and watches the sea. Bring cod for them both.",
+            "TASK 11 - THE OLD MINE\n\nEast of the lake, where the path ends, a hill hides the old mine. It is dark all the way in, and things that like the dark live in there.\n\nThe lamp from the crystal cave is the key. Put it on a cat and let her light the way - the deepest chamber keeps what the miners left.",
             "The beds inside carry the cats' names. Cat treats cheer them up when their tails droop - the recipe is sugar, wheat and cod.\n\nTake good care of them.\n\nAnd mind the boxes. Some hide more than dust.\n\nKeep your eyes open as you go, too - six coloured ribbons are hiding in places you already visit. Carry all six at once for a surprise.\n\n- The Old Caretaker",
             "One more thing, if you will believe an old man.\n\nThe cats used to tell of a FIFTH - black as the gap between the stars, with eyes of amber.\n\nShe shows herself only to those who leave the SILVER FISH from the lighthouse chest on a cat's bed while the moon stands at its highest.",
         ],
@@ -101,6 +103,7 @@ TEXTS = {
         "silverfish_name": "§bSilverfisken",
         "meadow_sign": "ÄNGEN\n& bortom:\ngrotta, skog\noch ett berg",
         "start_sign": "Börja här:\nläs handboken\ni kistan\ndärinne ->",
+        "mine_sign": "GAMLA GRUVAN\nMörkt därinne.\nTa med en katt\nmed lampa.",
         "chest_sign": "Handboken\nligger häri!",
         "diary_title": "Gamla föreståndarens dagbok",
         "diary_author": "Gamla föreståndaren",
@@ -124,6 +127,7 @@ TEXTS = {
             "UPPDRAG 8 - DEN DJUPA SJÖN\n\nÖster om allt annat, förbi ängen och berget, gömmer en sjö mer än fisk. Dyk till botten och simma genom tunneln - håll andan.\n\nNågot väntar i mörkret vid andra änden.",
             "UPPDRAG 9 - HANDELSPOSTEN\n\nEn ryggsäckskatts fynd hopar sig fort. Det finns en tunna bakom huset, öster om täppan, som tar emot tre snören, tre fjädrar och en diamant - och ger något tillbaka.\n\nFörsta bytet plockar fram min gamla MANTEL. Sätt den på en katt och rid ut - då förstår du varför jag behöll den.",
             "UPPDRAG 10 - TVÅ TILL AV OSS\n\nTvå katter kom till hemmet efter att jag skrivit resten av den här boken.\n\nGINGER, en stor ingefärsrandig från norr, håller till i SKOGSLUNDEN där tredje nyckeln ligger. Hon är inte skygg, bara upptagen.\n\nDOMINO, svart med vita tassar, sitter vid FYREN och spanar ut över havet. Ta med torsk till dem båda.",
+            "UPPDRAG 11 - GAMLA GRUVAN\n\nÖster om sjön, där stigen tar slut, gömmer en kulle den gamla gruvan. Det är mörkt hela vägen in, och sådant som trivs i mörker bor där.\n\nLampan från kristallgrottan är nyckeln. Sätt den på en katt och låt henne lysa vägen - den djupaste kammaren gömmer det gruvarbetarna lämnade.",
             "Sängarna därinne bär katternas namn. Kattgodis piggar upp dem när svansen hänger - receptet är socker, vete och torsk.\n\nTa väl hand om dem.\n\nOch se upp med lådorna. Vissa gömmer mer än damm.\n\nHåll ögonen öppna medan du utforskar också - sex färgade band gömmer sig på platser du redan besökt. Bär alla sex samtidigt för en överraskning.\n\n- Gamla föreståndaren",
             "En sak till, om du tror en gammal man.\n\nKatterna berättade om en FEMTE - svart som mellanrummet mellan stjärnorna, med ögon av bärnsten.\n\nHon visar sig bara för den som lämnar SILVERFISKEN ur fyrens kista på en kattbädd när månen står som högst.",
         ],
@@ -368,6 +372,7 @@ def build_structures(outdir, t, disp, cats):
     s.entity_at(0, 0, 0, chest_entity([
         item(0, "minecraft:trident", 1),
         item(1, "minecraft:diamond", 2),
+        item(2, "mjau:flytvast_bla", 1),
     ]))
     s.emit(f"{st}/lakechest.mcstructure")
 
@@ -420,7 +425,11 @@ def build_structures(outdir, t, disp, cats):
     # (samma mönster som katt-/poolskylten).
     s = Struct(1, 1, 1)
     s.set(0, 0, 0, "minecraft:chest", {"facing_direction": 3})
-    s.entity_at(0, 0, 0, chest_entity([item(0, "minecraft:amethyst_shard", 1)]))
+    # NYA PLAGGEN (3.44.0) LIGGER DÄR DE HÖR HEMMA: gruvlampan i grottan,
+    # flytvästen i sjön, regnrocken i den mörka skogslunden. Spelaren hittar
+    # dem på vägen i stället för att läsa om dem i en changelog.
+    s.entity_at(0, 0, 0, chest_entity([item(0, "minecraft:amethyst_shard", 1),
+                                       item(1, "mjau:gruvlampa_massing", 1)]))
     s.emit(f"{st}/cavechest.mcstructure")
 
     s = Struct(1, 1, 1)
@@ -430,8 +439,27 @@ def build_structures(outdir, t, disp, cats):
 
     s = Struct(1, 1, 1)
     s.set(0, 0, 0, "minecraft:chest", {"facing_direction": 3})
-    s.entity_at(0, 0, 0, chest_entity([item(0, "minecraft:rabbit_foot", 1)]))
+    s.entity_at(0, 0, 0, chest_entity([item(0, "minecraft:rabbit_foot", 1),
+                                       item(1, "mjau:regnrock_gul", 1)]))
     s.emit(f"{st}/forestchest.mcstructure")
+
+    # GRUVAN (3.45.0, önskemål: "utforska nån gruva med katten som har lampan"):
+    # skylt vid ingången (vänd mot väster, dit stigen kommer) och kistan i den
+    # djupaste kammaren — en andra lampa i järn, så två katter kan lysa.
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 4})
+    s.entity_at(0, 0, 0, sign_entity(t["mine_sign"]))
+    s.emit(f"{st}/minesign.mcstructure")
+
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:chest", {"facing_direction": 3})
+    s.entity_at(0, 0, 0, chest_entity([
+        item(0, "minecraft:diamond_pickaxe", 1),
+        item(1, "minecraft:gold_ingot", 5),
+        item(2, "minecraft:emerald", 3),
+        item(3, "mjau:gruvlampa_jarn", 1),
+    ]))
+    s.emit(f"{st}/minechest.mcstructure")
 
     # TOPPKISTAN på det höga berget: kikare (utsiktstema) + diamanter
     s = Struct(1, 1, 1)
@@ -1108,6 +1136,87 @@ def build_commands(cats, disp, dog_name):
     c.append(f"testforblock {_lx-4} {g-1} {_lz} water")     # sjön finns
     c.append(f"testforblock {_lx} {g-1} {_lz+6} air")       # tunneln är genomgrävd
     c.append(f"testforblock {_lx} {g-2} {_lz+9} chest")     # kistan i luftfickan
+    c.append(("sleep", 1))
+
+    # GAMLA GRUVAN (3.45.0): en stenkulle öster om sjön med en slingrande,
+    # MÖRK gruvgång — inga lyktor därinne, det är gruvlampan på katten som
+    # ska lysa (light_block via skriptet). Världen är FLAT med bara tre lager
+    # under gräset (bedrock på -64), så "djupet" byggs som en kulle ovan jord
+    # och gången sänks två block i den nedre delen. Ådror av malm i väggarna,
+    # räls på golvet, spindelväv i hörnen. Ingången vetter mot väster där
+    # stigen från kattbanan kommer fram.
+    _mx0, _mz0 = 86, 26                                 # kullens sydvästra hörn
+    for dy, (x0, x1, z0, z1) in enumerate(((86, 116, 26, 58), (86, 116, 26, 58), (86, 116, 26, 58),
+                                           (86, 116, 26, 58), (89, 113, 29, 55), (89, 113, 29, 55),
+                                           (89, 113, 29, 55), (93, 109, 33, 51), (93, 109, 33, 51),
+                                           (93, 109, 33, 51), (97, 105, 37, 47), (97, 105, 37, 47))):
+        c.append(f"fill {x0} {f+dy} {z0} {x1} {f+dy} {z1} stone")
+        c.append(("sleep", 1))
+    # texturvariation på kullen: mossiga och grusiga fläckar på terrasserna
+    for (x0, x1, z0, z1, y, blk) in ((88, 92, 27, 31, f+3, "moss_block"), (110, 115, 50, 57, f+3, "gravel"),
+                                    (90, 95, 50, 54, f+6, "moss_block"), (104, 112, 30, 34, f+6, "cobblestone"),
+                                    (98, 104, 34, 36, f+9, "moss_block"), (98, 104, 38, 46, f+11, "cobblestone")):
+        c.append(f"fill {x0} {y} {z0} {x1} {y} {z1} {blk}")
+    c.append(("sleep", 1))
+    # INGÅNGEN: tunnel in från väster, stöttor av gran, skylt och lykta utanför
+    c.append(f"fill 86 {f} 40 96 {f+2} 42 air")                        # gång 1, österut
+    for z in (39, 43):
+        c.append(f'fill 85 {f} {z} 85 {f+2} {z} spruce_log ["pillar_axis"="y"]')
+    c.append(f"fill 85 {f+3} 39 85 {f+3} 43 spruce_planks")
+    c.append(f"fill 83 {f} 38 83 {f} 38 oak_fence")
+    c.append(f'setblock 83 {f+1} 38 lantern ["hanging"=false]')
+    c.append(f"structure load haven:minesign 84 {f} 41")
+    c.append(("sleep", 1))
+    # GÅNGARNA: söderut, kammare A, österut, ner två block, djupa galleriet
+    c.append(f"fill 94 {f} 42 96 {f+2} 50 air")                        # gång 2, söderut
+    c.append(f"fill 94 {f} 48 100 {f+3} 54 air")                       # kammare A
+    c.append(f"fill 100 {f} 50 108 {f+2} 52 air")                      # gång 3, österut
+    c.append(f"fill 106 {f-1} 50 108 {f+2} 52 air")                    # trappsteg ner
+    c.append(f"fill 108 {f-2} 50 110 {f+1} 52 air")
+    c.append(f"fill 108 {f-2} 38 112 {f} 52 air")                      # djupa galleriet, norrut
+    c.append(f"fill 108 {f-2} 36 114 {f+1} 44 air")                    # djupa kammaren
+    c.append(("sleep", 1))
+    # golvet i den sänkta delen är jord — lägg sten så gruvan känns som berg
+    c.append(f"fill 106 {f-2} 50 108 {f-2} 52 cobbled_deepslate")
+    c.append(f"fill 108 {f-3} 36 114 {f-3} 52 cobbled_deepslate")
+    c.append(("sleep", 1))
+    # STÖTTOR i gångarna var sjätte block, räls på golvet i första gången
+    for x in (90, 96):
+        for z in (40, 42):
+            c.append(f'fill {x} {f} {z} {x} {f+1} {z} spruce_fence')
+        c.append(f"fill {x} {f+2} 40 {x} {f+2} 42 spruce_planks")
+    c.append(f"fill 87 {f} 41 95 {f} 41 rail")
+    for z in (44, 47):
+        for x in (94, 96):
+            c.append(f'fill {x} {f} {z} {x} {f+1} {z} spruce_fence')
+    c.append(("sleep", 1))
+    # MALMÅDROR i väggarna — det är dem lampan avslöjar
+    for (x, y, z, blk) in ((93, f+1, 39, "coal_ore"), (91, f, 43, "coal_ore"), (97, f+1, 45, "coal_ore"),
+                           (93, f+2, 49, "iron_ore"), (101, f+1, 47, "iron_ore"), (99, f, 55, "coal_ore"),
+                           (104, f+1, 49, "iron_ore"), (107, f, 53, "coal_ore"), (111, f-1, 47, "gold_ore"),
+                           (107, f-1, 44, "iron_ore"), (113, f-2, 40, "redstone_ore"), (115, f-1, 39, "gold_ore"),
+                           (109, f-2, 35, "diamond_ore"), (110, f+1, 37, "coal_ore"), (113, f, 44, "lapis_ore")):
+        c.append(f"setblock {x} {y} {z} {blk}")
+    # spindelväv i hörnen, en vattenpöl i djupa kammaren, kistan längst in
+    for (x, y, z) in ((96, f+2, 42), (94, f+3, 54), (100, f+2, 50), (112, f+1, 36)):
+        c.append(f"setblock {x} {y} {z} web")
+    c.append(f"setblock 113 {f-2} 43 water")
+    c.append(f"structure load haven:minechest 111 {f-2} 41")
+    c.append(("sleep", 2))
+    # STIGEN från kattbanans fot: söderut längs x=47, österut längs z=24 (norr
+    # om sjön), söderut längs x=84 fram till ingången. Lyktor var åttonde block.
+    c.append(f"fill 47 {g} 11 47 {g} 24 gravel")
+    c.append(f"fill 47 {g} 24 84 {g} 24 gravel")
+    c.append(f"fill 84 {g} 24 84 {g} 40 gravel")
+    for (x, z) in ((48, 18), (56, 25), (64, 25), (72, 25), (80, 25), (85, 32)):
+        c.append(f"setblock {x} {f} {z} oak_fence")
+        c.append(f'setblock {x} {f+1} {z} lantern ["hanging"=false]')
+    c.append(("sleep", 2))
+    c.append(f"testforblock 84 {f} 41 standing_sign")               # skylten
+    c.append(f"testforblock 95 {f+1} 41 air")                       # gång 1 öppen
+    c.append(f"testforblock 110 {f-1} 45 air")                      # djupa galleriet
+    c.append(f"testforblock 111 {f-2} 41 chest")                    # gruvkistan
+    c.append(f"testforblock 109 {f-2} 35 diamond_ore")              # ådran finns
     c.append(("sleep", 1))
 
     # GRINDARNA (speltest-önskemål: "låsa ner delar av världen och öppna

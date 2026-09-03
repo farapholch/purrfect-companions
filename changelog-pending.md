@@ -7,6 +7,13 @@ CurseForge inte har blir en mismatch.)
 
 ---
 
+## 3.45.0 — The Old Mine (Cat Haven)
+
+A new award for Cat Haven players, **The Mine Cat**: reach the deepest chamber
+of the Old Mine with a tamed cat wearing the Mining Lamp at your side. The
+mine itself lives in the world download; this release carries the award and
+the book text that goes with it.
+
 ## 3.44.0 — Every outfit does something now
 
 Six outfits were only for looks. Not any more:

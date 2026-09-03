@@ -113,7 +113,7 @@ export const PLAGG = [
    "Black",
    "Gold"
   ],
-  "effekt": null,
+  "effekt": "potion.jump",
   "prosa": true
  },
  {
@@ -166,7 +166,7 @@ export const PLAGG = [
    "White"
   ],
   "effekt": null,
-  "prosa": false
+  "prosa": true
  },
  {
   "id": "batvingar",
@@ -175,7 +175,7 @@ export const PLAGG = [
    "Black",
    "Purple"
   ],
-  "effekt": null,
+  "effekt": "potion.nightVision",
   "prosa": false
  },
  {
@@ -186,7 +186,7 @@ export const PLAGG = [
    "Silver"
   ],
   "effekt": null,
-  "prosa": false
+  "prosa": true
  },
  {
   "id": "mantel",
@@ -197,7 +197,7 @@ export const PLAGG = [
    "Purple",
    "Black"
   ],
-  "effekt": null,
+  "effekt": "potion.absorption",
   "prosa": false
  },
  {
@@ -220,7 +220,7 @@ export const PLAGG = [
    "Void"
   ],
   "effekt": null,
-  "prosa": false
+  "prosa": true
  },
  {
   "id": "gruvlampa",

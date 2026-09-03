@@ -266,6 +266,48 @@ matt("gruvlampa", () => {
 }, 4);
 
 // ---------------------------------------------------------------------------
+// AUROR: tre plagg vars kraft inte är en effekt på katten själv utan något
+// runt omkring henne, och därför inte får plats i spell_effects:
+//   stjärnmanteln  glöder om natten (syns genom väggar) — bara mellan skymning
+//                  och gryning, annars är den bara en mantel
+//   kronan         katterna inom sex block får motstånd — hovet skyddas
+//   doktorsrocken  katterna inom sex block läks — rocken läker redan bäraren
+//                  själv (spell_effects), det här är rundan på avdelningen
+// Varannan sekund, 60 ticks per dos, så en avtagen krona slutar verka på
+// tre sekunder utan att någon behöver städa.
+matt("auror", () => {
+  const t = world.getTimeOfDay();
+  const natt = t >= 12500 && t <= 23500;
+  for (const dim of ["overworld", "nether", "the_end"]) {
+    let d, katter;
+    try { d = world.getDimension(dim); katter = d.getEntities({ families: ["mjaukatt"] }); }
+    catch { continue; }
+    for (const c of katter) {
+      let stjarna = 0, krona = 0, rock = 0;
+      try {
+        stjarna = c.getProperty("mjau:rymdmantel") ?? 0;
+        krona = c.getProperty("mjau:krona") ?? 0;
+        rock = c.getProperty("mjau:doktorsrock") ?? 0;
+      } catch { continue; }
+      if (stjarna && natt) {
+        try { c.addEffect("glowing", 60, { showParticles: false }); } catch { }
+      }
+      if (!krona && !rock) continue;
+      let nara = [];
+      try { nara = d.getEntities({ families: ["mjaukatt"], location: c.location, maxDistance: 6 }); }
+      catch { continue; }
+      for (const k of nara) {
+        if (k.id === c.id) continue;
+        try {
+          if (krona) k.addEffect("resistance", 60, { showParticles: false });
+          if (rock) k.addEffect("regeneration", 60, { showParticles: false });
+        } catch { }
+      }
+    }
+  }
+}, 40);
+
+// ---------------------------------------------------------------------------
 // UPPDRAGS-UTMÄRKELSER: titel + fanfar när milstolpar nås. Plattforms-
 // achievements går inte att ge från paket — det här är vårt eget system.
 // Texterna är translate-nycklar (mjau.achv.*) i språkfilerna, så familje-

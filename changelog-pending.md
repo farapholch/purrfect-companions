@@ -7,6 +7,23 @@ CurseForge inte har blir en mismatch.)
 
 ---
 
+## 3.44.0 — Every outfit does something now
+
+Six outfits were only for looks. Not any more:
+
+* **Cat Wings** — her leaps carry her twice as far (Jump Boost II), on top of
+  never taking fall damage.
+* **Bat Wings** — she sees in the dark and drifts down instead of falling.
+* **Cat Cape** — a hero's shield: extra hearts on top of her own.
+* **Star Cloak** — she glows through the night, so you never lose her in the
+  dark. Only between dusk and dawn; by day it is just a cloak.
+* **Cat Crown** — she is always visible, and every cat within six blocks of
+  her is protected.
+* **Doctor Coat** — she still heals herself, and now does her rounds: every cat
+  within six blocks heals too.
+
+The Cat Care Book describes all of it.
+
 ## 3.43.0 — Three new outfits, and a scarf in two more colours
 
 **Mining Lamp** (brass or iron) — a leather strap over the head and a lamp on

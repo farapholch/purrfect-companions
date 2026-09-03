@@ -2920,6 +2920,48 @@
             "target": "self"
           }
         }
+      },
+      "mjau:vingsprang": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "jump_boost",
+              "duration": 999999,
+              "amplifier": 1,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
+      },
+      "mjau:nattflygare": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "night_vision",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            },
+            {
+              "effect": "slow_falling",
+              "duration": 999999,
+              "amplifier": 0,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
+      },
+      "mjau:mantelskold": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "absorption",
+              "duration": 999999,
+              "amplifier": 1,
+              "display_on_screen_animation": false
+            }
+          ]
+        }
       }
     },
     "events": {
@@ -3543,7 +3585,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:vingkraft"
+            "mjau:vingkraft",
+            "mjau:vingsprang"
           ]
         }
       },
@@ -3553,7 +3596,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:vingkraft"
+            "mjau:vingkraft",
+            "mjau:vingsprang"
           ]
         }
       },
@@ -3563,7 +3607,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:vingkraft"
+            "mjau:vingkraft",
+            "mjau:vingsprang"
           ]
         }
       },
@@ -3733,7 +3778,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:vingkraft"
+            "mjau:vingkraft",
+            "mjau:nattflygare"
           ]
         }
       },
@@ -3743,7 +3789,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:vingkraft"
+            "mjau:vingkraft",
+            "mjau:nattflygare"
           ]
         }
       },
@@ -3773,7 +3820,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:supermantel"
+            "mjau:supermantel",
+            "mjau:mantelskold"
           ]
         }
       },
@@ -3783,7 +3831,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:supermantel"
+            "mjau:supermantel",
+            "mjau:mantelskold"
           ]
         }
       },
@@ -3793,7 +3842,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:supermantel"
+            "mjau:supermantel",
+            "mjau:mantelskold"
           ]
         }
       },
@@ -3803,7 +3853,8 @@
         },
         "add": {
           "component_groups": [
-            "mjau:supermantel"
+            "mjau:supermantel",
+            "mjau:mantelskold"
           ]
         }
       },

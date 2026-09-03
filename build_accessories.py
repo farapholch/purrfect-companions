@@ -53,8 +53,11 @@ PALS = (128, 32)
 # Grinden i purrfect-test kräver en språknyckel för dem som står här, så ett nytt
 # plagg tvingar fram ett beslut i stället för att tyst hamna i fel hög.
 _BOKPROSA = {"sadel", "ryggsack", "vagn", "vingar", "rustning", "energisvard",
-             "gruvlampa", "regnrock"}
+             "gruvlampa", "regnrock", "rymdmantel", "krona", "doktorsrock"}
 
+# FORMAT: (komponentgrupp, effekter, språknyckel). Effekter är antingen ett
+# effekt-id (styrka 0) eller en lista av (id, styrka) — vingarna och
+# fladdermusvingarna ger två saker på en gång. Boken visar namnet på den första.
 _EXTRA_POWERS = {
     "keps":        ("mjau:kepskraft",       "jump_boost",      "potion.jump"),
     "halsduk":     ("mjau:halsdukvarme",    "fire_resistance", "potion.fireResistance"),
@@ -67,6 +70,12 @@ _EXTRA_POWERS = {
     "energisvard": ("mjau:bladsken",        "night_vision",    "potion.nightVision"),
     "tomteluva":   ("mjau:tomtegava",       "health_boost",    "potion.healthBoost"),
     "flytvast":    ("mjau:flytvastkraft",   "conduit_power",   "potion.conduitPower"),
+    # DE SEX SOM SAKNADE KRAFT (2026-09-03). Tre får effekter här; stjärnmanteln,
+    # kronan och doktorsrocken får sina i main.js ("auror": glöd om natten,
+    # motstånd resp. läkning till katterna runt omkring) och beskrivs i prosan.
+    "vingar":      ("mjau:vingsprang",      [("jump_boost", 1)],                        "potion.jump"),
+    "batvingar":   ("mjau:nattflygare",     [("night_vision", 0), ("slow_falling", 0)], "potion.nightVision"),
+    "mantel":      ("mjau:mantelskold",     [("absorption", 1)],                        "potion.absorption"),
 }
 
 ACC = {
@@ -965,9 +974,10 @@ def build_rest():
                 # praktiken permanent), en distinkt vanilla-effekt per plagg.
                 if a in _EXTRA_POWERS:
                     _grp,_eff,_ = _EXTRA_POWERS[a]
+                    _effekter=_eff if isinstance(_eff,list) else [(_eff,0)]
                     g[_grp]={"minecraft:spell_effects":{"add_effects":[
-                        {"effect":_eff,"duration":999999,"amplifier":0,
-                         "display_on_screen_animation":False}]}}
+                        {"effect":_e,"duration":999999,"amplifier":_amp,
+                         "display_on_screen_animation":False} for _e,_amp in _effekter]}}
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append(_grp)
                 if cfg.get("rideable"):
                     # SADEL: ryttare på ryggen. Utesluter vagnläget — två aktiva

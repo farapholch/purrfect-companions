@@ -250,6 +250,64 @@ gt.registerAsync("mjau", "totem", async (test) => {
   .structureName("mjau:arena")
   .maxTicks(1200);
 
+// STORTDYKAREN: vingar pa, ryttare pa, slapp bada fran femtio block, landa
+// -> ryttaren har ett katt-totem i vaskan. Mats pa kattens sida (getRiders),
+// sa den simulerade ryttaren raknas fast getAllPlayers aldrig ser henne.
+gt.registerAsync("mjau", "stortdyk", async (test) => {
+  const p = test.spawnSimulatedPlayer({ x: 20, y: 2, z: 18 }, "GTStortdyk");
+  const cat = test.spawn("mjau:misty", { x: 20, y: 2, z: 21 });
+  await test.idle(20);
+  let tamed = false;
+  for (let i = 0; i < 30 && !tamed; i++) {
+    p.setItem(new ItemStack("minecraft:cod", 1), 0, true);
+    await test.idle(5);
+    p.interactWithEntity(cat);
+    await test.idle(10);
+    tamed = cat.getProperty("mjau:tam") === 1;
+  }
+  if (!tamed) return done(test, "stortdyk: tamjning misslyckades", false);
+  // SADEL KRAVS FOR ATT RIDA — rideable sitter i sadelgruppen, vingarna gor
+  // bara fallet ofarligt. Forsta korningen forsokte sitta upp utan sadel.
+  try { cat.triggerEvent("mjau:on_sadel_1"); } catch { }
+  await test.idle(5);
+  try { cat.triggerEvent("mjau:on_vingar_1"); } catch { }
+  await test.idle(10);
+  if ((cat.getProperty("mjau:sadel") ?? 0) !== 1) return done(test, "stortdyk: sadeln gick inte pa", false);
+  if ((cat.getProperty("mjau:vingar") ?? 0) !== 1) return done(test, "stortdyk: vingarna gick inte pa", false);
+  p.setItem(new ItemStack("minecraft:stick", 1), 0, true);   // tom hand skulle borja mata
+  await test.idle(5);
+  p.interactWithEntity(cat);
+  await test.idle(20);
+  if (!p.getComponent("minecraft:riding")?.entityRidingOn) return done(test, "stortdyk: gick inte att sitta upp", false);
+  const start = cat.location;
+  const hog = { x: start.x, y: start.y + 50, z: start.z };
+  try { cat.teleport(hog); } catch (e) { return done(test, "stortdyk: kunde inte lyfta katten: " + e, false); }
+  await test.idle(2);
+  if (!p.getComponent("minecraft:riding")?.entityRidingOn) {
+    // ryttaren foljde inte med i lyftet — satt upp igen i luften
+    try { p.teleport({ x: hog.x, y: hog.y + 1, z: hog.z }); } catch { }
+    await test.idle(2);
+    p.interactWithEntity(cat);
+    await test.idle(2);
+  }
+  console.warn(`[MJAU-GT] stortdyk: slappt fran y=${hog.y.toFixed(1)}, ryttare=${!!p.getComponent("minecraft:riding")?.entityRidingOn}`);
+  let landad = false;
+  for (let i = 0; i < 120 && !landad; i++) { await test.idle(5); try { landad = cat.isOnGround; } catch { } }
+  if (!landad) return done(test, "stortdyk: katten landade aldrig", false);
+  await test.idle(30);   // matloopen gar var fjarde tick
+  // UTDELNINGEN GAR INTE ATT SE HAR: getRiders() ger undefined for den
+  // simulerade ryttaren i stabila API:n, sa give() nar henne aldrig. Fallet
+  // sjalvt kvitteras av main.js i serverloggen ("[mjau] stortdyk: N block"),
+  // och purrfect-gametest kraver den raden. Har bevisas att en vingkatt med
+  // ryttare faller 50 block och landar utan att nagon dor.
+  const hp = cat.getComponent("minecraft:health");
+  console.warn(`[MJAU-GT] stortdyk: landade pa y=${cat.location.y.toFixed(1)}, kattens liv ${hp?.currentValue}/${hp?.effectiveMax}, ryttare kvar=${!!p.getComponent("minecraft:riding")?.entityRidingOn}`);
+  if (hp && hp.currentValue < hp.effectiveMax - 0.5) return done(test, "stortdyk: katten tog fallskada trots vingar", false);
+  done(test, "stortdyk: vingkatt + ryttare foll 50 block och landade oskadda (fallet kvitteras i serverloggen)", true);
+})
+  .structureName("mjau:arena")
+  .maxTicks(2400);
+
 // SATESHOJD PER KATTSTORLEK. Xbox-rapport: "man sitter pa huvudet ibland,
 // Maja verkar ha det problemet". Katterna har OLIKA skala (mocha 0.85,
 // misty/hazel 1.0, snow/Maja 1.15) men sitspositionen ar hardkodad till

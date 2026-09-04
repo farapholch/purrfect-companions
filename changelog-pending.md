@@ -7,6 +7,18 @@ CurseForge inte har blir en mismatch.)
 
 ---
 
+## 3.47.0 — Skydiver
+
+Saddle a cat, put Wings or Bat Wings on her, fall forty blocks or more and land. She
+takes no fall damage with wings on and carries yours, so the only thing that
+happens is a new award — **Skydiver** — and a **Cat Totem** in your hand.
+Jump from the lighthouse, the mountain, or anywhere high enough.
+
+**The Guard Dog has left the creative menu.** She still guards the den in
+Cat Haven — that is her story — but this is a cat pack, and the dogs have a
+pack of their own now (Loyal Companions). Existing dogs in your worlds stay.
+
+
 ## 3.46.0 — The Cat Totem
 
 A gold charm with an emerald in it, worn under the chin. It **saves her from

@@ -148,7 +148,7 @@ manually in sync.
 | `tools/make_cat_pals.py` | The coats: every cat's fur sheet (`<cat>_pals.png`, 512x128), painted from a per-cat table onto the UV layout read from the geometry |
 | `tools/make_cat_textures.py` | The spawn-egg icons of the derived and secret breeds |
 | `tools/make_player_gear.py` | The player's cat suit: geometry, textures, attachables, items, recipes |
-| `tools/make_dog.py` | The guard dog: geometry, coat and spawn-egg face |
+| `tools/make_dog.py` | The guard dog: geometry and coat. She has no spawn egg — she only exists in Cat Haven, guarding the den |
 | `render_preview.py` | The preview images, with a small z-buffered renderer — no image library required |
 | `make_variant.py` | Rewrites the pack into its public naming, with its own pack UUIDs |
 

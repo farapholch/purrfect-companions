@@ -266,6 +266,52 @@ matt("gruvlampa", () => {
 }, 4);
 
 // ---------------------------------------------------------------------------
+// STÖRTDYKAREN (Pelle 2026-09-04): rid en katt med vingar, störta minst
+// fyrtio block och landa — utmärkelse och ett katt-totem i handen. Mäts på
+// KATTENS sida, inte spelarens: getRiders() ger ryttaren även när det är
+// GameTest:s SimulatedPlayer, som world.getAllPlayers() aldrig ser. Vingarna
+// tar bort kattens fallskada och riddjuret bär ryttarens, så landningen är
+// ofarlig — det är därför just vingarna krävs.
+const STORTDYK_HOJD = 40;
+const stortdyk = new Map();   // katt-id -> { topp, luft }
+
+matt("stortdyk", () => {
+  const sedda = new Set();
+  for (const dim of ["overworld", "nether", "the_end"]) {
+    let d, katter;
+    try { d = world.getDimension(dim); katter = d.getEntities({ families: ["mjaukatt"] }); }
+    catch { continue; }
+    for (const c of katter) {
+      let vingar = 0, ryttare = [];
+      try {
+        vingar = (c.getProperty("mjau:vingar") ?? 0) + (c.getProperty("mjau:batvingar") ?? 0);
+        if (vingar > 0) ryttare = c.getComponent("minecraft:rideable")?.getRiders() ?? [];
+      } catch { continue; }
+      if (!vingar || !ryttare.length) continue;
+      sedda.add(c.id);
+      const L = c.location;
+      const st = stortdyk.get(c.id) ?? { topp: L.y, luft: false };
+      let mark = true;
+      try { mark = c.isOnGround; } catch { }
+      if (!mark) {
+        st.topp = Math.max(st.topp, L.y); st.luft = true;
+      } else {
+        if (st.luft && st.topp - L.y >= STORTDYK_HOJD) {
+          // getRiders() ger undefined för GameTest:s SimulatedPlayer (stabila
+          // API:n kan inte materialisera henne) — riktiga spelare kommer som
+          // Player. Testkedjan kvitterar därför fallet via loggraden nedan.
+          for (const r of ryttare) { if (!r) continue; try { give(r, "stortdykaren"); } catch { } }
+          console.log("[mjau] stortdyk: " + Math.round(st.topp - L.y) + " block pa " + (c.nameTag || c.typeId));
+        }
+        st.topp = L.y; st.luft = false;
+      }
+      stortdyk.set(c.id, st);
+    }
+  }
+  for (const id of [...stortdyk.keys()]) if (!sedda.has(id)) stortdyk.delete(id);
+}, 4);
+
+// ---------------------------------------------------------------------------
 // KATT-TOTEMET: räddar katten från döden EN gång, som totem of undying gör
 // för spelaren. Bedrock låter inte ett paket stoppa ett dödligt slag innan
 // det landar, så det är två lager:
@@ -453,11 +499,13 @@ const XP_REWARD = {
   trippelskatten: 30, bergsbestigaren: 25, regnbagssamlaren: 25, hinderbanan: 30,
   djuphavsdykaren: 30, handelsman: 20, vindskatten: 25,
   kattmastare: 50, norrsken: 40, stjarnfodd: 40, manlandaren: 35,
+  stortdykaren: 30,
 };
 const ITEM_REWARD = {
   ur_morkret: [{ id: "minecraft:phantom_membrane", n: 2 }],
   trippelskatten: [{ id: "minecraft:diamond", n: 2 }],
   manlandaren: [{ id: "minecraft:diamond", n: 3 }],
+  stortdykaren: [{ id: "mjau:totem_guld", n: 1 }],     // "störtar man från himlen får man en totem"
 };
 
 function give(pl, id) {
@@ -498,7 +546,7 @@ function give(pl, id) {
 // slätter, så de går att hitta i vilken värld som helst). Festen kräver bara
 // den. KATTGARDEN_ORDER visas bara för den som faktiskt är i Kattgården.
 const KATT_ORDER = ["forsta_vannen", "hela_flocken", "ryttaren", "fiskarkatten",
-                    "skattgravaren", "ur_morkret"];
+                    "skattgravaren", "ur_morkret", "stortdykaren"];
 const KATTGARDEN_ORDER = ["befriaren", "fyrvaktaren", "lados_hemlighet", "alla_hemma",
                           "trippelskatten", "bergsbestigaren", "regnbagssamlaren",
                           "hinderbanan", "djuphavsdykaren", "handelsman",

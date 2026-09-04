@@ -90,11 +90,12 @@ cd "$SRV"
   echo "gametest run mjau:sate"
   echo "gametest run mjau:skepp"
   echo "gametest run mjau:totem"
-  # vänta tills ALLA sex testen avgjorts
+  echo "gametest run mjau:stortdyk"
+  # vänta tills ALLA sju testen avgjorts
   for i in $(seq 1 80); do
     N=$(grep -cE "MJAU-GT\] (PASS|FAIL)" "$LOG" 2>/dev/null)
     grep -q "failed to create context" "$LOG" && break
-    [ "${N:-0}" -ge 6 ] && break
+    [ "${N:-0}" -ge 7 ] && break
     sleep 3
   done
   echo "stop"; sleep 5; } | LD_LIBRARY_PATH=. ./bedrock_server > "$LOG" 2>&1
@@ -102,8 +103,14 @@ pkill -9 -x bedrock_server 2>/dev/null
 
 grep -oE "\[MJAU-GT\].*" "$LOG" | sed 's/^/  /'
 PASSN=$(grep -c "MJAU-GT\] PASS" "$LOG")
-if [ "$PASSN" -ge 6 ] && ! grep -q "MJAU-GT\] FAIL" "$LOG"; then
-  echo "[gametest] ✅ PASS ($PASSN/6) — rida+styra, vagnen, midnattsritualen, sateshojden, spjutjaktaren och totemet"
+# STÖRTDYKAREN: fallmätningen kvitterar i loggen (kan inte ses av GameTest-
+# provet självt — ryttaren är osynlig för stabila API:n). Utan kvittot
+# landade katten, men mekaniken bakom utmärkelsen körde aldrig.
+if ! grep -q "\[mjau\] stortdyk: [0-9]* block" "$LOG"; then
+  echo "[gametest] ❌ störtdyket kvitterades aldrig av main.js (fallmätningen)"; exit 1
+fi
+if [ "$PASSN" -ge 7 ] && ! grep -q "MJAU-GT\] FAIL" "$LOG"; then
+  echo "[gametest] ✅ PASS ($PASSN/7) — rida+styra, vagnen, midnattsritualen, sateshojden, spjutjaktaren, totemet och stortdykaren"
   exit 0
 fi
 echo "[gametest] ❌ FAIL (logg: $LOG)"

@@ -1,3 +1,27 @@
+## 3.47.0 — Skydiver
+
+Saddle a cat, put Wings or Bat Wings on her, fall forty blocks or more and land. She
+takes no fall damage with wings on and carries yours, so the only thing that
+happens is a new award — **Skydiver** — and a **Cat Totem** in your hand.
+Jump from the lighthouse, the mountain, or anywhere high enough.
+
+**The Guard Dog has left the creative menu.** She still guards the den in
+Cat Haven — that is her story — but this is a cat pack, and the dogs have a
+pack of their own now (Loyal Companions). Existing dogs in your worlds stay.
+
+
+## 3.46.0 — The Cat Totem
+
+A gold charm with an emerald in it, worn under the chin. It **saves her from
+death once**: when a blow leaves her at death's door she is healed to full,
+and if a blow takes her outright — a fall from the sky, a creeper — she stands
+up again on the spot with her name and her outfits. Either way the totem
+shatters, with the same light and sound as your own. She will need a fish from
+you to follow again after coming back; the book says so.
+
+Crafted from four gold ingots, four emeralds and a Cat Treat. Cat Haven keeps
+one in the attic.
+
 ## 3.45.3 — Fur, materials, seven new powers, three new outfits and the Old Mine
 
 Five releases since the last one on CurseForge, summed up:

@@ -1,3 +1,26 @@
+## The Old Mine, the Cat Totem, and a reason to jump off the mountain
+
+**The Old Mine.** East of the lake, where a new path ends, a hill hides an
+abandoned mine: rails on the floor, timber props, cobwebs and ore veins in the
+walls — and no lanterns at all. The Mining Lamp from the crystal cave is how
+you see: put it on a cat and let her walk ahead of you. The deepest chamber
+keeps what the miners left, and getting there with a lamp cat at your side
+earns **The Mine Cat**. Task 11 in the handbook.
+
+**The Cat Totem** waits in the attic. It saves a cat from death once — she is
+healed at death's door, or stands up again on the spot if a blow takes her —
+and then it shatters.
+
+**Skydiver.** Saddle a cat, put wings on her, ride off the mountain and fall
+forty blocks. She takes no fall damage and carries yours. Land, and you have
+a new award and a Cat Totem in your hand.
+
+**Also:** Domino used to suffocate in the grass at the foot of the lighthouse
+hill and was missing from every packaged world — she stands on flat ground by
+the road now. All six cats and the guard dog are checked in the packaged world
+before it ships. The cats and outfits carry the new fur and materials, and the
+Guard Dog has no spawn egg any more: she belongs to this world's story.
+
 ## New fur, new outfits, and the cats look the part
 
 The world now ships with Purrfect Companions 3.44.0 inside it, and that is

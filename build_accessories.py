@@ -638,6 +638,28 @@ def icon_treat():
         if x%2==0: sp(x,8,DARK)             # mönster
     write_png(f"{RP}/textures/items/pc_godis.png",S,S,px)
 
+def icon_garnboll():
+    """Ett rött garnnystan med trådmönster och en lös trådände."""
+    S=16; T=(0,0,0,0); px=[[T]*S for _ in range(S)]
+    GARN=(198,62,55,255); LJUS=(232,110,100,255); MORK=(140,38,34,255)
+    def sp(x,y,c):
+        if 0<=x<S and 0<=y<S: px[y][x]=c
+    import math as _m
+    for y in range(S):
+        for x in range(S):
+            dx,dy=x-7.5,y-8.5
+            r=_m.hypot(dx,dy)
+            if r>5.6: continue
+            c=GARN
+            if r>4.9: c=MORK
+            elif ((x*2+y*3)//3)%4==0: c=LJUS          # trådvarven
+            elif ((x*3-y*2)//3)%5==0: c=MORK
+            elif r<2.2 and (x+y)%2==0: c=LJUS
+            sp(x,y,c)
+    for (x,y) in ((12,4),(13,3),(14,3),(15,2)):        # lös trådände
+        sp(x,y,GARN)
+    write_png(f"{RP}/textures/items/pc_garnboll.png",S,S,px)
+
 def icon_vissla():
     """Kattvisslan: en visselpipa med ett kattöra på — samma trick som bokens
     öra, så den syns i en full hotbar."""
@@ -817,6 +839,21 @@ def build_rest():
       "menu_category":{"category":"items"}},"components":{"minecraft:icon":{"texture":"pc_kattbok"},
       "minecraft:display_name":{"value":"Cat Care Book"},"minecraft:max_stack_size":1}}},
       open(f"{BP}/items/kattbok.json","w"),indent=2)
+    # GARNNYSTANET som FÖREMÅL (3.49.0). Blocket mjau:garnnystan finns redan
+    # som möbel; det här är det kastbara. Kasta det, katten jagar, leker och
+    # bär hem det — och blir glad på kuppen (humöret som hungern redan äter av).
+    icon_garnboll()
+    it["texture_data"]["pc_garnboll"]={"textures":"textures/items/pc_garnboll"}
+    json.dump({"format_version":"1.20.50","minecraft:item":{"description":{"identifier":"mjau:garnboll",
+      "menu_category":{"category":"equipment"}},"components":{"minecraft:icon":{"texture":"pc_garnboll"},
+      "minecraft:display_name":{"value":"Yarn Ball"},"minecraft:max_stack_size":1}}},
+      open(f"{BP}/items/garnboll.json","w"),indent=2)
+    json.dump({"format_version":"1.20.10","minecraft:recipe_shapeless":{
+      "description":{"identifier":"mjau:garnboll"},"tags":["crafting_table"],
+      "ingredients":[{"item":"minecraft:string"},{"item":"minecraft:string"},{"item":"minecraft:string"}],
+      "unlock":[{"item":"minecraft:string"}],"result":{"item":"mjau:garnboll"}}},
+      open(f"{BP}/recipes/garnboll.json","w"),indent=2)
+    lang.append("item.mjau:garnboll=Yarn Ball")
     # KATTVISSLAN (2026-09-06). Hundpaketet har en och den räddade den
     # vanligaste situationen: ett djur som blivit kvar tre dalar bort. Katter
     # strövar mer än hundar, och "var är katterna?" har frågats i den här
@@ -913,6 +950,23 @@ def build_rest():
         # client_sync.
         e["description"]["properties"]["mjau:hungrig"]={"type":"int","range":[0,1],"default":0}
         e["description"]["properties"]["mjau:sover"]={"type":"int","range":[0,1],"default":0,"client_sync":True}
+        # GARNNYSTANET (3.49.0): katten jagar ett kastat nystan, leker med det
+        # och bär hem det. Hundpaketets läxa gäller här: behavior.pickup_items
+        # gör INGENTING utan minecraft:shareables — önskelistan är det som får
+        # djuret att gå fram till föremålet. leker: 0 = inget, 1 = jagar,
+        # 2 = bär hem. Ingen renderare läser den (ingen kub i munnen ännu).
+        e["description"]["properties"]["mjau:leker"]={"type":"int","range":[0,2],"default":0}
+        e["components"]["minecraft:shareables"]={"all_items":False,"items":[
+            {"item":"mjau:garnboll","want_amount":1,"surplus_amount":1,"priority":0}]}
+        # PRIORITET 21, inte 2: 1-20 är upptagna (panic ligger på 2, och två
+        # beteenden med samma prioritet är odefinierat i Bedrock — den statiska
+        # spärren fällde det direkt). Jakten ska ändå ge vika för allt annat:
+        # en katt som flyr en creeper ska fly, inte hämta garn.
+        g["mjau:lek_jagar"]={"minecraft:behavior.pickup_items":{
+            "priority":21,"max_dist":16,"goal_radius":1.4,"speed_multiplier":1.25,
+            "pickup_based_on_chance":False,"track_target":True}}
+        ev["mjau:lek_pa"]={"add":{"component_groups":["mjau:lek_jagar"]},"set_property":{"mjau:leker":1}}
+        ev["mjau:lek_av"]={"remove":{"component_groups":["mjau:lek_jagar"]}}
         for k in [k for k in ev if k.startswith("mjau:on_") and k not in ("mjau:on_tame",)]: del ev[k]
         g.pop("mjau:vagnsplats",None)   # gammal grupp: rideable bor numera bara i mjau:saddled
         inter=[]

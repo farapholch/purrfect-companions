@@ -1059,6 +1059,14 @@ cd "$SRV" || exit 1
   echo "summon mjau:snow \"Visseltest\" 20 20 20"; sleep 2
   echo "event entity @e[name=Visseltest] mjau:on_tame"; sleep 2
   echo "tp @e[name=Visseltest] 90 20 90"; sleep 2
+  # GARNNYSTANET: släpp ett nystan intill en tämjd katt, hon ska ta det
+  # (mjau:leker=2) och sedan bära hem det. Att hon GÅR dit är vaniljas
+  # pickup_items + shareables; att hon TAR det är skriptet.
+  echo "summon mjau:ginger \"Garntest\" 24 20 24"; sleep 2
+  echo "event entity @e[name=Garntest] mjau:on_tame"; sleep 2
+  echo "scriptevent mjau:test_garn 24 21 24"; sleep 5
+  echo "testfor @e[name=Garntest,has_property={mjau:leker=2}]"; sleep 1
+  echo "kill @e[name=Garntest]"; sleep 1
   echo "scriptevent mjau:test_vissla 16 20 16"; sleep 3
   echo "testfor @e[name=Visseltest,x=16,y=20,z=16,r=6]"; sleep 1
   echo "kill @e[name=Visseltest]"; sleep 1
@@ -1113,6 +1121,7 @@ VAKUUM=$(grep -c "VAKUUM-TEST OK" "$LOG")
 NYRAS=$(grep -cE "Found entity\.mjau:(ginger|domino)" "$LOG")
 # VISSLAN: kroken loggar hur många som kom, och katten ska INTE längre finnas
 # kvar på 90,20,90 — den sista testfor ska alltså sakna mål.
+GARN=$(grep -c "\[mjau\] garn: .* fick tag i nystanet" "$LOG")
 VISSLA=$(grep -c "\[mjau\] vissla: [1-9]" "$LOG")
 KOLONI=$(grep -c "KOLONI-TEST OK" "$LOG")
 SOVHOG=$(grep -c "Found entity.mjau:hazel" "$LOG")
@@ -1132,6 +1141,7 @@ SOFT=$(grep -c "Unable to summon" "$LOG")
 [ "$VAKUUM" -ge 1 ] && ok "ryggsäckskatten plockar upp från marken (skriptkroken hittade tråden i väskan)" || bad "ryggsäckskatten plockade INTE upp tråden (se VAKUUM-TEST i $LOG)"
 [ "$HUND" -ge 1 ] && ok "vakthunden laddar med egen geometri" || bad "vakthunden gick inte att spawna"
 [ "$VISSLA" -ge 1 ] && ok "kattvisslan kallar hem tämjda katter" || bad "kattvisslan hämtade ingen katt"
+[ "$GARN" -ge 1 ] && ok "katten jagar och tar garnnystanet" || bad "garnnystanet togs aldrig upp (shareables/pickup_items)"
 [ "$NYRAS" -ge 4 ] && ok "Ginger och Domino bär plaggen: $NYRAS/4 (sadel + ryggsäck, has_property)" || bad "de nya raserna satte bara $NYRAS/4 plagg-properties"
 [ "$KOLONI" -ge 1 ] && ok "kolonin: katterna tvättar varandra och kryper ihop på natten" || bad "kolonin fungerade inte (se KOLONI-TEST i $LOG)"
 [ "$HUNGER" -ge 3 ] && ok "hungern pausar bonusarna, maten höjer humöret och skriptet speglar tillbaka ($HUNGER/3)" || bad "hungerspeglingen gav $HUNGER/3"

@@ -301,6 +301,9 @@
     },
     "pc_vissla": {
       "textures": "textures/items/pc_vissla"
+    },
+    "pc_garnboll": {
+      "textures": "textures/items/pc_garnboll"
     }
   }
 }

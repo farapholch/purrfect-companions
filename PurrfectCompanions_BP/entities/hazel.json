@@ -256,6 +256,14 @@
           ],
           "default": 0,
           "client_sync": true
+        },
+        "mjau:leker": {
+          "type": "int",
+          "range": [
+            0,
+            2
+          ],
+          "default": 0
         }
       }
     },
@@ -340,6 +348,17 @@
           "event": "mjau:hungrigare",
           "target": "self"
         }
+      },
+      "minecraft:shareables": {
+        "all_items": false,
+        "items": [
+          {
+            "item": "mjau:garnboll",
+            "want_amount": 1,
+            "surplus_amount": 1,
+            "priority": 0
+          }
+        ]
       }
     },
     "component_groups": {
@@ -2999,6 +3018,16 @@
             }
           ]
         }
+      },
+      "mjau:lek_jagar": {
+        "minecraft:behavior.pickup_items": {
+          "priority": 21,
+          "max_dist": 16,
+          "goal_radius": 1.4,
+          "speed_multiplier": 1.25,
+          "pickup_based_on_chance": false,
+          "track_target": true
+        }
       }
     },
     "events": {
@@ -3222,6 +3251,23 @@
             }
           }
         ]
+      },
+      "mjau:lek_pa": {
+        "add": {
+          "component_groups": [
+            "mjau:lek_jagar"
+          ]
+        },
+        "set_property": {
+          "mjau:leker": 1
+        }
+      },
+      "mjau:lek_av": {
+        "remove": {
+          "component_groups": [
+            "mjau:lek_jagar"
+          ]
+        }
       },
       "mjau:on_sadel_1": {
         "set_property": {

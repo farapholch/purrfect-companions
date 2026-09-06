@@ -620,6 +620,21 @@ try {
   // TESTKROK: visslan kräver en spelare som använder ett föremål, och GameTest:s
 // SimulatedPlayer syns inte för stabila API:n. Kroken kallar in katterna till
 // den spelare som finns, så mekaniken går att bevisa i kedjan.
+// TESTKROK: släpper ett garnnystan på angiven plats. Kommandot `summon item`
+// kan inte skapa ett SPECIFIKT föremål i Bedrock, så det här är enda vägen att
+// lägga ut ett nystan i en serverkörning utan spelare.
+try {
+  system.afterEvents.scriptEventReceive.subscribe(ev => {
+    if (ev.id !== "mjau:test_garn") return;
+    try {
+      const t = (ev.message ?? "").trim().split(/\s+/).map(Number);
+      if (t.length !== 3 || !t.every(v => Number.isFinite(v))) { console.warn("[mjau] test_garn: koordinater saknas"); return; }
+      world.getDimension("overworld").spawnItem(new ItemStack(GARN, 1), { x: t[0], y: t[1], z: t[2] });
+      console.log("[mjau] test_garn: nystan slappt pa " + t.join(","));
+    } catch (e) { console.warn("[mjau] test_garn: " + e); }
+  });
+} catch { }
+
 try {
   system.afterEvents.scriptEventReceive.subscribe(ev => {
     if (ev.id !== "mjau:test_vissla") return;
@@ -1715,6 +1730,125 @@ function visaBoken(pl) {
     bokSida(pl, rubrik, bygg(pl));
   }).catch(() => { });
 }
+
+// ---------------------------------------------------------------------------
+// GARNNYSTANET: kasta det, katten jagar det, leker med det och bär hem det.
+// Hundpaketets läxa, som kostade åtta serverkörningar där: vanilla GÅR DIT
+// (behavior.pickup_items) men bara om minecraft:shareables listar föremålet,
+// och när djuret når fram FÖRSTÖR vanilla föremålet — katten har ingen ficka.
+// Skriptet tar därför nystanet strax innan, och bär det som en egenskap.
+//
+// LEKEN ÄR POÄNGEN, inte apporten. En katt som bara lämnar tillbaka saker är
+// en hund; den här slår runt nystanet en stund först, och blir GLAD av det —
+// humöret som hungern äter av. Det är kopplingen till en mekanik som finns.
+const GARN = "mjau:garnboll";
+const GARN_RADIE = 16;          // samma som pickup_items max_dist
+const GARN_GRIPAVSTAND = 2.0;   // här tar skriptet nystanet före vanilla
+const GARN_LEKTID = 60;         // tick: hur länge hon slår runt det
+const garnminne = new Map();    // katt-id -> { lek, hem }
+
+function garnNara(d, plats) {
+  try {
+    return d.getEntities({ type: "minecraft:item", location: plats, maxDistance: GARN_RADIE })
+      .filter(e => {
+        try { return e.getComponent("minecraft:item")?.itemStack?.typeId === GARN; }
+        catch { return false; }
+      });
+  } catch { return []; }
+}
+
+function garnAgare(c) {
+  try {
+    const t = c.getComponent("minecraft:tameable");
+    if (t?.tamedToPlayer) return t.tamedToPlayer;
+  } catch { }
+  try {
+    let bast = null, narmast = 12;
+    for (const pl of world.getAllPlayers()) {
+      if (!pl) continue;
+      const L = pl.location, K = c.location;
+      const dd = Math.hypot(L.x - K.x, L.y - K.y, L.z - K.z);
+      if (dd < narmast) { bast = pl; narmast = dd; }
+    }
+    return bast;
+  } catch { return null; }
+}
+
+matt("garnlek", () => {
+  const levande = new Set();
+  for (const dim of ["overworld", "nether", "the_end"]) {
+    let d, katter;
+    try { d = world.getDimension(dim); katter = d.getEntities({ families: ["mjaukatt"] }); }
+    catch { continue; }
+    for (const c of katter) {
+      let tam = 0, leker = 0;
+      try { tam = c.getProperty("mjau:tam") ?? 0; leker = c.getProperty("mjau:leker") ?? 0; }
+      catch { continue; }
+      if (tam !== 1) continue;
+      levande.add(c.id);
+      const st = garnminne.get(c.id) ?? { lek: 0 };
+      garnminne.set(c.id, st);
+      const L = c.location;
+
+      if (leker === 2) {
+        // LEKEN: hon slår runt nystanet på plats en stund, sedan hem med det.
+        if (st.lek > 0) {
+          st.lek -= 4;
+          try {
+            d.spawnParticle("minecraft:crop_growth_emitter", { x: L.x, y: L.y + 0.4, z: L.z });
+            if (st.lek % 20 === 0) d.playSound("mob.cat.purr", L);
+          } catch { }
+          continue;
+        }
+        const pl = garnAgare(c);
+        if (!pl) continue;
+        const P = pl.location;
+        if (Math.hypot(P.x - L.x, P.y - L.y, P.z - L.z) > 3) continue;
+        try {
+          const inv = pl.getComponent("minecraft:inventory")?.container;
+          if (!inv || inv.emptySlotsCount === 0) continue;   // fulla fickor: hon håller kvar
+          inv.addItem(new ItemStack(GARN, 1));
+        } catch { continue; }
+        try { c.setProperty("mjau:leker", 0); } catch { }
+        try { c.triggerEvent("mjau:on_matad"); } catch { }   // leken gör henne glad
+        try {
+          d.playSound("mob.cat.meow", L);
+          for (let i = 0; i < 6; i++)
+            d.spawnParticle("minecraft:villager_happy",
+              { x: L.x + (Math.random() - 0.5), y: L.y + 0.7, z: L.z + (Math.random() - 0.5) });
+          pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.garn.hem" }] });
+        } catch { }
+        console.log("[mjau] garn: " + (c.nameTag || c.typeId) + " kom hem med nystanet");
+        continue;
+      }
+
+      // JAKTEN: ligger ett nystan i närheten slås jaktläget på, och när hon är
+      // framme tar skriptet det innan vanilla hinner förstöra det.
+      const nara = garnNara(d, L);
+      if (!nara.length) {
+        if (leker === 1) { try { c.triggerEvent("mjau:lek_av"); c.setProperty("mjau:leker", 0); } catch { } }
+        continue;
+      }
+      let tog = false;
+      for (const e of nara) {
+        const E = e.location;
+        if (Math.hypot(E.x - L.x, E.y - L.y, E.z - L.z) > GARN_GRIPAVSTAND) continue;
+        try { e.remove(); } catch { continue; }
+        tog = true; break;
+      }
+      if (tog) {
+        try { c.triggerEvent("mjau:lek_av"); } catch { }
+        try { c.setProperty("mjau:leker", 2); } catch { }
+        st.lek = GARN_LEKTID;
+        try { d.playSound("mob.cat.straymeow", L); } catch { }
+        console.log("[mjau] garn: " + (c.nameTag || c.typeId) + " fick tag i nystanet");
+      } else if (leker !== 1) {
+        try { c.triggerEvent("mjau:lek_pa"); } catch { }
+      }
+    }
+  }
+  for (const id of [...garnminne.keys()]) if (!levande.has(id)) garnminne.delete(id);
+}, 4);
 
 // ---------------------------------------------------------------------------
 // KATTVISSLAN: ett tryck och dina katter kommer. Katter strövar mer än hundar,

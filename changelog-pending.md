@@ -7,6 +7,16 @@ CurseForge inte har blir en mismatch.)
 
 ---
 
+## 3.49.0 — The Yarn Ball
+
+Three string makes a yarn ball. Throw it and the nearest tamed cat chases it
+down, bats it around for a few seconds — and then carries it back to you.
+
+She is **happier afterwards**: playing lifts her mood the same way a Cat Treat
+does, which matters now that hunger wears it down. Cats are not dogs, so the
+playing comes first and the returning second.
+
+
 ## 3.48.0 — The Cat Whistle
 
 One press and your cats come running. Craft it from an iron ingot, string and

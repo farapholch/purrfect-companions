@@ -96,6 +96,9 @@ Craftable, applied to a tamed cat, and all wearable at the same time.
 
 **Cat Treat** — cod + wheat, works as a taming treat.
 
+**Yarn Ball** — three string. Throw it: she chases it, plays with it, brings
+it back, and is in a better mood for it.
+
 **Cat Whistle** — iron ingot + string + Cat Treat. One press and every tamed
 cat within a hundred blocks comes to you.
 

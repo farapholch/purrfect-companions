@@ -25,3 +25,6 @@ mjau.bok.plagg.doktorsrock=A doctor's coat. She heals herself, and does her roun
 item.mjau:totem_guld=Cat Totem (Gold)
 mjau.bok.plagg.totem=Saves her from death once. When a blow would take her, the totem takes it instead and shatters — heal her, then craft another.
 mjau.totem.raddad=The totem saved %s! It shattered — craft a new one.
+mjau.vissla.kom=§b%s cats come running!
+mjau.vissla.ingen=§7None of your cats are nearby.
+item.mjau:vissla=Cat Whistle

@@ -298,6 +298,9 @@
     },
     "pc_totem_guld": {
       "textures": "textures/items/pc_totem_guld"
+    },
+    "pc_vissla": {
+      "textures": "textures/items/pc_vissla"
     }
   }
 }

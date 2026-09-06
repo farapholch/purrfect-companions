@@ -617,7 +617,24 @@ function fest(pl) {
 
 // testkrok: /scriptevent mjau:test_fest fran konsolen avfyrar festen (röktestet)
 try {
+  // TESTKROK: visslan kräver en spelare som använder ett föremål, och GameTest:s
+// SimulatedPlayer syns inte för stabila API:n. Kroken kallar in katterna till
+// den spelare som finns, så mekaniken går att bevisa i kedjan.
+try {
   system.afterEvents.scriptEventReceive.subscribe(ev => {
+    if (ev.id !== "mjau:test_vissla") return;
+    try {
+      const t = (ev.message ?? "").trim().split(/\s+/).map(Number);
+      const pl = world.getAllPlayers()[0];
+      const plats = t.length === 3 && t.every(v => Number.isFinite(v))
+        ? { x: t[0], y: t[1], z: t[2] } : pl?.location;
+      if (!plats) { console.warn("[mjau] test_vissla: varken koordinater eller spelare"); return; }
+      visslaKatter(plats, pl?.dimension ?? world.getDimension("overworld"));
+    } catch (e) { console.warn("[mjau] test_vissla: " + e); }
+  });
+} catch { }
+
+system.afterEvents.scriptEventReceive.subscribe(ev => {
     if (ev.id !== "mjau:test_fest") return;
     try { fest(world.getAllPlayers()[0]); } catch { console.warn("[mjau] fest-test föll"); }
   });
@@ -1698,6 +1715,51 @@ function visaBoken(pl) {
     bokSida(pl, rubrik, bygg(pl));
   }).catch(() => { });
 }
+
+// ---------------------------------------------------------------------------
+// KATTVISSLAN: ett tryck och dina katter kommer. Katter strövar mer än hundar,
+// och att leta rätt på en som blivit kvar två dalar bort är inte roligt.
+// Hundpaketets vissla, portad: samma dimension bara (en vissla som flyttar
+// katter mellan dimensioner vore en portal), bara TAMA katter, och de landar i
+// en ring runt spelaren så de inte staplas i en hög.
+const VISSELRADIE = 100;
+
+// TAR EN PLATS, inte en spelare: testservern har ingen spelare alls, och
+// GameTest:s simulerade spelare syns inte för stabila API:n. Spelaren skickar
+// sin egen plats; testkroken skickar koordinater.
+function visslaKatter(plats, d) {
+  let n = 0;
+  let katter = [];
+  try { katter = d.getEntities({ families: ["mjaukatt"], location: plats, maxDistance: VISSELRADIE }); }
+  catch { return 0; }
+  for (const c of katter) {
+    try {
+      if ((c.getProperty("mjau:tam") ?? 0) !== 1) continue;
+      const v = 1.6 + (n % 4) * 0.7, vinkel = (n % 8) * Math.PI / 4;
+      c.teleport({ x: plats.x + Math.cos(vinkel) * v, y: plats.y,
+                   z: plats.z + Math.sin(vinkel) * v });
+      try {
+        d.playSound("mob.cat.meow", c.location);
+        for (let i = 0; i < 5; i++)
+          d.spawnParticle("minecraft:villager_happy",
+            { x: c.location.x, y: c.location.y + 0.6 + i * 0.1, z: c.location.z });
+      } catch { }
+      n++;
+    } catch (fel) { console.warn("[mjau] vissla: " + fel); }
+  }
+  console.log("[mjau] vissla: " + n + " katter kom");
+  return n;
+}
+
+world.afterEvents.itemUse.subscribe(ev => {
+  try {
+    if (ev.itemStack?.typeId !== "mjau:vissla") return;
+    const pl = ev.source;
+    const n = visslaKatter(pl.location, pl.dimension);
+    try { pl.sendMessage({ rawtext: [{ translate: n ? "mjau.vissla.kom" : "mjau.vissla.ingen", with: [String(n)] }] }); } catch { }
+    try { pl.dimension.playSound("random.orb", pl.location); } catch { }
+  } catch { }
+});
 
 world.afterEvents.itemUse.subscribe(ev => {
   try {

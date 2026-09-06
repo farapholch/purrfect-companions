@@ -638,6 +638,26 @@ def icon_treat():
         if x%2==0: sp(x,8,DARK)             # mönster
     write_png(f"{RP}/textures/items/pc_godis.png",S,S,px)
 
+def icon_vissla():
+    """Kattvisslan: en visselpipa med ett kattöra på — samma trick som bokens
+    öra, så den syns i en full hotbar."""
+    S=16; T=(0,0,0,0); px=[[T]*S for _ in range(S)]
+    METALL,LJUS,MORK=(198,164,96,255),(238,214,150,255),(132,104,54,255)
+    ORA,ORA_IN=(198,164,96,255),(226,150,168,255)
+    def rect(x0,y0,w,h,c):
+        for y in range(y0,y0+h):
+            for x in range(x0,x0+w):
+                if 0<=x<S and 0<=y<S: px[y][x]=c
+    rect(3,7,10,5,METALL)          # pipans kropp
+    rect(3,7,10,1,LJUS)
+    rect(3,11,10,1,MORK)
+    rect(1,8,3,3,METALL); rect(1,8,3,1,LJUS)     # munstycket
+    rect(8,9,3,1,MORK)                            # ljudspringan
+    rect(4,4,3,3,ORA); rect(5,5,1,2,ORA_IN)       # kattörat
+    rect(9,4,3,3,ORA); rect(10,5,1,2,ORA_IN)
+    rect(13,3,2,4,MORK); rect(12,2,4,1,MORK)      # öglan
+    write_png(f"{RP}/textures/items/pc_vissla.png",S,S,px)
+
 def icon_bok():
     """Kattboken: en uppslagen bok med ett kattöra över kanten.
 
@@ -797,6 +817,24 @@ def build_rest():
       "menu_category":{"category":"items"}},"components":{"minecraft:icon":{"texture":"pc_kattbok"},
       "minecraft:display_name":{"value":"Cat Care Book"},"minecraft:max_stack_size":1}}},
       open(f"{BP}/items/kattbok.json","w"),indent=2)
+    # KATTVISSLAN (2026-09-06). Hundpaketet har en och den räddade den
+    # vanligaste situationen: ett djur som blivit kvar tre dalar bort. Katter
+    # strövar mer än hundar, och "var är katterna?" har frågats i den här
+    # familjen. Avsvalningen ligger i FÖREMÅLET, inte i skriptet — spelaren ser
+    # den snurra i handen och förstår varför inget händer.
+    icon_vissla()
+    it["texture_data"]["pc_vissla"]={"textures":"textures/items/pc_vissla"}
+    json.dump({"format_version":"1.20.50","minecraft:item":{"description":{"identifier":"mjau:vissla",
+      "menu_category":{"category":"equipment"}},"components":{"minecraft:icon":{"texture":"pc_vissla"},
+      "minecraft:display_name":{"value":"Cat Whistle"},"minecraft:max_stack_size":1,
+      "minecraft:cooldown":{"category":"mjau_vissla","duration":6.0}}}},
+      open(f"{BP}/items/vissla.json","w"),indent=2)
+    json.dump({"format_version":"1.20.10","minecraft:recipe_shapeless":{
+      "description":{"identifier":"mjau:vissla"},"tags":["crafting_table"],
+      "ingredients":[{"item":"minecraft:iron_ingot"},{"item":"minecraft:string"},{"item":"mjau:godis"}],
+      "unlock":[{"item":"mjau:godis"}],"result":{"item":"mjau:vissla"}}},
+      open(f"{BP}/recipes/vissla.json","w"),indent=2)
+    lang.append("item.mjau:vissla=Cat Whistle")
     # Bok + kattgodis: tematiskt, och garanterat utan krock mot vaniljas rutnät
     # (godiset är vårt eget föremål). Receptgrinden i purrfect-test jämför mot
     # hela vaniljas receptlista och hade fällt en krock.

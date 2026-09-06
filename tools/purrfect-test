@@ -1054,6 +1054,14 @@ cd "$SRV" || exit 1
   # grispaketets bökningstest: testet får inte tävla mot mobbens AI.
   echo "tp @e[type=mjau:hazel] 14 20 14"; sleep 1
   echo "scriptevent mjau:test_koloni kor"; sleep 4
+  # KATTVISSLAN: en tämjd katt körs långt bort och ska stå intill spelaren
+  # efter visslingen. Kroken behövs för att itemUse kräver en riktig spelare.
+  echo "summon mjau:snow \"Visseltest\" 20 20 20"; sleep 2
+  echo "event entity @e[name=Visseltest] mjau:on_tame"; sleep 2
+  echo "tp @e[name=Visseltest] 90 20 90"; sleep 2
+  echo "scriptevent mjau:test_vissla 16 20 16"; sleep 3
+  echo "testfor @e[name=Visseltest,x=16,y=20,z=16,r=6]"; sleep 1
+  echo "kill @e[name=Visseltest]"; sleep 1
   # HUNGERN. Timern sänker humöret av sig själv, men den tar tio till tjugo
   # minuter per steg — testet kan inte vänta ut den, så eventet körs direkt.
   # Det som ska bevisas är att skriptet SPEGLAR humöret till komponentgrupper:
@@ -1103,6 +1111,9 @@ BLOCKOK=$(grep -c "Block placed" "$LOG")
 CARGO=$(grep -ci "Replaced slot" "$LOG")
 VAKUUM=$(grep -c "VAKUUM-TEST OK" "$LOG")
 NYRAS=$(grep -cE "Found entity\.mjau:(ginger|domino)" "$LOG")
+# VISSLAN: kroken loggar hur många som kom, och katten ska INTE längre finnas
+# kvar på 90,20,90 — den sista testfor ska alltså sakna mål.
+VISSLA=$(grep -c "\[mjau\] vissla: [1-9]" "$LOG")
 KOLONI=$(grep -c "KOLONI-TEST OK" "$LOG")
 SOVHOG=$(grep -c "Found entity.mjau:hazel" "$LOG")
 HUNGER=$(grep -c "Found Hungertest" "$LOG")
@@ -1120,6 +1131,7 @@ SOFT=$(grep -c "Unable to summon" "$LOG")
 [ "$CARGO" -ge 2 ] && ok "vagn OCH ryggsäck har riktiga lastutrymmen ($CARGO/2 replaceitem i slot.inventory)" || bad "förvaringen gick inte att fylla ($CARGO/2) — is_chested/inventory verkar inte ge någon container"
 [ "$VAKUUM" -ge 1 ] && ok "ryggsäckskatten plockar upp från marken (skriptkroken hittade tråden i väskan)" || bad "ryggsäckskatten plockade INTE upp tråden (se VAKUUM-TEST i $LOG)"
 [ "$HUND" -ge 1 ] && ok "vakthunden laddar med egen geometri" || bad "vakthunden gick inte att spawna"
+[ "$VISSLA" -ge 1 ] && ok "kattvisslan kallar hem tämjda katter" || bad "kattvisslan hämtade ingen katt"
 [ "$NYRAS" -ge 4 ] && ok "Ginger och Domino bär plaggen: $NYRAS/4 (sadel + ryggsäck, has_property)" || bad "de nya raserna satte bara $NYRAS/4 plagg-properties"
 [ "$KOLONI" -ge 1 ] && ok "kolonin: katterna tvättar varandra och kryper ihop på natten" || bad "kolonin fungerade inte (se KOLONI-TEST i $LOG)"
 [ "$HUNGER" -ge 3 ] && ok "hungern pausar bonusarna, maten höjer humöret och skriptet speglar tillbaka ($HUNGER/3)" || bad "hungerspeglingen gav $HUNGER/3"

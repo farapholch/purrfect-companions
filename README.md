@@ -96,6 +96,9 @@ Craftable, applied to a tamed cat, and all wearable at the same time.
 
 **Cat Treat** — cod + wheat, works as a taming treat.
 
+**Cat Whistle** — iron ingot + string + Cat Treat. One press and every tamed
+cat within a hundred blocks comes to you.
+
 ## What the player wears
 
 Four pieces of armour so you can look like a cat next to your cat — in four

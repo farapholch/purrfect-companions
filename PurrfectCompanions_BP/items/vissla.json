@@ -1,0 +1,24 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "mjau:vissla",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "pc_vissla"
+      },
+      "minecraft:display_name": {
+        "value": "Cat Whistle"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:cooldown": {
+        "category": "mjau_vissla",
+        "duration": 6.0
+      }
+    }
+  }
+}

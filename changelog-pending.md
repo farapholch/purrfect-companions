@@ -6,6 +6,17 @@ lägger ut publish/*.md på purrfect.pelleops.se och en changelog på sajten som
 CurseForge inte har blir en mismatch.)
 
 ---
+
+## 3.48.0 — The Cat Whistle
+
+One press and your cats come running. Craft it from an iron ingot, string and
+a Cat Treat: every tamed cat within a hundred blocks appears around you, with
+a meow and a puff of hearts. Same dimension only — a whistle that pulls cats
+through a portal is not a whistle.
+
+Cats wander further than dogs do, and finding one that stayed behind two
+valleys away is not the fun part.
+
 ---
 
 <!-- ALLT NEDANFÖR ÄR PROJEKTETS EGEN LOGG och ska INTE med till butiken. -->

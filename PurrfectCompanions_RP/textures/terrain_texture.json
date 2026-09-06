@@ -11,6 +11,9 @@
     "pc_kattoa": {
       "textures": "textures/blocks/pc_kattoa"
     },
+    "pc_podium": {
+      "textures": "textures/blocks/pc_podium"
+    },
     "pc_stallning": {
       "textures": "textures/blocks/pc_stallning"
     },

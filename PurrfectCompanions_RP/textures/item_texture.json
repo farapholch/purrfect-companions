@@ -304,6 +304,9 @@
     },
     "pc_garnboll": {
       "textures": "textures/items/pc_garnboll"
+    },
+    "pc_pokal": {
+      "textures": "textures/items/pc_pokal"
     }
   }
 }

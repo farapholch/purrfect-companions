@@ -638,6 +638,25 @@ def icon_treat():
         if x%2==0: sp(x,8,DARK)             # mönster
     write_png(f"{RP}/textures/items/pc_godis.png",S,S,px)
 
+def icon_pokal():
+    """En guldpokal med två öron — det är en KATTutställning."""
+    S=16; T=(0,0,0,0); px=[[T]*S for _ in range(S)]
+    GULD=(226,190,96,255); LJUS=(248,226,150,255); MORK=(160,124,50,255)
+    ORA_IN=(226,150,168,255)
+    def rect(x0,y0,w,h,c):
+        for y in range(y0,y0+h):
+            for x in range(x0,x0+w):
+                if 0<=x<S and 0<=y<S: px[y][x]=c
+    rect(4,2,8,6,GULD); rect(4,2,8,1,LJUS)        # skålen
+    rect(4,8,8,1,MORK)
+    rect(5,9,6,1,GULD); rect(6,10,4,2,MORK)       # foten
+    rect(4,12,8,2,GULD); rect(4,13,8,1,MORK)      # basplattan
+    rect(2,3,2,4,GULD); rect(12,3,2,4,GULD)       # handtagen
+    rect(3,0,2,3,GULD); rect(3,1,1,1,ORA_IN)      # kattöronen
+    rect(11,0,2,3,GULD); rect(12,1,1,1,ORA_IN)
+    rect(6,4,4,3,LJUS)                             # blank spegling
+    write_png(f"{RP}/textures/items/pc_pokal.png",S,S,px)
+
 def icon_garnboll():
     """Ett rött garnnystan med trådmönster och en lös trådände."""
     S=16; T=(0,0,0,0); px=[[T]*S for _ in range(S)]
@@ -839,6 +858,17 @@ def build_rest():
       "menu_category":{"category":"items"}},"components":{"minecraft:icon":{"texture":"pc_kattbok"},
       "minecraft:display_name":{"value":"Cat Care Book"},"minecraft:max_stack_size":1}}},
       open(f"{BP}/items/kattbok.json","w"),indent=2)
+    # POKALEN (3.50.0): priset ur kattutställningen. Inget recept — den enda
+    # vägen dit är att ställa en välskött, välklädd katt på podiet och få 90
+    # poäng. Ett föremål man inte kan tillverka är det enda som betyder något
+    # i en värld där allt annat går att tillverka.
+    icon_pokal()
+    it["texture_data"]["pc_pokal"]={"textures":"textures/items/pc_pokal"}
+    json.dump({"format_version":"1.20.50","minecraft:item":{"description":{"identifier":"mjau:pokal",
+      "menu_category":{"category":"items"}},"components":{"minecraft:icon":{"texture":"pc_pokal"},
+      "minecraft:display_name":{"value":"Best in Show"},"minecraft:max_stack_size":16}}},
+      open(f"{BP}/items/pokal.json","w"),indent=2)
+    lang.append("item.mjau:pokal=Best in Show")
     # GARNNYSTANET som FÖREMÅL (3.49.0). Blocket mjau:garnnystan finns redan
     # som möbel; det här är det kastbara. Kasta det, katten jagar, leker och
     # bär hem det — och blir glad på kuppen (humöret som hungern redan äter av).

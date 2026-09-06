@@ -46,6 +46,31 @@ BLOCKS = {
      key={"P":{"item":"minecraft:planks"},"S":{"item":"minecraft:sand"}},
      unlock=[{"item":"minecraft:sand"}]),
    height=4),
+ "podium": dict(
+   name="Show Podium",
+   # UTSTÄLLNINGSPODIET (3.50.0): en låg scen med röd matta, en rosettstolpe
+   # och två skyltpelare. Katten ställs på podiet och domaren (interaktionen)
+   # ger poäng för ras, plagg, humör, hälsa och ålder.
+   cubes=[([-8,0,-8],[16,2,16],"tra"),            # scengolv
+          ([-7,2,-7],[14,1,14],"matta"),          # röda mattan
+          ([-8,2,-8],[1,3,1],"stolpe"),           # fyra hörnstolpar
+          ([7,2,-8],[1,3,1],"stolpe"),
+          ([-8,2,7],[1,3,1],"stolpe"),
+          ([7,2,7],[1,3,1],"stolpe"),
+          ([-2,3,-8],[4,3,1],"rosett"),           # rosetten på framkanten
+          ([-1,6,-8],[2,2,1],"guld")],            # guldknoppen över den
+   material={
+     "tra":     lambda x,y: (108,78,50,255) if y % 5 == 0 else (146,110,72,255),
+     "matta":   lambda x,y: (176,44,40,255) if (x + y) % 3 else (204,58,54,255),
+     "stolpe":  lambda x,y: (226,198,120,255) if y % 3 else (186,156,84,255),
+     "rosett":  lambda x,y: (238,208,110,255) if (x + y) % 4 else (204,166,70,255),
+     "guld":    lambda x,y: (246,222,140,255) if (x + y) % 2 else (214,180,86,255),
+   },
+   base=(146,110,72), accent=(204,58,54), sound="wood",
+   recipe=dict(pattern=["WWW","PPP","PPP"],
+     key={"W":{"item":"minecraft:red_wool"},"P":{"item":"minecraft:planks"}},
+     unlock=[{"item":"minecraft:red_wool"}]),
+   height=8),
  "stallning": dict(
    name="Cat Tower",
    # OMRITAT 2026-08-29. Den gamla var en 3x10-pinne mellan två breda plattor och

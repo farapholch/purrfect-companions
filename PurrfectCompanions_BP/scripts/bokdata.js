@@ -297,5 +297,6 @@ export const MOBLER = [
  "mjau:kattlucka",
  "mjau:kattoa",
  "mjau:matskal",
+ "mjau:podium",
  "mjau:stallning"
 ];

@@ -7,6 +7,19 @@ CurseForge inte har blir en mismatch.)
 
 ---
 
+## 3.50.0 — The Cat Show
+
+Craft a **Show Podium**, stand a tamed cat on it and press it. A judge scores
+her out of a hundred: six points per outfit she wears up to forty, her mood,
+whether she is well fed, her health, whether she is fully grown, and ten for
+being who she is. The breakdown is printed line by line, so you can see what
+to improve.
+
+Ninety or more and she is **Best in Show**: a trophy you cannot craft, only
+win, plus an award of the same name. It is the one place where all
+twenty-four outfits mean something beyond looks.
+
+
 ## 3.49.0 — The Yarn Ball
 
 Three string makes a yarn ball. Throw it and the nearest tamed cat chases it

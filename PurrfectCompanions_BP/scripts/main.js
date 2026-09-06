@@ -499,7 +499,7 @@ const XP_REWARD = {
   trippelskatten: 30, bergsbestigaren: 25, regnbagssamlaren: 25, hinderbanan: 30,
   djuphavsdykaren: 30, handelsman: 20, vindskatten: 25,
   kattmastare: 50, norrsken: 40, stjarnfodd: 40, manlandaren: 35,
-  stortdykaren: 30,
+  stortdykaren: 30, utstallningen: 35,
 };
 const ITEM_REWARD = {
   ur_morkret: [{ id: "minecraft:phantom_membrane", n: 2 }],
@@ -546,7 +546,7 @@ function give(pl, id) {
 // slätter, så de går att hitta i vilken värld som helst). Festen kräver bara
 // den. KATTGARDEN_ORDER visas bara för den som faktiskt är i Kattgården.
 const KATT_ORDER = ["forsta_vannen", "hela_flocken", "ryttaren", "fiskarkatten",
-                    "skattgravaren", "ur_morkret", "stortdykaren"];
+                    "skattgravaren", "ur_morkret", "stortdykaren", "utstallningen"];
 const KATTGARDEN_ORDER = ["befriaren", "fyrvaktaren", "lados_hemlighet", "alla_hemma",
                           "trippelskatten", "bergsbestigaren", "regnbagssamlaren",
                           "hinderbanan", "djuphavsdykaren", "handelsman",
@@ -1730,6 +1730,123 @@ function visaBoken(pl) {
     bokSida(pl, rubrik, bygg(pl));
   }).catch(() => { });
 }
+
+// ---------------------------------------------------------------------------
+// KATTUTSTÄLLNINGEN: ställ en katt på podiet och tryck på det. Domaren räknar
+// ras, plagg, humör, hälsa och ålder och ger poäng — och det är det enda
+// stället där de tjugofyra plaggen betyder något annat än utseende.
+//
+// POÄNGEN ÄR SYNLIG. En siffra utan uppdelning är en gissning; spelaren ska se
+// VAD som gav poäng och därmed vad hon kan göra bättre till nästa gång.
+const PODIUM = "mjau:podium";
+const DOMARPAUS = 200;            // tick mellan bedömningar av samma katt
+const domarminne = new Map();     // katt-id -> tick då nästa bedömning tillåts
+
+function bedom(c) {
+  let p = 0;
+  const rader = [];
+  const plagg = PLAGG_PROPS.filter(pr => {
+    try { return (c.getProperty(pr) ?? 0) > 0; } catch { return false; }
+  }).length;
+  const plaggP = Math.min(40, plagg * 6);
+  p += plaggP; rader.push(["mjau.show.plagg", plagg, plaggP]);
+
+  let humor = 1;
+  try { humor = c.getProperty("mjau:humor") ?? 1; } catch { }
+  const humorP = humor * 10;
+  p += humorP; rader.push(["mjau.show.humor", humor, humorP]);
+
+  let hungrig = 0;
+  try { hungrig = c.getProperty("mjau:hungrig") ?? 0; } catch { }
+  const matP = hungrig ? 0 : 10;
+  p += matP; rader.push(["mjau.show.mat", hungrig ? 0 : 1, matP]);
+
+  let halsaP = 0, kvot = 1;
+  try {
+    const h = c.getComponent("minecraft:health");
+    kvot = h ? h.currentValue / h.effectiveMax : 1;
+    halsaP = Math.round(kvot * 10);
+  } catch { halsaP = 10; }
+  p += halsaP; rader.push(["mjau.show.halsa", Math.round(kvot * 100), halsaP]);
+
+  // VUXEN: en kattunge är gullig men inte utställningsklar. Tio poäng, så en
+  // unge kan komma till åttio och ändå aldrig ta guldet — det är meningen.
+  let vuxen = 1;
+  try { vuxen = c.getComponent("minecraft:is_baby") ? 0 : 1; } catch { }
+  p += vuxen * 10; rader.push(["mjau.show.vuxen", vuxen, vuxen * 10]);
+
+  p += 10; rader.push(["mjau.show.ras", 1, 10]);     // grundpoäng för att vara den hon är
+  return { poang: Math.min(100, p), rader };
+}
+
+try {
+  world.afterEvents.playerInteractWithBlock.subscribe(ev => {
+    try {
+      if (ev.block?.typeId !== PODIUM) return;
+      const pl = ev.player;
+      const d = pl.dimension;
+      const B = ev.block.location;
+      let katter = [];
+      try { katter = d.getEntities({ families: ["mjaukatt"], location: { x: B.x + 0.5, y: B.y + 1, z: B.z + 0.5 }, maxDistance: 3 }); }
+      catch { return; }
+      const c = katter.find(k => { try { return (k.getProperty("mjau:tam") ?? 0) === 1; } catch { return false; } });
+      if (!c) {
+        try { pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.show.ingen" }] }); } catch { }
+        return;
+      }
+      const nu = system.currentTick;
+      if ((domarminne.get(c.id) ?? 0) > nu) {
+        try { pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.show.vanta" }] }); } catch { }
+        return;
+      }
+      domarminne.set(c.id, nu + DOMARPAUS);
+
+      const { poang, rader } = bedom(c);
+      const rt = [{ translate: "mjau.show.rubrik", with: [c.nameTag || "?"] }];
+      for (const [nyckel, varde, delp] of rader)
+        rt.push({ text: "\n§7• " }, { translate: nyckel, with: [String(varde)] }, { text: " §e+" + delp });
+      rt.push({ text: "\n§6" }, { translate: "mjau.show.summa", with: [String(poang)] });
+      try { pl.sendMessage({ rawtext: rt }); } catch { }
+
+      const L = c.location;
+      if (poang >= 90) {
+        try { pl.getComponent("minecraft:inventory")?.container?.addItem(new ItemStack("mjau:pokal", 1)); } catch { }
+        try { pl.addExperience(40); } catch { }
+        try { give(pl, "utstallningen"); } catch { }
+        try {
+          d.playSound("random.levelup", L);
+          for (let i = 0; i < 20; i++)
+            d.spawnParticle("minecraft:totem_particle",
+              { x: L.x + (Math.random() - 0.5) * 2, y: L.y + 0.5 + Math.random() * 1.5, z: L.z + (Math.random() - 0.5) * 2 });
+        } catch { }
+        try { pl.sendMessage({ rawtext: [{ translate: "mjau.show.guld" }] }); } catch { }
+      } else {
+        try { pl.addExperience(poang >= 70 ? 15 : 5); } catch { }
+        try { d.playSound(poang >= 70 ? "random.orb" : "mob.cat.meow", L); } catch { }
+      }
+      console.log("[mjau] utstallning: " + (c.nameTag || c.typeId) + " fick " + poang + " poang");
+    } catch (e) { console.warn("[mjau] utstallning: " + e); }
+  });
+} catch { }
+
+// testkrok: /scriptevent mjau:test_show bedömer närmaste tämjda katt vid ett
+// podium utan att någon trycker på det (servern har ingen spelare).
+try {
+  system.afterEvents.scriptEventReceive.subscribe(ev => {
+    if (ev.id !== "mjau:test_show") return;
+    try {
+      const t = (ev.message ?? "").trim().split(/\s+/).map(Number);
+      const d = world.getDimension("overworld");
+      const plats = t.length === 3 && t.every(v => Number.isFinite(v)) ? { x: t[0], y: t[1], z: t[2] } : null;
+      if (!plats) { console.warn("[mjau] test_show: koordinater saknas"); return; }
+      const c = d.getEntities({ families: ["mjaukatt"], location: plats, maxDistance: 4 })
+        .find(k => { try { return (k.getProperty("mjau:tam") ?? 0) === 1; } catch { return false; } });
+      if (!c) { console.warn("[mjau] test_show: ingen tam katt vid podiet"); return; }
+      const { poang } = bedom(c);
+      console.log("[mjau] utstallning: " + (c.nameTag || c.typeId) + " fick " + poang + " poang");
+    } catch (e) { console.warn("[mjau] test_show: " + e); }
+  });
+} catch { }
 
 // ---------------------------------------------------------------------------
 // GARNNYSTANET: kasta det, katten jagar det, leker med det och bär hem det.

@@ -16,6 +16,10 @@
     "textures": "pc_kattoa",
     "sound": "gravel"
   },
+  "mjau:podium": {
+    "textures": "pc_podium",
+    "sound": "wood"
+  },
   "mjau:stallning": {
     "textures": "pc_stallning",
     "sound": "wood"

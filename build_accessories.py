@@ -874,10 +874,36 @@ def build_rest():
     # bär hem det — och blir glad på kuppen (humöret som hungern redan äter av).
     icon_garnboll()
     it["texture_data"]["pc_garnboll"]={"textures":"textures/items/pc_garnboll"}
+    # KASTBART (3.52.0). Pelle: "ja kasta på riktigt". Att släppa nystanet
+    # fungerade men kändes inte som att leka med en katt. minecraft:throwable
+    # + projectile_entity ger samma kast som ett ägg; entiteten nedan lägger
+    # tillbaka nystanet som föremål där den landar, och katten tar det därifrån
+    # med samma mekanik som förut. do_swing_animation gör att armen svingar.
     json.dump({"format_version":"1.20.50","minecraft:item":{"description":{"identifier":"mjau:garnboll",
       "menu_category":{"category":"equipment"}},"components":{"minecraft:icon":{"texture":"pc_garnboll"},
-      "minecraft:display_name":{"value":"Yarn Ball"},"minecraft:max_stack_size":1}}},
+      "minecraft:display_name":{"value":"Yarn Ball"},"minecraft:max_stack_size":16,
+      "minecraft:throwable":{"do_swing_animation":True,"launch_power_scale":1.2,
+                             "max_draw_duration":0.0,"max_launch_power":1.0,"min_draw_duration":0.0,
+                             "scale_power_by_draw_duration":False},
+      "minecraft:projectile":{"projectile_entity":"mjau:garnkast","minimum_critical_power":1.25},
+      "minecraft:cooldown":{"category":"mjau_garn","duration":0.5}}}},
       open(f"{BP}/items/garnboll.json","w"),indent=2)
+    # PROJEKTILEN. Ingen skada, ingen studs kvar: on_hit tar bort den och
+    # skriptet lägger nystanet på marken där den slog ner (entityRemove-
+    # händelsen finns inte i stabila API:n, så nedslaget speglas i loopen).
+    json.dump({"format_version":"1.21.0","minecraft:entity":{
+      "description":{"identifier":"mjau:garnkast","is_spawnable":False,"is_summonable":True,
+                     "is_experimental":False,"runtime_identifier":"minecraft:snowball"},
+      "components":{
+        "minecraft:collision_box":{"width":0.25,"height":0.25},
+        "minecraft:physics":{},
+        "minecraft:pushable":{"is_pushable":False,"is_pushable_by_piston":False},
+        "minecraft:projectile":{"angle_offset":0.0,"gravity":0.03,"power":1.2,"uncertainty_base":0.0,
+                                "uncertainty_multiplier":0.0,"reflect_on_hurt":False,
+                                "hit_sound":"mob.cat.purr",
+                                "on_hit":{"impact_damage":{"damage":0,"knockback":False,"destroy_on_hit":True},
+                                          "remove_on_hit":{}}}}}},
+      open(f"{BP}/entities/garnkast.json","w"),indent=2)
     json.dump({"format_version":"1.20.10","minecraft:recipe_shapeless":{
       "description":{"identifier":"mjau:garnboll"},"tags":["crafting_table"],
       "ingredients":[{"item":"minecraft:string"},{"item":"minecraft:string"},{"item":"minecraft:string"}],
@@ -988,15 +1014,21 @@ def build_rest():
         e["description"]["properties"]["mjau:leker"]={"type":"int","range":[0,2],"default":0}
         e["components"]["minecraft:shareables"]={"all_items":False,"items":[
             {"item":"mjau:garnboll","want_amount":1,"surplus_amount":1,"priority":0}]}
-        # PRIORITET 21, inte 2: 1-20 är upptagna (panic ligger på 2, och två
-        # beteenden med samma prioritet är odefinierat i Bedrock — den statiska
-        # spärren fällde det direkt). Jakten ska ändå ge vika för allt annat:
-        # en katt som flyr en creeper ska fly, inte hämta garn.
+        # PRIORITET 6, inte 21. Första försöket la jakten längst ner för att den
+        # skulle ge vika för allt annat — och då körde den ALDRIG: look_at_player
+        # (16) och random_look_around (17) är nästan alltid aktiva, så ett mål
+        # under dem får aldrig turen. Katten stod still och tittade på nystanet.
+        # Sexan delas med mjau:jagar (kaninjakten), men grupperna UTESLUTER
+        # VARANDRA: mjau:lek_pa tar bort jagar och mjau:lek_av lägger tillbaka
+        # den. En katt som leker med garn jagar inte kaniner samtidigt.
         g["mjau:lek_jagar"]={"minecraft:behavior.pickup_items":{
-            "priority":21,"max_dist":16,"goal_radius":1.4,"speed_multiplier":1.25,
+            "priority":6,"max_dist":16,"goal_radius":1.4,"speed_multiplier":1.25,
             "pickup_based_on_chance":False,"track_target":True}}
-        ev["mjau:lek_pa"]={"add":{"component_groups":["mjau:lek_jagar"]},"set_property":{"mjau:leker":1}}
-        ev["mjau:lek_av"]={"remove":{"component_groups":["mjau:lek_jagar"]}}
+        ev["mjau:lek_pa"]={"add":{"component_groups":["mjau:lek_jagar"]},
+                           "remove":{"component_groups":["mjau:jagar"]},
+                           "set_property":{"mjau:leker":1}}
+        ev["mjau:lek_av"]={"remove":{"component_groups":["mjau:lek_jagar"]},
+                           "add":{"component_groups":["mjau:jagar"]}}
         for k in [k for k in ev if k.startswith("mjau:on_") and k not in ("mjau:on_tame",)]: del ev[k]
         g.pop("mjau:vagnsplats",None)   # gammal grupp: rideable bor numera bara i mjau:saddled
         inter=[]

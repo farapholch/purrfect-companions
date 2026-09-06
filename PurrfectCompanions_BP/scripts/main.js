@@ -1741,6 +1741,7 @@ function visaBoken(pl) {
 const PODIUM = "mjau:podium";
 const DOMARPAUS = 200;            // tick mellan bedömningar av samma katt
 const domarminne = new Map();     // katt-id -> tick då nästa bedömning tillåts
+const podiestod = new Map();      // katt-id -> stod hon på podiet förra varvet
 
 function bedom(c) {
   let p = 0;
@@ -1779,24 +1780,35 @@ function bedom(c) {
   return { poang: Math.min(100, p), rader };
 }
 
+// TVÅ VÄGAR IN. playerInteractWithBlock finns inte i alla API-nivåer och
+// fyrar inte alltid med tom hand på ett eget block; itemUseOn fyrar när
+// spelaren använder ett FÖREMÅL mot ett block och finns sedan länge. Podiet
+// svarade inte på Xbox med bara den första — nu lyssnar vi på båda, och
+// domaren körs en gång per tryck tack vare DOMARPAUS.
 try {
-  world.afterEvents.playerInteractWithBlock.subscribe(ev => {
+  world.afterEvents.itemUseOn.subscribe(ev => {
     try {
       if (ev.block?.typeId !== PODIUM) return;
-      const pl = ev.player;
-      const d = pl.dimension;
-      const B = ev.block.location;
+      bedomVidPodium(ev.source, ev.block.location, null);
+    } catch { }
+  });
+} catch { }
+
+function bedomVidPodium(pl, B, katt) {
+    try {
+      const d = katt?.dimension ?? pl?.dimension;
+      if (!d) return;
       let katter = [];
       try { katter = d.getEntities({ families: ["mjaukatt"], location: { x: B.x + 0.5, y: B.y + 1, z: B.z + 0.5 }, maxDistance: 3 }); }
       catch { return; }
-      const c = katter.find(k => { try { return (k.getProperty("mjau:tam") ?? 0) === 1; } catch { return false; } });
+      const c = katt ?? katter.find(k => { try { return (k.getProperty("mjau:tam") ?? 0) === 1; } catch { return false; } });
       if (!c) {
-        try { pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.show.ingen" }] }); } catch { }
+        try { pl?.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.show.ingen" }] }); } catch { }
         return;
       }
       const nu = system.currentTick;
       if ((domarminne.get(c.id) ?? 0) > nu) {
-        try { pl.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.show.vanta" }] }); } catch { }
+        try { pl?.onScreenDisplay.setActionBar({ rawtext: [{ translate: "mjau.show.vanta" }] }); } catch { }
         return;
       }
       domarminne.set(c.id, nu + DOMARPAUS);
@@ -1806,9 +1818,11 @@ try {
       for (const [nyckel, varde, delp] of rader)
         rt.push({ text: "\n§7• " }, { translate: nyckel, with: [String(varde)] }, { text: " §e+" + delp });
       rt.push({ text: "\n§6" }, { translate: "mjau.show.summa", with: [String(poang)] });
-      try { pl.sendMessage({ rawtext: rt }); } catch { }
+      try { pl?.sendMessage({ rawtext: rt }); } catch { }
 
       const L = c.location;
+      console.log("[mjau] utstallning: " + (c.nameTag || c.typeId) + " fick " + poang + " poang");
+      if (!pl) return;                     // ingen publik: poängen räknad, inget pris
       if (poang >= 90) {
         try { pl.getComponent("minecraft:inventory")?.container?.addItem(new ItemStack("mjau:pokal", 1)); } catch { }
         try { pl.addExperience(40); } catch { }
@@ -1824,10 +1838,61 @@ try {
         try { pl.addExperience(poang >= 70 ? 15 : 5); } catch { }
         try { d.playSound(poang >= 70 ? "random.orb" : "mob.cat.meow", L); } catch { }
       }
-      console.log("[mjau] utstallning: " + (c.nameTag || c.typeId) + " fick " + poang + " poang");
     } catch (e) { console.warn("[mjau] utstallning: " + e); }
+}
+
+try {
+  world.afterEvents.playerInteractWithBlock.subscribe(ev => {
+    try {
+      if (ev.block?.typeId !== PODIUM) return;
+      bedomVidPodium(ev.player, ev.block.location, null);
+    } catch { }
   });
 } catch { }
+
+// DOMAREN TITTAR SJÄLV. Blockhändelserna ovan finns kvar, men de fyrade
+// aldrig på Xbox — varken itemUseOn eller playerInteractWithBlock nådde
+// skriptet när Pelle tryckte på podiet, och ett prov med simulerad spelare
+// kunde inte skilja "händelsen finns inte" från "den simulerade spelaren syns
+// inte". Den här loopen beror inte på någon händelse alls: ställer du katten
+// PÅ podiet bedöms hon, en gång per gång hon kliver upp.
+matt("utstallning", () => {
+  const kvar = new Set();
+  for (const dim of ["overworld", "nether", "the_end"]) {
+    let d, katter;
+    try { d = world.getDimension(dim); katter = d.getEntities({ families: ["mjaukatt"] }); }
+    catch { continue; }
+    for (const c of katter) {
+      let tam = 0;
+      try { tam = c.getProperty("mjau:tam") ?? 0; } catch { continue; }
+      if (tam !== 1) continue;
+      kvar.add(c.id);
+      const L = c.location;
+      let pa = false;
+      try {
+        for (const dy of [-1, 0]) {                 // podiet är en halv meter högt
+          const b = d.getBlock({ x: Math.floor(L.x), y: Math.floor(L.y) + dy, z: Math.floor(L.z) });
+          if (b?.typeId === PODIUM) { pa = true; break; }
+        }
+      } catch { continue; }
+      const forra = podiestod.get(c.id) ?? false;
+      podiestod.set(c.id, pa);
+      if (!pa || forra) continue;                   // bara när hon KLIVER UPP
+      let pl = null;
+      try {
+        pl = d.getPlayers({ location: L, maxDistance: 16 })
+              .sort((a, b) => Math.hypot(a.location.x - L.x, a.location.z - L.z)
+                            - Math.hypot(b.location.x - L.x, b.location.z - L.z))[0];
+      } catch { }
+      // BEDÖM ALLTID, meddela bara om någon är där. Att kräva en spelare för
+      // att ens räkna gjorde mekaniken omöjlig att bevisa i testet, där
+      // spelaren är osynlig för API:n — och en katt som kliver upp på podiet
+      // har alltid en människa i närheten i praktiken.
+      bedomVidPodium(pl, { x: Math.floor(L.x), y: Math.floor(L.y), z: Math.floor(L.z) }, c);
+    }
+  }
+  for (const id of [...podiestod.keys()]) if (!kvar.has(id)) podiestod.delete(id);
+}, 20);
 
 // testkrok: /scriptevent mjau:test_show bedömer närmaste tämjda katt vid ett
 // podium utan att någon trycker på det (servern har ingen spelare).
@@ -1891,12 +1956,37 @@ function garnAgare(c) {
   } catch { return null; }
 }
 
+// NEDSLAGET: projektilen tas bort av motorn när den träffar, och stabila API:n
+// har ingen händelse för det. Loopen håller därför reda på flygande nystan och
+// lägger ett riktigt nystan på marken där ett försvann — det är den saken
+// katten sedan jagar, med samma mekanik som när man släpper det för hand.
+const garnkast = new Map();      // projektil-id -> senast kända plats
+
+function garnNedslag(d) {
+  let flygande = [];
+  try { flygande = d.getEntities({ type: "mjau:garnkast" }); } catch { return; }
+  const kvar = new Set();
+  for (const k of flygande) {
+    try { kvar.add(k.id); garnkast.set(k.id, { x: k.location.x, y: k.location.y, z: k.location.z, dim: d.id }); }
+    catch { }
+  }
+  for (const [id, p] of [...garnkast]) {
+    if (kvar.has(id) || p.dim !== d.id) continue;
+    garnkast.delete(id);
+    try {
+      d.spawnItem(new ItemStack(GARN, 1), { x: p.x, y: p.y + 0.2, z: p.z });
+      d.playSound("mob.cat.straymeow", p);
+    } catch { }
+  }
+}
+
 matt("garnlek", () => {
   const levande = new Set();
   for (const dim of ["overworld", "nether", "the_end"]) {
     let d, katter;
     try { d = world.getDimension(dim); katter = d.getEntities({ families: ["mjaukatt"] }); }
     catch { continue; }
+    garnNedslag(d);
     for (const c of katter) {
       let tam = 0, leker = 0;
       try { tam = c.getProperty("mjau:tam") ?? 0; leker = c.getProperty("mjau:leker") ?? 0; }

@@ -21,6 +21,11 @@ fi
 SRC=/opt/purrfect-companions
 SRV=/opt/bds/server
 W="$SRV/worlds/Kattest"
+# SERVERN MÅSTE PEKA PÅ KATTVÄRLDEN. En avbruten körning i hund- eller
+# grispaketet lämnar level-name kvar på sin egen värld, och då kör gametest
+# mot fel paket: "Could not find test with name 'mjau:...'" för alla nio,
+# utan ett ord om varför. Kostade en halvtimmes felsökning 2026-09-06.
+sed -i "s/^level-name=.*/level-name=Kattest/" "$SRV/server.properties"
 LOG=/tmp/purrfect-gametest.log
 
 # Modulversionerna är per BDS-version; fel version => servern LISTAR de rätta
@@ -91,11 +96,13 @@ cd "$SRV"
   echo "gametest run mjau:skepp"
   echo "gametest run mjau:totem"
   echo "gametest run mjau:stortdyk"
-  # vänta tills ALLA sju testen avgjorts
+  echo "gametest run mjau:show"
+  echo "gametest run mjau:garn"
+  # vänta tills ALLA nio testen avgjorts
   for i in $(seq 1 80); do
     N=$(grep -cE "MJAU-GT\] (PASS|FAIL)" "$LOG" 2>/dev/null)
     grep -q "failed to create context" "$LOG" && break
-    [ "${N:-0}" -ge 7 ] && break
+    [ "${N:-0}" -ge 9 ] && break
     sleep 3
   done
   echo "stop"; sleep 5; } | LD_LIBRARY_PATH=. ./bedrock_server > "$LOG" 2>&1
@@ -106,11 +113,14 @@ PASSN=$(grep -c "MJAU-GT\] PASS" "$LOG")
 # STÖRTDYKAREN: fallmätningen kvitterar i loggen (kan inte ses av GameTest-
 # provet självt — ryttaren är osynlig för stabila API:n). Utan kvittot
 # landade katten, men mekaniken bakom utmärkelsen körde aldrig.
+if ! grep -q "\[mjau\] utstallning: .* fick [0-9]* poang" "$LOG"; then
+  echo "[gametest] ❌ podiet gav ingen poäng när en spelare tryckte på det"; exit 1
+fi
 if ! grep -q "\[mjau\] stortdyk: [0-9]* block" "$LOG"; then
   echo "[gametest] ❌ störtdyket kvitterades aldrig av main.js (fallmätningen)"; exit 1
 fi
-if [ "$PASSN" -ge 7 ] && ! grep -q "MJAU-GT\] FAIL" "$LOG"; then
-  echo "[gametest] ✅ PASS ($PASSN/7) — rida+styra, vagnen, midnattsritualen, sateshojden, spjutjaktaren, totemet och stortdykaren"
+if [ "$PASSN" -ge 9 ] && ! grep -q "MJAU-GT\] FAIL" "$LOG"; then
+  echo "[gametest] ✅ PASS ($PASSN/9) — rida+styra, vagnen, ritualen, sateshojden, spjutjaktaren, totemet, stortdykaren, podiet och garnet"
   exit 0
 fi
 echo "[gametest] ❌ FAIL (logg: $LOG)"

@@ -194,7 +194,7 @@ for f in glob.glob(f"{SRC}/PurrfectCompanions_RP/entity/*.json"):
                 bad.append(f"spawn-ikon-fil saknas för {egg['texture']}")
 for f in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json")):
     cid=os.path.basename(f)[:-5]; e=json.load(open(f))["minecraft:entity"]
-    comp=e["components"]; groups=e.get("component_groups",{})
+    comp=e["components"]; groups=e.get("component_groups",{}); ev=e.get("events",{})
     # KATTREGLERNA (rustning, ridning, kattgeometri) gäller bara kattfamiljen —
     # andra varelser (vakthunden) granskas bara för prioritetskrockar
     ar_katt = "mjaukatt" in comp.get("minecraft:type_family",{}).get("family",[])
@@ -203,8 +203,23 @@ for f in sorted(glob.glob(f"{SRC}/PurrfectCompanions_BP/entities/*.json")):
         for k,v in bk.items():
             if k.startswith("minecraft:behavior.") and isinstance(v,dict):
                 pri.setdefault(v.get("priority"),[]).append(k.split(".")[-1])
-    dup={p:v for p,v in pri.items() if len(v)>1}
+    # UTESLUTANDE GRUPPER får dela prioritet: mjau:lek_pa tar bort jagar när
+    # leken börjar och lek_av lägger tillbaka den, så de två kan aldrig vara
+    # aktiva samtidigt. Undantaget är EN namngiven par-lista, inte en generell
+    # uppmjukning — kravet på unika prioriteter är det som fångade att panic
+    # och pickup_items låg på samma nummer.
+    UTESLUTER = {("nearest_attackable_target", "pickup_items"),
+                 ("stalk_and_pounce_on_target", "pickup_items"),
+                 ("melee_attack", "pickup_items")}
+    dup={p:v for p,v in pri.items() if len(v)>1
+         and tuple(sorted(v)) not in {tuple(sorted(x)) for x in UTESLUTER}}
     if dup: bad.append(f"{cid}: prioritetskrock {dup}")
+    # ...och att de FAKTISKT utesluter varandra måste stå i eventen.
+    if ar_katt:
+        _lp=json.dumps(ev.get("mjau:lek_pa",{})); _la=json.dumps(ev.get("mjau:lek_av",{}))
+        if "mjau:jagar" not in _lp or "mjau:jagar" not in _la:
+            bad.append(f"{cid}: lek_pa/lek_av måste ta bort respektive lägga tillbaka mjau:jagar "
+                       f"— annars delar pickup_items och jakten prioritet samtidigt")
     if not ar_katt: continue
     if "minecraft:scale" in comp and any("minecraft:scale" in g for g in groups.values()):
         bad.append(f"{cid}: scale i både bas och grupp")

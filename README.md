@@ -97,11 +97,12 @@ Craftable, applied to a tamed cat, and all wearable at the same time.
 **Cat Treat** — cod + wheat, works as a taming treat.
 
 **Show Podium** — three red wool over six planks. Stand a tamed cat on it and
-press it: she is judged out of a hundred on outfits, mood, feeding, health and
+she is judged out of a hundred on outfits, mood, feeding, health and
 age. Ninety or more wins the Best in Show trophy.
 
-**Yarn Ball** — three string. Throw it: she chases it, plays with it, brings
-it back, and is in a better mood for it.
+**Yarn Ball** — three string, sixteen to a stack. Throw it the way you throw
+an egg: she chases it down, plays with it, brings it back, and is in a better
+mood for it.
 
 **Cat Whistle** — iron ingot + string + Cat Treat. One press and every tamed
 cat within a hundred blocks comes to you.

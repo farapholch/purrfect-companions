@@ -7,6 +7,29 @@ CurseForge inte har blir en mismatch.)
 
 ---
 
+## 3.52.0 — Throw the yarn ball
+
+Hold it and use it, the way you throw an egg: it arcs where you aim, lands
+with a purr, and the yarn is lying there for her to chase. Sixteen to a stack
+now, so one crafting keeps the game going.
+
+Dropping it still works, if that is easier for small hands.
+
+
+## 3.51.0 — The podium judges by itself, and she actually chases the yarn
+
+Two things did not work in the game, and both were proven "green" by tests
+that only exercised the shortcut, not the real path.
+
+**The podium.** Pressing it did nothing: neither block event reached the pack.
+It does not need one now — stand a tamed cat on the podium and the judge scores
+her, once each time she steps up. You still get the full breakdown in chat.
+
+**The yarn ball.** She stood and watched it. The chasing behaviour sat at the
+very bottom of her priorities, below looking around, so it never got a turn.
+It sits with the hunt now, and playing replaces hunting while it lasts.
+
+
 ## 3.50.0 — The Cat Show
 
 Craft a **Show Podium**, stand a tamed cat on it and press it. A judge scores

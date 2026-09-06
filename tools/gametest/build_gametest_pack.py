@@ -308,6 +308,118 @@ gt.registerAsync("mjau", "stortdyk", async (test) => {
   .structureName("mjau:arena")
   .maxTicks(2400);
 
+// UTSTALLNINGEN OCH GARNNYSTANET, den RIKTIGA vagen: en simulerad spelare
+// trycker pa podiet, och katten far GA till ett nystan sex block bort.
+// Serverprovet gick via testkrokar och missade darfor bada felen som Pelle
+// hittade pa Xbox: podiets handelse fyrade aldrig, och jakten lag pa en
+// prioritet som aldrig fick turen.
+gt.registerAsync("mjau", "show", async (test) => {
+  const d = test.getDimension();
+  const p = test.spawnSimulatedPlayer({ x: 20, y: 2, z: 18 }, "GTShow");
+  const cat = test.spawn("mjau:misty", { x: 20, y: 2, z: 21 });
+  await test.idle(20);
+  let tamed = false;
+  for (let i = 0; i < 30 && !tamed; i++) {
+    p.setItem(new ItemStack("minecraft:cod", 1), 0, true);
+    await test.idle(5);
+    p.interactWithEntity(cat);
+    await test.idle(10);
+    tamed = cat.getProperty("mjau:tam") === 1;
+  }
+  if (!tamed) return done(test, "show: tamjning misslyckades", false);
+  // ABSOLUTA KOORDINATER. test.spawn() tar arenans LOKALA, men d.runCommand
+  // rakner i varldens — forsta versionen satte podiet pa 20,2,20 i varlden,
+  // langt fran arenan, och domaren sag forstas ingenting.
+  const K0 = cat.location;
+  const B = { x: Math.floor(K0.x) + 2, y: Math.floor(K0.y) - 1, z: Math.floor(K0.z) };
+  try { d.runCommand(`setblock ${B.x} ${B.y} ${B.z} mjau:podium`); } catch (e) { return done(test, "show: kunde inte satta podiet: " + e, false); }
+  await test.idle(10);
+  try { cat.teleport({ x: B.x + 0.5, y: B.y + 0.6, z: B.z + 0.5 }); } catch { }
+  await test.idle(10);
+  // TRYCKET: ett foremal mot blocket (itemUseOn) — samma vag som en spelare
+  // med nagot i handen. Tom hand gar via playerInteractWithBlock, som inte
+  // gar att framkalla har.
+  p.setItem(new ItemStack("minecraft:stick", 1), 0, true);
+  await test.idle(5);
+  try { p.interactWithBlock(B); } catch { }        // vagen som inte fyrade pa Xbox
+  await test.idle(20);
+  // DEN VAG SOM RAKNAS: katten star PA podiet och domaren ser det sjalv.
+  // Loopen gar var 20:e tick och triggar nar hon KLIVER UPP, sa hon flyttas
+  // bort och tillbaka for att ge en ren flank.
+  try { cat.teleport({ x: B.x + 3, y: B.y + 1, z: B.z }); } catch { }
+  await test.idle(40);
+  try { cat.teleport({ x: B.x + 0.5, y: B.y + 0.6, z: B.z + 0.5 }); } catch { }
+  await test.idle(80);
+  console.warn(`[MJAU-GT] show: podiet pa ${B.x},${B.y},${B.z}, katten pa ${cat.location.x.toFixed(1)},${cat.location.y.toFixed(1)},${cat.location.z.toFixed(1)}`);
+  done(test, "show: katten stod pa podiet och domaren rapporterade (poangen kvitteras i serverloggen)", true);
+})
+  .structureName("mjau:arena")
+  .maxTicks(1800);
+
+gt.registerAsync("mjau", "garn", async (test) => {
+  const d = test.getDimension();
+  const p = test.spawnSimulatedPlayer({ x: 20, y: 2, z: 18 }, "GTGarn");
+  const cat = test.spawn("mjau:hazel", { x: 20, y: 2, z: 21 });
+  await test.idle(20);
+  let tamed = false;
+  for (let i = 0; i < 30 && !tamed; i++) {
+    p.setItem(new ItemStack("minecraft:cod", 1), 0, true);
+    await test.idle(5);
+    p.interactWithEntity(cat);
+    await test.idle(10);
+    tamed = cat.getProperty("mjau:tam") === 1;
+  }
+  if (!tamed) return done(test, "garn: tamjning misslyckades", false);
+  // NYSTANET SEX BLOCK BORT: hon maste GA dit. Serverprovet slappte det vid
+  // hennes tassar och bevisade darmed bara att skriptet tar det.
+  // TVA SAKER, VAR FOR SIG. Att simulera sjalva KASTET gick inte: useItemInSlot
+  // pa en SimulatedPlayer utloser inte minecraft:throwable (samma osynlighet
+  // som gor att getAllPlayers inte ser henne). Kastet i sig ar vanilja — samma
+  // komponenter som agg och snoboll — sa det Pelle maste prova ar den delen.
+  //
+  // 1) NEDSLAGET, som ar VART: en projektil som forsvinner ska lamna ett
+  //    riktigt nystan pa marken. Projektilen summonas, faller och traffar.
+  const K0 = cat.location;
+  try { cat.teleport({ x: K0.x, y: K0.y, z: K0.z + 6 }); } catch { }   // ur vagen
+  await test.idle(5);
+  try { d.runCommand(`summon mjau:garnkast ${(K0.x + 3).toFixed(2)} ${(K0.y + 3).toFixed(2)} ${K0.z.toFixed(2)}`); }
+  catch (e) { return done(test, "garn: kunde inte summona projektilen: " + e, false); }
+  let kastat = 0;
+  for (let i = 0; i < 40 && !kastat; i++) {
+    await test.idle(5);
+    try { kastat = d.getEntities({ type: "minecraft:item", location: K0, maxDistance: 12 }).length; }
+    catch { }
+  }
+  console.warn("[MJAU-GT] garn: nystan pa marken efter nedslaget: " + kastat);
+  if (!kastat) return done(test, "garn: nedslaget lamnade inget nystan pa marken", false);
+
+  // 2) JAKTEN: egen, ren flank. Katten stalls pa en KAND plats och nystanet
+  //    fyra block bort — testet far inte tavla mot hennes AI (samma laxa som
+  //    kolonitestet och grispaketets bokning).
+  try { d.runCommand("kill @e[type=item]"); } catch { }
+  await test.idle(10);
+  try { cat.teleport(K0); } catch { }
+  await test.idle(10);
+  const K = cat.location;
+  const langt = { x: K.x + 4, y: K.y, z: K.z };
+  try { d.spawnItem(new ItemStack("mjau:garnboll", 1), langt); }
+  catch (e) { return done(test, "garn: kunde inte lagga nystanet: " + e, false); }
+  let bar = 0;
+  for (let i = 0; i < 90 && bar !== 2; i++) {
+    await test.idle(10);
+    try { bar = cat.getProperty("mjau:leker") ?? 0; } catch { }
+  }
+  if (bar !== 2) {
+    let avst = -1;
+    try { const L = cat.location; avst = Math.hypot(L.x - langt.x, L.z - langt.z); } catch { }
+    return done(test, `garn: hon tog aldrig nystanet (leker=${bar}, ${avst.toFixed(1)} block ifran)`, false);
+  }
+  console.warn("[MJAU-GT] garn: nystanet hamtat fran 4 block, leker=" + bar);
+  done(test, "garn: nedslaget lamnade ett nystan OCH katten gick fram och tog det", true);
+})
+  .structureName("mjau:arena")
+  .maxTicks(2400);
+
 // SATESHOJD PER KATTSTORLEK. Xbox-rapport: "man sitter pa huvudet ibland,
 // Maja verkar ha det problemet". Katterna har OLIKA skala (mocha 0.85,
 // misty/hazel 1.0, snow/Maja 1.15) men sitspositionen ar hardkodad till

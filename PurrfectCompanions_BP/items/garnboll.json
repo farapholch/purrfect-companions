@@ -14,7 +14,23 @@
       "minecraft:display_name": {
         "value": "Yarn Ball"
       },
-      "minecraft:max_stack_size": 1
+      "minecraft:max_stack_size": 16,
+      "minecraft:throwable": {
+        "do_swing_animation": true,
+        "launch_power_scale": 1.2,
+        "max_draw_duration": 0.0,
+        "max_launch_power": 1.0,
+        "min_draw_duration": 0.0,
+        "scale_power_by_draw_duration": false
+      },
+      "minecraft:projectile": {
+        "projectile_entity": "mjau:garnkast",
+        "minimum_critical_power": 1.25
+      },
+      "minecraft:cooldown": {
+        "category": "mjau_garn",
+        "duration": 0.5
+      }
     }
   }
 }

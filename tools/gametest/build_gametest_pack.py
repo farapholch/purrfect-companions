@@ -396,7 +396,17 @@ gt.registerAsync("mjau", "garn", async (test) => {
   // 2) JAKTEN: egen, ren flank. Katten stalls pa en KAND plats och nystanet
   //    fyra block bort — testet far inte tavla mot hennes AI (samma laxa som
   //    kolonitestet och grispaketets bokning).
-  try { d.runCommand("kill @e[type=item]"); } catch { }
+  // BARA VÅRA EGNA, OCH BARA HÄR. Ett `kill @e[type=item]` tar bort ALLA
+  // foremal i dimensionen — proven kor parallellt, och det slog ut ritualens
+  // lax sa att midnattstestet foll tva slapp i rad utan att nagot var fel med
+  // ritualen. Stada aldrig varldsvitt i ett prov.
+  try {
+    for (const e of d.getEntities({ type: "minecraft:item", location: K0, maxDistance: 24 })) {
+      let t = null;
+      try { t = e.getComponent("minecraft:item")?.itemStack?.typeId; } catch { }
+      if (t === "mjau:garnboll") { try { e.remove(); } catch { } }
+    }
+  } catch { }
   await test.idle(10);
   try { cat.teleport(K0); } catch { }
   await test.idle(10);

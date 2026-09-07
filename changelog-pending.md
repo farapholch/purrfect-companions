@@ -1,68 +1,11 @@
 # Ej publicerat på CurseForge ännu
 
-(tomt — 3.46.0–3.47.0 flyttades in i publish/changelog.md vid släppet 2026-09-05.
+(tomt — 3.48.0–3.52.0 flyttades in i publish/changelog.md vid släppet 2026-09-07.
 Nya opublicerade poster skrivs HÄR, inte i publish/, eftersom publish_site.sh
 lägger ut publish/*.md på purrfect.pelleops.se och en changelog på sajten som
 CurseForge inte har blir en mismatch.)
 
 ---
-
-## 3.52.0 — Throw the yarn ball
-
-Hold it and use it, the way you throw an egg: it arcs where you aim, lands
-with a purr, and the yarn is lying there for her to chase. Sixteen to a stack
-now, so one crafting keeps the game going.
-
-Dropping it still works, if that is easier for small hands.
-
-
-## 3.51.0 — The podium judges by itself, and she actually chases the yarn
-
-Two things did not work in the game, and both were proven "green" by tests
-that only exercised the shortcut, not the real path.
-
-**The podium.** Pressing it did nothing: neither block event reached the pack.
-It does not need one now — stand a tamed cat on the podium and the judge scores
-her, once each time she steps up. You still get the full breakdown in chat.
-
-**The yarn ball.** She stood and watched it. The chasing behaviour sat at the
-very bottom of her priorities, below looking around, so it never got a turn.
-It sits with the hunt now, and playing replaces hunting while it lasts.
-
-
-## 3.50.0 — The Cat Show
-
-Craft a **Show Podium**, stand a tamed cat on it and press it. A judge scores
-her out of a hundred: six points per outfit she wears up to forty, her mood,
-whether she is well fed, her health, whether she is fully grown, and ten for
-being who she is. The breakdown is printed line by line, so you can see what
-to improve.
-
-Ninety or more and she is **Best in Show**: a trophy you cannot craft, only
-win, plus an award of the same name. It is the one place where all
-twenty-four outfits mean something beyond looks.
-
-
-## 3.49.0 — The Yarn Ball
-
-Three string makes a yarn ball. Throw it and the nearest tamed cat chases it
-down, bats it around for a few seconds — and then carries it back to you.
-
-She is **happier afterwards**: playing lifts her mood the same way a Cat Treat
-does, which matters now that hunger wears it down. Cats are not dogs, so the
-playing comes first and the returning second.
-
-
-## 3.48.0 — The Cat Whistle
-
-One press and your cats come running. Craft it from an iron ingot, string and
-a Cat Treat: every tamed cat within a hundred blocks appears around you, with
-a meow and a puff of hearts. Same dimension only — a whistle that pulls cats
-through a portal is not a whistle.
-
-Cats wander further than dogs do, and finding one that stayed behind two
-valleys away is not the fun part.
-
 ---
 
 <!-- ALLT NEDANFÖR ÄR PROJEKTETS EGEN LOGG och ska INTE med till butiken. -->

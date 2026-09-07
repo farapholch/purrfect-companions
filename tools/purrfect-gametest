@@ -103,12 +103,30 @@ cd "$SRV"
   echo "gametest run mjau:skepp"
   echo "gametest run mjau:totem"
   echo "gametest run mjau:stortdyk"
-  echo "gametest run mjau:show"
-  echo "gametest run mjau:garn"
-  # vänta tills ALLA nio testen avgjorts
+  # vänta in de sju som tål sällskap
   for i in $(seq 1 80); do
     N=$(grep -cE "MJAU-GT\] (PASS|FAIL)" "$LOG" 2>/dev/null)
     grep -q "failed to create context" "$LOG" && break
+    [ "${N:-0}" -ge 7 ] && break
+    sleep 3
+  done
+  # SHOW OCH GARN KÖRS ENSAMMA. Alla prov delar en arena, och de här två hänger
+  # på VAR djuren står: en granntests katt hann fram till nystanet först, och en
+  # katt som strövade förbi podiet störde bedömningen. Tre släpp i rad föll på
+  # det, med olika avstånd varje gång och ingenting fel i paketet.
+  echo "kill @e[family=mjaukatt]"; sleep 2
+  echo "kill @e[type=minecraft:item]"; sleep 2
+  echo "gametest run mjau:show"
+  for i in $(seq 1 40); do
+    N=$(grep -cE "MJAU-GT\] (PASS|FAIL)" "$LOG" 2>/dev/null)
+    [ "${N:-0}" -ge 8 ] && break
+    sleep 3
+  done
+  echo "kill @e[family=mjaukatt]"; sleep 2
+  echo "kill @e[type=minecraft:item]"; sleep 2
+  echo "gametest run mjau:garn"
+  for i in $(seq 1 60); do
+    N=$(grep -cE "MJAU-GT\] (PASS|FAIL)" "$LOG" 2>/dev/null)
     [ "${N:-0}" -ge 9 ] && break
     sleep 3
   done

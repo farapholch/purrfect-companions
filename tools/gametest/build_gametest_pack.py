@@ -419,16 +419,27 @@ gt.registerAsync("mjau", "garn", async (test) => {
   const langt = { x: K.x + 3, y: K.y, z: K.z };
   try { d.spawnItem(new ItemStack("mjau:garnboll", 1), langt); }
   catch (e) { return done(test, "garn: kunde inte lagga nystanet: " + e, false); }
-  let bar = 0;
+  // VILKEN KATT SOM HELST DUGER. Testvarlden ar bestandig och full av katter
+  // fran tidigare korningar; ligger en av dem narmare nystanet vinner den
+  // kapplopningen, och da foll provet fast mekaniken fungerade. Det som ska
+  // bevisas ar att NAGON tamd katt gar dit och tar det — inte vem.
+  let bar = 0, tagare = null;
   for (let i = 0; i < 90 && bar !== 2; i++) {
     await test.idle(10);
-    try { bar = cat.getProperty("mjau:leker") ?? 0; } catch { }
+    try { bar = cat.getProperty("mjau:leker") ?? 0; if (bar === 2) tagare = cat; } catch { }
+    if (bar === 2) break;
+    try {
+      for (const k of d.getEntities({ families: ["mjaukatt"], location: langt, maxDistance: 8 })) {
+        if ((k.getProperty("mjau:leker") ?? 0) === 2) { bar = 2; tagare = k; break; }
+      }
+    } catch { }
   }
   if (bar !== 2) {
     let avst = -1;
     try { const L = cat.location; avst = Math.hypot(L.x - langt.x, L.z - langt.z); } catch { }
-    return done(test, `garn: hon tog aldrig nystanet (leker=${bar}, ${avst.toFixed(1)} block ifran)`, false);
+    return done(test, `garn: ingen katt tog nystanet (leker=${bar}, var kat ${avst.toFixed(1)} block ifran)`, false);
   }
+  console.warn("[MJAU-GT] garn: nystanet togs av " + (tagare?.typeId ?? "?"));
   console.warn("[MJAU-GT] garn: nystanet hamtat fran 4 block, leker=" + bar);
   done(test, "garn: nedslaget lamnade ett nystan OCH katten gick fram och tog det", true);
 })

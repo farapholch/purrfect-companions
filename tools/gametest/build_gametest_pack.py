@@ -410,8 +410,13 @@ gt.registerAsync("mjau", "garn", async (test) => {
   await test.idle(10);
   try { cat.teleport(K0); } catch { }
   await test.idle(10);
+  try { cat.teleport(K0); } catch { }
+  await test.idle(20);
   const K = cat.location;
-  const langt = { x: K.x + 4, y: K.y, z: K.z };
+  // TRE BLOCK, inte fyra: provet far inte tavla mot kattens egen AI. Att hon
+  // GAR strackan ar redan bevisat; det som ska bevisas har ar att hon tar
+  // nystanet och borjar bara det. Med fyra block foll provet nar hon strovade.
+  const langt = { x: K.x + 3, y: K.y, z: K.z };
   try { d.spawnItem(new ItemStack("mjau:garnboll", 1), langt); }
   catch (e) { return done(test, "garn: kunde inte lagga nystanet: " + e, false); }
   let bar = 0;

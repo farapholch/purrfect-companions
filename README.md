@@ -49,6 +49,10 @@ table and the cat, its spawn-egg icon and the preview images follow.
   with a gentle alternating paw animation
 - **Stick play** — hold a vanilla stick and interact with your tamed cat to
   start a chase game; the stick is not consumed
+- **Petting** — use an empty hand on your tamed cat for hearts, purring and a
+  temporary mood boost
+- **Laser play** — use a redstone torch near a tamed cat to send her chasing a
+  red light; the torch is not consumed
 - **Warns you** — she bristles and calls out when something hostile closes in
   from 8–16 blocks away
 - **Creepers and phantoms flee** from them (they carry the `cat` family)

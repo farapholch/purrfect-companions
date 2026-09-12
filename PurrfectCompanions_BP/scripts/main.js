@@ -12,6 +12,41 @@ import { FurnitureVisits } from "./furniture_visits.js";
 const furnitureVisits = new FurnitureVisits();
 world.afterEvents.entityHurt.subscribe(ev => furnitureVisits.interrupt(ev.hurtEntity, system.currentTick));
 
+// KLAPPA KATTEN: tom hand on a tamed mjau cat gives a small mood lift,
+// hearts and purring without consuming an item. The optional subscription keeps
+// older Bedrock runtimes from failing to load the rest of the script.
+try {
+  world.afterEvents.playerInteractWithEntity?.subscribe(ev => {
+    const c = ev.target, held = ev.itemStack?.typeId;
+    if (!c?.typeId?.startsWith('mjau:') || held) return;
+    if (c.getProperty('mjau:tam') !== 1) return;
+    const L = c.location, d = c.dimension;
+    c.setProperty('mjau:humor', Math.min(2, (c.getProperty('mjau:humor') ?? 1) + 1));
+    d.spawnParticle('minecraft:heart_particle', {x:L.x, y:L.y + 1.0, z:L.z});
+    d.playSound('mob.cat.purr', L, {volume: 0.8, pitch: 1.0});
+  });
+} catch { }
+
+// LASERLEK: en redstonefackla fungerar som enkel laserpekare. Klicka med den
+// nära en tama katt så jagar hon ljuspunkten; facklan förbrukas inte.
+const laserCooldown = new Map();
+try {
+  world.afterEvents.itemUse?.subscribe(ev => {
+    if (ev.itemStack?.typeId !== 'minecraft:redstone_torch') return;
+    const p = ev.source, now = system.currentTick;
+    if (!p || (laserCooldown.get(p.id) ?? 0) > now) return;
+    laserCooldown.set(p.id, now + 12);
+    const cats = p.dimension.getEntities({location: p.location, maxDistance: 10, families: ['mjau']});
+    const c = cats.filter(x => x.getProperty?.('mjau:tam') === 1).sort((a,b) =>
+      Math.hypot(a.location.x-p.location.x,a.location.y-p.location.y,a.location.z-p.location.z) -
+      Math.hypot(b.location.x-p.location.x,b.location.y-p.location.y,b.location.z-p.location.z))[0];
+    if (!c) return;
+    c.triggerEvent('mjau:lek_pa');
+    const L = c.location;
+    try { p.dimension.spawnParticle('minecraft:redstone_ore_dust_particle', {x:L.x, y:L.y + 0.45, z:L.z}); } catch { }
+  });
+} catch { }
+
 // ---------------------------------------------------------------------------
 // TICKBUDGETEN. Paketet har tolv fristående loopar som var och en ser billig ut
 // i sin egen kommentar, och ingen har någonsin mätt vad de kostar TILLSAMMANS

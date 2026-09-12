@@ -38,6 +38,8 @@ Each cat meows in its own pitch — Mocha highest, Snow deepest.
 - **Creepers and phantoms flee** from them; they stalk and pounce on rabbits and chickens
 - They **spawn naturally** — four of them on plains, Ginger in forests, Domino in taiga — or use the spawn eggs (which show cat faces, not eggs)
 - **Stick play** — hold a vanilla stick and interact with your tamed cat to start a chase game; the stick is not consumed
+- **Petting** — use an empty hand on your tamed cat for hearts, purring and a temporary mood boost
+- **Laser play** — use a redstone torch near a tamed cat to send her chasing a red light; the torch is not consumed
 
 ### Furniture they actually use
 

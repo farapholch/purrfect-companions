@@ -275,7 +275,7 @@ def make_frame(job):
     if kind == "trio":
         _, i, n = job
         img = trio_ruta(i / FPS, 20 + i * 0.35)
-        text(img, "SIX CATS . TWENTY OUTFITS", W // 2, H - 30, 2)
+        text(img, "SIX CATS . TWENTY-FOUR OUTFITS", W // 2, H - 30, 1)
         return fade(watermark(img), i, n)
     if kind == "cat":
         _, ci, i, n = job
@@ -311,7 +311,7 @@ def make_frame(job):
         text(img, "PURRFECT COMPANIONS", W // 2, 60, 3)
         text(img, "CURSEFORGE . MCPEDL", W // 2, 130, 2)
         text(img, "PURRFECT.PELLEOPS.SE", W // 2, 165, 2)
-        text(img, "TAME . RIDE . BREED . DRESS UP", W // 2, 215, 1)
+        text(img, "TAME . RIDE . PLAY . SPA . TV . DRESS UP", W // 2, 215, 1)
         return fade(img, i, n, edge=15)
     raise ValueError(kind)
 

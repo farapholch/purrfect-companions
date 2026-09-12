@@ -126,7 +126,8 @@
         "scratch": "animation.katt.scratch",
         "window": "animation.katt.window",
         "windowlagg": "animation.katt.windowlagg",
-        "fountain": "animation.katt.fountain"
+        "fountain": "animation.katt.fountain",
+        "tvattar_tassar": "animation.katt.tvattar_tassar"
       },
       "scripts": {
         "animate": [

@@ -1021,7 +1021,7 @@ def build_rest():
             "ctrl":"controller.animation.katt.move"}
         desc["animations"]["sova"]="animation.katt.sova"
         desc["animations"]["korgvila"]="animation.katt.korgvila"
-        for action in ("korglagg","spa","tv","scratch","window","windowlagg","fountain"):
+        for action in ("korglagg","spa","tv","scratch","window","windowlagg","fountain","tvattar_tassar"):
             desc["animations"][action]="animation.katt."+action
         desc["sound_effects"]={"purr":"mob.cat.purr"}
         desc["particle_effects"]={"hjarta":"minecraft:heart_particle"}
@@ -1190,6 +1190,7 @@ def build_rest():
     # Prompten som visas när man riktar mot katten med ett plagg i handen.
     # Utan den här raden visar spelet nyckeln i klartext ("action.interact.equip").
     lang.append("action.interact.mjau_equip=Put on")
+    lang.append("action.interact.mjau_play=Play")
     lang.append("action.interact.ride=Ride")          # visas när man sitter upp
     lang.append("action.interact.mount=Mount")
     # Bedrock bygger avstigningsprompten som action.hint.exit.<entity-id>; utan
@@ -1464,6 +1465,14 @@ def build_rest():
         # SPINNA/MATA: godis på tam katt höjer humöret
         inter.append(entry("mjau:godis","mjau:on_matad","eat"))
         ev["mjau:on_matad"]={"set_property":{"mjau:humor":2,"mjau:matad":1}}
+        # PINNLEK: ägaren kan starta en kort jaktlek med en vanlig pinne.
+        # Pinnen förbrukas inte; garnbollen behåller sin egen kast-/hämtlek.
+        inter.append({"on_interact":{"filters":{"all_of":[
+            {"test":"is_family","subject":"other","value":"player"},
+            {"test":"is_owner","subject":"other"},
+            {"test":"has_equipment","domain":"hand","subject":"other","value":"stick"}]},
+            "event":"mjau:lek_pa","target":"self"},
+            "use_item":False,"interact_text":"action.interact.mjau_play"})
         # humöret sjunker med tiden (ordningen 1->0 före 2->1 hindrar kaskad)
         e["components"]["minecraft:timer"]={"time":[180,360],"looping":True,
             "time_down_event":{"event":"mjau:hungrigare","target":"self"}}

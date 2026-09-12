@@ -2412,6 +2412,33 @@
               "use_item": true,
               "play_sounds": "eat",
               "interact_text": "action.interact.mjau_equip"
+            },
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "is_owner",
+                      "subject": "other"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "domain": "hand",
+                      "subject": "other",
+                      "value": "stick"
+                    }
+                  ]
+                },
+                "event": "mjau:lek_pa",
+                "target": "self"
+              },
+              "use_item": false,
+              "interact_text": "action.interact.mjau_play"
             }
           ]
         }

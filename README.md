@@ -45,7 +45,10 @@ table and the cat, its spawn-egg icon and the preview images follow.
   sleeping basket. Kittens play with each other
 - **Furniture habits** — cats visit the scratching board, tunnel, hammock,
   window bed, toy box, grooming station and fountain; they settle at the spa
-  and sit in front of the TV to watch
+  and sit in front of the TV to watch. At the spa they wash their front paws
+  with a gentle alternating paw animation
+- **Stick play** — hold a vanilla stick and interact with your tamed cat to
+  start a chase game; the stick is not consumed
 - **Warns you** — she bristles and calls out when something hostile closes in
   from 8–16 blocks away
 - **Creepers and phantoms flee** from them (they carry the `cat` family)

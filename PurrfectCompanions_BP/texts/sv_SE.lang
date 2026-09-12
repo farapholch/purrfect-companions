@@ -193,6 +193,7 @@ item.mjau:garnboll=Yarn Ball
 item.mjau:vissla=Cat Whistle
 item.mjau:kattbok=Cat Care Book
 action.interact.mjau_equip=Put on
+action.interact.mjau_play=Play
 action.interact.ride=Ride
 action.interact.mount=Mount
 action.hint.exit.mjau:aurora=Dismount

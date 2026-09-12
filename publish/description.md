@@ -37,6 +37,7 @@ Each cat meows in its own pitch — Mocha highest, Snow deepest.
 - **Gifts** — tamed cats bring you presents in the morning
 - **Creepers and phantoms flee** from them; they stalk and pounce on rabbits and chickens
 - They **spawn naturally** — four of them on plains, Ginger in forests, Domino in taiga — or use the spawn eggs (which show cat faces, not eggs)
+- **Stick play** — hold a vanilla stick and interact with your tamed cat to start a chase game; the stick is not consumed
 
 ### Furniture they actually use
 
@@ -51,7 +52,9 @@ and soap dispenser. The **Show Podium** is the place for the cat show.
 
 The **Basket for Two** gives two well-fed, tamed cats room to rest together.
 Cats pause beside the spa and sit facing the TV, with animated water and a bird
-on the screen. Leave space in front of the furniture for them to approach.
+on the screen. At the spa they wash their front paws with an alternating paw
+animation and soft purr. Leave space in front of the furniture for them to
+approach.
 Hunger, damage, sitting commands and saddling end the visit.
 
 Inventory icons and worn outfits have clearer material details, with improved

@@ -860,6 +860,15 @@ def icon(a,col,path):
             rect(bx+2,by+1,bx+3,by+1,sh(col,0.68))
     else:
         rect(3,5,12,11,col); rect(3,5,12,5,ljus); rect(3,11,12,11,mork)
+    # Liten färgmarkör i hörnet gör kategorin läsbar även när flera plagg har
+    # liknande färg: blå = huvud, grön = kropp, guld = utrustning. Den hålls
+    # två pixlar bred så silhuetten fortfarande dominerar i hotbaren.
+    huvud = {"keps", "glasogon", "horn", "krona", "haxhatt", "tomteluva", "luva"}
+    kropp = {"halsduk", "ryggsack", "halsband", "rosett", "vingar", "batvingar",
+             "mantel", "rymdmantel", "doktorsrock", "rustning", "flytvast", "byxor", "tossor"}
+    mark = (70, 180, 220, 255) if a in huvud else (90, 190, 110, 255) if a in kropp else (236, 190, 70, 255)
+    sp(14, 14, (22, 26, 34, 255)); sp(15, 14, (22, 26, 34, 255))
+    sp(14, 15, mark); sp(15, 15, mark)
     write_png(path,S,S,px)
 
 def icon_treat():

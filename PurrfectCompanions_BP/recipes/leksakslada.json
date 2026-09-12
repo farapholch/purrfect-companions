@@ -1,0 +1,32 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:leksakslada"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "PPP",
+      "PBP",
+      "PPP"
+    ],
+    "key": {
+      "P": {
+        "item": "minecraft:planks"
+      },
+      "B": {
+        "item": "minecraft:slime_ball"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:slime_ball"
+      }
+    ],
+    "result": {
+      "item": "mjau:leksakslada"
+    }
+  }
+}

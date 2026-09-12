@@ -257,6 +257,22 @@
           "default": 0,
           "client_sync": true
         },
+        "mjau:matad": {
+          "type": "int",
+          "range": [
+            0,
+            1
+          ],
+          "default": 0
+        },
+        "mjau:personlighet": {
+          "type": "int",
+          "range": [
+            0,
+            5
+          ],
+          "default": 2
+        },
         "mjau:leker": {
           "type": "int",
           "range": [
@@ -264,6 +280,15 @@
             2
           ],
           "default": 0
+        },
+        "mjau:mobel": {
+          "type": "int",
+          "range": [
+            -1,
+            15
+          ],
+          "default": 0,
+          "client_sync": true
         }
       }
     },
@@ -312,11 +337,11 @@
         "speed_multiplier": 1.35
       },
       "minecraft:behavior.look_at_player": {
-        "priority": 16,
+        "priority": 60,
         "look_distance": 6.0
       },
       "minecraft:behavior.random_look_around": {
-        "priority": 17
+        "priority": 61
       },
       "minecraft:tameable": {
         "probability": 0.4,
@@ -2488,7 +2513,16 @@
         }
       },
       "mjau:sittable": {
-        "minecraft:sittable": {},
+        "minecraft:sittable": {
+          "sit_event": {
+            "event": "mjau:mobel_sitt",
+            "target": "self"
+          },
+          "stand_event": {
+            "event": "mjau:mobel_stand",
+            "target": "self"
+          }
+        },
         "minecraft:behavior.stay_while_sitting": {
           "priority": 5
         }
@@ -2566,12 +2600,12 @@
         },
         "minecraft:behavior.random_stroll": {
           "priority": 14,
-          "speed_multiplier": 1.0
+          "speed_multiplier": 0.86
         },
         "minecraft:behavior.random_sitting": {
           "priority": 15,
           "min_sit_time": 8,
-          "start_chance": 0.08,
+          "start_chance": 0.46,
           "stop_chance": 0.06
         },
         "minecraft:behavior.move_to_block": {
@@ -2589,6 +2623,10 @@
             0
           ],
           "target_blocks": [
+            "mjau:gomstalle",
+            "mjau:leksakslada",
+            "mjau:kattunnel",
+            "mjau:hangmatta",
             "mjau:kattbadd",
             "mjau:matskal",
             "mjau:kattoa",
@@ -2630,7 +2668,7 @@
           "priority": 6,
           "must_see": true,
           "reselect_targets": true,
-          "within_radius": 12,
+          "within_radius": 8,
           "entity_types": [
             {
               "filters": {
@@ -2647,7 +2685,7 @@
                   }
                 ]
               },
-              "max_dist": 12
+              "max_dist": 8
             }
           ]
         },
@@ -2922,7 +2960,7 @@
           "priority": 3,
           "seconds_before_pickup": 0,
           "cooldown": 300,
-          "drop_item_chance": 0.7,
+          "drop_item_chance": 0.68,
           "offering_distance": 5,
           "minimum_teleport_distance": 2,
           "target_range": [
@@ -3028,6 +3066,926 @@
           "speed_multiplier": 1.25,
           "pickup_based_on_chance": false,
           "track_target": true
+        }
+      },
+      "mjau:hunger_sok": {
+        "minecraft:behavior.move_to_block": {
+          "priority": 21,
+          "tick_interval": 20,
+          "start_chance": 0.9,
+          "search_range": 16,
+          "search_height": 4,
+          "goal_radius": 1.2,
+          "stay_duration": 80,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0,
+            1,
+            0
+          ],
+          "target_blocks": [
+            "mjau:matskal"
+          ]
+        }
+      },
+      "mjau:mobel_hold": {
+        "minecraft:movement": {
+          "value": 0
+        },
+        "minecraft:pushable": {
+          "is_pushable": false,
+          "is_pushable_by_piston": true
+        }
+      },
+      "mjau:mobel_normal": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:pushable": {
+          "is_pushable": true,
+          "is_pushable_by_piston": true
+        }
+      },
+      "mjau:mobel_ride": {
+        "minecraft:movement": {
+          "value": 0.5
+        },
+        "minecraft:pushable": {
+          "is_pushable": true,
+          "is_pushable_by_piston": true
+        }
+      },
+      "mjau:mobel_fast": {
+        "minecraft:movement": {
+          "value": 0.68
+        },
+        "minecraft:pushable": {
+          "is_pushable": true,
+          "is_pushable_by_piston": true
+        }
+      },
+      "mjau:mobel_basket0_north": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 22,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            -0.46,
+            0.1875,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:sovkorg"
+          ]
+        }
+      },
+      "mjau:mobel_basket1_north": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 23,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.46,
+            0.1875,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:sovkorg"
+          ]
+        }
+      },
+      "mjau:mobel_spa_north": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 24,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0,
+            0.0625,
+            0
+          ],
+          "target_blocks": [
+            "mjau:kattspa"
+          ]
+        }
+      },
+      "mjau:mobel_tv_north": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 25,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.0,
+            0,
+            -1.3
+          ],
+          "target_blocks": [
+            "mjau:katt_tv"
+          ]
+        }
+      },
+      "mjau:mobel_basket0_east": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 30,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            -0.0,
+            0.1875,
+            -0.46
+          ],
+          "target_blocks": [
+            "mjau:sovkorg"
+          ]
+        }
+      },
+      "mjau:mobel_basket1_east": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 31,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.0,
+            0.1875,
+            0.46
+          ],
+          "target_blocks": [
+            "mjau:sovkorg"
+          ]
+        }
+      },
+      "mjau:mobel_spa_east": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 32,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0,
+            0.0625,
+            0
+          ],
+          "target_blocks": [
+            "mjau:kattspa"
+          ]
+        }
+      },
+      "mjau:mobel_tv_east": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 33,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            1.3,
+            0,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:katt_tv"
+          ]
+        }
+      },
+      "mjau:mobel_basket0_south": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 38,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.46,
+            0.1875,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:sovkorg"
+          ]
+        }
+      },
+      "mjau:mobel_basket1_south": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 39,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            -0.46,
+            0.1875,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:sovkorg"
+          ]
+        }
+      },
+      "mjau:mobel_spa_south": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 40,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0,
+            0.0625,
+            0
+          ],
+          "target_blocks": [
+            "mjau:kattspa"
+          ]
+        }
+      },
+      "mjau:mobel_tv_south": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 41,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.0,
+            0,
+            1.3
+          ],
+          "target_blocks": [
+            "mjau:katt_tv"
+          ]
+        }
+      },
+      "mjau:mobel_basket0_west": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 46,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            -0.0,
+            0.1875,
+            0.46
+          ],
+          "target_blocks": [
+            "mjau:sovkorg"
+          ]
+        }
+      },
+      "mjau:mobel_basket1_west": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 47,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.0,
+            0.1875,
+            -0.46
+          ],
+          "target_blocks": [
+            "mjau:sovkorg"
+          ]
+        }
+      },
+      "mjau:mobel_spa_west": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 48,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0,
+            0.0625,
+            0
+          ],
+          "target_blocks": [
+            "mjau:kattspa"
+          ]
+        }
+      },
+      "mjau:mobel_tv_west": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 49,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            -1.3,
+            0,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:katt_tv"
+          ]
+        }
+      },
+      "mjau:mobel_scratch_north": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 26,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.0,
+            0,
+            -0.95
+          ],
+          "target_blocks": [
+            "mjau:klosbrada"
+          ]
+        }
+      },
+      "mjau:mobel_scratch_east": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 34,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.95,
+            0,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:klosbrada"
+          ]
+        }
+      },
+      "mjau:mobel_scratch_south": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 42,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.0,
+            0,
+            0.95
+          ],
+          "target_blocks": [
+            "mjau:klosbrada"
+          ]
+        }
+      },
+      "mjau:mobel_scratch_west": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 50,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            -0.95,
+            0,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:klosbrada"
+          ]
+        }
+      },
+      "mjau:mobel_window_north": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 27,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.0,
+            1,
+            -0.25
+          ],
+          "target_blocks": [
+            "mjau:fonsterbadd"
+          ]
+        }
+      },
+      "mjau:mobel_window_east": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 35,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.25,
+            1,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:fonsterbadd"
+          ]
+        }
+      },
+      "mjau:mobel_window_south": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 43,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.0,
+            1,
+            0.25
+          ],
+          "target_blocks": [
+            "mjau:fonsterbadd"
+          ]
+        }
+      },
+      "mjau:mobel_window_west": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 51,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            -0.25,
+            1,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:fonsterbadd"
+          ]
+        }
+      },
+      "mjau:mobel_fountain_north": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 28,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.0,
+            0,
+            -1.1
+          ],
+          "target_blocks": [
+            "mjau:kattfontan"
+          ]
+        }
+      },
+      "mjau:mobel_spa_exit_north": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 29,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.0,
+            0,
+            -1.4
+          ],
+          "target_blocks": [
+            "mjau:kattspa"
+          ]
+        }
+      },
+      "mjau:mobel_fountain_east": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 36,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            1.1,
+            0,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:kattfontan"
+          ]
+        }
+      },
+      "mjau:mobel_spa_exit_east": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 37,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            1.4,
+            0,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:kattspa"
+          ]
+        }
+      },
+      "mjau:mobel_fountain_south": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 44,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.0,
+            0,
+            1.1
+          ],
+          "target_blocks": [
+            "mjau:kattfontan"
+          ]
+        }
+      },
+      "mjau:mobel_spa_exit_south": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 45,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0.0,
+            0,
+            1.4
+          ],
+          "target_blocks": [
+            "mjau:kattspa"
+          ]
+        }
+      },
+      "mjau:mobel_fountain_west": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 52,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            -1.1,
+            0,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:kattfontan"
+          ]
+        }
+      },
+      "mjau:mobel_spa_exit_west": {
+        "minecraft:movement": {
+          "value": 0.32
+        },
+        "minecraft:behavior.move_to_block": {
+          "control_flags": [
+            "move",
+            "jump"
+          ],
+          "priority": 53,
+          "tick_interval": 1,
+          "start_chance": 1,
+          "search_range": 6,
+          "search_height": 2,
+          "goal_radius": 0.2,
+          "stay_duration": 300,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            -1.4,
+            0,
+            0.0
+          ],
+          "target_blocks": [
+            "mjau:kattspa"
+          ]
         }
       }
     },
@@ -3219,6 +4177,11 @@
         "set_property": {
           "mjau:hungrig": 1
         },
+        "add": {
+          "component_groups": [
+            "mjau:hunger_sok"
+          ]
+        },
         "remove": {
           "component_groups": [
             "mjau:gavor",
@@ -3228,6 +4191,18 @@
       },
       "mjau:matt_igen": {
         "sequence": [
+          {
+            "filters": {
+              "test": "int_property",
+              "domain": "mjau:hungrig",
+              "value": 1
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:hunger_sok"
+              ]
+            }
+          },
           {
             "set_property": {
               "mjau:hungrig": 0
@@ -3280,9 +4255,2283 @@
           ]
         }
       },
+      "mjau:mobel_vila_basket": {
+        "set_property": {
+          "mjau:mobel": 5
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "mjau:mobel_hold"
+          ]
+        }
+      },
+      "mjau:mobel_vila_spa": {
+        "set_property": {
+          "mjau:mobel": 6
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "mjau:mobel_hold"
+          ]
+        }
+      },
+      "mjau:mobel_vila_tv": {
+        "set_property": {
+          "mjau:mobel": 7
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "mjau:mobel_hold"
+          ]
+        }
+      },
+      "mjau:mobel_av": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 0,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:mobel_normal",
+                "mjau:mobel_ride",
+                "mjau:mobel_fast"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_normal"
+              ]
+            }
+          },
+          {
+            "filters": {
+              "any_of": [
+                {
+                  "test": "int_property",
+                  "domain": "mjau:sadel",
+                  "operator": ">",
+                  "value": 0
+                },
+                {
+                  "test": "int_property",
+                  "domain": "mjau:vagn",
+                  "operator": ">",
+                  "value": 0
+                }
+              ]
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_normal"
+              ]
+            },
+            "add": {
+              "component_groups": [
+                "mjau:mobel_ride"
+              ]
+            }
+          },
+          {
+            "filters": {
+              "any_of": [
+                {
+                  "test": "int_property",
+                  "domain": "mjau:mantel",
+                  "operator": ">",
+                  "value": 0
+                },
+                {
+                  "test": "int_property",
+                  "domain": "mjau:rymdmantel",
+                  "operator": ">",
+                  "value": 0
+                }
+              ]
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_normal",
+                "mjau:mobel_ride"
+              ]
+            },
+            "add": {
+              "component_groups": [
+                "mjau:mobel_fast"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_vantar": {
+        "remove": {
+          "component_groups": [
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "mjau:mobel_hold"
+          ]
+        }
+      },
+      "mjau:mobel_sitt": {
+        "set_property": {
+          "mjau:mobel": -1
+        }
+      },
+      "mjau:mobel_stand": {
+        "set_property": {
+          "mjau:mobel": 0
+        }
+      },
+      "mjau:mobel_basket0_north": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 1,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_basket0_north"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_basket1_north": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 2,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_basket1_north"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_spa_north": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 3,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_spa_north"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_tv_north": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 4,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_tv_north"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_basket0_east": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 1,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_basket0_east"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_basket1_east": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 2,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_basket1_east"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_spa_east": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 3,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_spa_east"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_tv_east": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 4,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_tv_east"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_basket0_south": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 1,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_basket0_south"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_basket1_south": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 2,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_basket1_south"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_spa_south": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 3,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_spa_south"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_tv_south": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 4,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_tv_south"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_basket0_west": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 1,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_basket0_west"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_basket1_west": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 2,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_basket1_west"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_spa_west": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 3,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_spa_west"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_tv_west": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 4,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_tv_west"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_scratch_north": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 9,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_scratch_north"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_scratch_east": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 9,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_scratch_east"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_scratch_south": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 9,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_scratch_south"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_scratch_west": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 9,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_scratch_west"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_vila_scratch": {
+        "set_property": {
+          "mjau:mobel": 8
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "mjau:mobel_hold"
+          ]
+        }
+      },
+      "mjau:mobel_window_north": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 10,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_window_north"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_window_east": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 10,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_window_east"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_window_south": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 10,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_window_south"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_window_west": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 10,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_window_west"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_vila_window": {
+        "set_property": {
+          "mjau:mobel": 11
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "mjau:mobel_hold"
+          ]
+        }
+      },
+      "mjau:mobel_vila_window_sleep": {
+        "set_property": {
+          "mjau:mobel": 12
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "mjau:mobel_hold"
+          ]
+        }
+      },
+      "mjau:mobel_fountain_north": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 13,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_fountain_north"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_spa_exit_north": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 15,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_spa_exit_north"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_fountain_east": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 13,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_fountain_east"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_spa_exit_east": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 15,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_spa_exit_east"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_fountain_south": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 13,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_fountain_south"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_spa_exit_south": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 15,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_spa_exit_south"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_fountain_west": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 13,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_spa_exit_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_fountain_west"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_spa_exit_west": {
+        "sequence": [
+          {
+            "set_property": {
+              "mjau:mobel": 15,
+              "mjau:sover": 0
+            },
+            "remove": {
+              "component_groups": [
+                "mjau:mobel_basket0_north",
+                "mjau:mobel_basket1_north",
+                "mjau:mobel_spa_north",
+                "mjau:mobel_tv_north",
+                "mjau:mobel_scratch_north",
+                "mjau:mobel_window_north",
+                "mjau:mobel_fountain_north",
+                "mjau:mobel_spa_exit_north",
+                "mjau:mobel_basket0_east",
+                "mjau:mobel_basket1_east",
+                "mjau:mobel_spa_east",
+                "mjau:mobel_tv_east",
+                "mjau:mobel_scratch_east",
+                "mjau:mobel_window_east",
+                "mjau:mobel_fountain_east",
+                "mjau:mobel_spa_exit_east",
+                "mjau:mobel_basket0_south",
+                "mjau:mobel_basket1_south",
+                "mjau:mobel_spa_south",
+                "mjau:mobel_tv_south",
+                "mjau:mobel_scratch_south",
+                "mjau:mobel_window_south",
+                "mjau:mobel_fountain_south",
+                "mjau:mobel_spa_exit_south",
+                "mjau:mobel_basket0_west",
+                "mjau:mobel_basket1_west",
+                "mjau:mobel_spa_west",
+                "mjau:mobel_tv_west",
+                "mjau:mobel_scratch_west",
+                "mjau:mobel_window_west",
+                "mjau:mobel_fountain_west",
+                "mjau:mobel_hold",
+                "mjau:fri",
+                "mjau:sovdags"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "mjau:mobel_spa_exit_west"
+              ]
+            }
+          }
+        ]
+      },
+      "mjau:mobel_vila_fountain": {
+        "set_property": {
+          "mjau:mobel": 14
+        },
+        "remove": {
+          "component_groups": [
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "mjau:mobel_hold"
+          ]
+        }
+      },
       "mjau:on_sadel_1": {
         "set_property": {
-          "mjau:sadel": 1
+          "mjau:sadel": 1,
+          "mjau:mobel": 0
         },
         "add": {
           "component_groups": [
@@ -3296,13 +6545,51 @@
             "mjau:jagar",
             "mjau:fri",
             "mjau:sovdags",
-            "mjau:bladbararen"
+            "mjau:hunger_sok",
+            "mjau:bladbararen",
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_hold",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
           ]
         }
       },
       "mjau:on_sadel_2": {
         "set_property": {
-          "mjau:sadel": 2
+          "mjau:sadel": 2,
+          "mjau:mobel": 0
         },
         "add": {
           "component_groups": [
@@ -3316,13 +6603,51 @@
             "mjau:jagar",
             "mjau:fri",
             "mjau:sovdags",
-            "mjau:bladbararen"
+            "mjau:hunger_sok",
+            "mjau:bladbararen",
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_hold",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
           ]
         }
       },
       "mjau:on_sadel_3": {
         "set_property": {
-          "mjau:sadel": 3
+          "mjau:sadel": 3,
+          "mjau:mobel": 0
         },
         "add": {
           "component_groups": [
@@ -3336,7 +6661,44 @@
             "mjau:jagar",
             "mjau:fri",
             "mjau:sovdags",
-            "mjau:bladbararen"
+            "mjau:hunger_sok",
+            "mjau:bladbararen",
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_hold",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
           ]
         }
       },
@@ -3545,7 +6907,8 @@
       },
       "mjau:on_vagn_1": {
         "set_property": {
-          "mjau:vagn": 1
+          "mjau:vagn": 1,
+          "mjau:mobel": 0
         },
         "add": {
           "component_groups": [
@@ -3559,13 +6922,51 @@
             "mjau:jagar",
             "mjau:fri",
             "mjau:sovdags",
-            "mjau:bladbararen"
+            "mjau:hunger_sok",
+            "mjau:bladbararen",
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_hold",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
           ]
         }
       },
       "mjau:on_vagn_2": {
         "set_property": {
-          "mjau:vagn": 2
+          "mjau:vagn": 2,
+          "mjau:mobel": 0
         },
         "add": {
           "component_groups": [
@@ -3579,13 +6980,51 @@
             "mjau:jagar",
             "mjau:fri",
             "mjau:sovdags",
-            "mjau:bladbararen"
+            "mjau:hunger_sok",
+            "mjau:bladbararen",
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_hold",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
           ]
         }
       },
       "mjau:on_vagn_3": {
         "set_property": {
-          "mjau:vagn": 3
+          "mjau:vagn": 3,
+          "mjau:mobel": 0
         },
         "add": {
           "component_groups": [
@@ -3599,7 +7038,44 @@
             "mjau:jagar",
             "mjau:fri",
             "mjau:sovdags",
-            "mjau:bladbararen"
+            "mjau:hunger_sok",
+            "mjau:bladbararen",
+            "mjau:mobel_basket0_north",
+            "mjau:mobel_basket1_north",
+            "mjau:mobel_spa_north",
+            "mjau:mobel_tv_north",
+            "mjau:mobel_scratch_north",
+            "mjau:mobel_window_north",
+            "mjau:mobel_fountain_north",
+            "mjau:mobel_spa_exit_north",
+            "mjau:mobel_basket0_east",
+            "mjau:mobel_basket1_east",
+            "mjau:mobel_spa_east",
+            "mjau:mobel_tv_east",
+            "mjau:mobel_scratch_east",
+            "mjau:mobel_window_east",
+            "mjau:mobel_fountain_east",
+            "mjau:mobel_spa_exit_east",
+            "mjau:mobel_basket0_south",
+            "mjau:mobel_basket1_south",
+            "mjau:mobel_spa_south",
+            "mjau:mobel_tv_south",
+            "mjau:mobel_scratch_south",
+            "mjau:mobel_window_south",
+            "mjau:mobel_fountain_south",
+            "mjau:mobel_spa_exit_south",
+            "mjau:mobel_basket0_west",
+            "mjau:mobel_basket1_west",
+            "mjau:mobel_spa_west",
+            "mjau:mobel_tv_west",
+            "mjau:mobel_scratch_west",
+            "mjau:mobel_window_west",
+            "mjau:mobel_fountain_west",
+            "mjau:mobel_spa_exit_west",
+            "mjau:mobel_hold",
+            "mjau:mobel_normal",
+            "mjau:mobel_ride",
+            "mjau:mobel_fast"
           ]
         }
       },
@@ -4083,7 +7559,8 @@
       },
       "mjau:on_matad": {
         "set_property": {
-          "mjau:humor": 2
+          "mjau:humor": 2,
+          "mjau:matad": 1
         }
       }
     }

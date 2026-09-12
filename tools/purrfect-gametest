@@ -12,6 +12,10 @@
 #
 # Exit 0 = PASS. Skapad 2026-08-08.
 set -u
+FURNITURE_CASE=mobler
+if [ "${1:-}" = "--water" ]; then FURNITURE_CASE=water; set -- --furniture; fi
+if [ "${1:-}" = "--scratch" ]; then FURNITURE_CASE=scratch; set -- --furniture; fi
+if [ "${1:-}" = "--spa-tv" ]; then FURNITURE_CASE=spa_tv; set -- --furniture; fi
 # EN Bedrock-server åt gången — vänta på låset i stället för att krocka på portarna.
 # Ärftligt: hoppar över om föräldern (purrfect-test) redan håller det.
 if [ "${BDS_LOCK_HELD:-}" != "1" ]; then
@@ -96,6 +100,7 @@ cd "$SRV"
   # sina egna djur, så det finns inget att spara.
   echo "kill @e[family=mjaukatt]"; sleep 2
   echo "kill @e[type=minecraft:item]"; sleep 2
+  if [ "${1:-}" != "--furniture" ] && [ "${1:-}" != "--window" ]; then
   echo "gametest run mjau:interakt"
   echo "gametest run mjau:vagn"
   echo "gametest run mjau:ritual"
@@ -130,11 +135,37 @@ cd "$SRV"
     [ "${N:-0}" -ge 9 ] && break
     sleep 3
   done
+  fi
+  echo "kill @e[family=mjaukatt]"; sleep 2
+  echo "kill @e[type=minecraft:item]"; sleep 2
+  if [ "${1:-}" != "--window" ]; then
+  echo "gametest run mjau:$FURNITURE_CASE"
+  for i in $(seq 1 125); do
+    grep -qE "MJAU-GT\] (PASS|FAIL) mobler:" "$LOG" && break
+    sleep 3
+  done
+  fi
+  if [ "${1:-}" != "--furniture" ]; then
+  echo "kill @e[family=mjaukatt]"; sleep 2
+  echo "gametest run mjau:fonster"
+  for i in $(seq 1 105); do
+    grep -qE "MJAU-GT\] (PASS|FAIL) fonster:" "$LOG" && break
+    sleep 3
+  done
+  fi
   echo "stop"; sleep 5; } | LD_LIBRARY_PATH=. ./bedrock_server > "$LOG" 2>&1
 pkill -9 -x bedrock_server 2>/dev/null
 
 grep -oE "\[MJAU-GT\].*" "$LOG" | sed 's/^/  /'
 PASSN=$(grep -c "MJAU-GT\] PASS" "$LOG")
+if [ "${1:-}" = "--furniture" ]; then
+  grep -q "MJAU-GT\] PASS mobler:" "$LOG" && ! grep -q "MJAU-GT\] FAIL" "$LOG"
+  exit $?
+fi
+if [ "${1:-}" = "--window" ]; then
+  grep -q "MJAU-GT\] PASS fonster:" "$LOG" && ! grep -q "MJAU-GT\] FAIL" "$LOG"
+  exit $?
+fi
 # STÖRTDYKAREN: fallmätningen kvitterar i loggen (kan inte ses av GameTest-
 # provet självt — ryttaren är osynlig för stabila API:n). Utan kvittot
 # landade katten, men mekaniken bakom utmärkelsen körde aldrig.
@@ -144,8 +175,8 @@ fi
 if ! grep -q "\[mjau\] stortdyk: [0-9]* block" "$LOG"; then
   echo "[gametest] ❌ störtdyket kvitterades aldrig av main.js (fallmätningen)"; exit 1
 fi
-if [ "$PASSN" -ge 9 ] && ! grep -q "MJAU-GT\] FAIL" "$LOG"; then
-  echo "[gametest] ✅ PASS ($PASSN/9) — rida+styra, vagnen, ritualen, sateshojden, spjutjaktaren, totemet, stortdykaren, podiet och garnet"
+if [ "$PASSN" -ge 11 ] && ! grep -q "MJAU-GT\] FAIL" "$LOG"; then
+  echo "[gametest] ✅ PASS ($PASSN/11) — rida+styra, vagnen, ritualen, sateshojden, spjutjaktaren, totemet, stortdykaren, podiet, garnet och fönsterbädden"
   exit 0
 fi
 echo "[gametest] ❌ FAIL (logg: $LOG)"

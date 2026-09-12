@@ -367,6 +367,19 @@ gt.registerAsync("mjau", "genomspelning", async (test) => {
   // kammaren, lampkatten intill.
   ok("KAPITEL 13 OK - gruvans gangar oppna hela vagen till kistan, lampkatt intill spelaren i kammaren");
 
+  // KAPITEL 14 — trivselgården: båda stationerna och gångvägen.
+  await tp(-13, -60, 11);
+  if (B(-15, -60, 11) !== "mjau:kattspa") return done("spat saknas", false);
+  if (B(-10, -60, 11) !== "mjau:kattfontan") return done("fontanen saknas", false);
+  for (let z = 8; z <= 25; z++) {
+    if (B(-13, -61, z) !== "minecraft:spruce_planks" || B(-13, -60, z) !== "minecraft:air")
+      return done("trivselgardens gangvag ar blockerad", false);
+  }
+  await tp(-13, -60, 23);
+  if (B(-15, -60, 23) !== "mjau:katt_tv") return done("TV saknas", false);
+  if (B(-10, -60, 23) !== "mjau:hangmatta") return done("hangmattan saknas", false);
+  ok("KAPITEL 14 OK - spa, TV, fontan, hangmatta och fri gangvag; beloning testas separat");
+
   done("", true);
 })
   .structureName("mjau:slot")

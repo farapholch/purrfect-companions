@@ -18,6 +18,7 @@ import json, os, shutil, subprocess, sys, uuid, zipfile
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import build_world as bw
+import harbour_expansion as expansion
 sys.path.insert(0, f"{BASE}/tools/gametest")
 import nbt
 
@@ -89,7 +90,12 @@ TEXTS = {
 }
 
 
+for variant in TEXTS:
+    TEXTS[variant]["book_pages"].extend(expansion.TEXT[variant]["pages"])
+
 def build_structures(outdir, t, disp, cats):
+    variant="private" if t["world"]=="Stjärnhamnen" else "public"
+    expansion.structures(outdir,variant)
     st = f"{outdir}/structures/hamn"
     os.makedirs(st, exist_ok=True)
 
@@ -384,6 +390,8 @@ def build_commands(cats, disp, t):
     c.append(f"structure load hamn:waytowersign 2 {F} 11")
     c.append(("sleep", 1))
     c.append(f"testforblock 11 {F} 3 standing_sign")
+
+    c.extend(expansion.commands())
 
     # ------------------------------------------------------------- UTPOSTERNA
     # Ute på månytan, en i taget: varje plats får en egen tickingarea eftersom

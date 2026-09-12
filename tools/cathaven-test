@@ -22,6 +22,7 @@ echo "=== Cat Haven-test $(date '+%F %H:%M') ==="
 
 echo
 echo "[1/5] Bygger båda varianterna (2 serverbyggen, ~3 min)"
+if [ "${1:-}" != "--verify-existing" ]; then
 rm -rf "$OUT"
 for V in public private; do
   if python3 "$SRC/build_world.py" "$V" "$OUT" > /tmp/cathaven-test-$V.txt 2>&1; then
@@ -31,6 +32,9 @@ for V in public private; do
     bad "variant $V föll i bygget"
   fi
 done
+else
+  ok "återanvänder färdigbyggda världar"
+fi
 
 echo
 echo "[2/5] Statisk kontroll av paketen"
@@ -157,8 +161,16 @@ PY
   sed -i "s/^level-name=.*/level-name=CatHavenSmoke/" "$PROPS"
   SLOG=/tmp/cathaven-smoke.log
   { sleep 28
-    echo "tickingarea add -58 -70 -10 120 -40 60 rök"; sleep 4
+    echo "tickingarea add -58 -70 -20 120 -40 60 rök"; sleep 4
     echo "tickingarea add -58 -70 60 42 -40 92 kula"; sleep 4
+    echo "testforblock -15 -60 11 mjau:kattspa"; sleep 1
+    echo "testforblock -10 -60 11 mjau:kattfontan"; sleep 1
+    echo "testforblock -15 -60 23 mjau:katt_tv"; sleep 1
+    echo "testforblock -10 -60 23 mjau:hangmatta"; sleep 1
+    echo "testforblock -10 -60 16 mjau:gomstalle"; sleep 1
+    echo "testforblock -15 -60 16 mjau:leksakslada"; sleep 1
+    echo "testforblock -15 -60 19 mjau:kattunnel"; sleep 1
+    echo "testforblock -10 -60 19 mjau:klosbrada"; sleep 1
     echo "testforblock -4 -59 9 chest"; sleep 1
     echo "testforblock 12 -60 7 mjau:fiskdamm"; sleep 1
     echo "testforblock 17 -61 7 water"; sleep 1
@@ -211,6 +223,15 @@ PY
     echo "testfor @e[type=mjau:vakthund]"; sleep 1
     echo "scriptevent mjau:test_fest"; sleep 3
     echo "testfor @e[type=mjau:misty,x=-9,y=-60,z=33,r=80]"; sleep 1
+    python3 - <<'PYNEW'
+import sys,time
+sys.path.insert(0,'/opt/purrfect-companions')
+from haven_expansion import CHECKS
+for i,(x,y,z,b) in enumerate(CHECKS):
+ print(f'testforblock {x} {y} {z} {b}',flush=True)
+ if i%12==11:time.sleep(1)
+PYNEW
+    sleep 3
     # kistprovet: slå sönder startkistan (i SMOKE-kopian, inte skeppade filen)
     # — bara riktiga, accepterade föremål trillar ut som item-entiteter.
     # Vägrar Minecraft NBT:n (fel format, okänt id) blir golvet tomt.
@@ -224,7 +245,8 @@ PY
   cp /tmp/cathaven-props.bak "$PROPS"
   grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" || bad "paketen laddades INTE ur världen"
   FB=$(grep -c 'found the block' "$SLOG")
-  [ "$FB" -ge 43 ] && ok "alla $FB/43 nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft, buren, lägereld, matta, bikupa, ängsskylt, grottkista, ö, skogskista, bergskista, snötäcke, 6×regnbågsband, kattbanans start+mål+skylt+kista+ramp, sjöns vatten+tunnel+skatt+skylt, vindens loft+stege+kista, 3 grindar stängda + A/B rivna)" || bad "bara $FB/43 nyckelblock i den paketerade världen"
+  EXPECTED=$(python3 -c "import sys;sys.path.insert(0,'$SRC');from haven_expansion import CHECKS;print(51+len(CHECKS))")
+  [ "$FB" -ge "$EXPECTED" ] && ok "alla $FB/$EXPECTED nyckelblock finns (kista, damm, vatten, kattlucka, fyrkista, stege, dörrhalvorna, golvluft, valvluft, buren, lägereld, matta, bikupa, ängsskylt, grottkista, ö, skogskista, bergskista, snötäcke, 6×regnbågsband, kattbanans start+mål+skylt+kista+ramp, sjöns vatten+tunnel+skatt+skylt, vindens loft+stege+kista, 3 grindar stängda + A/B rivna)" || bad "bara $FB/$EXPECTED nyckelblock i den paketerade världen"
   grep -q "grind öppnad" "$SLOG" && ok "grindarna rivs av scriptet (test_grind-kroken)" || bad "grind-öppningen avfyrade inte"
   grep -qE "Found (Vakthunden|The Guard Dog)" "$SLOG" && ok "vakthunden vaktar kulan (persistent, namngiven)" || bad "vakthunden saknas i den paketerade världen"
   grep -q "KATTMASTARE-festen firad" "$SLOG" && ok "kattmästar-festen avfyrar (scriptevent-kroken)" || bad "festen avfyrade inte"

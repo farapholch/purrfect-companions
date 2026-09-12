@@ -1,0 +1,38 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:kattfontan"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      " I ",
+      "SBS",
+      "PPP"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "S": {
+        "item": "minecraft:stone"
+      },
+      "B": {
+        "item": "minecraft:bowl"
+      },
+      "P": {
+        "item": "minecraft:planks"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:bowl"
+      }
+    ],
+    "result": {
+      "item": "mjau:kattfontan"
+    }
+  }
+}

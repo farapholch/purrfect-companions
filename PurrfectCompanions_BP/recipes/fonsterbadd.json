@@ -1,0 +1,35 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:fonsterbadd"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "WWW",
+      "PPP",
+      "S S"
+    ],
+    "key": {
+      "W": {
+        "item": "minecraft:light_blue_wool"
+      },
+      "P": {
+        "item": "minecraft:planks"
+      },
+      "S": {
+        "item": "minecraft:stick"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:light_blue_wool"
+      }
+    ],
+    "result": {
+      "item": "mjau:fonsterbadd"
+    }
+  }
+}

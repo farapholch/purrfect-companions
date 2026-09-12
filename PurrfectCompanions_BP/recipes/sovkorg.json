@@ -1,0 +1,38 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:sovkorg"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "S S",
+      "WRW",
+      "PPP"
+    ],
+    "key": {
+      "S": {
+        "item": "minecraft:stick"
+      },
+      "W": {
+        "item": "minecraft:white_wool"
+      },
+      "R": {
+        "item": "minecraft:pink_wool"
+      },
+      "P": {
+        "item": "minecraft:planks"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:white_wool"
+      }
+    ],
+    "result": {
+      "item": "mjau:sovkorg"
+    }
+  }
+}

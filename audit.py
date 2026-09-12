@@ -36,7 +36,13 @@ for f in sorted(glob.glob(f"{BP}/entities/*.json")):
     events = e.get("events", {})
     blob = json.dumps(e)
 
-    for en, ev in events.items():
+    def event_nodes(event):
+        yield event
+        for key in ("sequence", "randomize"):
+            for child in event.get(key, []): yield from event_nodes(child)
+
+    for en, body in events.items():
+      for ev in event_nodes(body):
         for act in ("add", "remove"):
             for g in ev.get(act, {}).get("component_groups", []):
                 if g not in groups:
@@ -52,7 +58,7 @@ for f in sorted(glob.glob(f"{BP}/entities/*.json")):
     # definitionen bort blir aktören okänd vid uppgradering (2.6.2-läxan),
     # så de ska finnas kvar trots att inget event längre lägger till dem.
     LEGACY = {"mjau:armored"}
-    added = {g for ev in events.values() for g in ev.get("add", {}).get("component_groups", [])}
+    added = {g for body in events.values() for ev in event_nodes(body) for g in ev.get("add", {}).get("component_groups", [])}
     for g in groups - added - LEGACY:
         found.append(f"{cid}: grupp '{g}' läggs aldrig till av något event")
 

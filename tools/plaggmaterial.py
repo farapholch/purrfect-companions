@@ -81,7 +81,9 @@ def alla(duk, kuber, gor, **kw):
 # ---------------------------------------------------------------- grundmaterial
 def tyg(col, rekt, vav=0.03):
     def fn(a, b, x, y):
-        c = grund(col, b)
+        c = grund(col, b, 0.30)
+        # Broad folds remain legible from the normal game camera.
+        c = skala(c, 1 + 0.09 * math.cos(a * math.pi * 4))
         if (x + y) % 2 == 0:
             c = skala(c, 1 + vav)
         return korn(c, x, y, 0.4)
@@ -90,7 +92,7 @@ def tyg(col, rekt, vav=0.03):
 
 def lader(col, rekt, som=True):
     X0, Y0, FW, FH = rekt
-    stygn = blanda(col, (255, 255, 255), 0.40)
+    stygn = blanda(col, (244, 219, 165), 0.55)
 
     def fn(a, b, x, y):
         c = korn(grund(col, b, 0.18), x, y, 0.5)
@@ -108,7 +110,7 @@ def lader(col, rekt, som=True):
 def ull(col, rekt):
     def fn(a, b, x, y):
         c = grund(col, b, 0.16)
-        rib = 1.07 if (y % 4) < 2 else 0.93
+        rib = 1.12 if (y % 4) < 2 else 0.88
         if (x + (y // 2)) % 2 == 0:
             rib *= 0.97
         return korn(skala(c, rib), x, y, 0.3)
@@ -121,7 +123,7 @@ def metall(col, rekt, nitar=True, band=True):
 
     def fn(a, b, x, y):
         X, Y = a * FW, b * FH
-        c = grund(col, b, 0.12)
+        c = skala(grund(col, b, 0.18), 1 + 0.12 * math.cos(a * math.pi))
         if band and abs(b - 0.3) < 0.08:
             c = blanda(c, (255, 255, 255), 0.18)             # högdager
         if X < 1.5 or Y < 1.5:
@@ -169,6 +171,9 @@ def fluff(col, rekt):
 def m_sadel(duk, kuber, col, i, cfg):
     def gor(sida, rekt, kub):
         o, s, uv = kub
+        if s[0] <= 0.5:                                  # stigbyglarnas remmar
+            fn = lader(skala(col, 0.65), rekt)
+            return lambda a,b,x,y: metall(STAL, rekt, nitar=False)(a,b,x,y) if b > 0.65 else fn(a,b,x,y)
         if s[0] < 4:                                     # sadelhornet
             return lader(skala(col, 0.8), rekt, som=False)
         fn = lader(col, rekt)
@@ -225,9 +230,11 @@ def m_halsduk(duk, kuber, col, i, cfg):
 def m_ryggsack(duk, kuber, col, i, cfg):
     def gor(sida, rekt, kub):
         o, s, uv = kub
+        if s[0] <= 0.8 or s[1] < 0.5:                    # handtag och sidofickor
+            return lader(skala(col, 0.72), rekt)
         if s[1] < 1:                                     # locket
             return lader(col, rekt)
-        fn = tyg(col, rekt)
+        fn = lader(col, rekt) if s[2] < 1 else tyg(col, rekt)
         X0, Y0, FW, FH = rekt
         rem = skala(col, 0.7)
 
@@ -248,7 +255,7 @@ def m_ryggsack(duk, kuber, col, i, cfg):
 def m_glasogon(duk, kuber, col, i, cfg):
     def gor(sida, rekt, kub):
         X0, Y0, FW, FH = rekt
-        ram = col
+        ram = blanda(col, (140,151,166), 0.14)
 
         def fn(a, b, x, y):
             X, Y = a * FW, b * FH
@@ -258,7 +265,7 @@ def m_glasogon(duk, kuber, col, i, cfg):
                         # linsen med en sned högdager
                         if 3 < (X - Y * 0.8) % 9 < 5:
                             return (240, 248, 252)
-                        return blanda(LINS, (255, 255, 255), 0.25 * (1 - b))
+                        return blanda((40,77,103), LINS, 0.28 + 0.25 * (1 - b))
             return korn(grund(ram, b, 0.12), x, y, 0.2)
         return kantad(fn, rekt, 0.7, 0.6)
     alla(duk, kuber, gor)
@@ -271,6 +278,8 @@ def m_tossor(duk, kuber, col, i, cfg):
         fn = ull(col, rekt)
 
         def fn2(a, b, x, y):
+            if sida != "top" and b < 0.23:
+                return blanda(col, VIT, 0.35)            # vikt mudd
             if sida != "top" and b > 0.78:
                 return korn(skala(col, 0.62), x, y, 0.3)   # sulkanten
             return fn(a, b, x, y)
@@ -282,13 +291,15 @@ def m_vagn(duk, kuber, col, i, cfg):
     def gor(sida, rekt, kub):
         o, s, uv = kub
         X0, Y0, FW, FH = rekt
-        if s[1] == 4 and s[0] == 1:                      # hjulen
+        if s[0] == 1 and o[0] in (-4.9, 3.9):             # oktagonala hjul
             if sida in ("east", "west"):
                 nav, ek = skala(col, 0.5), skala(col, 0.72)
 
                 def hjul(a, b, x, y):
-                    dx, dy = (a - 0.5) * FW, (b - 0.5) * FH
-                    r = math.hypot(dx, dy) / (FW / 2)
+                    # All slices share the wheel's centre in model space.
+                    dx = (o[2] + a*s[2] - 12) * SKALA
+                    dy = (o[1] + (1-b)*s[1] - 2) * SKALA
+                    r = math.hypot(dx, dy) / (2*SKALA)
                     if r > 1.0:
                         return skala(col, 0.45)
                     if r > 0.78 or r < 0.22:
@@ -298,7 +309,7 @@ def m_vagn(duk, kuber, col, i, cfg):
                     return korn(grund(col, b, 0.1), x, y, 0.3)
                 return hjul
             return lambda a, b, x, y: korn(skala(col, 0.5), x, y, 0.3)
-        if s[1] == 1:                                    # dragstången
+        if s[0] <= 1 and s[2] == 3:                     # dragstången
             return tra(skala(col, 0.8), rekt, "y" if FH > FW else "x")
         return tra(col, rekt, "x" if FW >= FH else "y")
     alla(duk, kuber, gor)
@@ -327,6 +338,7 @@ def m_rosett(duk, kuber, col, i, cfg):
         def fn(a, b, x, y):
             X, Y = a * FW, b * FH
             c = grund(col, b, 0.2)
+            c = skala(c, 0.84 + 0.22 * abs(math.cos(a * math.pi)))
             if (X + Y) % 7 < 1.6:
                 c = blanda(c, (255, 255, 255), 0.30)     # satinglans
             if sida in ("north", "south", "top", "bottom") and 0.4 < a < 0.6:
@@ -349,12 +361,12 @@ def m_vingar(duk, kuber, col, i, cfg):
         def fn(a, b, x, y):
             X, Y = a * FW, b * FH
             c = skala(grund(col, b, 0.12), 1.0 - 0.08 * a)
-            # fjäderrader: en vågig kant var femte texel
-            if (Y + 1.2 * math.sin(X * 1.1)) % 5 < 1.0:
+            # Long central shaft and diagonal barbs on each stepped feather.
+            if abs(a - 0.5) * FW < 0.7:
+                return blanda(col, VIT, 0.35)
+            if (Y + abs(X-FW/2)*0.8) % 4 < 0.8:
                 return linje
-            # fjäderspolen: en ljus strimma mitt i varje fjäder
-            if int(X + 1.2 * math.sin(Y * 0.5)) % 5 == 2 and _h(x, y, 12) < 0.6:
-                c = blanda(c, (255, 255, 255) if lum(col) < 90 else (0, 0, 0), 0.10)
+            c = skala(c, 0.86 + 0.18 * (1-abs(a-0.5)*2))
             return korn(c, x, y, 0.3)
         return kantad(fn, rekt, 0.85)
     alla(duk, kuber, gor)
@@ -375,7 +387,15 @@ def m_horn(duk, kuber, col, i, cfg):
 def m_rustning(duk, kuber, col, i, cfg):
     def gor(sida, rekt, kub):
         o, s, uv = kub
-        fn = metall(col, rekt, nitar=(s[0] > 3))
+        fn = metall(col, rekt, nitar=True)
+        if s[0] < 1 and sida in ("east", "west"):
+            def plates(a,b,x,y):
+                if abs(b-0.48) < 0.04:
+                    return skala(col, 0.57)
+                if abs(b-0.42) < 0.025:
+                    return blanda(col, VIT, 0.5)
+                return fn(a,b,x,y)
+            return plates
         if sida == "top" and s[2] > 10:
             X0, Y0, FW, FH = rekt
 
@@ -413,7 +433,7 @@ def m_haxhatt(duk, kuber, col, i, cfg):
 def m_tomteluva(duk, kuber, col, i, cfg):
     def gor(sida, rekt, kub):
         o, s, uv = kub
-        if s[1] <= 1.6 and s[0] < 6 and s != [3.6, 2.4, 3.6]:   # kant och tofs
+        if s[0] == 5.2 or s == [1.4, 1.4, 1.4]:   # kant och tofs
             return fluff(VIT, rekt)
         return tyg(col, rekt, 0.02)
     alla(duk, kuber, gor)
@@ -425,9 +445,19 @@ def m_doktorsrock(duk, kuber, col, i, cfg):
         fn = tyg(col, rekt, 0.02)
         X0, Y0, FW, FH = rekt
         som = skala(col, 0.8)
+        if s[1] == 1.15:                                # utanpåliggande fickor
+            return kantad(tyg(col, rekt), rekt, 0.72)
+        if s[0] == 1.1:                                 # separata slag
+            return tyg(blanda(col, VIT, 0.35), rekt)
 
         def fn2(a, b, x, y):
             X, Y = a * FW, b * FH
+            if s[0] < 1 and sida in ("east", "west"):
+                # Collar fold at the front, pocket, and a small teal badge.
+                if a < 0.28 and b < 0.36 and abs(a-b*0.65) < 0.04:
+                    return (142,163,174)
+                if 0.57 < a < 0.79 and 0.53 < b < 0.65:
+                    return (70,143,157) if a < 0.65 else (163,204,208)
             if s[0] < 1 and sida in ("east", "west") and 0.55 < a < 0.9 and 0.45 < b < 0.85:
                 if a < 0.58 or a > 0.87 or b < 0.5 or b > 0.82:
                     return som                            # fickans kant
@@ -439,8 +469,8 @@ def m_doktorsrock(duk, kuber, col, i, cfg):
 
 
 def m_batvingar(duk, kuber, col, i, cfg):
-    ben = blanda(col, (0, 0, 0), 0.5)
-    hinna = blanda(col, (255, 255, 255), 0.10)
+    ben = blanda(col, (0, 0, 0), 0.40)
+    hinna = blanda(col, (127,104,151), 0.24)
 
     def gor(sida, rekt, kub):
         o, s, uv = kub
@@ -495,8 +525,8 @@ def m_mantel(duk, kuber, col, i, cfg):
         def fn(a, b, x, y):
             X, Y = a * FW, b * FH
             c = grund(col, b, 0.18)
-            c = skala(c, 1 + 0.07 * math.sin(X * 0.8))    # vecken
-            if s[1] > 2 and sida in ("north", "south") and (b > 0.85 or X < 1.5 or X > FW - 1.5):
+            c = skala(c, 1 + 0.18 * math.cos(a * math.pi * 6))    # vecken
+            if sida in ("north", "south", "top") and (b > 0.85 or X < 1.5 or X > FW - 1.5):
                 return trim                               # bården
             return korn(c, x, y, 0.4)
         return fn
@@ -531,7 +561,9 @@ def m_rymdmantel(duk, kuber, col, i, cfg):
         X0, Y0, FW, FH = rekt
 
         def fn(a, b, x, y):
-            c = grund(col, b, 0.16)
+            c = skala(grund(col, b, 0.24), 1 + 0.16 * math.cos(a * math.pi * 4))
+            if b > 0.90 or a < 0.04 or a > 0.96:
+                return blanda(col, (168,191,235), 0.6)
             if mork:
                 n = _h(x // 4, y // 4, 13) * 0.6 + _h(x // 8, y // 8, 14) * 0.4
                 c = blanda(c, (96, 60, 130), max(0.0, n - 0.55) * 0.9)   # nebulosa
@@ -586,6 +618,8 @@ def m_flytvast(duk, kuber, col, i, cfg):
                     return korn(reflex, x, y, 0.3)          # reflexbanden
                 if s[0] > 6 and sida == "north" and 0.4 < a < 0.6 and (0.12 < b < 0.24 or 0.76 < b < 0.88):
                     return spanne if not (0.45 < a < 0.55 and (0.15 < b < 0.21 or 0.79 < b < 0.85)) else (150, 150, 156)
+            if sida in ("east", "west") and abs(a - 0.5) < 0.025:
+                return skala(col, 0.65)                   # vadderade paneler
             return fn(a, b, x, y)
         return fn2
     alla(duk, kuber, gor)
@@ -601,6 +635,11 @@ def m_regnrock(duk, kuber, col, i, cfg):
         def fn(a, b, x, y):
             X, Y = a * FW, b * FH
             c = grund(bas, b, 0.14)
+            if s[0] < 1 and sida in ("east", "west"):
+                if b > 0.86:
+                    return blanda(col, (245,244,202), 0.5)  # synlig fåll
+                if 0.58 < a < 0.88 and 0.52 < b < 0.58:
+                    return skala(col, 0.58)                # ficklock
             if (X + 0.3 * Y) % 9 < 1.5:
                 c = blanda(c, (255, 255, 255), 0.22)         # glansstrimman
             if _h(x // 2, y // 2, 61) > 0.965:

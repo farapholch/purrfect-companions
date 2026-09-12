@@ -1,0 +1,38 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:katt_tv"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "GIG",
+      "IRI",
+      "PPP"
+    ],
+    "key": {
+      "G": {
+        "item": "minecraft:glass_pane"
+      },
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "R": {
+        "item": "minecraft:redstone"
+      },
+      "P": {
+        "item": "minecraft:planks"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:glass_pane"
+      }
+    ],
+    "result": {
+      "item": "mjau:katt_tv"
+    }
+  }
+}

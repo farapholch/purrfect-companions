@@ -623,6 +623,47 @@ for cname,ctrl in _ac["animation_controllers"].items():
     if _in and _ut and min(_in) <= max(_ut):
         bad.append(f"{cname}: gå-tröskeln in ({min(_in)}) måste vara > ut ({max(_ut)}) — annars fladdrar stoppet")
 
+# 4. Klientkopplingen måste vara komplett. Servern kan ha en felfri entity och
+# ändå visa en stillbild om client_entity saknar en alias, en controller eller
+# ett ljud-/partikeleffekt-namn. Kontrollera hela kedjan för varje katt, inte
+# bara att filerna råkar finnas.
+_animdata=json.load(open(f"{SRC}/PurrfectCompanions_RP/animations/katt.animation.json",encoding="utf-8"))["animations"]
+_animids=set(_animdata)
+_ctrlids=set(_ac["animation_controllers"])
+_required_aliases={"walk","look","tail","sit","ctrl","sova"}
+_render=json.load(open(f"{SRC}/PurrfectCompanions_RP/render_controllers/katt.render_controllers.json",encoding="utf-8"))["render_controllers"]
+_outfit_rc={n for n in _render if n.startswith("controller.render.katt_")}
+for _ef in sorted(glob.glob(f"{SRC}/PurrfectCompanions_RP/entity/*.json")):
+    _ced=json.load(open(_ef,encoding="utf-8"))["minecraft:client_entity"]["description"]
+    if _ced.get("geometry",{}).get("default") != "geometry.katt": continue
+    _cid=os.path.basename(_ef)[:-5]
+    _aliases=_ced.get("animations",{})
+    for _alias in _required_aliases - set(_aliases):
+        bad.append(f"{_cid}: klientanimationen '{_alias}' saknas")
+    for _alias,_target in _aliases.items():
+        if _target not in _animids and _target not in _ctrlids:
+            bad.append(f"{_cid}: animation '{_alias}' pekar på saknad '{_target}'")
+    if "ctrl" not in _ced.get("scripts",{}).get("animate",[]):
+        bad.append(f"{_cid}: scripts.animate kör inte ctrl — animation controller är död")
+    for _rc in _outfit_rc:
+        if _rc not in _ced.get("render_controllers",[]):
+            bad.append(f"{_cid}: render controller '{_rc}' saknas — ett plagg blir osynligt")
+    _se=set(_ced.get("sound_effects",{}))
+    _pe=set(_ced.get("particle_effects",{}))
+    for _an in _animdata.values():
+        for _when,_fx in _an.get("sound_effects",{}).items():
+            if _fx.get("effect") not in _se:
+                bad.append(f"{_cid}: animationljud '{_fx.get('effect')}' saknar sound_effects-alias")
+        for _when,_fx in _an.get("particle_effects",{}).items():
+            if _fx.get("effect") not in _pe:
+                bad.append(f"{_cid}: animationpartikel '{_fx.get('effect')}' saknar particle_effects-alias")
+for _cname,_ctrl in _ac["animation_controllers"].items():
+    for _state,_st in _ctrl.get("states",{}).items():
+        for _alias in _st.get("animations",[]):
+            if not any(_alias in json.load(open(_ef,encoding="utf-8"))["minecraft:client_entity"]["description"].get("animations",{})
+                       for _ef in glob.glob(f"{SRC}/PurrfectCompanions_RP/entity/*.json")):
+                bad.append(f"{_cname}/{_state}: animationalias '{_alias}' saknas i client_entity")
+
 # --- glesa blockmodeller får ALDRIG vara opaque --------------------------
 # opaque säger åt spelet att blocket fyller hela kuben -> grannblockens ytor
 # cullas. På en gles modell (kattlucka-karm, 5px hög kattbädd...) blir
@@ -942,6 +983,19 @@ echo "[2c/4] Bildregression (render_regression.py)"
 ROUT=$(python3 "$SRC/render_regression.py" 2>&1)
 if [ -n "$ROUT" ]; then echo "$ROUT" | while read -r l; do bad "$l"; done; FAIL=1
 else ok "modellen ser ut som facit i vila och i pose ($(ls "$SRC/tests/baseline" | wc -l) vyer)"; fi
+
+echo
+echo "[2d/4] Plaggens UV, passform och kombinationer"
+if python3 -W ignore::ResourceWarning "$SRC/tests/test_furniture_actions.py" && node "$SRC/tests/test-furniture.mjs"; then
+  ok "möbelbesök: platser, avbrott och återställning"
+else
+  bad "möbelbesöken misslyckades"
+fi
+if python3 -B "$SRC/tests/test_accessory_uv.py" && python3 -B "$SRC/tests/test_outfit_combinations.py"; then
+  ok "texturplacering, fästen och 14 kombinationer i fyra poser"
+else
+  bad "plaggens passform eller texturplacering"
+fi
 
 if [ "${1:-}" = "--quick" ]; then
   echo

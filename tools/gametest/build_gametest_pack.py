@@ -11,7 +11,7 @@ Kräver beta-API:er (experimentet 'gametest' i level.dat).
 Modulversionerna upptäcks av purrfect-gametest: fel version får servern att
 lista de giltiga i ContentLog.
 """
-import json, os, sys
+import json, os, sys, shutil
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import nbt
@@ -21,7 +21,19 @@ SERVER_VER = sys.argv[2] if len(sys.argv) > 2 else "2.4.0-beta"
 GAMETEST_VER = sys.argv[3] if len(sys.argv) > 3 else "1.0.0-beta"
 
 os.makedirs(f"{OUT}/scripts", exist_ok=True)
+shutil.copyfile(os.path.join(os.path.dirname(__file__), "../../PurrfectCompanions_BP/scripts/furniture_visits.js"), f"{OUT}/scripts/furniture_visits.js")
 os.makedirs(f"{OUT}/structures/mjau", exist_ok=True)
+# Deterministic test-only kitten: same production cat components, choosing the
+# baby branch explicitly instead of relying on the random summon or born event.
+os.makedirs(f"{OUT}/entities", exist_ok=True)
+with open(os.path.join(os.path.dirname(__file__), "../../PurrfectCompanions_BP/entities/misty.json")) as f:
+    kitten=json.load(f)
+ke=kitten["minecraft:entity"]
+ke["description"]["identifier"]="mjau:fixture_kitten"
+ke["description"]["is_spawnable"]=False
+ke["events"]["minecraft:entity_spawned"]={"add":{"component_groups":["mjau:baby","mjau:fri","mjau:jagar"]}}
+with open(f"{OUT}/entities/fixture_kitten.json","w") as f:json.dump(kitten,f,indent=2)
+
 
 json.dump({
     "format_version": 2,
@@ -36,7 +48,7 @@ json.dump({
         "type": "script", "language": "javascript",
         "uuid": "8d2f0a21-42b3-4b4c-8d69-c6dae3a5b712",
         "version": [1, 0, 0], "entry": "scripts/main.js",
-    }],
+    }, {"type":"data", "uuid":"b54ae428-03ce-4f72-afef-9589ae170bec", "version":[1,0,0]}],
     "dependencies": [
         {"module_name": "@minecraft/server", "version": SERVER_VER},
         {"module_name": "@minecraft/server-gametest", "version": GAMETEST_VER},
@@ -47,8 +59,9 @@ open(f"{OUT}/scripts/main.js", "w").write('''\
 // Sista milen: en simulerad spelare gar SPELARENS vag genom interaktionerna.
 // Event-testerna hoppar over has_equipment/is_owner-filtren; natverksboten
 // stoppades av serverns klienthandslag. SimulatedPlayer har inga av de hindren.
+import { FurnitureVisits, furnitureSeat } from "./furniture_visits.js";
 import * as gt from "@minecraft/server-gametest";
-import { ItemStack, world } from "@minecraft/server";
+import { ItemStack, world, BlockPermutation } from "@minecraft/server";
 
 function done(test, msg, ok) {
   // Egen tydlig loggrad — gametest-ramverkets egna utskrifter varierar mellan
@@ -332,9 +345,16 @@ gt.registerAsync("mjau", "show", async (test) => {
   // langt fran arenan, och domaren sag forstas ingenting.
   const K0 = cat.location;
   const B = { x: Math.floor(K0.x) + 2, y: Math.floor(K0.y) - 1, z: Math.floor(K0.z) };
+  // Keep the owner near the podium: follow_owner otherwise teleports the
+  // test cat away before the real scoring loop can observe her.
+  p.teleport({x:B.x+.5,y:B.y+1,z:B.z-2});
+  p.setItem(new ItemStack("minecraft:stick",1),0,true);
   try { d.runCommand(`setblock ${B.x} ${B.y} ${B.z} mjau:podium`); } catch (e) { return done(test, "show: kunde inte satta podiet: " + e, false); }
   await test.idle(10);
   try { cat.teleport({ x: B.x + 0.5, y: B.y + 0.6, z: B.z + 0.5 }); } catch { }
+  await test.idle(10);
+  // A real owner sit command keeps the judge's subject on the podium.
+  if(cat.getProperty("mjau:mobel")!==-1)p.interactWithEntity(cat);
   await test.idle(10);
   // TRYCKET: ett foremal mot blocket (itemUseOn) — samma vag som en spelare
   // med nagot i handen. Tom hand gar via playerInteractWithBlock, som inte
@@ -633,6 +653,223 @@ gt.registerAsync("mjau", "skepp", async (test) => {
 })
   .structureName("mjau:arena")
   .maxTicks(2400);
+async function testFurniture(test,spaTvOnly=false){
+ const d=test.getDimension();d.runCommand('time set day');
+ const p=test.spawnSimulatedPlayer({x:12,y:1,z:10},'GTMobler');
+ let origin;
+ const visits=new FurnitureVisits();
+ // The structure can load previously unloaded item/projectile entities that
+ // console cleanup could not see. Clear this isolated fixture after loading,
+ // before spawning cats; removed yarn projectiles also need a landing tick.
+ await test.idle(20);
+ for(const e of d.getEntities({type:'mjau:garnkast',location:p.location,maxDistance:24}))e.remove();
+ await test.idle(10);
+ for(const e of d.getEntities({type:'minecraft:item',location:p.location,maxDistance:24}))e.remove();
+ const cats=[test.spawn('mjau:misty',{x:11,y:1,z:10}),test.spawn('mjau:hazel',{x:13,y:1,z:10})];
+ for(const c of cats)c.triggerEvent('mjau:on_tame');
+ await test.idle(10);
+ let tick=0;
+ async function step(){await test.idle(20);tick+=20;visits.update(d,cats,[p],tick,false);}
+ async function waitMode(mode,both=false){
+  // Stabilise only the starting fixture: on_tame takes a tick to apply and
+  // ambient AI can otherwise leave the reservation radius before its first update.
+  // The actual route remains native and starts only after this first reservation.
+  for(const c of cats){if(c.getComponent('minecraft:is_baby'))c.triggerEvent('mjau:grow_up');c.triggerEvent('mjau:mobel_vantar');}
+  // Summoning randomly produces 10% kittens. Adult size variants must actually
+  // be adults: follow_parent outranks furniture and can pull babies out of range.
+  await test.idle(2);
+  if(cats.some(c=>c.getComponent('minecraft:is_baby')))throw new Error('adult furniture fixture did not grow up');
+  visits.update(d,cats,[p],tick,false);
+  if(cats.some(c=>!visits.owns(c)))
+   console.warn('[MJAU-GT] furniture start not reserved '+JSON.stringify(cats.map(c=>({type:c.typeId,p:c.getProperty('mjau:mobel'),eligible:visits.eligible(c),target:c.target?.typeId,l:c.location}))));
+  for(let i=0;i<32;i++){
+   await step();
+   // Reproduce the production hunger sync racing with first reservation.
+   if(i===0)for(const c of cats)c.triggerEvent('mjau:matt_igen');
+   if(cats.filter(c=>c.getProperty('mjau:mobel')===mode).length>=(both?2:1))return true;
+   if(i%10===9 || (mode===7 && i<10))console.warn('[MJAU-GT] mobler '+mode+' stations='+JSON.stringify(visits.stations)+' '+JSON.stringify(cats.map(c=>({p:c.getProperty('mjau:mobel'),eligible:visits.eligible(c),target:c.target?.typeId,h:c.getProperty('mjau:hungrig'),leker:c.getProperty('mjau:leker'),speed:c.getComponent('minecraft:movement')?.currentValue,sit:c.getComponent('minecraft:sittable')?.isSitting,l:c.location,phase:visits.active.get(c.id)?.phase}))));
+  }return false;
+ }
+ origin={x:Math.floor(p.location.x),y:Math.floor(p.location.y),z:Math.floor(p.location.z)+2};
+ d.runCommand(`fill ${origin.x-4} ${origin.y-1} ${origin.z-4} ${origin.x+4} ${origin.y-1} ${origin.z+4} stone`);
+ d.runCommand(`fill ${origin.x-4} ${origin.y} ${origin.z-4} ${origin.x+4} ${origin.y+2} ${origin.z+4} air`);
+ d.getBlock(origin).setType('mjau:sovkorg');
+ console.warn('[MJAU-GT] furniture setup '+JSON.stringify({origin,player:p.location,dim:p.dimension.id,cats:cats.map(c=>({t:c.getProperty('mjau:tam'),h:c.getProperty('mjau:humor'),eligible:visits.eligible(c)}))}));
+ if(!spaTvOnly){
+ const kitten=d.spawnEntity('mjau:fixture_kitten',{x:origin.x-2,y:origin.y,z:origin.z-1});
+ kitten.triggerEvent('mjau:on_tame');kitten.triggerEvent('mjau:mobel_vantar');await test.idle(2);
+ if(!kitten.getComponent('minecraft:is_baby')||visits.eligible(kitten))
+  return done(test,'mobler: kitten should follow its parent instead of reserving furniture',false);
+ kitten.triggerEvent('mjau:grow_up');await test.idle(2);
+ if(kitten.getComponent('minecraft:is_baby')||!visits.eligible(kitten))
+  return done(test,'mobler: grown cat should become eligible',false);
+ kitten.remove();
+ console.warn('[MJAU-GT] kitten excluded and grown cat eligible; adult fixture before native navigation');
+ if(!await waitMode(5,true))return done(test,'mobler: two cats did not reach basket',false);
+ const a=cats[0].location,b=cats[1].location;
+ if(Math.hypot(a.x-b.x,a.z-b.z)<.65)return done(test,'mobler: basket places overlap',false);
+ await step();
+ d.getBlock(origin).setType('minecraft:air');await step();await test.idle(2);
+ if(cats.some(c=>c.getProperty('mjau:mobel')!==0))return done(test,'mobler: removed basket did not release cats',false);
+ // Exercise native paths at each cardinal orientation, with independent
+ // fresh visitors. Cats start two blocks from the seat.
+ for(const old of cats)old.remove();cats.length=0;
+ for(const facing of ['east','south','west','north','east','south','west']){
+  d.getBlock(origin).setPermutation(BlockPermutation.resolve('mjau:sovkorg',
+    {'minecraft:cardinal_direction':({north:'south',east:'west',south:'north',west:'east'})[facing]}));
+  for(let slot=0;slot<2;slot++){
+   const seat=furnitureSeat(origin,'basket',slot,facing);
+   const c=d.spawnEntity(slot?'mjau:snow':'mjau:mocha',{
+    x:seat.x+(facing==='south'?0:-1.8),y:origin.y,z:seat.z+(facing==='south'?-1.8:0)});
+   cats.push(c);c.triggerEvent('mjau:on_tame');
+  }
+  visits.nextScan=0;
+  if(!await waitMode(5,true))return done(test,'mobler: basket '+facing+' pair did not arrive',false);
+  if(Math.hypot(cats[0].location.x-cats[1].location.x,cats[0].location.z-cats[1].location.z)<.65)
+    return done(test,'mobler: basket '+facing+' overlapping cats '+JSON.stringify(cats.map(c=>({location:c.location,seat:visits.active.get(c.id)?.seat}))),false);
+  console.warn('[MJAU-GT] basket repeat verified '+facing+' '+cats.map(c=>c.typeId).join('+'));
+  d.getBlock(origin).setType('minecraft:air');await step();
+  for(const c of cats)c.remove();cats.length=0;
+ }
+ }
+ for(const c of cats)c.remove();cats.length=0;
+ for(const facing of ['north','east','south','west'])for(const kind of (spaTvOnly==='water'?['spa','fountain']:spaTvOnly==='scratch'?['scratch']:spaTvOnly?['tv','spa']:['tv','spa','scratch'])){
+  const block={tv:'mjau:katt_tv',spa:'mjau:kattspa',scratch:'mjau:klosbrada',fountain:'mjau:kattfontan'}[kind],mode={tv:7,spa:6,scratch:8,fountain:14}[kind];
+  d.getBlock(origin).setPermutation(BlockPermutation.resolve(block,{'minecraft:cardinal_direction':({north:'south',east:'west',south:'north',west:'east'})[facing]}));
+  const seat=furnitureSeat(origin,kind,0,facing);
+  const plantPos={x:Math.floor(seat.x),y:Math.floor(seat.y),z:Math.floor(seat.z)};
+  const plant=['north','south'].includes(facing)?'minecraft:short_grass':'minecraft:dandelion';
+  if(spaTvOnly==='scratch'){
+   d.getBlock(plantPos).setType('minecraft:stone');
+   if(visits.freeSeat(d,seat,kind))return done(test,'mobler: solid scratch seat accepted',false);
+   d.getBlock({x:plantPos.x,y:plantPos.y-1,z:plantPos.z}).setType('minecraft:grass_block');
+   d.getBlock(plantPos).setType(plant);
+  }
+  const [fx,fz]={north:[0,-1],east:[1,0],south:[0,1],west:[-1,0]}[facing];
+  const obstacles=[];
+  // A real wall behind the object and a neighbouring hideaway on one side.
+  for(let side=-1;side<=1;side++)for(let y=0;y<3;y++){
+   const q={x:origin.x-fx-fz*side,y:origin.y+y,z:origin.z-fz+fx*side};
+   d.getBlock(q).setType('minecraft:stone');obstacles.push(q);
+  }
+  const neighbour={x:origin.x+fz*2,y:origin.y,z:origin.z-fx*2};
+  d.getBlock(neighbour).setType('mjau:gomstalle');obstacles.push(neighbour);
+  p.teleport({x:origin.x+.5+fx*3,y:origin.y,z:origin.z+.5+fz*3});
+  const c=d.spawnEntity(kind==='tv'||(['scratch','fountain'].includes(kind)&&['east','west'].includes(facing))?'mjau:snow':'mjau:mocha',
+    facing==='north' && ['tv','spa'].includes(kind)
+      ? {x:origin.x+.5,y:origin.y+(kind==='tv'?13/16:9/16)+.25,z:origin.z+.5}
+      : {x:seat.x+(facing==='north'||facing==='south'?1.8:0),y:origin.y,z:seat.z+(facing==='east'||facing==='west'?1.8:0)});
+  cats.push(c);c.triggerEvent('mjau:on_tame');visits.nextScan=0;
+  if(!await waitMode(mode))return done(test,'mobler: '+kind+' '+facing+' native arrival failed',false);
+  await step();
+  const expected={north:0,east:90,south:180,west:-90}[facing];
+  if(Math.abs(((c.getRotation().y-expected+540)%360)-180)>15)
+    return done(test,'mobler: '+kind+' '+facing+' wrong yaw '+c.getRotation().y,false);
+  if(Math.abs(c.location.y-seat.y)>.12 || Math.hypot(c.location.x-seat.x,c.location.z-seat.z)>.12)
+    return done(test,'mobler: '+kind+' not on actual seat '+JSON.stringify({location:c.location,seat}),false);
+  const held={...c.location};for(let i=0;i<3;i++)await step();
+  if(Math.hypot(c.location.x-held.x,c.location.z-held.z)>.35)
+    return done(test,'mobler: '+kind+' '+facing+' wandered',false);
+  if(spaTvOnly==='water'){
+   for(let i=0;i<24&&visits.owns(c);i++)await step();
+   await test.idle(2);
+   if(visits.owns(c)||c.getProperty('mjau:mobel')!==0)
+    return done(test,'mobler: natural '+kind+' release failed '+JSON.stringify({location:c.location,visit:visits.active.get(c.id)}),false);
+   if(kind==='spa' && Math.hypot(c.location.x-seat.x,c.location.z-seat.z)<1.1)
+    return done(test,'mobler: spa ended without walking outside '+JSON.stringify(c.location),false);
+   for(let i=0;i<8;i++){
+    await step();
+    if(visits.owns(c)||c.getProperty('mjau:mobel')!==0)return done(test,'mobler: cooldown ignored '+kind,false);
+    if(kind==='spa'&&Math.hypot(c.location.x-seat.x,c.location.z-seat.z)<.8)
+     return done(test,'mobler: ambient AI returned to spa during cooldown',false);
+   }
+   console.warn('[MJAU-GT] natural water visit and cooldown verified '+kind+' '+facing);
+  } else {
+  if(kind==='spa')c.triggerEvent('mjau:hungrig_pa');
+  else d.getBlock(origin).setPermutation(BlockPermutation.resolve(block,{'minecraft:cardinal_direction':d.getBlock(origin).permutation.getState('minecraft:cardinal_direction')==='north'?'east':'north'}));
+  await step();await test.idle(2);
+  if(c.getProperty('mjau:mobel')!==0)return done(test,'mobler: '+kind+' '+facing+' rotation/hunger release failed',false);
+  if(kind==='spa'){
+   c.triggerEvent('mjau:matt_igen');await test.idle(2);
+   if(c.getProperty('mjau:hungrig')!==0)return done(test,'mobler: hunger did not clear after feeding',false);
+  }
+  }
+  if(spaTvOnly==='scratch'){
+   if(d.getBlock(plantPos).typeId!==plant)return done(test,'mobler: vegetation changed '+plant+' -> '+d.getBlock(plantPos).typeId,false);
+   console.warn('[MJAU-GT] scratching through '+plant+' '+facing+' verified');
+   d.getBlock(plantPos).setType('minecraft:air');
+  }
+  console.warn('[MJAU-GT] furniture verified '+kind+' '+facing+' '+c.typeId+' wall and neighbouring hideaway');
+  for(const q of obstacles)d.getBlock(q).setType('minecraft:air');
+  c.remove();cats.length=0;
+  d.getBlock(origin).setType('minecraft:air');
+ }
+ done(test,'mobler: '+(spaTvOnly==='water'?'spa departure and fountain drinking':spaTvOnly==='scratch'?'scratching through grass and flowers':spaTvOnly?'spa/TV photo regression':'eight paired basket visits, spa/TV/scratching')+'; native arrival, exact height, four directions, walls, staying and interruption',true);
+}
+gt.registerAsync('mjau','mobler',test=>testFurniture(test)).structureName('mjau:arena').maxTicks(7200);
+gt.registerAsync('mjau','scratch',test=>testFurniture(test,'scratch')).structureName('mjau:arena').maxTicks(4000);
+gt.registerAsync('mjau','water',test=>testFurniture(test,'water')).structureName('mjau:arena').maxTicks(6000);
+gt.registerAsync('mjau','spa_tv',test=>testFurniture(test,true)).structureName('mjau:arena').maxTicks(4000);
+gt.registerAsync('mjau','fonster',async(test)=>{
+ const d=test.getDimension();d.runCommand('time set day');
+ const p=test.spawnSimulatedPlayer({x:12,y:1,z:10},'GTFonster');await test.idle(10);
+ const origin={x:Math.floor(p.location.x),y:Math.floor(p.location.y),z:Math.floor(p.location.z)+2};
+ const cats=[],visits=new FurnitureVisits();let tick=0,peak=origin.y;
+ async function step(){
+  for(let i=0;i<20;i++){await test.idle(1);for(const c of cats)peak=Math.max(peak,c.location.y);}
+  tick+=20;visits.update(d,cats,[p],tick,false);
+ }
+ for(const facing of ['north','east','south','west']){
+  d.runCommand(`fill ${origin.x-4} ${origin.y-1} ${origin.z-4} ${origin.x+4} ${origin.y-1} ${origin.z+4} stone`);
+  d.runCommand(`fill ${origin.x-4} ${origin.y} ${origin.z-4} ${origin.x+4} ${origin.y+4} ${origin.z+4} air`);
+  const [fx,fz]={north:[0,-1],east:[1,0],south:[0,1],west:[-1,0]}[facing];
+  d.getBlock(origin).setPermutation(BlockPermutation.resolve('mjau:fonsterbadd',{'minecraft:cardinal_direction':{north:'south',east:'west',south:'north',west:'east'}[facing]}));
+  const glass={x:origin.x-fx,y:origin.y+1,z:origin.z-fz};
+  d.getBlock(glass).setType('minecraft:glass');d.getBlock({...glass,y:glass.y+1}).setType('minecraft:glass');
+  d.getBlock({x:origin.x+fz*2,y:origin.y,z:origin.z-fx*2}).setType('mjau:gomstalle');
+  p.teleport({x:origin.x+.5+fx*3.2,y:origin.y,z:origin.z+.5+fz*3.2});
+  const c=d.spawnEntity(['east','west'].includes(facing)?'mjau:snow':'mjau:mocha',
+    {x:origin.x+.5+fx*2.4,y:origin.y,z:origin.z+.5+fz*2.4});
+  cats.push(c);c.triggerEvent('mjau:on_tame');
+  if(c.getComponent('minecraft:is_baby'))c.triggerEvent('mjau:grow_up');
+  c.triggerEvent('mjau:mobel_vantar');await test.idle(2);
+  if(c.getComponent('minecraft:is_baby'))return done(test,'fonster: adult fixture failed',false);
+  c.triggerEvent('mjau:on_regnrock_1');c.triggerEvent('mjau:on_ryggsack_1');await test.idle(2);
+  if(c.getProperty('mjau:regnrock')!==1||c.getProperty('mjau:ryggsack')!==1)return done(test,'fonster: outfit fixture failed',false);
+  const blocked={x:origin.x,y:origin.y+2,z:origin.z};
+  d.getBlock(blocked).setType('minecraft:stone');
+  visits.nextScan=0;visits.update(d,cats,[p],tick,false);
+  if(visits.owns(c))return done(test,'fonster: reserved a blocked cushion',false);
+  d.getBlock(blocked).setType('minecraft:air');
+  peak=origin.y;visits.nextScan=0;visits.update(d,cats,[p],tick,false);
+  c.triggerEvent('mjau:matt_igen');
+  for(let i=0;i<30&&c.getProperty('mjau:mobel')!==11;i++)await step();
+  const seat=furnitureSeat(origin,'window',0,facing);
+  if(c.getProperty('mjau:mobel')!==11)return done(test,'fonster: '+facing+' did not reach perch '+JSON.stringify({l:c.location,seat,mode:c.getProperty('mjau:mobel'),phase:visits.active.get(c.id)?.phase,peak}),false);
+  if(Math.abs(c.location.y-seat.y)>.12||Math.hypot(c.location.x-seat.x,c.location.z-seat.z)>.1)
+   return done(test,'fonster: '+facing+' wrong cushion position',false);
+  if(peak<origin.y+1.05)return done(test,'fonster: '+facing+' no measured upward hop '+peak,false);
+  const expected={north:0,east:90,south:180,west:-90}[facing];
+  if(Math.abs(((c.getRotation().y-expected+540)%360)-180)>15)return done(test,'fonster: wrong viewing direction',false);
+  for(let i=0;i<6;i++)await step();
+  if(c.getProperty('mjau:mobel')!==11)return done(test,'fonster: fell asleep too early',false);
+  for(let i=0;i<3;i++)await step();
+  if(c.getProperty('mjau:mobel')!==12)return done(test,'fonster: did not fall asleep',false);
+  for(let i=0;i<3;i++)await step();
+  if(Math.abs(c.location.y-seat.y)>.12||Math.hypot(c.location.x-seat.x,c.location.z-seat.z)>.1)
+   return done(test,'fonster: sleeping cat left cushion',false);
+  if(facing==='north')d.getBlock(origin).setType('minecraft:air');
+  else if(facing==='east')c.triggerEvent('mjau:hungrig_pa');
+  else if(facing==='south')c.triggerEvent('mjau:mobel_sitt');
+  else d.getBlock(origin).setPermutation(BlockPermutation.resolve('mjau:fonsterbadd',{'minecraft:cardinal_direction':'south'}));
+  await step();await test.idle(2);
+  if(c.getProperty('mjau:mobel')!==(facing==='south'?-1:0)||visits.owns(c))return done(test,'fonster: interrupt failed '+facing,false);
+  console.warn('[MJAU-GT] window verified '+facing+' '+c.typeId+' raincoat/backpack, blocked headroom rejected, neighbour present; peak='+(peak-origin.y).toFixed(2));
+  c.remove();cats.length=0;
+ }
+ done(test,'fonster: native hop, cushion alignment, window facing, watch then sleep and interruptions in four directions',true);
+}).structureName('mjau:arena').maxTicks(6000);
+
 ''')
 
 # Arena: 7x5x7-struktur, stengolv, resten luft. GameTest kräver en struktur

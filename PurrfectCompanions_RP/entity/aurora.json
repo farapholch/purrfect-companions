@@ -8,7 +8,8 @@
       },
       "textures": {
         "default": "textures/entity/plagg",
-        "pals": "textures/entity/aurora_pals"
+        "pals": "textures/entity/aurora_pals",
+        "sleep": "textures/entity/aurora_sleep"
       },
       "geometry": {
         "default": "geometry.katt",
@@ -117,7 +118,15 @@
         "tail": "animation.katt.tail",
         "sit": "animation.katt.sit",
         "ctrl": "controller.animation.katt.move",
-        "sova": "animation.katt.sova"
+        "sova": "animation.katt.sova",
+        "korgvila": "animation.katt.korgvila",
+        "korglagg": "animation.katt.korglagg",
+        "spa": "animation.katt.spa",
+        "tv": "animation.katt.tv",
+        "scratch": "animation.katt.scratch",
+        "window": "animation.katt.window",
+        "windowlagg": "animation.katt.windowlagg",
+        "fountain": "animation.katt.fountain"
       },
       "scripts": {
         "animate": [

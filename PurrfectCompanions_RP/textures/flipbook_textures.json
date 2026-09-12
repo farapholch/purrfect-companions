@@ -1,0 +1,26 @@
+[
+  {
+    "flipbook_texture": "textures/blocks/pc_kattspa_animated",
+    "atlas_tile": "pc_kattspa",
+    "ticks_per_frame": 8,
+    "frames": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "blend_frames": false
+  },
+  {
+    "flipbook_texture": "textures/blocks/pc_katt_tv_animated",
+    "atlas_tile": "pc_katt_tv",
+    "ticks_per_frame": 8,
+    "frames": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "blend_frames": false
+  }
+]

@@ -91,7 +91,7 @@ export const PLAGG = [
    "Green"
   ],
   "effekt": "potion.absorption",
-  "prosa": false
+  "prosa": true
  },
  {
   "id": "rosett",
@@ -266,37 +266,53 @@ export const PLAGG = [
 export const KATTER = [
  {
   "id": "mjau:misty",
-  "biom": "plains"
+  "biom": "plains",
+  "personlighet": "Curious"
  },
  {
   "id": "mjau:hazel",
-  "biom": "plains"
+  "biom": "plains",
+  "personlighet": "Social"
  },
  {
   "id": "mjau:mocha",
-  "biom": "plains"
+  "biom": "plains",
+  "personlighet": "Sleepy"
  },
  {
   "id": "mjau:snow",
-  "biom": "plains"
+  "biom": "plains",
+  "personlighet": "Brave"
  },
  {
   "id": "mjau:ginger",
-  "biom": "forest"
+  "biom": "forest",
+  "personlighet": "Hunter"
  },
  {
   "id": "mjau:domino",
-  "biom": "taiga"
+  "biom": "taiga",
+  "personlighet": "Playful"
  }
 ];
 export const MOBLER = [
  "mjau:fiskdamm",
+ "mjau:fonsterbadd",
  "mjau:garnnystan",
+ "mjau:gomstalle",
+ "mjau:hangmatta",
  "mjau:kartong",
+ "mjau:katt_tv",
  "mjau:kattbadd",
+ "mjau:kattfontan",
  "mjau:kattlucka",
  "mjau:kattoa",
+ "mjau:kattspa",
+ "mjau:kattunnel",
+ "mjau:klosbrada",
+ "mjau:leksakslada",
  "mjau:matskal",
  "mjau:podium",
+ "mjau:sovkorg",
  "mjau:stallning"
 ];

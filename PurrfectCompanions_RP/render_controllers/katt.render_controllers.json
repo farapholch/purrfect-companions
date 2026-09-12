@@ -9,7 +9,7 @@
         }
       ],
       "textures": [
-        "Texture.pals"
+        "(q.property('mjau:mobel') == 5 || q.property('mjau:mobel') == 12) && q.modified_move_speed <= 0.02 ? Texture.sleep : Texture.pals"
       ]
     },
     "controller.render.katt_sadel": {

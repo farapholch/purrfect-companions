@@ -44,9 +44,22 @@ Cats seek all of these out on their own:
 
 **Cat Bed** · **Yarn Ball** · **Food Bowl** · **Litter Box** · **Cat Tower** · **Cardboard Box** (cats love boxes) · **Fish Pond** · **Cat Door**
 
-### Twenty-three craftable outfits
+The furniture collection also includes a **Cat Spa**, **Cat TV**, **Cat Hideaway**,
+**Toy Box**, **Cat Fountain**, **Scratching Board**, **Cat Tunnel** and **Cat Hammock**.
+The TV shows a bird, the toy box holds colorful toys, and the spa has a towel
+and soap dispenser. The **Show Podium** is the place for the cat show.
 
-All wearable at the same time, in any combination — **sixty-nine colour variants**.
+The **Basket for Two** gives two well-fed, tamed cats room to rest together.
+Cats pause beside the spa and sit facing the TV, with animated water and a bird
+on the screen. Leave space in front of the furniture for them to approach.
+Hunger, damage, sitting commands and saddling end the visit.
+
+Inventory icons and worn outfits have clearer material details, with improved
+coat, armor, cloak and cart shapes.
+
+### Twenty-four craftable outfits
+
+All wearable at the same time, in any combination — **seventy colour variants**.
 
 | Outfit | Notes |
 |---|---|

@@ -1,3 +1,26 @@
+## 3.54.0 - Cozy companions and clearer details
+
+- Added a craftable Basket for Two: two well-fed, tamed cats can settle down together on separate cushions.
+- Cats now pause beside the Cat Spa and sit facing the Cat TV. Hunger, damage, sitting commands and saddling interrupt their rest.
+- Animated the spa water and the bird on the TV screen.
+- Refined all 70 accessory inventory icons with clearer shapes and material details.
+- Improved worn clothing, armor, cloaks and the cart, including fit in practical outfit combinations and a cart that stays level when the cat sits or sleeps.
+- Fixed the furniture catalog in the Cat Care Book and added English and Swedish help for the new behaviors.
+
+## 3.52.4 - Clearer icons and cat furniture
+
+- Redesigned the Cat Care Book icon with a teal cover, gold cat emblem,
+  visible page edges and a pink bookmark.
+- Improved Cat Treat, Cat Whistle and trophy silhouettes, with a small
+  refinement to the throwable Yarn Ball icon.
+- Added Cat Spa, Cat TV, Cat Hideaway, Toy Box, Cat Fountain, Scratching Board,
+  Cat Tunnel and Cat Hammock furniture since the previous public release.
+- Refined their models and materials: a bird on the TV screen, visible toys
+  in the open box, a sisal scratching ramp, a cushioned hideaway, and distinct
+  cloth, water and ceramic surfaces.
+- Corrected Cat TV and spa mood bonuses to respect the supported mood range,
+  and stopped effects from furniture that has been removed.
+
 ## 3.52.0 — The whistle, the yarn ball and the cat show
 
 Three things this release, all of them about playing with the cats rather than
@@ -964,3 +987,11 @@ Snow is a white cat, so her ears disappeared into the rest of her coat. They are
 now grey with a pink inner, clearly separated from the fur.
 
 Includes everything from 2.3.0, where outfits finally became visible on the cat.
+## 3.60.2 - Better furniture visits and add-on metadata
+
+- Cats leave the Cat Spa naturally after a visit instead of remaining by the bath, and can now visit the Cat Fountain to drink with a short lapping animation.
+- Added the craftable Window Perch: cats hop onto its blue cushion, watch the view with head and tail movements, then settle down to sleep.
+- Added a Scratching Board visit with alternating paws, quiet scratching and small sisal fibres. Cats can use furniture placed in all four directions.
+- Improved the Basket for Two and Cat TV arrivals, including the final small steps needed to settle into the intended place.
+- Refined the cart harness and retained the updated clothing, furniture and item textures from recent local updates.
+- Added add-on product metadata to both packs for current Bedrock import testing. Achievement availability still depends on Minecraft and platform support.

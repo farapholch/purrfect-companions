@@ -1,9 +1,40 @@
 # Ej publicerat på CurseForge ännu
 
-(tomt — 3.48.0–3.52.0 flyttades in i publish/changelog.md vid släppet 2026-09-07.
-Nya opublicerade poster skrivs HÄR, inte i publish/, eftersom publish_site.sh
-lägger ut publish/*.md på purrfect.pelleops.se och en changelog på sajten som
-CurseForge inte har blir en mismatch.)
+## 3.57.1 — lokal testversion
+
+- Rättar ett gränsfall där en katt stannade strax utanför sin plats i sovkorgen för två.
+- Utökad verifiering av upprepade parbesök, väggar, grannmöbler och kläder på fönsterbädden.
+
+## 3.57.0 — lokal testversion
+
+- Ny fönsterbädd med trästomme, ben och en stoppad blå dyna.
+- Vuxna katter tar sig upp, spanar med huvud- och svansrörelser och slumrar sedan till.
+- Slutna ögon, mjuk övergång till vila och diskret andning; kläder följer poserna.
+- Fyra riktningar och tydliga avbrott vid hunger, skada eller spelarens kommando.
+- Recept: tre ljusblå ull, tre plankor och två pinnar. Ingår i kattboken.
+- Katten passar in sig framför TV:n innan den sätter sig, även när gångvägen slutar precis utanför tittplatsen.
+
+## 3.56.0 — lokal testversion
+
+- Klösbrädan får ett eget besök: katten går fram och klöser växelvis med framtassarna.
+- Små sisalfibrer och ett diskret skrapljud under besöket.
+- Brädan kan vridas åt fyra håll; besöket avbryts vid hunger, skada eller spelarens kommando.
+- Kattboken beskriver det nya beteendet.
+- Kattungar fortsätter följa sin förälder; möbelbesöken börjar när katten är vuxen.
+- Klösbrädans kollisionsyta följer modellen så även stora katter står framför den.
+
+## 3.55.0 — lokal testversion
+
+- Sovkorgen: katterna lägger sig mjukt, sluter ögonen och andas lugnt.
+- Spa: egen tassvårdsanimation med tassen mot nosen.
+- TV: egen sittanimation med lugna huvudrörelser framför skärmen.
+- Sovkorg, spa och TV kan placeras i fyra riktningar. Katternas platser och
+  blick följer möbeln; äldre möbler behåller sin tidigare riktning.
+- Kattparen väljer korgplatser efter avstånd och justerar sitt läge innan de vilar.
+- Rättat en krock där hungersystemets uppdatering kunde avbryta vägen till möbeln.
+
+Grafisk kontroll i en riktig Minecraft-klient återstår; se FURNITURE_REVIEW.md.
+Nya opublicerade poster skrivs här, inte i publish/, som kan läggas ut på sajten.
 
 ---
 ---

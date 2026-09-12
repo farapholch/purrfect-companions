@@ -49,6 +49,8 @@ table and the cat, its spawn-egg icon and the preview images follow.
 - **Spawn naturally** in plains biomes
 - **Spawn eggs show cat faces**, not eggs
 - **Animated**: walk cycle with legs in diagonal pairs, swaying tail, head tracking, curled-up sitting pose
+- **Six personalities**: Curious, Social, Sleepy, Brave, Hunter and Playful cats have different movement, hunting, sitting and gift habits
+- **Collars with bells**: a tame cat rings softly while she walks
 
 ## The Cat Care Book
 

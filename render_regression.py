@@ -128,7 +128,7 @@ def texturer(cat, enheter=None):
     return {"default": (tex, tw, th, tw / enheter[0] if enheter else 1.0)}
 
 
-def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16, ram=None, enheter=None):
+def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16, ram=None, enheter=None, positions=None, transforms=None):
     TEX = texturer(cat, enheter)
     bones = bones_for(acc)
     ya, pa = math.radians(yaw), math.radians(pitch)
@@ -140,7 +140,14 @@ def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16, ram=None, enheter=N
         return (xr, y * math.cos(pa) - zr * math.sin(pa), zr * math.cos(pa) + y * math.sin(pa))
 
     def place(p, pivot, deg):
-        return cam(rot(p, pivot, deg) if any(deg) else p)
+        point = rot(p, pivot, deg) if any(deg) else p
+        point=tuple(point[i]+shift[i] for i in range(3))
+        transform=(transforms or {}).get(name)
+        if transform:
+            scale,angle,offset=transform
+            point=rot(tuple(v*scale for v in point),(0,0,0),(0,angle,0))
+            point=tuple(point[i]+offset[i] for i in range(3))
+        return cam(point)
 
     # FAST ram. Anpassas den till modellens omslutande låda förskjuts hela bilden
     # så fort någon del rör sig, och då blir varje diff 25 % av alla pixlar utan
@@ -163,6 +170,7 @@ def render(cat, acc, pose, W=SIZE, H=SIZE, yaw=34, pitch=16, ram=None, enheter=N
         name, pivot, cubes = ben[:3]
         tex, tw, th, k = TEX.get(ben[3] if len(ben) > 3 else "default", TEX["default"])
         deg = pose.get(name, (0, 0, 0))
+        shift = (positions or {}).get(name, (0, 0, 0))
         for c in cubes:
             ox, oy, oz = c["origin"]; w, h, d = c["size"]; U, V = c["uv"]
             F = faces(U, V, w, h, d)

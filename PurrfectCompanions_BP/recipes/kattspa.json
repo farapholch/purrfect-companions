@@ -1,0 +1,38 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "mjau:kattspa"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "BWB",
+      "SPS",
+      "PPP"
+    ],
+    "key": {
+      "B": {
+        "item": "minecraft:bowl"
+      },
+      "W": {
+        "item": "minecraft:water_bucket"
+      },
+      "S": {
+        "item": "minecraft:white_wool"
+      },
+      "P": {
+        "item": "minecraft:planks"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:water_bucket"
+      }
+    ],
+    "result": {
+      "item": "mjau:kattspa"
+    }
+  }
+}

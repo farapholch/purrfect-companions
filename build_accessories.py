@@ -21,6 +21,17 @@ BASE = "/opt/purrfect-companions"; BP = f"{BASE}/PurrfectCompanions_BP"; RP = f"
 # bygge — en gång per ställe man glömde.
 KATTER = ("misty", "hazel", "mocha", "snow", "ginger", "domino")
 
+# Personligheter påverkar bara redan existerande beteenden. Det håller
+# skillnaderna märkbara i spelet utan en separat tick-loop per katt.
+PERSONLIGHETER = {
+    "misty":  {"namn": "Curious", "stroll": 1.12, "hunt": 14, "sit": 0.20, "gift": 0.82},
+    "hazel":  {"namn": "Social", "stroll": 1.00, "hunt": 10, "sit": 0.28, "gift": 0.76},
+    "mocha":  {"namn": "Sleepy", "stroll": 0.86, "hunt": 8,  "sit": 0.46, "gift": 0.68},
+    "snow":   {"namn": "Brave", "stroll": 1.06, "hunt": 16, "sit": 0.18, "gift": 0.78},
+    "ginger": {"namn": "Hunter", "stroll": 1.08, "hunt": 20, "sit": 0.14, "gift": 0.72},
+    "domino": {"namn": "Playful", "stroll": 1.16, "hunt": 11, "sit": 0.24, "gift": 0.74},
+}
+
 # Alla som har ett spawnägg att skydda mot ikonstädningen. Vakthunden är ingen
 # katt (ingen päls att måla plagg i), men hennes ikon rensas bort av samma glob
 # om hon inte står med här. De hemliga katterna står här av samma skäl — de
@@ -52,7 +63,7 @@ PALS = (128, 32)
 #
 # Grinden i purrfect-test kräver en språknyckel för dem som står här, så ett nytt
 # plagg tvingar fram ett beslut i stället för att tyst hamna i fel hög.
-_BOKPROSA = {"sadel", "ryggsack", "vagn", "vingar", "rustning", "energisvard",
+_BOKPROSA = {"sadel", "ryggsack", "vagn", "halsband", "vingar", "rustning", "energisvard",
              "gruvlampa", "regnrock", "rymdmantel", "krona", "doktorsrock", "totem"}
 
 # FORMAT: (komponentgrupp, effekter, språknyckel). Effekter är antingen ett
@@ -78,12 +89,14 @@ _EXTRA_POWERS = {
     "mantel":      ("mjau:mantelskold",     [("absorption", 1)],                        "potion.absorption"),
 }
 
+# UV entries below are legacy hints; layout_accessory_uvs replaces every slot
+# and cube offset deterministically after reading these definitions.
 ACC = {
  "sadel": dict(label="Cat Saddle", bone="body", sound="saddle", rideable=True,
    uv={1:(24,26),2:(56,26),3:(88,26)},
    colors={1:("brun",(122,79,45)),2:("svart",(58,52,48)),3:("ljus",(206,190,160))},
    names={1:"Brown",2:"Black",3:"Light"},
-   cubes=[([-3.25,9,-3],[6.5,1,6],(0,0)), ([-1.5,10,-3],[3,1,1],(0,8))],
+   cubes=[([-3.25, 9, -3], [6.5, 1, 6], (0, 0)), ([-2, 10, -3], [4, 1.2, 1], (0, 0)), ([-2.5, 10, 2], [5, 0.8, 1], (0, 0)), ([-3.6, 6.7, -0.5], [0.5, 2.4, 1.5], (0, 0)), ([3.1, 6.7, -0.5], [0.5, 2.4, 1.5], (0, 0))],
    recipe=lambda mat: dict(pattern=["LLL","S S"] if not mat else ["LLL","SDS"],
        key={"L":{"item":"minecraft:leather"},"S":{"item":"minecraft:string"}} if not mat
            else {"L":{"item":"minecraft:leather"},"S":{"item":"minecraft:string"},"D":{"item":mat}},
@@ -94,7 +107,7 @@ ACC = {
    uv={1:(24,40),2:(56,40),3:(24,56),4:(56,56)},
    colors={1:("cyan",(0,168,214)),2:("rod",(198,62,55)),3:("gron",(76,168,84)),4:("gul",(238,196,62))},
    names={1:"Cyan",2:"Red",3:"Green",4:"Yellow"},
-   cubes=[([-3.25,9.8,-9.25],[6.5,2,4.5],(0,0)), ([-2.5,9.9,-11.5],[5,0.5,2.5],(0,8))],
+   cubes=[([-3, 9.8, -9.1], [6, 1.1, 4.2], (0, 0)), ([-2.5, 10.9, -8.8], [5, 0.8, 3.6], (0, 0)), ([-2.5, 9.9, -11.3], [5, 0.5, 2.5], (0, 0)), ([-0.4, 11.7, -7.3], [0.8, 0.3, 0.8], (0, 0))],
    recipe=lambda mat: dict(pattern=["WWW"," L "],
        key={"W":{"item":mat},"L":{"item":"minecraft:leather"}},
        unlock=[{"item":mat},{"item":"minecraft:leather"}]),
@@ -105,7 +118,7 @@ ACC = {
    colors={1:("rod",(198,62,55)),2:("bla",(64,116,200)),3:("gron",(76,168,84)),4:("gul",(238,196,62)),
            5:("rosa",(238,138,186)),6:("lila",(134,66,186))},
    names={1:"Red",2:"Blue",3:"Green",4:"Yellow",5:"Pink",6:"Purple"},
-   cubes=[([-3.4,7.5,-5.6],[6.8,2,1.6],(0,0)), ([-1,5,-5.7],[2,2.5,1],(0,6))],
+   cubes=[([-3.5, 4.8, -5.7], [7, 1.5, 1], (0, 0)), ([-3.7, 3.3, -5.9], [1.5, 2.5, 0.7], (0, 0)), ([2, 2.8, -5.9], [1.5, 3, 0.7], (0, 0))],
    recipe=lambda mat: dict(pattern=["WW","WW"], key={"W":{"item":mat}}, unlock=[{"item":mat}]),
    mats={1:"minecraft:red_wool",2:"minecraft:blue_wool",3:"minecraft:green_wool",4:"minecraft:yellow_wool",
          5:"minecraft:pink_wool",6:"minecraft:purple_wool"}),
@@ -114,7 +127,7 @@ ACC = {
    uv={1:(0,88),2:(24,88),3:(48,88)},
    colors={1:("brun",(122,79,45)),2:("gron",(76,140,84)),3:("bla",(64,104,168))},
    names={1:"Brown",2:"Green",3:"Blue"},
-   cubes=[([-3.25,9,1],[6.5,2.5,3],(0,0)), ([-3.4,9.5,1.5],[6.9,0.5,2],(0,8))],
+   cubes=[([-2.5, 9, 1], [5, 3.2, 3], (0, 0)), ([-2.7, 11.5, 0.8], [5.4, 0.7, 3.4], (0, 0)), ([-1.6, 9.4, 4], [3.2, 1.6, 0.6], (0, 0)), ([-3.3, 9.3, 1.4], [0.8, 1.8, 2], (0, 0)), ([2.5, 9.3, 1.4], [0.8, 1.8, 2], (0, 0)), ([-1.2, 12.2, 1.8], [0.5, 0.7, 0.5], (0, 0)), ([0.7, 12.2, 1.8], [0.5, 0.7, 0.5], (0, 0)), ([-1.2, 12.9, 1.8], [2.4, 0.4, 0.5], (0, 0))],
    recipe=lambda mat: dict(pattern=["S S","LDL","LLL"],
        key={"L":{"item":"minecraft:leather"},"S":{"item":"minecraft:string"},"D":{"item":mat}},
        unlock=[{"item":"minecraft:leather"},{"item":mat}]),
@@ -142,15 +155,51 @@ ACC = {
    recipe=lambda mat: dict(pattern=["W W","W W"], key={"W":{"item":mat}}, unlock=[{"item":mat}]),
    mats={1:"minecraft:white_wool",2:"minecraft:black_wool",3:"minecraft:red_wool",4:"minecraft:yellow_wool"}),
 
- "vagn": dict(label="Cat Cart", bone="body", sound="armor.equip_leather",
+ "vagn": dict(label="Cat Cart", bone="cart", sound="armor.equip_leather",
    uv={1:(0,128),2:(32,128),3:(64,128)},
    colors={1:("tra",(150,108,64)),2:("rod",(178,58,52)),3:("bla",(58,102,172))},
    names={1:"Wood",2:"Red",3:"Blue"},
    # uppskalad ~35 % efter Xbox-test ("för liten") — flaket rymmer en spelare
-   cubes=[([-4,2,8],[8,5,7],(0,0)),          # flaket
-          ([-4.9,0,10],[1,4,4],(0,13)),      # hjul vänster
-          ([3.9,0,10],[1,4,4],(0,13)),       # hjul höger
-          ([-0.5,4.5,5],[1,1,3],(12,13))],   # dragstång till katten
+   cubes=[
+       ([-4, 2, 8], [8, 0.75, 7], (0, 0)),
+       ([-4.8, 6.3, -2.6], [0.6, 0.6, 11.3], (0, 0)),
+       ([4.2, 6.3, -2.6], [0.6, 0.6, 11.3], (0, 0)),
+       ([-4, 3.35, 8], [0.7, 0.65, 7], (0, 0)),
+       ([-4, 5.95, 8], [0.7, 0.65, 7], (0, 0)),
+       ([-4, 2.75, 8], [0.7, 3.85, 0.7], (0, 0)),
+       ([-4, 2.75, 11.2], [0.7, 3.85, 0.7], (0, 0)),
+       ([-4, 2.75, 14.3], [0.7, 3.85, 0.7], (0, 0)),
+       ([3.3, 3.35, 8], [0.7, 0.65, 7], (0, 0)),
+       ([3.3, 5.95, 8], [0.7, 0.65, 7], (0, 0)),
+       ([3.3, 2.75, 8], [0.7, 3.85, 0.7], (0, 0)),
+       ([3.3, 2.75, 11.2], [0.7, 3.85, 0.7], (0, 0)),
+       ([3.3, 2.75, 14.3], [0.7, 3.85, 0.7], (0, 0)),
+       ([-3.3, 3.35, 8], [6.6, 0.65, 0.7], (0, 0)),
+       ([-3.3, 5.95, 8], [6.6, 0.65, 0.7], (0, 0)),
+       ([-3.3, 3.35, 14.3], [6.6, 0.65, 0.7], (0, 0)),
+       ([-3.3, 5.95, 14.3], [6.6, 0.65, 0.7], (0, 0)),
+       ([-3.3, 6.35, 11.15], [6.6, 0.65, 1.6], (0, 0)),
+       ([-4.9, 1, 10], [1, 2, 4], (0, 0)),
+       ([-4.9, 0, 11], [1, 1, 2], (0, 0)),
+       ([-4.9, 3, 11], [1, 1, 2], (0, 0)),
+       ([3.9, 1, 10], [1, 2, 4], (0, 0)),
+       ([3.9, 0, 11], [1, 1, 2], (0, 0)),
+       ([3.9, 3, 11], [1, 1, 2], (0, 0)),
+       ([-4.8, 6.0, 8.0], [1.5, 0.6, 0.7], (0, 0)),
+       ([3.3, 6.0, 8.0], [1.5, 0.6, 0.7], (0, 0)),
+       # A body-following girth and breast strap; shafts meet the side pads.
+       ([-3.3, 9.02, -2.9], [6.6, 0.38, 1.1], (0, 0)),
+       ([-3.3, 3.65, -2.9], [6.6, 0.38, 1.1], (0, 0)),
+       ([-3.4, 3.65, -2.9], [0.4, 5.75, 1.1], (0, 0)),
+       ([3.0, 3.65, -2.9], [0.4, 5.75, 1.1], (0, 0)),
+       ([-3.4, 6.0, -5.35], [6.8, 1.0, 0.4], (0, 0)),
+       ([-3.4, 6.0, -5.0], [0.4, 1.0, 2.1], (0, 0)),
+       ([3.0, 6.0, -5.0], [0.4, 1.0, 2.1], (0, 0)),
+       ([-3.65, 6.0, -2.9], [0.65, 1.2, 1.1], (0, 0)),
+       ([3.0, 6.0, -2.9], [0.65, 1.2, 1.1], (0, 0)),
+       ([-4.8, 6.3, -2.6], [1.8, 0.6, 0.6], (0, 0)),
+       ([3.0, 6.3, -2.6], [1.8, 0.6, 0.6], (0, 0)),
+   ], harness_cubes=11,
    # seat 0 = I VAGNEN (styr som en släde), seat 1 = på ryggen. Xbox-testet:
    # med ryggen som seat 0 gick vagnen aldrig att sitta i — ensam spelare får
    # alltid första lediga sätet.
@@ -164,7 +213,7 @@ ACC = {
    uv={1:(0,176),2:(24,176),3:(48,176)},
    colors={1:("red",(196,58,52)),2:("blue",(58,102,178)),3:("green",(72,158,80))},
    names={1:"Red",2:"Blue",3:"Green"},
-   cubes=[([-3.4,7.6,-5.5],[6.8,1.2,1.4],(0,0)), ([-0.5,6.9,-5.6],[1,1,1],(0,4))],
+   cubes=[([-3.4, 4.9, -5.6], [6.8, 1, 1], (0, 0)), ([-0.5, 4, -5.9], [1, 1, 1], (0, 0))],
    recipe=lambda mat: dict(pattern=["LLL"," I "],
        key={"L":{"item":mat},"I":{"item":"minecraft:iron_nugget"}},
        unlock=[{"item":mat},{"item":"minecraft:iron_nugget"}]),
@@ -174,7 +223,7 @@ ACC = {
    uv={1:(0,186),2:(16,186),3:(32,186),4:(48,186)},
    colors={1:("pink",(238,138,186)),2:("red",(198,62,55)),3:("blue",(64,116,200)),4:("yellow",(238,196,62))},
    names={1:"Pink",2:"Red",3:"Blue",4:"Yellow"},
-   cubes=[([-1.5,10.2,-7.6],[3,1.6,1],(0,0))],
+   cubes=[([-1.9, 11.7, -7.6], [1.5, 1.7, 0.7], (0, 0)), ([0.4, 11.7, -7.6], [1.5, 1.7, 0.7], (0, 0)), ([-0.5, 12, -7.8], [1, 1.1, 1], (0, 0)), ([-1.3, 11.1, -7.5], [0.7, 1, 0.5], (0, 0)), ([0.6, 11.1, -7.5], [0.7, 1, 0.5], (0, 0))],
    recipe=lambda mat: dict(pattern=["WWW"], key={"W":{"item":mat}}, unlock=[{"item":mat}]),
    mats={1:"minecraft:pink_wool",2:"minecraft:red_wool",3:"minecraft:blue_wool",4:"minecraft:yellow_wool"}),
 
@@ -182,7 +231,7 @@ ACC = {
    uv={1:(0,192),2:(20,192),3:(40,192)},
    colors={1:("white",(242,242,240)),2:("black",(48,46,54)),3:("gold",(226,190,84))},
    names={1:"White",2:"Black",3:"Gold"},
-   cubes=[([-4.4,7,0],[0.6,5,5],(0,0)), ([3.8,7,0],[0.6,5,5],(0,0))],
+   cubes=[([-4.5, 8, 0], [0.7, 4, 2], (0, 0)), ([3.8, 8, 0], [0.7, 4, 2], (0, 0)), ([-4.7, 8.4, 2], [0.6, 4.3, 1.2], (0, 0)), ([4.1, 8.4, 2], [0.6, 4.3, 1.2], (0, 0)), ([-4.9, 8.7, 3.2], [0.5, 3.7, 1], (0, 0)), ([4.4, 8.7, 3.2], [0.5, 3.7, 1], (0, 0)), ([-5.1, 9, 4.2], [0.4, 2.7, 0.8], (0, 0)), ([4.7, 9, 4.2], [0.4, 2.7, 0.8], (0, 0))],
    recipe=lambda mat: dict(pattern=["F F","FWF"],
        key={"F":{"item":"minecraft:feather"},"W":{"item":mat}},
        unlock=[{"item":"minecraft:feather"},{"item":mat}]),
@@ -208,10 +257,17 @@ ACC = {
            3:("diamant",(108,220,214)),4:("netherit",(72,64,70))},
    names={1:"Iron",2:"Gold",3:"Diamond",4:"Netherite"},
    # ryggplåt + sidoplåtar + nackskydd, som hästrustning
-   cubes=[([-3.6,8.8,-5.2],[7.2,1,10.4],(0,0)),
-          ([-3.7,4.5,-4.5],[0.7,4.5,9],(0,13)),
-          ([3.0,4.5,-4.5],[0.7,4.5,9],(0,13)),
-          ([-2.5,6.5,-6.2],[5,3,1],(22,13))],
+   cubes=[
+       ([-3.25, 8.95, -4.7], [6.5, 0.35, 1.2], (0, 0)),
+       ([-3.25, 8.95, 3.7], [6.5, 0.35, 1.1], (0, 0)),
+       ([-3.65, 6.3, -4.3], [0.55, 2.7, 2.2], (0, 0)),
+       ([-3.65, 5.7, -1.85], [0.55, 3.15, 3.7], (0, 0)),
+       ([-3.65, 6.3, 2.1], [0.55, 2.7, 2.3], (0, 0)),
+       ([3.1, 6.3, -4.3], [0.55, 2.7, 2.2], (0, 0)),
+       ([3.1, 5.7, -1.85], [0.55, 3.15, 3.7], (0, 0)),
+       ([3.1, 6.3, 2.1], [0.55, 2.7, 2.3], (0, 0)),
+       ([-2.3, 5.6, -5.35], [4.6, 1.5, 0.35], (0, 0)),
+   ],
    recipe=lambda mat: dict(pattern=["I I","III","I I"],
        key={"I":{"item":mat}},
        unlock=[{"item":mat}]),
@@ -222,9 +278,7 @@ ACC = {
    uv={1:(176,30),2:(216,30)},
    colors={1:("svart",(38,34,44)),2:("lila",(96,56,140))},
    names={1:"Black",2:"Purple"},
-   cubes=[([-3,11.5,-8.5],[6,0.8,6],(0,0)),        # brätte
-          ([-1.8,12.3,-7.3],[3.6,2.2,3.6],(0,8)),  # kupa
-          ([-1,14.5,-6.5],[2,2,2],(0,15))],        # topp
+   cubes=[([-3, 11.5, -8.5], [6, 0.8, 6], (0, 0)), ([-1.8, 12.3, -7.3], [3.6, 2.2, 3.6], (0, 0)), ([-0.8, 14.5, -6.4], [2, 1.5, 2], (0, 0)), ([0.2, 16, -6.1], [1.4, 0.8, 1.4], (0, 0))],
    recipe=lambda mat: dict(pattern=[" W ","WWW"],
        key={"W":{"item":mat}},
        unlock=[{"item":mat}]),
@@ -234,9 +288,7 @@ ACC = {
    uv={1:(176,60),2:(216,60)},
    colors={1:("rod",(196,44,44)),2:("gron",(46,128,62))},
    names={1:"Red",2:"Green"},
-   cubes=[([-2.6,11.4,-8.1],[5.2,1,5.2],(0,0)),    # vit kant
-          ([-1.8,12.4,-7.3],[3.6,2.4,3.6],(0,7)),  # luva
-          ([-0.8,14.8,-6.3],[1.6,1.6,1.6],(0,14))],# tofs
+   cubes=[([-2.6, 11.4, -8.1], [5.2, 1, 5.2], (0, 0)), ([-1.8, 12.4, -7.3], [3.6, 2.4, 3.6], (0, 0)), ([0.5, 14.5, -6.6], [1.8, 1.2, 1.8], (0, 0)), ([1.8, 13.8, -6.6], [1.4, 1.4, 1.4], (0, 0))],
    recipe=lambda mat: dict(pattern=[" S ","WWW"],
        key={"W":{"item":mat},"S":{"item":"minecraft:snowball"}},
        unlock=[{"item":mat}]),
@@ -246,9 +298,20 @@ ACC = {
    uv={1:(176,90)},
    colors={1:("vit",(238,240,242))},
    names={1:"White"},
-   cubes=[([-3.5,4.2,-4.8],[0.6,4.6,9.4],(0,0)),
-          ([2.9,4.2,-4.8],[0.6,4.6,9.4],(0,0)),
-          ([-3.5,8.8,-4.8],[7,0.8,9.4],(0,15))],
+   cubes=[
+       ([-3.15, 9.02, -4.55], [6.3, 0.25, 1.1], (0, 0)),
+       ([-3.15, 9.02, 4.65], [6.3, 0.25, 0.35], (0, 0)),
+       ([-3.3, 6.2, -4.55], [0.3, 2.9, 2.15], (0, 0)),
+       ([-3.3, 5.65, -2.25], [0.3, 3.45, 4.45], (0, 0)),
+       ([-3.3, 5.5, 2.4], [0.3, 3.6, 2.2], (0, 0)),
+       ([3.0, 6.2, -4.55], [0.3, 2.9, 2.15], (0, 0)),
+       ([3.0, 5.65, -2.25], [0.3, 3.45, 4.45], (0, 0)),
+       ([3.0, 5.5, 2.4], [0.3, 3.6, 2.2], (0, 0)),
+       ([-3.55, 5.6, -0.7], [0.25, 1.15, 1.8], (0, 0)),
+       ([3.3, 5.6, -0.7], [0.25, 1.15, 1.8], (0, 0)),
+       ([-2.9, 6.3, -5.15], [1.1, 2.3, 0.3], (0, 0)),
+       ([1.8, 6.3, -5.15], [1.1, 2.3, 0.3], (0, 0)),
+   ],
    recipe=lambda mat: dict(pattern=["W W","WWW","W W"],
        key={"W":{"item":mat}},
        unlock=[{"item":mat}]),
@@ -258,10 +321,7 @@ ACC = {
    uv={1:(176,110),2:(216,110)},
    colors={1:("svart",(30,28,34)),2:("lila",(74,44,104))},
    names={1:"Black",2:"Purple"},
-   cubes=[([-8.5,8.6,-1],[5,0.7,6],(0,0)),
-          ([3.5,8.6,-1],[5,0.7,6],(0,0)),
-          ([-9.5,8.4,1],[1.6,3,1.6],(0,8)),
-          ([7.9,8.4,1],[1.6,3,1.6],(0,8))],
+   cubes=[([-6, 8.6, -1], [2.5, 0.5, 5], (0, 0)), ([3.5, 8.6, -1], [2.5, 0.5, 5], (0, 0)), ([-8, 8.9, -0.5], [2, 0.5, 3.8], (0, 0)), ([6, 8.9, -0.5], [2, 0.5, 3.8], (0, 0)), ([-9.5, 9.2, 0], [1.5, 0.4, 2], (0, 0)), ([8, 9.2, 0], [1.5, 0.4, 2], (0, 0)), ([-9.6, 9.3, 0], [0.6, 1.2, 0.6], (0, 0)), ([9, 9.3, 0], [0.6, 1.2, 0.6], (0, 0))],
    recipe=lambda mat: dict(pattern=["L L","LLL"],
        key={"L":{"item":mat}},
        unlock=[{"item":mat}]),
@@ -281,9 +341,15 @@ ACC = {
    uv={1:(0,150),2:(40,150),3:(80,150),4:(120,150)},
    colors={1:("rod",(178,48,44)),2:("bla",(56,96,178)),3:("lila",(122,64,178)),4:("svart",(44,42,48))},
    names={1:"Red",2:"Blue",3:"Purple",4:"Black"},
-   cubes=[([-3.3,9.6,-5.6],[6.6,1,0.6],(0,0)),      # krage vid halsen
-          ([-3.4,9.9,-5.5],[6.8,0.5,11],(0,3)),      # drapering över ryggen
-          ([-3.4,4,5.2],[6.8,6,0.6],(0,16))],        # hängande bakstycke
+   cubes=[
+       ([-3.95, 9.45, -4.85], [7.9, 0.35, 1.2], (0, 0)),
+       ([-4.05, 8.05, -3.65], [0.35, 1.75, 8.7], (0, 0)),
+       ([3.7, 8.05, -3.65], [0.35, 1.75, 8.7], (0, 0)),
+       ([-3.7, 4.6, 5.2], [1.6, 4.9, 0.3], (0, 0)),
+       ([-2.25, 3.95, 5.45], [1.6, 5.55, 0.3], (0, 0)),
+       ([0.65, 3.95, 5.45], [1.6, 5.55, 0.3], (0, 0)),
+       ([2.1, 4.6, 5.2], [1.6, 4.9, 0.3], (0, 0)),
+   ],        # hängande bakstycke
    recipe=lambda mat: dict(pattern=["S S","WWW","WWW"],
        key={"W":{"item":mat},"S":{"item":"minecraft:string"}},
        unlock=[{"item":mat},{"item":"minecraft:string"}]),
@@ -319,8 +385,15 @@ ACC = {
    uv={1:(88,211),2:(120,211)},
    colors={1:("stjarna",(110,150,235)),2:("tomrum",(38,34,58))},
    names={1:"Starlight",2:"Void"},
-   cubes=[([-3.4,4,5.2],[6.8,6,0.6],(0,0)),
-          ([-3.3,9.6,-5.6],[6.6,1,0.6],(16,0))],
+   cubes=[
+       ([-3.95, 9.45, -4.85], [7.9, 0.35, 1.2], (0, 0)),
+       ([-4.05, 8.05, -3.65], [0.35, 1.75, 8.7], (0, 0)),
+       ([3.7, 8.05, -3.65], [0.35, 1.75, 8.7], (0, 0)),
+       ([-3.7, 4.6, 5.2], [1.6, 4.9, 0.3], (0, 0)),
+       ([-2.25, 3.95, 5.45], [1.6, 5.55, 0.3], (0, 0)),
+       ([0.65, 3.95, 5.45], [1.6, 5.55, 0.3], (0, 0)),
+       ([2.1, 4.6, 5.2], [1.6, 4.9, 0.3], (0, 0)),
+   ],
    recipe=lambda mat: dict(pattern=["S S","WWW","WGW"],
        key={"W":{"item":mat},"S":{"item":"minecraft:string"},
             "G":{"item":"minecraft:glowstone_dust"}},
@@ -337,7 +410,7 @@ ACC = {
    colors={1:("massing",(214,170,70)),2:("jarn",(150,152,160))},
    names={1:"Brass",2:"Iron"},
    cubes=[([-3.3,10.0,-9.1],[6.6,0.7,4.6],(0,0)),     # remmen över hjässan
-          ([-1.0,9.0,-10.3],[2.0,1.4,1.3],(0,6))],     # lampan i pannan, ovanför ögonen
+          ([-1.0,9.35,-10.3],[2.0,1.4,1.3],(0,6))],     # lampan i pannan, ovanför ögonen
    recipe=lambda mat: dict(pattern=[" G ","NLN"],
        key={"G":{"item":"minecraft:glowstone_dust"},"N":{"item":mat},"L":{"item":"minecraft:leather"}},
        unlock=[{"item":"minecraft:glowstone_dust"},{"item":mat}]),
@@ -360,10 +433,21 @@ ACC = {
    uv={1:(72,176),2:(124,176)},
    colors={1:("gul",(238,196,62)),2:("gron",(76,168,84))},
    names={1:"Yellow",2:"Green"},
-   cubes=[([-3.5,4.2,-4.8],[0.6,4.6,9.4],(0,0)),
-          ([2.9,4.2,-4.8],[0.6,4.6,9.4],(0,0)),
-          ([-3.5,8.8,-4.8],[7,0.8,9.4],(0,15)),
-          ([-3.4,8.4,-6.0],[6.8,1.4,1.4],(33,15))],    # huvan, nedfälld i nacken
+   cubes=[
+       ([-3.15, 9.02, -4.55], [6.3, 0.25, 1.1], (0, 0)),
+       ([-3.15, 9.02, 4.65], [6.3, 0.25, 0.35], (0, 0)),
+       ([-3.3, 6.2, -4.55], [0.3, 2.9, 2.15], (0, 0)),
+       ([-3.3, 5.65, -2.25], [0.3, 3.45, 4.45], (0, 0)),
+       ([-3.3, 5.5, 2.4], [0.3, 3.6, 2.2], (0, 0)),
+       ([3.0, 6.2, -4.55], [0.3, 2.9, 2.15], (0, 0)),
+       ([3.0, 5.65, -2.25], [0.3, 3.45, 4.45], (0, 0)),
+       ([3.0, 5.5, 2.4], [0.3, 3.6, 2.2], (0, 0)),
+       ([-3.55, 5.6, -0.7], [0.25, 1.15, 1.8], (0, 0)),
+       ([3.3, 5.6, -0.7], [0.25, 1.15, 1.8], (0, 0)),
+       ([-2.9, 6.3, -5.15], [1.1, 2.3, 0.3], (0, 0)),
+       ([1.8, 6.3, -5.15], [1.1, 2.3, 0.3], (0, 0)),
+       ([-3.4, 8.4, -6.0], [6.8, 1.4, 1.4], (0, 0)),
+   ],    # huvan, nedfälld i nacken
    recipe=lambda mat: dict(pattern=["W W","WWW","WSW"],
        key={"W":{"item":mat},"S":{"item":"minecraft:slime_ball"}},
        unlock=[{"item":mat},{"item":"minecraft:slime_ball"}]),
@@ -431,6 +515,48 @@ def uv_footprint(size):
     import math
     return math.ceil(2*(d+w)), math.ceil(d+h)
 
+def layout_accessory_uvs():
+    """Pack each type locally, then its color tiles onto the shared atlas."""
+    import math
+    tiles = []
+    for name, cfg in ACC.items():
+        sizes = sorted({tuple(size) for _, size, _ in cfg["cubes"]},
+                       key=lambda size: (-math.ceil(size[1]+size[2]), -math.ceil(2*(size[0]+size[2])), size))
+        width = max(32, max(math.ceil(2*(size[0]+size[2]))+1 for size in sizes))
+        x = y = row = used = 0
+        offsets = {}
+        for size in sizes:
+            w, h = uv_footprint(size)
+            if x+w+1 > width:
+                x, y, row = 0, y+row, 0
+            offsets[size] = (x,y)
+            x += w+1; row = max(row,h+1); used = max(used,x)
+        cfg["cubes"] = [(o,size,offsets[tuple(size)]) for o,size,_ in cfg["cubes"]]
+        for variant in cfg["colors"]:
+            tiles.append((used,y+row,name,variant))
+    # Preserve established materials: procedural grain uses atlas coordinates.
+    # New/expanded tiles are packed around these stable, reviewed anchors.
+    anchors=json.load(open(f"{BASE}/tools/accessory_uv_anchors.json"))
+    heights = [0]*TEX
+    movable=[]
+    for w,h,name,variant in tiles:
+        fixed=anchors.get(name,{}).get(str(variant))
+        if fixed is None:
+            movable.append((w,h,name,variant)); continue
+        x,y=fixed
+        ACC[name]["uv"][variant]=(x,y)
+        heights[x:x+w]=[max(old,y+h) for old in heights[x:x+w]]
+    tiles=movable
+    for w,h,name,variant in sorted(tiles,key=lambda t:(-t[1],-t[0],t[2],t[3])):
+        y,x = min((max(heights[x:x+w]),x) for x in range(TEX-w+1))
+        if y+h > TEX:
+            raise ValueError(f"Accessory atlas overflow: {name}")
+        ACC[name]["uv"][variant] = (x,y)
+        heights[x:x+w] = [y+h]*w
+
+
+layout_accessory_uvs()
+
 # ---------------------------------------------------------------- geometri
 def build_geometry():
     p=f"{RP}/models/entity/katt.geo.json"
@@ -450,13 +576,22 @@ def build_geometry():
     # pivot som benet med samma namn i grundmodellen svänger plagget kring en
     # annan punkt än kroppsdelen och far ut vid sidan om katten när den rör sig.
     PIVOTS={b["name"]:b["pivot"] for b in base["bones"]}
+    # Wheels stay on the ground when the cat lowers its body to sit/sleep.
+    PIVOTS["cart"] = [0, 0, 0]
     for a,cfg in ACC.items():
         for i in cfg["colors"]:
             u,v=cfg["uv"][i]
             cubes=[{"origin":list(o),"size":list(s),"uv":[u+du,v+dv]} for o,s,(du,dv) in cfg["cubes"]]
-            geos.append({"description":desc(f"geometry.katt.{a}{i}"),
-                         "bones":[{"name":cfg["bone"],
-                                   "pivot":PIVOTS[cfg["bone"]],"cubes":cubes}]})
+            if a == "vagn":
+                split = len(cubes)-cfg["harness_cubes"]
+                bones = [{"name":"cart", "pivot":PIVOTS["cart"], "cubes":cubes[:split]},
+                         {"name":"body", "pivot":PIVOTS["body"], "cubes":cubes[split:]}]
+            elif a == "tossor":
+                bones = [{"name": f"leg{leg}", "pivot": PIVOTS[f"leg{leg}"],
+                          "cubes": [cube]} for leg, cube in enumerate(cubes)]
+            else:
+                bones = [{"name":cfg["bone"], "pivot":PIVOTS[cfg["bone"]], "cubes":cubes}]
+            geos.append({"description":desc(f"geometry.katt.{a}{i}"), "bones":bones})
     g["minecraft:geometry"]=geos
     json.dump(g,open(p,"w"),indent=2)
     return len(geos)
@@ -505,119 +640,224 @@ def icon(a,col,path):
     ljus, mork, djup = sh(col,1.25), sh(col,0.72), sh(col,0.55)
 
     if a=="glasogon":
-        for x in range(1,15): sp(x,7,mork); sp(x,8,col); sp(x,9,mork)
-        for y in range(6,11):
-            for x in (2,3,4,11,12,13): sp(x,y,col)
-        for y in range(7,10):
-            for x in (3,12): sp(x,y,(150,200,230,255))
+        # Mörka glas med blå reflektion, tydlig båge och näsbrygga.
+        rect(1,5,2,7,mork); rect(13,5,14,7,mork)
+        rect(2,6,6,10,djup); rect(9,6,13,10,djup)
+        rect(2,6,6,6,col); rect(9,6,13,6,col)
+        rect(3,7,5,9,(44,79,105,255)); rect(10,7,12,9,(44,79,105,255))
+        rect(7,7,8,7,col)
+        for x in (3,10):
+            sp(x,7,(200,239,247,255)); sp(x+1,8,(112,177,206,255))
+        sp(3,10,mork); sp(10,10,mork)
     elif a=="sadel":
-        rect(2,6,13,9,col); rect(3,6,12,6,ljus)
-        rect(2,4,4,6,ljus); rect(11,4,13,6,ljus)
-        rect(6,10,9,13,mork); rect(6,13,9,13,djup)
+        # Läder sits, upphöjda ändar och två öppna stigbyglar.
+        rect(2,5,13,9,djup); rect(3,6,12,8,col)
+        rect(2,3,4,6,mork); rect(3,3,4,4,ljus)
+        rect(11,3,13,6,mork); rect(11,3,12,4,ljus)
+        rect(5,6,10,6,ljus); rect(4,9,11,10,mork)
+        for x in (3,10):
+            rect(x,10,x,12,djup)
+            rect(x-1,12,x+2,14,(190,163,108,255))
+            rect(x,12,x+1,13,T)
+        for x in (4,6,8,10): sp(x,8,sh(col,1.1))
     elif a=="keps":
-        rect(4,5,11,9,col); rect(5,4,10,4,ljus)
-        rect(3,10,14,11,mork)
+        # Kupad krona med söm, knapp och böjd skärm.
+        rect(5,3,9,3,djup); sp(7,2,ljus)
+        rect(3,5,11,9,djup); rect(4,4,10,8,col)
+        rect(5,4,9,4,ljus); rect(4,5,4,8,ljus)
+        rect(8,5,8,8,mork); sp(6,6,ljus)
+        rect(3,9,12,10,mork); rect(7,10,14,11,djup)
+        rect(8,10,13,10,col); rect(10,11,13,11,mork)
     elif a=="gruvlampa":
-        rect(2,4,13,6,mork); rect(2,4,13,4,col)                 # remmen
-        rect(5,6,10,11,col); rect(6,7,9,10,(255,244,170,255))   # lampan med lins
-        rect(7,8,8,9,(255,255,255,255))
+        rect(2,4,13,7,(63,46,34,255)); rect(3,4,12,4,(130,100,67,255))
+        rect(4,5,11,11,djup); rect(5,4,10,12,mork)
+        rect(5,5,10,10,col); rect(6,5,9,5,ljus)
+        rect(6,6,9,10,(255,220,103,255)); rect(7,6,8,9,(255,251,214,255))
+        sp(6,6,(255,255,250,255)); rect(6,11,9,11,djup)
+        for x in (2,12): sp(x,6,(195,170,112,255))
     elif a=="flytvast":
-        rect(3,3,12,13,col); rect(6,3,9,13,mork)                # väst med öppning
-        rect(3,6,12,6,(220,220,220,255)); rect(3,10,12,10,(220,220,220,255))   # reflexband
-        rect(6,5,9,5,djup); rect(6,9,9,9,djup)                  # spännen
+        for x in (3,9):
+            rect(x,3,x+3,13,djup); rect(x,4,x+2,12,col)
+            rect(x,4,x,11,ljus)
+            rect(x,6,x+2,6,(239,241,220,255)); rect(x,10,x+2,10,(239,241,220,255))
+        rect(4,2,5,3,ljus); rect(10,2,11,3,ljus)
+        for y in (7,11):
+            rect(5,y,10,y,(44,43,40,255)); sp(7,y,(180,185,180,255))
+        sp(3,13,T); sp(12,13,T)
     elif a=="regnrock":
-        rect(4,1,11,3,mork); rect(5,0,10,1,mork)                # huvan
-        rect(3,4,12,14,col); rect(3,4,12,4,ljus); rect(7,5,8,14,mork)   # rocken med knäppning
-        sp(5,7,ljus); sp(10,9,ljus); sp(4,11,ljus)              # regndroppar
+        rect(5,1,10,1,mork); rect(4,2,11,4,col)
+        rect(5,2,10,3,djup); rect(6,2,9,2,mork)
+        rect(3,5,12,13,mork); rect(4,4,11,13,col)
+        rect(2,5,3,9,col); rect(12,5,13,9,col)
+        rect(4,5,4,12,ljus); rect(10,5,10,12,ljus)
+        rect(7,5,7,13,djup); rect(4,13,11,14,mork)
+        for y in (6,9,12): sp(8,y,(241,218,147,255))
+        rect(5,10,6,10,mork); rect(9,10,10,10,mork)
+        sp(11,6,(255,243,185,255))
     elif a=="totem":
-        rect(6,2,9,4,mork); rect(7,3,8,3,(20,20,24,255))       # öglan
-        rect(4,5,11,13,col); rect(5,5,10,5,ljus); rect(4,13,11,13,mork)
-        rect(6,7,9,11,(60,190,90,255)); rect(7,8,8,9,(150,240,170,255))   # smaragden
+        rect(6,1,9,3,djup); rect(7,2,8,3,T)
+        rect(4,4,11,12,djup); rect(5,3,10,13,mork)
+        rect(5,4,10,12,col); rect(5,4,5,11,ljus); rect(6,4,9,4,ljus)
+        rect(6,6,9,10,(31,99,61,255)); rect(7,5,8,11,(31,99,61,255))
+        rect(7,6,8,10,(57,190,108,255)); rect(6,7,9,9,(57,190,108,255))
+        rect(7,6,7,8,(175,255,208,255)); sp(8,9,(32,134,79,255))
+        rect(6,12,9,12,ljus)
     elif a=="halsduk":
-        # band runt halsen med TVÅ hängande ändar — ett rakt streck med en
-        # snibb under läste som ett T, inte som en halsduk
-        rect(2,5,13,5,ljus); rect(2,6,13,6,col)
-        rect(2,7,4,12,col); rect(11,7,13,12,col)
-        rect(2,13,4,13,djup); rect(11,13,13,13,djup)  # fransar
+        # Vikt tyg, rand och separata fransar.
+        rect(2,4,12,7,djup); rect(3,4,11,4,ljus)
+        rect(2,5,12,6,col); rect(4,6,11,6,mork)
+        rect(3,7,5,12,col); rect(10,7,12,13,col)
+        rect(3,7,3,11,ljus); rect(10,8,10,12,ljus)
+        rect(3,10,5,10,ljus); rect(10,11,12,11,ljus)
+        for x,y in ((3,13),(5,13),(10,14),(12,14)): sp(x,y,mork)
+        rect(9,5,11,7,mork); sp(9,5,ljus)
     elif a=="ryggsack":
-        rect(4,5,11,13,col); rect(4,5,11,7,ljus)
-        rect(2,6,3,11,djup); rect(12,6,13,11,djup)
-        sp(7,8,(214,182,86,255)); sp(8,8,(214,182,86,255))
+        # Bärhandtag, sidofickor, lock och separat framficka.
+        rect(6,1,9,3,djup); rect(7,2,8,3,T)
+        rect(4,3,11,14,djup); rect(3,5,12,12,djup)
+        rect(4,4,11,12,col); rect(5,13,10,13,mork)
+        rect(2,7,3,12,mork); rect(12,7,13,12,mork)
+        rect(2,7,3,7,ljus); rect(12,7,13,7,ljus)
+        rect(4,4,11,6,ljus); rect(5,7,10,7,mork)
+        rect(5,10,10,12,mork); rect(5,9,10,9,ljus)
+        rect(7,6,8,9,(91,62,43,255))
+        rect(7,7,8,8,(238,197,99,255))
+        sp(5,11,ljus); sp(10,11,ljus)
     elif a=="halsband":
-        for x in range(4,12): sp(x,4,col); sp(x,10,col)
-        for y in range(5,10): sp(3,y,col); sp(12,y,col)
-        rect(7,11,8,13,(214,182,86,255))
+        rect(4,3,11,4,mork); rect(4,3,10,3,ljus)
+        rect(2,5,3,9,djup); rect(12,5,13,9,djup)
+        rect(3,5,3,9,col); rect(12,5,12,9,col)
+        rect(4,10,11,11,mork); rect(4,10,10,10,col)
+        rect(10,3,12,5,(230,200,126,255)); sp(11,4,djup)
+        rect(6,11,9,13,(197,143,50,255)); rect(7,11,8,11,(255,227,138,255))
+        sp(7,12,(255,214,102,255)); sp(8,13,(91,66,37,255))
     elif a=="rosett":
-        for y in range(6,11):
-            d=abs(y-8)
-            rect(1+d,y,6,y,col); rect(9,y,14-d,y,col)
-        rect(6,7,9,9,mork)
+        for y,right in ((4,3),(5,4),(6,5),(7,6),(8,6),(9,5),(10,4),(11,3)):
+            rect(2,y,right,y,mork); rect(15-right,y,13,y,mork)
+            if right > 3:
+                rect(3,y,right,y,col); rect(15-right,y,12,y,col)
+        rect(3,5,4,6,ljus); rect(11,5,12,6,ljus)
+        rect(5,10,6,12,col); rect(9,10,10,12,col)
+        rect(6,6,9,9,djup); rect(7,6,8,8,col); sp(7,6,ljus)
     elif a=="vingar":
-        for i,ln in enumerate((3,5,6,6,5,4,3,2)):
-            y=4+i; c=col if i%2 else sh(col,0.88)
-            rect(7-ln,y,6,y,c); rect(9,y,8+ln,y,c)
+        # Fjäderspetsar ger kontur; speglade vingben lämnar luft i mitten.
+        for flip in (False,True):
+            def feather(x,y,c): sp(15-x if flip else x,y,c)
+            for y,left,right in ((2,2,2),(3,2,3),(4,1,4),(5,1,5),
+                                 (6,1,6),(7,1,6),(8,2,6),(9,2,6),
+                                 (10,3,6),(11,4,6),(12,5,6)):
+                for x in range(left,right+1): feather(x,y,mork if x==right else col)
+            for x,y in ((2,3),(2,4),(2,5),(3,6),(4,7),(5,8),(6,9)):
+                feather(x,y,ljus)
+            for x,y in ((1,7),(2,9),(3,11),(4,12)):
+                feather(x,y,T)
+            for x,y in ((2,7),(3,9),(4,10),(5,11)): feather(x,y,ljus)
     elif a=="batvingar":
-        for i,ln in enumerate((2,4,5,6,6,5,3,1)):
-            y=4+i; c=col if i%2 else sh(col,0.8)
-            rect(7-ln,y,6,y,c); rect(9,y,8+ln,y,c)
-        for x in (2,4,11,13): sp(x,12,djup)
+        col = tuple(max(c, floor) for c, floor in zip(col, (52, 47, 63)))
+        ljus, mork, djup = sh(col,1.35), sh(col,0.72), sh(col,0.55)
+        # Spetsiga vingfingrar och urtag i membranets nederkant.
+        for flip in (False,True):
+            def wing(x,y,c): sp(15-x if flip else x,y,c)
+            for y,left,right in ((2,2,2),(3,2,3),(4,1,4),(5,1,5),(6,1,6),
+                                 (7,1,6),(8,1,6),(9,1,6),(10,1,6),(11,4,6),(12,6,6)):
+                for x in range(left,right+1): wing(x,y,col)
+            for x,y in ((2,2),(2,3),(3,4),(4,5),(5,6),(6,7),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10)):
+                wing(x,y,ljus)
+            for x,y in ((4,6),(4,7),(4,8),(4,9),(4,10),(4,11),(6,8),(6,9),(6,10),(6,11),(6,12)):
+                wing(x,y,djup)
     elif a=="horn":
-        for i in range(8):
-            y=13-i; w=(8-i)//2
-            rect(8-w,y,8+w,y,ljus if i%2 else col)
+        for y in range(2,13):
+            half=(y-1)//3
+            rect(8-half,y,8+half,y,mork)
+            rect(8-half,y,7+half,y,col)
+            sp(8-half,y,ljus)
+            if y%3==1: rect(8-half,y,8+half,y,sh(col,0.82))
+        sp(8,1,ljus); rect(4,13,11,14,djup); rect(5,13,10,13,ljus)
     elif a=="krona":
-        rect(2,9,13,12,col); rect(2,9,13,9,ljus)
-        for x0 in (2,7,12):
-            rect(x0,6,x0+1,8,col); rect(x0,5,x0+1,5,ljus)
-        for x0 in (3,8,12): sp(x0,11,(220,90,120,255))
+        # Guld med mörk infattning, tre spetsar och ädelstenar.
+        rect(2,8,13,12,djup); rect(3,8,12,11,col)
+        for x,top in ((2,4),(7,2),(12,4)):
+            rect(x,top,x+1,8,mork); rect(x,top,x,7,ljus)
+            sp(x,top,(255,238,169,255))
+        rect(3,9,12,9,ljus); rect(3,12,12,12,ljus)
+        for x,c in ((4,(69,202,183,255)),(7,(221,67,106,255)),(10,(69,202,183,255))):
+            rect(x,10,x+1,11,c); sp(x,10,sh(c,1.3))
     elif a=="haxhatt":
-        for i in range(9):
-            y=3+i; w=i//2
-            rect(8-w,y,8+w,y,col)
-        rect(1,12,14,13,mork); rect(5,10,11,11,(214,182,86,255))
+        col = tuple(max(c, floor) for c, floor in zip(col, (52, 47, 63)))
+        ljus, mork, djup = sh(col,1.35), sh(col,0.72), sh(col,0.55)
+        for y,left,right in ((2,10,11),(3,8,10),(4,7,9),(5,6,9),(6,6,10),
+                             (7,5,10),(8,5,11),(9,4,11),(10,4,12)):
+            rect(left,y,right,y,mork); rect(left,y,right-1,y,col); sp(left,y,ljus)
+        rect(4,10,11,11,(113,72,48,255))
+        rect(7,10,9,12,(236,192,85,255)); sp(8,11,djup)
+        rect(2,12,13,13,djup); rect(1,12,14,12,mork)
+        rect(2,12,5,12,ljus); rect(4,14,11,14,djup)
     elif a=="tomteluva":
-        for i in range(7):
-            y=4+i; w=i//2; lut=i//3
-            rect(9-w-lut,y,10+w-lut,y,col)
-        rect(2,11,13,13,(240,240,240,255)); rect(10,3,12,5,(240,240,240,255))
+        for y,left,right in ((3,6,10),(4,5,11),(5,4,11),(6,4,10),
+                             (7,3,10),(8,3,10),(9,3,11),(10,3,11)):
+            rect(left,y,right,y,mork); rect(left,y,right-1,y,col); sp(left,y,ljus)
+        rect(11,5,12,7,col); rect(11,7,13,9,(207,214,219,255))
+        rect(11,7,12,8,(250,250,244,255))
+        rect(2,11,12,13,(204,214,222,255)); rect(3,10,11,12,(246,247,238,255))
+        for x in (4,7,10): sp(x,10,(255,255,255,255))
     elif a=="doktorsrock":
-        rect(3,4,12,13,col); rect(7,4,8,13,mork)
-        sp(4,4,mork); sp(5,5,mork); sp(11,4,mork); sp(10,5,mork)
-        rect(9,7,11,7,(210,60,60,255)); rect(10,6,10,8,(210,60,60,255))
+        rect(3,4,12,13,mork); rect(4,4,11,13,col)
+        rect(2,5,3,9,col); rect(12,5,13,9,col)
+        rect(6,3,9,5,(74,122,149,255)); rect(7,6,8,13,mork)
+        for x,y in ((4,3),(5,4),(6,5),(11,3),(10,4),(9,5)): sp(x,y,ljus)
+        rect(4,9,5,11,(181,197,204,255)); rect(4,9,5,9,ljus)
+        for y in (7,10,12): sp(8,y,(100,120,130,255))
+        rect(9,7,11,7,(195,61,67,255)); rect(10,6,10,8,(195,61,67,255))
+        sp(3,13,T); sp(12,13,T)
     elif a=="rustning":
-        rect(3,5,12,12,col); rect(2,5,4,7,col); rect(11,5,13,7,col)
-        rect(6,5,9,5,T)                               # halsurtag ur plåten
-        rect(4,6,11,6,ljus); rect(3,11,12,12,mork)
+        rect(3,4,12,12,djup); rect(2,4,4,7,mork); rect(11,4,13,7,mork)
+        rect(4,5,11,11,col); rect(6,3,9,5,T)
+        rect(2,4,4,4,ljus); rect(11,4,13,4,ljus)
+        rect(4,6,4,10,ljus); rect(7,6,7,11,ljus); rect(8,6,8,11,mork)
+        rect(4,9,11,9,mork); rect(4,12,11,13,mork)
+        for x in (4,11): sp(x,7,(240,240,230,255))
+        rect(5,13,10,13,djup)
     elif a=="energisvard":
-        rect(7,1,8,10,ljus); rect(6,2,6,9,col); rect(9,2,9,9,col)
-        rect(5,11,10,11,(96,96,108,255)); rect(7,12,8,15,(58,58,68,255))
+        # Diagonalt blad med vit kärna, färgad kant och separat grepp.
+        for i in range(8):
+            x,y=6+i,9-i
+            sp(x-1,y,mork); sp(x,y,col); sp(x,y-1,ljus); sp(x+1,y-1,(244,253,255,255)); sp(x+1,y,col)
+        for x,y in ((4,8),(5,9),(6,10),(7,11)): sp(x,y,(177,192,204,255)); sp(x,y+1,(72,79,91,255))
+        for x,y in ((4,11),(3,12),(2,13)): sp(x,y,(65,55,62,255)); sp(x+1,y,(137,146,155,255))
+        sp(2,14,(193,200,210,255))
     elif a=="rymdmantel":
-        for y in range(3,14): rect(4,y,11,y,col)
-        rect(4,3,11,3,ljus)
-        for sx,sy in ((5,5),(9,6),(7,9),(10,11),(5,12)):
-            sp(sx,sy,(235,235,255,255))
+        for y in range(3,14):
+            left=5-(y//5); right=10+(y//5)
+            rect(left,y,right,y,mork); rect(left+1,y,right-1,y,col)
+            sp(left+2,y,sh(col,1.1)); sp(right-2,y,sh(col,0.78))
+        rect(6,2,9,3,djup); sp(7,3,(212,222,248,255))
+        for x,y in ((6,6),(10,8),(5,11),(9,12)):
+            sp(x,y,(235,240,255,255))
+        sp(9,5,(235,240,255,255)); sp(8,5,(156,189,255,255)); sp(9,4,(156,189,255,255))
+        rect(3,14,12,14,(125,153,202,255))
     elif a=="mantel":
         for y in range(3,14):
-            wsp=1 if y<5 else 0
-            rect(3+wsp,y,12-wsp,y,col)
-        rect(4,3,11,3,ljus)
-        for y in range(3,14): sp(3,y,mork); sp(12,y,mork)
-        for x in range(3,13):
-            if x%3==0: rect(x,5,x,13,sh(col,0.86))
+            left=5-y//5; right=10+y//5
+            rect(left,y,right,y,djup); rect(left+1,y,right-1,y,col)
+            sp(left+1,y,ljus); sp(8,y,mork); sp(right-1,y,mork)
+        rect(5,2,10,3,mork); rect(6,2,9,2,ljus)
+        sp(7,3,(235,195,98,255)); sp(8,3,(178,129,50,255))
+        rect(3,13,12,13,(193,150,72,255)); rect(4,14,11,14,djup)
     elif a=="vagn":
-        rect(2,5,13,10,col); rect(2,5,13,5,ljus); rect(2,10,13,10,mork)
-        for x in range(3,13):
-            if x%3==0: rect(x,6,x,9,sh(col,0.86))
-        for wx in (4,11):
-            rect(wx-1,11,wx+1,14,(72,60,48,255))
-            sp(wx,12,(140,124,100,255)); sp(wx,13,(140,124,100,255))
+        rect(2,5,12,10,djup); rect(3,4,11,4,ljus)
+        rect(3,5,11,6,sh(col,0.55)); rect(2,7,12,10,col)
+        rect(2,7,12,7,ljus); rect(2,10,12,10,mork)
+        for x in (4,7,10): rect(x,8,x,9,mork)
+        rect(12,8,14,8,(92,75,51,255)); sp(14,7,(166,138,91,255))
+        for wx in (4,10):
+            rect(wx-1,11,wx+1,13,(51,44,41,255)); rect(wx-2,12,wx+2,12,(51,44,41,255))
+            sp(wx,12,(200,166,105,255)); sp(wx-1,11,(127,104,75,255))
     elif a=="tossor":
-        for (bx,by) in ((2,4),(9,4),(2,10),(9,10)):
-            for y in range(by,by+4):
-                for x in range(bx,bx+5):
-                    if y==by and x in (bx,bx+4): continue
-                    sp(x,y,col)
-            rect(bx+1,by,bx+3,by,ljus); rect(bx,by+3,bx+4,by+3,mork)
+        for bx,by in ((2,3),(9,3),(2,9),(9,9)):
+            rect(bx,by+1,bx+4,by+4,djup); rect(bx+1,by,bx+3,by+3,col)
+            rect(bx+1,by,bx+3,by,ljus); rect(bx,by+2,bx+3,by+3,col)
+            sp(bx,by+2,ljus); rect(bx+1,by+4,bx+4,by+4,mork)
+            rect(bx+2,by+1,bx+3,by+1,sh(col,0.68))
     else:
         rect(3,5,12,11,col); rect(3,5,12,5,ljus); rect(3,11,12,11,mork)
     write_png(path,S,S,px)
@@ -625,17 +865,19 @@ def icon(a,col,path):
 def icon_treat():
     """Kattgodis: liten fiskformad godbit."""
     S=16; T=(0,0,0,0); px=[[T]*S for _ in range(S)]
-    BODY=(226,150,92,255); DARK=(186,116,66,255); LIGHT=(242,190,140,255)
+    BODY=(223,153,76,255); DARK=(116,72,38,255); LIGHT=(255,210,137,255)
     def sp(x,y,c):
         if 0<=x<S and 0<=y<S: px[y][x]=c
-    for y in range(6,11):
-        for x in range(4,12): sp(x,y,BODY)
-    for x in range(4,12): sp(x,6,LIGHT); sp(x,10,DARK)
-    for k in range(3):                      # stjärtfena
-        for y in range(6+k,11-k): sp(12+k,y,BODY)
-    sp(6,8,DARK)                            # öga
-    for x in range(5,11):
-        if x%2==0: sp(x,8,DARK)             # mönster
+    # Rounded biscuit body, a narrow tail joint, and a broad forked fin.
+    for y, (left, right) in enumerate(((4,8),(3,10),(2,11),(2,11),(2,11),(3,10),(4,8)), 4):
+        for x in range(left, right + 1):
+            sp(x,y,DARK if x in (left,right) or y in (4,10) else BODY)
+    for x,y in ((12,6),(13,5),(14,4),(14,5),(14,6),(12,7),(13,7),
+                (14,7),(12,8),(13,9),(14,8),(14,9),(14,10)):
+        sp(x,y,DARK if x==14 else BODY)
+    for x in range(4,8): sp(x,5,LIGHT)
+    sp(4,7,DARK)
+    for x,y in ((7,7),(8,8),(7,9)): sp(x,y,LIGHT)
     write_png(f"{RP}/textures/items/pc_godis.png",S,S,px)
 
 def icon_pokal():
@@ -651,10 +893,15 @@ def icon_pokal():
     rect(4,8,8,1,MORK)
     rect(5,9,6,1,GULD); rect(6,10,4,2,MORK)       # foten
     rect(4,12,8,2,GULD); rect(4,13,8,1,MORK)      # basplattan
-    rect(2,3,2,4,GULD); rect(12,3,2,4,GULD)       # handtagen
+    rect(1,3,3,1,LJUS); rect(1,4,1,3,GULD)
+    rect(2,7,2,1,MORK)
+    rect(12,3,3,1,LJUS); rect(14,4,1,3,GULD)
+    rect(12,7,2,1,MORK)                         # open handles
     rect(3,0,2,3,GULD); rect(3,1,1,1,ORA_IN)      # kattöronen
     rect(11,0,2,3,GULD); rect(12,1,1,1,ORA_IN)
-    rect(6,4,4,3,LJUS)                             # blank spegling
+    rect(5,3,1,4,LJUS)
+    rect(7,6,3,2,MORK)                         # paw medal
+    rect(6,5,1,1,MORK); rect(8,4,1,1,MORK); rect(10,5,1,1,MORK)
     write_png(f"{RP}/textures/items/pc_pokal.png",S,S,px)
 
 def icon_garnboll():
@@ -675,7 +922,7 @@ def icon_garnboll():
             elif ((x*3-y*2)//3)%5==0: c=MORK
             elif r<2.2 and (x+y)%2==0: c=LJUS
             sp(x,y,c)
-    for (x,y) in ((12,4),(13,3),(14,3),(15,2)):        # lös trådände
+    for (x,y) in ((12,4),(13,3),(14,3),(14,2)):        # loose end stays inside the icon
         sp(x,y,GARN)
     write_png(f"{RP}/textures/items/pc_garnboll.png",S,S,px)
 
@@ -689,46 +936,46 @@ def icon_vissla():
         for y in range(y0,y0+h):
             for x in range(x0,x0+w):
                 if 0<=x<S and 0<=y<S: px[y][x]=c
-    rect(3,7,10,5,METALL)          # pipans kropp
-    rect(3,7,10,1,LJUS)
-    rect(3,11,10,1,MORK)
-    rect(1,8,3,3,METALL); rect(1,8,3,1,LJUS)     # munstycket
-    rect(8,9,3,1,MORK)                            # ljudspringan
-    rect(4,4,3,3,ORA); rect(5,5,1,2,ORA_IN)       # kattörat
-    rect(9,4,3,3,ORA); rect(10,5,1,2,ORA_IN)
-    rect(13,3,2,4,MORK); rect(12,2,4,1,MORK)      # öglan
+    rect(6,5,6,9,MORK); rect(5,6,8,7,MORK)
+    rect(6,6,6,6,METALL); rect(7,5,4,1,LJUS)
+    rect(6,6,5,1,LJUS)
+    rect(1,7,6,4,MORK); rect(1,7,6,1,LJUS)      # mouthpiece
+    rect(2,8,5,2,METALL)
+    rect(3,8,2,1,(61,59,52,255))                # air slot
+    rect(9,8,2,2,MORK)
+    rect(7,3,1,3,ORA); rect(10,3,1,3,ORA)
+    rect(8,5,2,1,ORA_IN)
+    rect(12,2,3,1,MORK); rect(12,3,1,3,MORK)
+    rect(14,3,1,3,MORK); rect(12,6,3,1,MORK)     # closed attachment ring
     write_png(f"{RP}/textures/items/pc_vissla.png",S,S,px)
 
 def icon_bok():
-    """Kattboken: en uppslagen bok med ett kattöra över kanten.
-
-    En vanlig bokikon drunknar bland vaniljas böcker och skrivbordsböcker.
-    Örat sticker upp ovanför pärmen och gör att man ser VILKEN bok det är i en
-    full hotbar, vilket är hela poängen med en guide man ska hitta."""
-    S=16; T=(0,0,0,0); px=[[T]*S for _ in range(S)]
-    PARM=(150,62,58,255); PARM_M=(108,42,40,255)
-    SIDA=(238,232,214,255); SIDA_M=(196,188,168,255); TEXT=(120,112,98,255)
-    ORA=(196,150,120,255); ORA_IN=(232,178,166,255)
+    """Bound teal handbook: gold cat emblem, page edges and a pink bookmark."""
+    S=32; T=(0,0,0,0); px=[[T]*S for _ in range(S)]
+    PARM=(36,140,149,255); PARM_M=(22,66,77,255); LJUS=(88,190,191,255)
+    SIDA=(247,239,210,255); SIDA_M=(183,179,157,255)
+    GULD=(248,211,109,255); SKUGGA=(191,139,57,255); ROSA=(229,116,154,255)
     def sp(x,y,c):
         if 0<=x<S and 0<=y<S: px[y][x]=c
     def rect(x0,y0,w,h,c):
         for y in range(y0,y0+h):
             for x in range(x0,x0+w): sp(x,y,c)
-    # ÖRONEN FÖRST, så pärmen målar över deras nederkant och de sitter BAKOM
-    # boken i stället för att sväva ovanför den.
-    for ox in (3,10):
-        # SMALNAR AV UPPÅT. Två raka 3x4-rutor läste som skorstenar på ett tak,
-        # inte som öron — och örat är det enda som skiljer den här boken från
-        # vaniljas i en full hotbar.
-        rect(ox,3,3,3,ORA); rect(ox+1,2,1,1,ORA)
-        rect(ox+1,4,1,2,ORA_IN)
-    rect(1,5,14,10,PARM_M)                  # pärm
-    rect(2,6,12,8,PARM)
-    rect(2,6,5,8,SIDA); rect(9,6,5,8,SIDA)  # två uppslagna sidor
-    rect(2,13,5,1,SIDA_M); rect(9,13,5,1,SIDA_M)
-    rect(7,5,2,10,PARM_M)                   # ryggen
-    for y in (8,10):                        # textrader
-        rect(3,y,3,1,TEXT); rect(10,y,3,1,TEXT)
+    rect(4,3,23,26,PARM_M)
+    rect(6,4,22,24,PARM_M)
+    rect(7,6,19,21,SIDA_M); rect(8,7,19,19,SIDA)
+    for y in (21,24): rect(9,y,17,1,SIDA_M)
+    rect(5,3,20,22,PARM)
+    rect(5,3,20,1,LJUS); rect(24,4,1,20,LJUS)
+    rect(5,4,3,20,PARM_M)                     # leather spine
+    for y in (6,20): rect(5,y,3,2,GULD)
+    rect(10,6,12,1,SKUGGA); rect(10,22,12,1,SKUGGA)
+    rect(10,9,3,5,GULD); rect(19,9,3,5,GULD)  # pointed cat ears
+    sp(10,8,GULD); sp(21,8,GULD)
+    rect(10,12,12,6,GULD); rect(12,18,8,2,GULD)
+    rect(12,14,2,2,PARM_M); rect(18,14,2,2,PARM_M)
+    rect(15,16,2,1,SKUGGA)
+    rect(9,16,3,1,SKUGGA); rect(20,16,3,1,SKUGGA)
+    rect(19,25,3,6,ROSA); sp(20,30,T)         # forked ribbon below the pages
     write_png(f"{RP}/textures/items/pc_kattbok.png",S,S,px)
 
 
@@ -737,7 +984,7 @@ def build_rest():
     # render controllers
     # Katten ritas ur pälsarket (Texture.pals), plaggen ur atlaset (Texture.default).
     rcs={"controller.render.katt":{"geometry":"Geometry.default",
-         "materials":[{"*":"Material.default"}],"textures":["Texture.pals"]}}
+         "materials":[{"*":"Material.default"}],"textures":["(q.property('mjau:mobel') == 5 || q.property('mjau:mobel') == 12) && q.modified_move_speed <= 0.02 ? Texture.sleep : Texture.pals"]}}
     for a,cfg in ACC.items():
         arr=["Geometry.empty"]+[f"Geometry.{a}{i}" for i in sorted(cfg["colors"])]
         rcs[f"controller.render.katt_{a}"]={
@@ -765,7 +1012,7 @@ def build_rest():
         desc["geometry"]=gmap
         # katten ur sitt pälsark, plaggen ur det delade plaggarket
         _kort=desc["identifier"].split(":")[1]
-        desc["textures"]={"default":"textures/entity/plagg","pals":f"textures/entity/{_kort}_pals"}
+        desc["textures"]={"default":"textures/entity/plagg","pals":f"textures/entity/{_kort}_pals","sleep":f"textures/entity/{_kort}_sleep"}
         desc["render_controllers"]=["controller.render.katt"]+[f"controller.render.katt_{a}" for a in ACC]
         # animationer: gångcykel, svanssvaj, huvudet följer spelaren, hopkurad sittpose
         desc["animations"]={
@@ -773,6 +1020,9 @@ def build_rest():
             "tail":"animation.katt.tail", "sit":"animation.katt.sit",
             "ctrl":"controller.animation.katt.move"}
         desc["animations"]["sova"]="animation.katt.sova"
+        desc["animations"]["korgvila"]="animation.katt.korgvila"
+        for action in ("korglagg","spa","tv","scratch","window","windowlagg","fountain"):
+            desc["animations"][action]="animation.katt."+action
         desc["sound_effects"]={"purr":"mob.cat.purr"}
         desc["particle_effects"]={"hjarta":"minecraft:heart_particle"}
         desc["scripts"]={"animate":["ctrl"]}
@@ -955,6 +1205,10 @@ def build_rest():
         lang.append(f"action.hint.exit.{c}=Dismount")
     json.dump(it,open(f"{RP}/textures/item_texture.json","w"),indent=2)  # skrivs om: godis-ikonen tillkom efter första dumpen
 
+    # Keep authored action keyframes separate from the equipment generator.
+    from furniture_animations import build as build_furniture_animations
+    build_furniture_animations(RP)
+
     # entiteter: properties, events, interaktioner
     for f in sorted(glob.glob(f"{BP}/entities/*.json")):
         d=json.load(open(f)); e=d["minecraft:entity"]
@@ -966,6 +1220,8 @@ def build_rest():
         # kattgeometri på vakthunden: filtret måste fråga vad entiteten ÄR.
         if "mjau:saddled" not in e["component_groups"]: continue
         g=e["component_groups"]; ev=e["events"]
+        _cat = e["description"]["identifier"].split(":")[-1]
+        _personlighet = PERSONLIGHETER.get(_cat)
         # STORLEKEN SKA MÄRKAS. Katterna hade alla 20 liv och träffytan 0,7 trots
         # att skalan går från 0,85 (Mocha) till 1,15 (Snow) — farten var det enda
         # som skilde dem åt. Och minecraft:scale skalar MODELLEN, inte
@@ -1006,6 +1262,20 @@ def build_rest():
         # client_sync.
         e["description"]["properties"]["mjau:hungrig"]={"type":"int","range":[0,1],"default":0}
         e["description"]["properties"]["mjau:sover"]={"type":"int","range":[0,1],"default":0,"client_sync":True}
+        # Matningen lämnar en kort signal till skriptet, som visar kattens
+        # reaktion med hjärtan och ett spinnande utan att gissa på itemUse.
+        e["description"]["properties"]["mjau:matad"]={"type":"int","range":[0,1],"default":0}
+        # Personligheten är fast per ras, så en katt behåller sin karaktär när
+        # världen laddas om. Beteendena nedan justeras från samma profil.
+        if _personlighet:
+            e["description"]["properties"]["mjau:personlighet"]={
+                "type":"int", "range":[0, len(PERSONLIGHETER) - 1],
+                "default":list(PERSONLIGHETER).index(_cat)}
+            g["mjau:fri"]["minecraft:behavior.random_stroll"]["speed_multiplier"] = _personlighet["stroll"]
+            g["mjau:fri"]["minecraft:behavior.random_sitting"]["start_chance"] = _personlighet["sit"]
+            g["mjau:jagar"]["minecraft:behavior.nearest_attackable_target"]["within_radius"] = _personlighet["hunt"]
+            for _target in g["mjau:jagar"]["minecraft:behavior.nearest_attackable_target"]["entity_types"]:
+                _target["max_dist"] = _personlighet["hunt"]
         # GARNNYSTANET (3.49.0): katten jagar ett kastat nystan, leker med det
         # och bär hem det. Hundpaketets läxa gäller här: behavior.pickup_items
         # gör INGENTING utan minecraft:shareables — önskelistan är det som får
@@ -1168,7 +1438,7 @@ def build_rest():
                     ev[evn]["add"]={"component_groups":["mjau:saddled"]}
                     # jagar + fri måste av när riddjuret sätts — annars styr
                     # katten sig själv under ryttaren (sköts av statisk check)
-                    ev[evn]["remove"]={"component_groups":["mjau:sittable","mjau:carted","mjau:jagar","mjau:fri","mjau:sovdags","mjau:bladbararen"]}
+                    ev[evn]["remove"]={"component_groups":["mjau:sittable","mjau:carted","mjau:jagar","mjau:fri","mjau:sovdags","mjau:hunger_sok","mjau:bladbararen"]}
                 if cfg.get("seats"):
                     # VAGN: seat 0 I vagnen (styrbar som en släde), seat 1 på ryggen
                     # för en vän. Egen grupp med egna styr-/lastkomponenter; sadel-
@@ -1188,12 +1458,12 @@ def build_rest():
                             "interact_text":"action.interact.ride",
                             "seats":[{"position":cfg["seats"][0]},{"position":cfg["seats"][1]}]}}
                     ev[evn].setdefault("add",{}).setdefault("component_groups",[]).append("mjau:carted")
-                    ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).extend(["mjau:sittable","mjau:saddled","mjau:jagar","mjau:fri","mjau:sovdags","mjau:bladbararen"])
+                    ev[evn].setdefault("remove",{}).setdefault("component_groups",[]).extend(["mjau:sittable","mjau:saddled","mjau:jagar","mjau:fri","mjau:sovdags","mjau:hunger_sok","mjau:bladbararen"])
                 inter.append(entry(f"mjau:{a}_{slug}",evn,cfg["sound"]))   # namnrymd krävs för EGNA föremål
         inter.append(entry("saddle","mjau:on_sadel_1","saddle"))
         # SPINNA/MATA: godis på tam katt höjer humöret
         inter.append(entry("mjau:godis","mjau:on_matad","eat"))
-        ev["mjau:on_matad"]={"set_property":{"mjau:humor":2}}
+        ev["mjau:on_matad"]={"set_property":{"mjau:humor":2,"mjau:matad":1}}
         # humöret sjunker med tiden (ordningen 1->0 före 2->1 hindrar kaskad)
         e["components"]["minecraft:timer"]={"time":[180,360],"looping":True,
             "time_down_event":{"event":"mjau:hungrigare","target":"self"}}
@@ -1218,6 +1488,8 @@ def build_rest():
             {"min_wait_time":300,"max_wait_time":900,"spawn_item":"minecraft:string","spawn_sound":"drop.slot"},
             {"min_wait_time":420,"max_wait_time":1200,"spawn_item":"minecraft:feather","spawn_sound":"drop.slot"},
             {"min_wait_time":2400,"max_wait_time":4800,"spawn_item":"minecraft:diamond","spawn_sound":"random.levelup"}]}}
+        if _personlighet:
+            g["mjau:gavor"]["minecraft:behavior.drop_item_for"]["drop_item_chance"] = _personlighet["gift"]
         # ...och bär på RIKTIGT. Ryggsäcken var ren dekor: den syntes på ryggen
         # och räckte som filter för Skattgrävaren, men gick inte att lägga något
         # i. Lastrummet är samma som vagnens (is_chested + horse-container), och
@@ -1289,6 +1561,71 @@ def build_rest():
                 "target_blocks":["mjau:kattbadd","mjau:kartong"]},
             "minecraft:behavior.random_sitting":{
                 "priority":20,"min_sit_time":20,"start_chance":0.3,"stop_chance":0.02}}
+        # Furniture visits reserve distinct native navigation goals, then stop
+        # movement briefly. Release restores the speed of the current outfit.
+        e["description"]["properties"]["mjau:mobel"]={"type":"int","range":[-1,15],"default":0,"client_sync":True}
+        g["mjau:sittable"]["minecraft:sittable"]={
+            "sit_event":{"event":"mjau:mobel_sitt","target":"self"},
+            "stand_event":{"event":"mjau:mobel_stand","target":"self"}}
+        ev["mjau:mobel_sitt"]={"set_property":{"mjau:mobel":-1}}
+        ev["mjau:mobel_stand"]={"set_property":{"mjau:mobel":0}}
+        # Navigation must outrank ambient looking. move_to_block can still wait
+        # on a look goal even when its explicit control_flags omit "look".
+        e["components"]["minecraft:behavior.look_at_player"]["priority"]=60
+        e["components"]["minecraft:behavior.random_look_around"]["priority"]=61
+        ambient=g["mjau:fri"]["minecraft:behavior.move_to_block"]
+        managed={"mjau:"+b for b in ("sovkorg","kattspa","katt_tv","klosbrada","fonsterbadd","kattfontan")}
+        ambient["target_blocks"]=[b for b in ambient["target_blocks"] if b not in managed]
+        furniture_goals=[]
+        for direction,(cos,sin) in {"north":(1,0),"east":(0,1),"south":(-1,0),"west":(0,-1)}.items():
+            for mode,(name,block,(x,y,z)) in enumerate([
+                ("basket0","sovkorg",[-.46,3/16,0]),("basket1","sovkorg",[.46,3/16,0]),
+                ("spa","kattspa",[0,1/16,0]),("tv","katt_tv",[0,0,-1.3]),("scratch","klosbrada",[0,0,-.95]),("window","fonsterbadd",[0,1,-.25]),("fountain","kattfontan",[0,0,-1.1]),("spa_exit","kattspa",[0,0,-1.4])],1):
+                furniture_goals.append((name+"_"+direction,block,[x*cos-z*sin,y,x*sin+z*cos],{"scratch":9,"window":10,"fountain":13,"spa_exit":15}.get(name,mode)))
+        # Remove old generated approach definitions after expanding directions.
+        for name in ("basket0","basket1","spa","tv"):
+            g.pop("mjau:mobel_"+name,None);ev.pop("mjau:mobel_"+name,None)
+        furniture_groups=["mjau:mobel_"+name for name,_,_,_ in furniture_goals]+["mjau:mobel_hold"]
+        speed_groups=["mjau:mobel_normal","mjau:mobel_ride","mjau:mobel_fast"]
+        for i,(name,block,offset,mode) in enumerate(furniture_goals):
+            g["mjau:mobel_"+name]={"minecraft:movement":{"value":.32},"minecraft:behavior.move_to_block":{
+                "control_flags":["move","jump"],"priority":22+i,"tick_interval":1,"start_chance":1,
+                "search_range":6,"search_height":2,"goal_radius":.2,
+                "stay_duration":300,"target_selection_method":"nearest",
+                "target_offset":offset,"target_blocks":["mjau:"+block]}}
+            ev["mjau:mobel_"+name]={"sequence":[
+                {"set_property":{"mjau:mobel":mode,"mjau:sover":0},
+                 "remove":{"component_groups":[group for group in furniture_groups if group != "mjau:mobel_"+name]+["mjau:fri","mjau:sovdags"]}},
+                {"add":{"component_groups":["mjau:mobel_"+name]}}]}
+        g["mjau:mobel_hold"]={"minecraft:movement":{"value":0},"minecraft:pushable":{"is_pushable":False,"is_pushable_by_piston":True}}
+        for name,speed in (("normal",.32),("ride",.5),("fast",.68)):
+            g["mjau:mobel_"+name]={"minecraft:movement":{"value":speed},"minecraft:pushable":{"is_pushable":True,"is_pushable_by_piston":True}}
+        ev["mjau:mobel_vantar"]={
+            "remove":{"component_groups":furniture_groups[:-1]+speed_groups},
+            "add":{"component_groups":["mjau:mobel_hold"]}}
+        for kind,mode in (("basket",5),("spa",6),("tv",7),("scratch",8),("window",11),("window_sleep",12),("fountain",14)):
+            ev["mjau:mobel_vila_"+kind]={"set_property":{"mjau:mobel":mode},
+                "remove":{"component_groups":furniture_groups[:-1]+speed_groups},
+                "add":{"component_groups":["mjau:mobel_hold"]}}
+        for event_name,event in ev.items():
+            if event_name.startswith(("mjau:on_sadel_","mjau:on_vagn_")):
+                removed=event.setdefault("remove",{}).setdefault("component_groups",[])
+                removed[:]=[group for group in removed if group not in ["mjau:mobel_"+n for n in ("basket0","basket1","spa","tv")]]
+                for group in furniture_groups+speed_groups:
+                    if group not in removed: removed.append(group)
+                event.setdefault("set_property",{})["mjau:mobel"]=0
+        def gear_filter(name):
+            return {"test":"int_property","domain":"mjau:"+name,"operator":">","value":0}
+        ev["mjau:mobel_av"]={"sequence":[
+            {"set_property":{"mjau:mobel":0,"mjau:sover":0},
+             "remove":{"component_groups":furniture_groups+speed_groups}},
+            {"add":{"component_groups":["mjau:mobel_normal"]}},
+            {"filters":{"any_of":[gear_filter("sadel"),gear_filter("vagn")]},
+             "remove":{"component_groups":["mjau:mobel_normal"]},
+             "add":{"component_groups":["mjau:mobel_ride"]}},
+            {"filters":{"any_of":[gear_filter("mantel"),gear_filter("rymdmantel")]},
+             "remove":{"component_groups":["mjau:mobel_normal","mjau:mobel_ride"]},
+             "add":{"component_groups":["mjau:mobel_fast"]}}]}
         ev["mjau:sover_pa"]={"set_property":{"mjau:sover":1}}
         ev["mjau:sover_av"]={"set_property":{"mjau:sover":0}}
         ev["mjau:sovdags_pa"]={"add":{"component_groups":["mjau:sovdags"]},
@@ -1311,6 +1648,14 @@ def build_rest():
         _gavor = g["mjau:tamed"].pop("minecraft:behavior.drop_item_for", None)
         if _gavor is not None:
             g["mjau:gavor"] = {"minecraft:behavior.drop_item_for": _gavor}
+        # HUNGERN SKA SYNAS I BETEENDET. En hungrig katt söker matskålen, men
+        # gruppen läggs ovanpå mjau:fri med en egen prioritet så följa-, bära-
+        # och ridmekaniken aldrig stängs av av ett behov.
+        g["mjau:hunger_sok"] = {"minecraft:behavior.move_to_block": {
+            "priority": 21, "tick_interval": 20, "start_chance": 0.9,
+            "search_range": 16, "search_height": 4, "goal_radius": 1.2,
+            "stay_duration": 80, "target_selection_method": "nearest",
+            "target_offset": [0, 1, 0], "target_blocks": ["mjau:matskal"]}}
         # EN GÅNG, inte en gång per körning. Utan kontrollen växer listan med
         # en kopia varje bygge — den stod på nio när felet upptäcktes. Motorn
         # bryr sig inte (att lägga till en grupp som redan lagts till är en
@@ -1324,6 +1669,7 @@ def build_rest():
         # mjau:packad rörs ALDRIG av hungern: den bär lastrummet, och att ta bort
         # minecraft:inventory är att slänga kattens last.
         ev["mjau:hungrig_pa"] = {"set_property": {"mjau:hungrig": 1},
+                                 "add": {"component_groups": ["mjau:hunger_sok"]},
                                  "remove": {"component_groups":
                                             ["mjau:gavor", "mjau:skattletare"]}}
         # SET_PROPERTY BREDVID EN SEQUENCE IGNORERAS TYST. Först stod den som
@@ -1334,6 +1680,10 @@ def build_rest():
         # steget INNE i sekvensen. (mjau:hungrig_pa har ingen sequence och
         # fungerade därför hela tiden — vilket gjorde felet ännu mer förvirrande.)
         ev["mjau:matt_igen"] = {"sequence": [
+            # Removing even an inactive group can clear a shared component.
+            # Initial fed-state synchronisation must not erase furniture navigation.
+            {"filters":{"test":"int_property","domain":"mjau:hungrig","value":1},
+             "remove":{"component_groups":["mjau:hunger_sok"]}},
             {"set_property": {"mjau:hungrig": 0},
              "add": {"component_groups": ["mjau:gavor"]}},
             # skattletaren tillbaka BARA om katten faktiskt bär ryggsäck —
@@ -1399,7 +1749,8 @@ def build_rest():
         if os.path.exists(sr):
             for v in json.load(open(sr))["minecraft:spawn_rules"]["conditions"]:
                 biom = (v.get("minecraft:biome_filter") or {}).get("value") or biom
-        katter.append({"id": f"mjau:{c}", "biom": biom})
+        katter.append({"id": f"mjau:{c}", "biom": biom,
+                       "personlighet": PERSONLIGHETER.get(c, {}).get("namn")})
     mobler = []
     for f in sorted(glob.glob(f"{BP}/blocks/*.json")):
         mobler.append(json.load(open(f))["minecraft:block"]["description"]["identifier"])
@@ -1415,6 +1766,8 @@ if __name__ == "__main__":
     n = build_geometry()
     paint_accessories()
     items, inters = build_rest()
+    from make_cat_pals import main as build_coats
+    build_coats()
     print(f"{len(ACC)} plagg · {n} geometrier · {items} föremål · {inters} interaktioner")
     for a,cfg in ACC.items():
         print(f"  {a:9s} {len(cfg['colors'])} färger  ({cfg['label']})")

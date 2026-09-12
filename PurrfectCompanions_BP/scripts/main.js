@@ -8,6 +8,9 @@
 import { world, system, ItemStack } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 import { PLAGG, KATTER, MOBLER } from "./bokdata.js";
+import { FurnitureVisits } from "./furniture_visits.js";
+const furnitureVisits = new FurnitureVisits();
+world.afterEvents.entityHurt.subscribe(ev => furnitureVisits.interrupt(ev.hurtEntity, system.currentTick));
 
 // ---------------------------------------------------------------------------
 // TICKBUDGETEN. Paketet har tolv fristående loopar som var och en ser billig ut
@@ -499,9 +502,10 @@ const XP_REWARD = {
   trippelskatten: 30, bergsbestigaren: 25, regnbagssamlaren: 25, hinderbanan: 30,
   djuphavsdykaren: 30, handelsman: 20, vindskatten: 25,
   kattmastare: 50, norrsken: 40, stjarnfodd: 40, manlandaren: 35,
-  stortdykaren: 30, utstallningen: 35,
+  stortdykaren: 30, utstallningen: 35, lugn_stund: 25,
 };
 const ITEM_REWARD = {
+  lugn_stund: [{ id: "mjau:godis", n: 6 }],
   ur_morkret: [{ id: "minecraft:phantom_membrane", n: 2 }],
   trippelskatten: [{ id: "minecraft:diamond", n: 2 }],
   manlandaren: [{ id: "minecraft:diamond", n: 3 }],
@@ -550,7 +554,7 @@ const KATT_ORDER = ["forsta_vannen", "hela_flocken", "ryttaren", "fiskarkatten",
 const KATTGARDEN_ORDER = ["befriaren", "fyrvaktaren", "lados_hemlighet", "alla_hemma",
                           "trippelskatten", "bergsbestigaren", "regnbagssamlaren",
                           "hinderbanan", "djuphavsdykaren", "handelsman",
-                          "skogens_vakt", "fyrens_skugga", "gruvarbetaren"];
+                          "skogens_vakt", "fyrens_skugga", "gruvarbetaren", "lugn_stund"];
 const ACHV_ORDER = [...KATT_ORDER, ...KATTGARDEN_ORDER];
 const rapportTyst = new Map();   // spelar-id -> tick då nästa rapport tillåts
 
@@ -939,7 +943,16 @@ matt("varld", () => {
 // EN gång inne i spel-sessionen (klientens placeringsväg), sedan är chunken
 // klientstämplad för alltid. Körs tills alla celler kunnat behandlas (kräver
 // att spelaren laddat både byn och kulan) och markerar sedan världen läkt.
-const MOBLER = [
+const MOBEL_LAKNING_POSITIONS = [
+  [-15, -60, 11],
+  [-10, -60, 11],
+  [-15, -60, 23],
+  [-10, -60, 23],
+  [-10, -60, 16],
+  [-15, -60, 16],
+  [-15, -60, 19],
+  [-10, -60, 19],
+
   [-4, -59, 16], [-2, -59, 16], [2, -59, 16], [4, -59, 16],   // sängraden
   [-4, -59, 13], [-3, -59, 13],                                // matskålarna
   [-5, -59, 14], [5, -59, 14], [0, -59, 13], [5, -59, 9],      // låda/ställning/nystan/kartong
@@ -953,7 +966,7 @@ matt("mobler", () => {
   try { if (world.getDynamicProperty("mjau_mobler_lagda")) { moblerLagda = true; return; } } catch { }
   const d = world.getDimension("overworld");
   let alla = true;
-  for (const [x, y, z] of MOBLER) {
+  for (const [x, y, z] of MOBEL_LAKNING_POSITIONS) {
     try {
       const b = d.getBlock({ x, y, z });
       if (!b) { alla = false; continue; }
@@ -1036,6 +1049,37 @@ function tamKatt(c) {
   try { return c.getProperty("mjau:tam") === 1; } catch { return false; }
 }
 
+// BJÄLLRAN. Ett halsband är mer än färg och absorption: en tam katt som går
+// får ett diskret klockljud. Nedkylningen gör att flera katter i en flock inte
+// fyller ljudkanalen, och stillasittande katter är tysta.
+const bjallraSenast = new Map();
+matt("bjallra", () => {
+  for (const dim of ["overworld", "nether", "the_end"]) {
+    let d, cats;
+    try { d = world.getDimension(dim); cats = d.getEntities({ families: ["mjaukatt"] }); }
+    catch { continue; }
+    for (const c of cats) {
+      try {
+        if (!tamKatt(c) || !(c.getProperty("mjau:halsband") ?? 0)) {
+          bjallraSenast.delete(c.id);
+          continue;
+        }
+        if (!c.isOnGround) continue;
+        const v = c.getVelocity();
+        if (Math.hypot(v.x, v.z) < 0.035) continue;
+        if ((bjallraSenast.get(c.id) ?? 0) > system.currentTick) continue;
+        bjallraSenast.set(c.id, system.currentTick + 12);
+        const färg = c.getProperty("mjau:halsband") ?? 1;
+        d.playSound("block.bell.hit", c.location, {
+          volume: 0.22,
+          pitch: färg === 2 ? 1.12 : färg === 3 ? 0.94 : 1.0,
+        });
+      } catch { }
+    }
+  }
+  if (bjallraSenast.size > 300) bjallraSenast.clear();
+}, 10);
+
 matt("ryggsack", () => {
   const d = world.getDimension("overworld");
   let cats;
@@ -1096,7 +1140,7 @@ matt("ryggsack", () => {
       }
     }
   }
-}, 20);
+}, 40);
 
 // ÖVERLÄMNINGEN — och varför den inte är en lucka som öppnas.
 //
@@ -1193,6 +1237,7 @@ matt("varning", () => {
   let cats;
   try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
   const tamda = cats.filter(tamKatt);
+  furnitureVisits.update(d, cats, world.getAllPlayers(), system.currentTick, arNatt());
   if (!tamda.length) return;
   if (monsterAvstand.size > 400) { monsterAvstand.clear(); monsterVarnad.clear(); }
   for (const pl of world.getAllPlayers()) {
@@ -1403,6 +1448,53 @@ const sovhogSagd = new Map();       // spelar-id -> dygn vi senast sa till
 const hungerlage = new Map();       // katt-id -> senast sedda humör
 const hungerSagd = new Map();       // spelar-id -> tick då nästa påminnelse får komma
 const HUNGER_PAUS = 6000;           // fem minuter mellan påminnelser, per spelare
+const MATNINGS_PITCH = [1.35, 1.12, 0.88, 0.98, 1.02, 1.22];
+const kattTvSenast = new Map();     // katt-id -> nästa TV-bonus
+const kattTvPlatser = [];
+const kattSpaPlatser = [];
+const kattSpaSenast = new Map();    // katt-id -> nästa spa-bonus
+let kattTvSokning = -200;
+
+// Uppdraget räknar verkliga möbelbonusar för samma katt och närmaste deltagare.
+// Kattens kvitto överlever omladdning; en annan katt kan inte använda det.
+function lugnStund(c, steg) {
+  if (catHavenWorld !== true) return;
+  try {
+    // Stabil server 1.9 saknar tameable-ägar-API. Som övriga världsuppdrag
+    // deltar närmaste spelare, även när familjen hjälps åt med en katt.
+    const pl = world.getAllPlayers()
+      .filter(p => p.dimension.id === c.dimension.id)
+      .sort((a, b) => avstandMellan(a.location, c.location) - avstandMellan(b.location, c.location))[0];
+    if (!pl || pl.dimension.id !== c.dimension.id ||
+        avstandMellan(pl.location, c.location) > 6 || hasAward(pl, "lugn_stund")) return;
+    if (steg === "spa") {
+      if (c.getDynamicProperty("mjau_spa_agare") === pl.id) return;
+      c.setDynamicProperty("mjau_spa_agare", pl.id);
+      pl.sendMessage({ rawtext: [{ translate: "mjau.relax.spa_done" }] });
+    } else if (c.getDynamicProperty("mjau_spa_agare") === pl.id) {
+      give(pl, "lugn_stund");
+    }
+  } catch { }
+}
+
+function finnsMobel(d, p, typ) {
+  try { return d.getBlock(p)?.typeId === typ; } catch { return false; }
+}
+
+function hittaBlockNara(d, L, typ) {
+  const x0 = Math.floor(L.x), y0 = Math.floor(L.y), z0 = Math.floor(L.z);
+  for (let x = x0 - 4; x <= x0 + 4; x++) {
+    for (let y = y0 - 1; y <= y0 + 2; y++) {
+      for (let z = z0 - 4; z <= z0 + 4; z++) {
+        try {
+          const b = d.getBlock({ x, y, z });
+          if (b?.typeId === typ) return b.location;
+        } catch { }
+      }
+    }
+  }
+  return null;
+}
 
 // AVSTÅND MELLAN TVÅ AVLÄSTA PLATSER, inte mellan två entiteter. entity.location
 // är en INBYGGD getter som bygger ett nytt objekt vid varje anrop, och den
@@ -1446,8 +1538,26 @@ function koloniVarv() {
   let cats;
   try { cats = d.getEntities({ families: ["mjaukatt"] }); } catch { return; }
   const tamda = cats.filter(tamKatt);
+  furnitureVisits.update(d, cats, world.getAllPlayers(), system.currentTick, arNatt());
   if (!tamda.length) return;
   if (parTyst.size > 600) parTyst.clear();
+
+  // Blockfrågor är dyra på Bedrock. Sök efter TV-apparater bara var tionde
+  // sekund och använd sedan de cachade positionerna i de snabba kolonivarven.
+  if (system.currentTick - kattTvSokning >= 200) {
+    kattTvSokning = system.currentTick;
+    kattTvPlatser.length = 0;
+    kattSpaPlatser.length = 0;
+    let sokare = [];
+    try { sokare = world.getAllPlayers().filter(Boolean); } catch { }
+    for (const pl of sokare) {
+      if (pl.dimension.id !== d.id) continue;
+      const tv = hittaBlockNara(d, pl.location, "mjau:katt_tv");
+      if (tv && !kattTvPlatser.some(p => avstandMellan(p, tv) < 1)) kattTvPlatser.push(tv);
+      const spa = hittaBlockNara(d, pl.location, "mjau:kattspa");
+      if (spa && !kattSpaPlatser.some(p => avstandMellan(p, spa) < 1)) kattSpaPlatser.push(spa);
+    }
+  }
 
   // HUNGERN SPEGLAS TILL GRUPPER. Egenskapen ändras av entitetens egen timer,
   // som skriptet inte får någon signal om — men värdet går att läsa, och en
@@ -1465,6 +1575,61 @@ function koloniVarv() {
       } catch { }
       hungerlage.set(c.id, humor);
     }
+    if (las(c, "mjau:matad", 0) !== 1) continue;
+    try {
+      c.setProperty("mjau:matad", 0);
+      const L = c.location;
+      d.playSound("mob.cat.purreow", L, {
+        volume: 0.8,
+        pitch: MATNINGS_PITCH[las(c, "mjau:personlighet", 0)] ?? 1.0,
+      });
+      for (let i = 0; i < 4; i++) {
+        d.spawnParticle("minecraft:heart_particle", {
+          x: L.x + (Math.random() - 0.5) * 0.7,
+          y: L.y + 0.7 + i * 0.18,
+          z: L.z + (Math.random() - 0.5) * 0.7,
+        });
+      }
+    } catch { }
+  }
+
+  // KATTSPA. Spat ger återhämtning, men med lång cooldown så en stor koloni
+  // inte producerar konstant ljud och partiklar.
+  for (const c of tamda) {
+    const L = c.location;
+    const spa = kattSpaPlatser.find(p => avstandMellan(L, p) <= 4 && finnsMobel(d, p, "mjau:kattspa"));
+    if (!spa || (kattSpaSenast.get(c.id) || 0) > system.currentTick) continue;
+    const humor = las(c, "mjau:humor", 1);
+    if (humor <= 0) continue;
+    try {
+      c.setProperty("mjau:humor", Math.min(2, humor + 1));
+      c.addEffect("regeneration", 100, { showParticles: false });
+    } catch { continue; }
+    kattSpaSenast.set(c.id, system.currentTick + 400);
+    lugnStund(c, "spa");
+    try {
+      d.spawnParticle("minecraft:water_splash_particle", { x: L.x, y: L.y + 0.8, z: L.z });
+      d.spawnParticle("minecraft:villager_happy", { x: L.x, y: L.y + 1.1, z: L.z });
+      d.playSound("random.splash", spa, { volume: 0.3, pitch: 1.2 });
+    } catch { }
+  }
+
+  // KATT-TV. En katt som har en TV inom fyra block får en liten humörbonus.
+  // Bonusen pausas när katten redan är hungrig och kan inte användas som mat;
+  // TV:n ska göra en mätt katt gladare, inte ersätta matskålen.
+  for (const c of tamda) {
+    const L = c.location;
+    const tv = kattTvPlatser.find(p => avstandMellan(L, p) <= 4 && finnsMobel(d, p, "mjau:katt_tv"));
+    if (!tv || (kattTvSenast.get(c.id) || 0) > system.currentTick) continue;
+    const humor = las(c, "mjau:humor", 1);
+    if (humor <= 0) continue;
+    try { c.setProperty("mjau:humor", Math.min(2, humor + 1)); } catch { continue; }
+    kattTvSenast.set(c.id, system.currentTick + 200);
+    lugnStund(c, "tv");
+    try {
+      d.spawnParticle("minecraft:villager_happy", { x: L.x, y: L.y + 0.8, z: L.z });
+      d.playSound("random.pop", tv, { volume: 0.25, pitch: 1.35 });
+    } catch { }
   }
   // EN påminnelse per spelare och fem minuter, inte en per katt. Nio katter som
   // blir hungriga samtidigt får inte bli nio rader — varningssystemet ovanför
@@ -1493,6 +1658,7 @@ function koloniVarv() {
   // apport gick i.
   const natt = arNatt();
   for (const c of tamda) {
+    if (furnitureVisits.owns(c)) continue;
     if ((sovlage.get(c.id) === true) === natt) continue;
     try { c.triggerEvent(natt ? "mjau:sovdags_pa" : "mjau:sovdags_av"); } catch { continue; }
     sovlage.set(c.id, natt);
@@ -1545,6 +1711,7 @@ function koloniVarv() {
   // och sekund är billigt men inte gratis, och en egenskap som skrivs om till
   // samma värde varje varv är brus i både nätverk och logg.
   for (const c of flock) {
+    if (furnitureVisits.owns(c)) continue;
     const ska = natt && iHog.has(c.id) ? 1 : 0;
     try {
       if (c.getProperty("mjau:sover") !== ska)
@@ -1680,6 +1847,7 @@ const AVDELNINGAR = [
     for (const k of KATTER) {
       rader.push(txt("§e"), nyckel(`entity.${k.id}.name`), txt("§r"));
       if (k.biom) rader.push(txt(" — " + k.biom));
+      if (k.personlighet) rader.push(txt(" · " + k.personlighet));
       rader.push(txt("\n"));
     }
     return rader;
@@ -1892,7 +2060,7 @@ matt("utstallning", () => {
     }
   }
   for (const id of [...podiestod.keys()]) if (!kvar.has(id)) podiestod.delete(id);
-}, 20);
+}, 40);
 
 // testkrok: /scriptevent mjau:test_show bedömer närmaste tämjda katt vid ett
 // podium utan att någon trycker på det (servern har ingen spelare).
@@ -1925,7 +2093,7 @@ try {
 // humöret som hungern äter av. Det är kopplingen till en mekanik som finns.
 const GARN = "mjau:garnboll";
 const GARN_RADIE = 16;          // samma som pickup_items max_dist
-const GARN_GRIPAVSTAND = 2.0;   // här tar skriptet nystanet före vanilla
+const GARN_GRIPAVSTAND = 3.5;   // fångar även nära mål när vanilla-AI:n dröjer
 const GARN_LEKTID = 60;         // tick: hur länge hon slår runt det
 const garnminne = new Map();    // katt-id -> { lek, hem }
 
@@ -1936,6 +2104,15 @@ function garnNara(d, plats) {
         try { return e.getComponent("minecraft:item")?.itemStack?.typeId === GARN; }
         catch { return false; }
       });
+  } catch { return []; }
+}
+
+function garnForemal(d) {
+  try {
+    return d.getEntities({ type: "minecraft:item" }).filter(e => {
+      try { return e.getComponent("minecraft:item")?.itemStack?.typeId === GARN; }
+      catch { return false; }
+    });
   } catch { return []; }
 }
 
@@ -1983,10 +2160,11 @@ function garnNedslag(d) {
 matt("garnlek", () => {
   const levande = new Set();
   for (const dim of ["overworld", "nether", "the_end"]) {
-    let d, katter;
+    let d, katter, nystan;
     try { d = world.getDimension(dim); katter = d.getEntities({ families: ["mjaukatt"] }); }
     catch { continue; }
     garnNedslag(d);
+    nystan = garnForemal(d);
     for (const c of katter) {
       let tam = 0, leker = 0;
       try { tam = c.getProperty("mjau:tam") ?? 0; leker = c.getProperty("mjau:leker") ?? 0; }
@@ -2031,7 +2209,12 @@ matt("garnlek", () => {
 
       // JAKTEN: ligger ett nystan i närheten slås jaktläget på, och när hon är
       // framme tar skriptet det innan vanilla hinner förstöra det.
-      const nara = garnNara(d, L);
+      const nara = nystan.filter(e => {
+        try {
+          const E = e.location;
+          return Math.hypot(E.x - L.x, E.y - L.y, E.z - L.z) <= GARN_RADIE;
+        } catch { return false; }
+      });
       if (!nara.length) {
         if (leker === 1) { try { c.triggerEvent("mjau:lek_av"); c.setProperty("mjau:leker", 0); } catch { } }
         continue;

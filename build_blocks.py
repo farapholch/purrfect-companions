@@ -11,7 +11,237 @@ import json, os, zlib, struct, glob
 
 BASE = "/opt/purrfect-companions"; BP = f"{BASE}/PurrfectCompanions_BP"; RP = f"{BASE}/PurrfectCompanions_RP"
 
+TV_SCREEN = (
+    "............",
+    ".......YY...",
+    "......YEK...",
+    "...YYYYYO...",
+    "..YYYYYY....",
+    ".Y..WWW.....",
+    "ggggLLgggggg",
+    "GGGGGGGGGGGG",
+)
+TV_COLORS = {
+    ".": (103, 194, 220, 255), "Y": (255, 214, 71, 255),
+    "E": (27, 31, 34, 255), "K": (255, 243, 171, 255),
+    "O": (237, 117, 50, 255), "W": (224, 157, 39, 255),
+    "L": (100, 74, 49, 255), "g": (109, 178, 89, 255),
+    "G": (55, 117, 75, 255),
+}
+
+
+def tv_screen_pixel(x, y):
+    # The front face starts after the one-pixel depth in the box UV layout.
+    return TV_COLORS[TV_SCREEN[(y - 1) % 8][(x - 1) % 12]]
+
+
+# Octagonal tube cross-section, shared by the cloth body and both end hoops.
+TUNNEL_PROFILE = [(-4,0,8,1), (-6,1,2,2), (4,1,2,2),
+                  (-7,3,1,5), (6,3,1,5), (-6,8,2,2), (4,8,2,2), (-4,10,8,1)]
+
+
 BLOCKS = {
+ "fonsterbadd": dict(
+   name="Window Perch",name_sv="Fönsterbädd",
+   # Raised cushion with a wooden frame, four legs and a low back rail.
+   cubes=[([-12,13,-16],[24,1,24],"tra"),([-11,14,-15],[22,2,22],"kudde"),
+          ([-12,14,6],[24,5,2],"tra"),
+          ([-12,14,-16],[1,3,22],"tra"),([11,14,-16],[1,3,22],"tra")]
+         + [([x,0,z],[3,13,3],"tra") for x in (-11,8) for z in (-15,4)]
+         + [([-8,4,4],[16,2,2],"tra"),([-8,4,-14],[16,2,2],"tra")],
+   material={
+     "tra":lambda x,y:(157,106,65,255) if (y+x//5)%5 else (112,72,44,255),
+     "kudde":lambda x,y:(131,187,199,255) if (x+y)%7 else (177,217,221,255)},
+   base=(157,106,65),accent=(131,187,199),sound="wood",height=19,
+   collision_height=16,selection_height=16,atlas=(128,128),
+   recipe=dict(pattern=["WWW","PPP","S S"],key={
+     "W":{"item":"minecraft:light_blue_wool"},"P":{"item":"minecraft:planks"},
+     "S":{"item":"minecraft:stick"}},unlock=[{"item":"minecraft:light_blue_wool"}])),
+ "sovkorg": dict(
+   name="Basket for Two",
+   cubes=[([-14,0,-13],[28,1,26],"flata"),
+          ([-14,1,-13],[2,5,26],"flata"),([12,1,-13],[2,5,26],"flata"),
+          ([-12,1,11],[24,5,2],"flata"),([-12,1,-13],[24,1,2],"flata"),
+          ([-12,1,-11],[12,2,22],"rosa"),([0,1,-11],[12,2,22],"bla")],
+   material={
+     "flata": lambda x,y: (174,122,69,255) if (x+(y//2)%2*3)%6<4 and y%3 else (124,81,45,255),
+     "rosa": lambda x,y: (219,154,167,255) if y%4 else (234,182,190,255),
+     "bla": lambda x,y: (122,177,183,255) if y%4 else (159,206,207,255)},
+   base=(174,122,69),accent=(234,182,190),sound="wood",height=6,collision_height=3,atlas=(128,128),
+   recipe=dict(pattern=["S S","WRW","PPP"],key={
+     "S":{"item":"minecraft:stick"},"W":{"item":"minecraft:white_wool"},
+     "R":{"item":"minecraft:pink_wool"},"P":{"item":"minecraft:planks"}},
+     unlock=[{"item":"minecraft:white_wool"}])),
+ "kattspa": dict(
+   name="Cat Spa",
+   # White bath with visible water, folded towel and a separate soap dispenser.
+   cubes=[([-7,0,-7],[14,1,14],"keramik"),
+          ([-7,1,-7],[14,3,2],"keramik"), ([-7,1,5],[14,3,2],"keramik"),
+          ([-7,1,-5],[2,3,10],"keramik"), ([5,1,-5],[2,3,10],"keramik"),
+          ([-5,1,-5],[10,1,10],"vatten"),
+          ([-5,4,-7],[5,1,4],"handduk"), ([-5,2,-7.5],[5,2,0.5],"handduk"),
+          ([3,4,4],[2,3,2],"tval"), ([3.5,7,4.5],[1,1,1],"metall"),
+          ([2.5,8,4.5],[2,0.5,1],"metall"),
+          ([-3,2,1],[2,1,2],"skum"), ([-2,2,3],[1,1,1],"skum")],
+   material={
+     "keramik": lambda x,y: (232,238,235,255),
+     "vatten": lambda x,y: (83,187,214,255) if (x+2*y)%11 else (165,229,236,255),
+     "handduk": lambda x,y: (169,120,190,255) if y%4 else (213,181,224,255),
+     "tval": lambda x,y: (103,186,149,255),
+     "metall": lambda x,y: (111,122,129,255),
+     "skum": lambda x,y: (248,252,250,255),
+   },
+   base=(92,142,154), accent=(160,222,222), sound="water",
+   recipe=dict(pattern=["BWB","SPS","PPP"],
+     key={"B":{"item":"minecraft:bowl"},"W":{"item":"minecraft:water_bucket"},
+          "S":{"item":"minecraft:white_wool"},"P":{"item":"minecraft:planks"}},
+     unlock=[{"item":"minecraft:water_bucket"}]),
+   height=9,collision_height=1),
+ "katt_tv": dict(
+   name="Cat TV",
+   # Wide dark television with a bird channel and separate physical controls.
+   cubes=[([-6,0,-3],[12,1,6],"ram"), ([-2,1,-1],[4,2,2],"ram"),
+          ([-8,3,-1],[16,10,3],"ram"),
+          ([-7,4,-2],[12,8,1],"skarm"),
+          ([6,9,-2],[1,1,1],"knapp"), ([6,7,-2],[1,1,1],"knapp"),
+          ([6,4,-2],[1,1,1],"lampa")],
+   material={
+     "ram": lambda x,y: (40,43,48,255),
+     "skarm": tv_screen_pixel,
+     "knapp": lambda x,y: (190,198,205,255),
+     "lampa": lambda x,y: (105,231,117,255),
+   },
+   base=(78,88,104), accent=(92,180,196), sound="stone",
+   recipe=dict(pattern=["GIG","IRI","PPP"],
+     key={"G":{"item":"minecraft:glass_pane"},"I":{"item":"minecraft:iron_ingot"},
+          "R":{"item":"minecraft:redstone"},"P":{"item":"minecraft:planks"}},
+     unlock=[{"item":"minecraft:glass_pane"}]),
+   height=13,collision_origin=[-8,0,-3],collision_size=[16,13,6]),
+ "gomstalle": dict(
+   name="Cat Hideaway",
+   # Soft enclosed den with a broad entrance, stepped roof and a pink cushion.
+   cubes=[([-7,0,-7],[14,1,14],"kant"),
+          ([-7,1,-7],[2,7,14],"tyg"), ([5,1,-7],[2,7,14],"tyg"),
+          ([-5,1,5],[10,7,2],"insida"),
+          ([-6,8,-7],[12,2,14],"tyg"), ([-4,10,-7],[8,1,14],"tyg"),
+          ([-7,1,-7.5],[2,7,0.5],"kant"), ([5,1,-7.5],[2,7,0.5],"kant"),
+          ([-5,8,-7.5],[10,1,0.5],"kant"),
+          ([-5,1,-6],[10,1,10],"kudde"), ([-4,2,1],[8,1,3],"kudde")],
+   material={
+     "tyg": lambda x,y: (107,161,139,255) if y%8 else (118,172,150,255),
+     "kant": lambda x,y: (224,231,219,255),
+     "insida": lambda x,y: (63,95,83,255),
+     "kudde": lambda x,y: (219,137,154,255),
+   },
+   base=(126,100,148), accent=(190,148,190), sound="wood",
+   recipe=dict(pattern=["W W","W W","PPP"],
+     key={"W":{"item":"minecraft:white_wool"},"P":{"item":"minecraft:planks"}},
+     unlock=[{"item":"minecraft:white_wool"}]),
+   height=11),
+ "leksakslada": dict(
+   name="Toy Box",
+   # Open wooden box with two rounded voxel balls and a yellow toy fish.
+   cubes=[([-7,0,-6],[14,1,12],"insida"),
+          ([-7,1,-6],[14,3,1],"tra"), ([-7,1,5],[14,3,1],"tra"),
+          ([-7,1,-5],[1,3,10],"tra"), ([6,1,-5],[1,3,10],"tra"),
+          ([-7,4,-6],[14,1,1],"kant"), ([-7,4,5],[14,1,1],"kant"),
+          ([-7,4,-5],[1,1,10],"kant"), ([6,4,-5],[1,1,10],"kant"),
+          ([-5,3,-3],[4,4,4],"rod"), ([-4,2,-2],[2,6,2],"rod"),
+          ([-4,4,-4],[2,2,6],"rod"), ([-6,4,-2],[6,2,2],"rod"),
+          ([1,3,0],[4,4,4],"bla"), ([2,2,1],[2,6,2],"bla"),
+          ([2,4,-1],[2,2,6],"bla"), ([0,4,1],[6,2,2],"bla"),
+          ([1,5,-4],[4,2,1],"gul"), ([0,4,-4],[1,4,1],"gul"),
+          ([4,6,-4.25],[0.5,0.5,0.25],"oga")],
+   material={
+     "tra": lambda x,y: (166,113,71,255) if y%3 else (136,87,54,255),
+     "kant": lambda x,y: (225,209,174,255),
+     "insida": lambda x,y: (98,72,52,255),
+     "rod": lambda x,y: (222,80,104,255) if y%3 else (255,162,169,255),
+     "bla": lambda x,y: (52,160,196,255) if y%3 else (139,221,232,255),
+     "gul": lambda x,y: (251,210,75,255),
+     "oga": lambda x,y: (31,34,39,255),
+   },
+   base=(196,138,96), accent=(244,188,104), sound="wood",
+   recipe=dict(pattern=["PPP","PBP","PPP"],
+     key={"P":{"item":"minecraft:planks"},"B":{"item":"minecraft:slime_ball"}},
+     unlock=[{"item":"minecraft:slime_ball"}]),
+   height=8),
+ "kattfontan": dict(
+   name="Cat Fountain",
+   # låg piedestal med skål och vattenyta i mitten
+   cubes=[([-7,0,-7],[14,1,14],"keramik"),
+          ([-7,1,-7],[14,3,1],"keramik"), ([-7,1,6],[14,3,1],"keramik"),
+          ([-7,1,-6],[1,3,12],"keramik"), ([6,1,-6],[1,3,12],"keramik"),
+          ([-6,1,-6],[12,1,12],"vatten"),
+          ([-2,2,1],[4,5,4],"keramik"), ([-2,7,-1],[4,1,6],"keramik"),
+          ([-1,7,-1.25],[2,0.5,0.25],"metall"),
+          ([-1,2,-1],[2,5,1],"flode")],
+   material={
+     "keramik": lambda x,y: (220,232,234,255),
+     "vatten": lambda x,y: (48,174,214,255) if (x+2*y)%11 else (144,234,244,255),
+     "flode": lambda x,y: (84,197,229,255) if x%2 else (172,237,244,255),
+     "metall": lambda x,y: (117,135,144,255),
+   },
+   base=(116,132,146), accent=(82,174,214), sound="stone",
+   recipe=dict(pattern=[" I ","SBS","PPP"],
+     key={"I":{"item":"minecraft:iron_ingot"},"S":{"item":"minecraft:stone"},
+          "B":{"item":"minecraft:bowl"},"P":{"item":"minecraft:planks"}},
+     unlock=[{"item":"minecraft:bowl"}]),
+   height=8),
+ "klosbrada": dict(
+   name="Scratching Board",
+   # A low voxel ramp: pale ribbed sisal bordered by wood, with rear supports.
+   cubes=[([-7,0,-7],[14,1,14],"tra"),
+          ([-6,1,5],[2,5,2],"tra"), ([4,1,5],[2,5,2],"tra")]
+         + [([x,1+i,-6+2*i],[2,1,2],"tra") for i in range(6) for x in (-7,5)]
+         + [([-5,1+i,-6+2*i],[10,1,2],"sisal") for i in range(6)],
+   material={
+     "tra": lambda x,y: (130,83,54,255) if y%4 else (155,105,67,255),
+     "sisal": lambda x,y: (231,220,183,255) if x%3 else (172,158,121,255),
+   },
+   base=(174,126,104), accent=(214,176,126), sound="wood",
+   recipe=dict(pattern=["SWS","SWS","PPP"],
+     key={"S":{"item":"minecraft:string"},"W":{"item":"minecraft:white_wool"},
+          "P":{"item":"minecraft:planks"}},
+     unlock=[{"item":"minecraft:string"}]),
+   height=8,collision_width=14),
+ "kattunnel": dict(
+   name="Cat Tunnel",
+   genomgang=True,
+   # Enclosed fabric tube with octagonal openings and contrasting end hoops.
+   cubes=[([x,y,-6],[w,h,12],"tyg") for x,y,w,h in TUNNEL_PROFILE]
+         + [([x,y,z],[w,h,1],"ring") for z in (-7,6) for x,y,w,h in TUNNEL_PROFILE],
+   material={
+     "tyg": lambda x,y: (49,144,165,255) if x%6 else (68,167,183,255),
+     "ring": lambda x,y: (228,220,183,255),
+   },
+   base=(104,128,156), accent=(164,192,214), sound="cloth",
+   recipe=dict(pattern=["W W","WPW","PPP"],
+     key={"W":{"item":"minecraft:white_wool"},"P":{"item":"minecraft:planks"}},
+     unlock=[{"item":"minecraft:white_wool"}]),
+   height=11),
+ "hangmatta": dict(
+   name="Cat Hammock",
+   # två stolpar, övre fästen och en tydligt nedsjunken tygslinga
+   cubes=[([-8,0,-6],[3,1,12],"tra"), ([5,0,-6],[3,1,12],"tra"),
+          ([-7,1,-1],[2,9,2],"tra"), ([5,1,-1],[2,9,2],"tra"),
+          ([-5,7,-5],[1,1,10],"tyg"), ([4,7,-5],[1,1,10],"tyg"),
+          ([-4,6,-5],[1,1,10],"tyg"), ([3,6,-5],[1,1,10],"tyg"),
+          ([-3,5,-5],[1,1,10],"tyg"), ([2,5,-5],[1,1,10],"tyg"),
+          ([-2,4,-5],[4,1,10],"tyg"),
+          ([-6,8,-5],[1,1,10],"rep"), ([5,8,-5],[1,1,10],"rep"),
+          ([-2,5,1],[4,1,3],"kudde")],
+   material={
+     "tra": lambda x,y: (208,184,144,255),
+     "tyg": lambda x,y: (198,78,120,255) if y%5 else (233,151,175,255),
+     "rep": lambda x,y: (236,226,197,255),
+     "kudde": lambda x,y: (241,224,226,255),
+   },
+   base=(126,82,112), accent=(204,132,166), sound="cloth",
+   recipe=dict(pattern=["W W","WWW","L L"],
+     key={"W":{"item":"minecraft:white_wool"},"L":{"item":"minecraft:leather"}},
+     unlock=[{"item":"minecraft:white_wool"}]),
+   height=10),
  "kattbadd": dict(
    name="Cat Bed",
    # låg kudde: 16x4x16 med en liten kant runt om
@@ -188,15 +418,15 @@ def write_png(p, w, h, px):
 # räkning som kattens och grisens kroppar använder.
 DUK = (128, 64)
 
-def packa_kuber(kuber):
+def packa_kuber(kuber, duk=DUK):
     rutor = [(i, 2 * (k[1][2] + k[1][0]), k[1][2] + k[1][1]) for i, k in enumerate(kuber)]
     x = y = radhojd = 0
     uv = {}
     for i, w, h in sorted(rutor, key=lambda r: -r[2]):
         w, h = int(w + 0.999), int(h + 0.999)
-        if x + w > DUK[0]:
+        if x + w > duk[0]:
             x, y, radhojd = 0, y + radhojd, 0
-        if y + h > DUK[1]:
+        if y + h > duk[1]:
             raise SystemExit(f"blockets UV-yta räcker inte till ({DUK[0]}x{DUK[1]})")
         uv[i] = [x, y]
         x += w
@@ -206,7 +436,7 @@ def packa_kuber(kuber):
 
 def mala_ytor(bid, cfg, uv):
     """Målar en duk där varje kub får sitt materials mönster i sin egen ruta."""
-    W, H = DUK
+    W, H = cfg.get("atlas", DUK)
     px = [[(0, 0, 0, 0)] * W for _ in range(H)]
     for i, kub in enumerate(cfg["cubes"]):
         mat = kub[2]
@@ -219,14 +449,43 @@ def mala_ytor(bid, cfg, uv):
                 px[yy][xx] = f(xx - u, yy - v)
     return W, H, px
 
+def animated_texture(bid, cfg):
+    """Square flipbook frames; only water or screen pixels change."""
+    frames = []
+    for phase in range(4):
+        animated = dict(cfg, material=dict(cfg["material"]))
+        if bid == "katt_tv":
+            def screen(x, y, phase=phase):
+                x, y = (x - 1) % 12, (y - 1) % 8
+                # The bird flaps its wing and blinks; scenery stays still.
+                if phase in (1, 2) and (x, y) in ((5, 3), (6, 3)):
+                    return TV_COLORS["W"]
+                if phase == 2 and TV_SCREEN[y][x] == "E":
+                    return TV_COLORS["W"]
+                return TV_COLORS[TV_SCREEN[y][x]]
+            animated["material"]["skarm"] = screen
+        else:
+            animated["material"]["vatten"] = lambda x,y,p=phase: (
+                (165,229,236,255) if (x+2*y+p*3)%11 == 0 else (83,187,214,255))
+        w, h, pixels = mala_ytor(bid, animated, packa_kuber(cfg["cubes"], cfg.get("atlas", DUK)))
+        pixels += [[(0,0,0,0)] * w for _ in range(w-h)]
+        frames.extend(pixels)
+        if phase == 0:
+            write_png(f"{RP}/textures/blocks/pc_{bid}.png", w, w, pixels)
+    write_png(f"{RP}/textures/blocks/pc_{bid}_animated.png", w, w*4, frames)
+
+
 def texture(bid, cfg):
     """16x16 blocktextur: bas med vävt/nystat mönster.
 
     Block som anger MATERIAL per kub målas i stället på den packade duken, där
     varje kub får sin egen ruta — det är enda sättet att låta ett rep och en
     matta se olika ut på samma block."""
+    if bid in ("kattspa", "katt_tv"):
+        animated_texture(bid, cfg)
+        return
     if "material" in cfg:
-        w, h, px = mala_ytor(bid, cfg, packa_kuber(cfg["cubes"]))
+        w, h, px = mala_ytor(bid, cfg, packa_kuber(cfg["cubes"], cfg.get("atlas", DUK)))
         write_png(f"{RP}/textures/blocks/pc_{bid}.png", w, h, px)
         return
     S = 16
@@ -310,12 +569,55 @@ def texture(bid, cfg):
             for x in range(S):
                 if (x * 2 + y) % 5 == 0: px[y][x] = acc
                 if (y * 2 - x) % 7 == 0: px[y][x] = dark
+    if bid == "klosbrada":
+        for y in range(S):
+            for x in range(S):
+                if (x * 3 + y) % 4 == 0: px[y][x] = acc
+                elif y % 5 == 0: px[y][x] = dark
+    if bid == "kattunnel":
+        for y in range(S):
+            for x in range(S):
+                if (x + y) % 4 == 0: px[y][x] = acc
+                elif y % 6 == 0: px[y][x] = dark
+    if bid == "katt_tv":
+        for y in range(S):
+            for x in range(S):
+                if 3 <= x <= 12 and 3 <= y <= 11:
+                    px[y][x] = (52, 124 + (x * 7) % 50, 156 + (y * 5) % 45, 255)
+                elif (x + y) % 5 == 0:
+                    px[y][x] = dark
+    if bid == "gomstalle":
+        for y in range(S):
+            for x in range(S):
+                if (x * 2 + y) % 4 == 0: px[y][x] = acc
+                elif y % 5 == 0: px[y][x] = dark
+    if bid == "leksakslada":
+        for y in range(S):
+            for x in range(S):
+                if y in (3, 12) or x in (3, 12): px[y][x] = dark
+                elif (x + y) % 5 == 0: px[y][x] = acc
+    if bid == "kattspa":
+        for y in range(S):
+            for x in range(S):
+                if 3 <= x <= 12 and 3 <= y <= 12:
+                    px[y][x] = (112, 196 + (x % 3) * 8, 218, 255)
+                elif (x + y) % 4 == 0:
+                    px[y][x] = acc
     write_png(f"{RP}/textures/blocks/pc_{bid}.png", S, S, px)
 
 
 def build():
     for d in ("blocks", "recipes"): os.makedirs(f"{BP}/{d}", exist_ok=True)
     for d in ("textures/blocks", "models/blocks"): os.makedirs(f"{RP}/{d}", exist_ok=True)
+
+    flipbook_path = f"{RP}/textures/flipbook_textures.json"
+    flipbooks = json.load(open(flipbook_path)) if os.path.exists(flipbook_path) else []
+    flipbooks = [entry for entry in flipbooks if entry.get("atlas_tile") not in ("pc_kattspa", "pc_katt_tv")]
+    for bid in ("kattspa", "katt_tv"):
+        flipbooks.append({"flipbook_texture": f"textures/blocks/pc_{bid}_animated",
+                          "atlas_tile": f"pc_{bid}", "ticks_per_frame": 8,
+                          "frames": [0,1,2,3], "blend_frames": False})
+    json.dump(flipbooks, open(flipbook_path, "w"), indent=2)
 
     terrain = {"resource_pack_name": "PurrfectCompanions", "texture_name": "atlas.terrain", "texture_data": {}}
     blocksjson = {"format_version": [1, 1, 0]}
@@ -329,11 +631,11 @@ def build():
 
         # geometri
         _flera = "material" in cfg
-        _uv = packa_kuber(cfg["cubes"]) if _flera else None
+        _uv = packa_kuber(cfg["cubes"], cfg.get("atlas", DUK)) if _flera else None
         json.dump({"format_version": "1.16.0", "minecraft:geometry": [{
             "description": {"identifier": f"geometry.{bid}",
                             "texture_width": DUK[0] if _flera else 16,
-                            "texture_height": DUK[1] if _flera else 16},
+                            "texture_height": (DUK[0] if bid in ("kattspa", "katt_tv") else cfg.get("atlas", DUK)[1]) if _flera else 16},
             "bones": [{"name": bid, "pivot": [0, 0, 0],
                        "cubes": [{"origin": k[0], "size": k[1],
                                   "uv": _uv[i] if _flera else [0, 0]}
@@ -342,7 +644,14 @@ def build():
 
         h = cfg["height"]
         json.dump({"format_version": "1.20.50", "minecraft:block": {
-            "description": {"identifier": f"mjau:{bid}", "menu_category": {"category": "nature"}},
+            "description": {"identifier": f"mjau:{bid}", "menu_category": {"category": "nature"},
+                **({"traits":{"minecraft:placement_direction":{
+                    "enabled_states":["minecraft:cardinal_direction"],"y_rotation_offset":0}}}
+                   if bid in ("sovkorg","kattspa","katt_tv","klosbrada","fonsterbadd","kattfontan") else {})},
+            **({"permutations":[{"condition":f"q.block_state('minecraft:cardinal_direction') == '{direction}'",
+                "components":{"minecraft:transformation":{"rotation":[0,angle,0]}}}
+                for direction,angle in (("south",0),("west",-90),("north",180),("east",90))]}
+               if bid in ("sovkorg","kattspa","katt_tv","klosbrada","fonsterbadd","kattfontan") else {}),
             "components": {
                 "minecraft:geometry": f"geometry.{bid}",
                 # opaque på gles modell cullar grannblockens ytor -> "grop i golvet"
@@ -352,8 +661,8 @@ def build():
                 # handrättad till false och generatorn hade skrivit över den vid
                 # nästa körning; nu säger blocket det själv.
                 "minecraft:collision_box": (False if cfg.get("genomgang")
-                                            else {"origin": [-8, 0, -8], "size": [16, h, 16]}),
-                "minecraft:selection_box": {"origin": [-8, 0, -8], "size": [16, h, 16]},
+                                            else {"origin": cfg.get("collision_origin",[-cfg.get("collision_width",16)//2, 0, -cfg.get("collision_width",16)//2]), "size": cfg.get("collision_size",[cfg.get("collision_width",16), cfg.get("collision_height", h), cfg.get("collision_width",16)])}),
+                "minecraft:selection_box": {"origin": [-8, 0, -8], "size": [16, cfg.get("selection_height",h), 16]},
                 "minecraft:destructible_by_mining": {"seconds_to_destroy": 0.4},
                 "minecraft:destructible_by_explosion": {"explosion_resistance": 0.5},
                 "minecraft:light_dampening": 0,
@@ -384,10 +693,18 @@ def build():
                 if not l.startswith("tile.mjau:")]
         open(lp, "w", encoding="utf-8").write("\n".join(keep + lang) + "\n")
 
+    # Explicit translations for new blocks; preserve existing Swedish entries.
+    for pack in ("PurrfectCompanions_BP", "PurrfectCompanions_RP"):
+        lp=f"{BASE}/{pack}/texts/sv_SE.lang"
+        translations={f"tile.mjau:{bid}.name":cfg["name_sv"] for bid,cfg in BLOCKS.items() if "name_sv" in cfg}
+        lines=open(lp,encoding="utf-8").read().splitlines()
+        lines=[line for line in lines if line.split("=",1)[0] not in translations]
+        open(lp,"w",encoding="utf-8").write("\n".join(lines+[f"{key}={value}" for key,value in translations.items()])+"\n")
+
     # katterna söker sig till bädd, nystan och matskål — men bara av FRI VILJA:
     # beteendet bor i mjau:fri, som tas bort medan en spelare rider (annars
     # "styr katten sig själv", sett på Xbox).
-    targets = [f"mjau:{b}" for b in BLOCKS]
+    targets = [f"mjau:{b}" for b in BLOCKS if b not in ("sovkorg","kattspa","katt_tv","klosbrada","fonsterbadd","kattfontan")]
     for f in sorted(glob.glob(f"{BP}/entities/*.json")):
         d = json.load(open(f)); ent = d["minecraft:entity"]
         # SKEPPET OCH FORDONEN HAR INGA KOMPONENTGRUPPER. Loopen tog alla
@@ -428,7 +745,7 @@ def build():
         SKYDDADE = {"mjau:sovdags"}
         for namn, bucket in [("", ent["components"])] + \
                             list(ent.get("component_groups", {}).items()):
-            if namn in SKYDDADE:
+            if namn in SKYDDADE or namn.startswith("mjau:mobel_"):
                 continue
             for k, v in bucket.items():
                 if k in P and isinstance(v, dict): v["priority"] = P[k]

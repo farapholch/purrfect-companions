@@ -95,7 +95,7 @@ def build(variant, outdir):
     rp = json.load(open(f"{outdir}/PurrfectCompanions_RP/manifest.json"))
     bp["header"]["name"] = cfg["pack_bp"]; bp["header"]["description"] = cfg["desc_bp"]
     rp["header"]["name"] = cfg["pack_rp"]
-    for m in (bp, rp): m["metadata"] = {"authors": ["Pellzor"]}
+    for m in (bp, rp): m["metadata"] = {"authors": ["Pellzor"], "product_type": "addon"}
     u = cfg.get("uuids")
     if u:
         bp["header"]["uuid"] = u["bp_header"]; bp["modules"][0]["uuid"] = u["bp_module"]

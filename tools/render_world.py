@@ -8,7 +8,7 @@ Xbox. Den här renderaren spelar upp EXAKT samma byggrecept som build_world
 
     python3 tools/render_world.py            # -> /tmp/worldviews/*.png
 
-  overview.png    isometrisk översikt från sydost
+  overview.png    hela byggområdet sett uppifrån (diagnostiska blockfärger)
   front.png       katthemmet rakt söderifrån (dörr, trappa, skyltar)
   lighthouse.png  fyren rakt norrifrån — INGÅNGEN ska synas
   interior.png    katthemmet uppifrån utan tak — möblerna och kistan
@@ -49,6 +49,30 @@ VANILLA = {
     "web": (240, 240, 240), "soul_lantern": (80, 220, 255),
     "spruce_stairs": (100, 74, 42), "light_gray_wool": (180, 180, 175),
     "black_wool": (25, 25, 30), "pink_wool": (240, 140, 170), "air": None,
+    "stone": (128, 128, 128), "snow": (241, 246, 247),
+    "amethyst_block": (153, 112, 189), "budding_amethyst": (133, 98, 166),
+    "cobbled_deepslate": (72, 74, 79), "moss_block": (84, 113, 44),
+    "coal_ore": (81, 81, 82), "iron_ore": (152, 128, 111),
+    "gold_ore": (170, 151, 87), "diamond_ore": (83, 161, 166),
+    "redstone_ore": (153, 83, 81), "lapis_ore": (74, 104, 151),
+    "birch_log": (216, 213, 199), "birch_leaves": (104, 147, 68),
+    "spruce_log": (85, 64, 39), "spruce_leaves": (54, 89, 55),
+    "stripped_spruce_log": (111, 86, 51), "azalea_leaves_flowered": (109, 143, 76),
+    "spruce_fence": (104, 77, 45), "dark_oak_fence": (68, 49, 30),
+    "oak_slab": (162, 130, 78), "barrel": (138, 108, 64),
+    "crafting_table": (149, 108, 62), "beehive": (193, 153, 83),
+    "iron_bars": (148, 152, 151), "rail": (150, 132, 99),
+    "campfire": (229, 148, 61), "carved_pumpkin": (194, 115, 31),
+    "farmland": (104, 72, 43), "podzol": (111, 79, 44),
+    "carrots": (100, 143, 46), "potatoes": (108, 150, 57),
+    "wheat": (181, 170, 70), "reeds": (114, 165, 78), "deadbush": (131, 97, 56),
+    "allium": (183, 124, 200), "azure_bluet": (224, 229, 221),
+    "blue_orchid": (84, 176, 218), "cornflower": (77, 114, 212),
+    "oxeye_daisy": (242, 233, 182), "red_tulip": (219, 62, 52),
+    "red_wool": (176, 49, 44), "red_carpet": (176, 49, 44),
+    "orange_wool": (232, 134, 40), "yellow_wool": (237, 203, 57),
+    "green_wool": (91, 120, 44), "blue_wool": (57, 77, 173),
+    "purple_wool": (132, 67, 176),
 }
 
 def _custom_colors():
@@ -98,6 +122,7 @@ def build_voxels():
     bw.build_structures(stdir, t, disp, cats)
 
     vox = {}
+    cleared = set()
     g = bw.GROUND
     for x in range(-60, 45):            # FLAT-terräng i spelområdet
         for z in range(-10, 95):
@@ -120,6 +145,7 @@ def build_voxels():
                     name = pal[pi][0]
                     if name == "minecraft:air":
                         vox.pop((ox + x, oy + y, oz + z), None)
+                        cleared.add((ox + x, oy + y, oz + z))
                     else:
                         vox[(ox + x, oy + y, oz + z)] = name
     for cmd in bw.build_commands(cats, disp, "Vakthunden"):
@@ -136,14 +162,26 @@ def build_voxels():
                     for z in range(min(z1, z2), max(z1, z2) + 1):
                         if repl and vox.get((x, y, z), "minecraft:air").replace("minecraft:", "") != repl.group(1):
                             continue
-                        if name == "air": vox.pop((x, y, z), None)
+                        if name == "air":
+                            vox.pop((x, y, z), None)
+                            cleared.add((x, y, z))
                         else: vox[(x, y, z)] = name
             continue
         m = re.match(r"setblock (-?\d+) (-?\d+) (-?\d+) (\S+)", cmd)
         if m:
             x, y, z, name = int(m.group(1)), int(m.group(2)), int(m.group(3)), m.group(4)
-            if name == "air": vox.pop((x, y, z), None)
+            if name == "air":
+                vox.pop((x, y, z), None)
+                cleared.add((x, y, z))
             else: vox[(x, y, z)] = name
+    # Extend the implicit flat terrain, preserving excavated cells.
+    xmin, xmax = min(x for x, _, _ in vox), max(x for x, _, _ in vox)
+    zmin, zmax = min(z for _, _, z in vox), max(z for _, _, z in vox)
+    for x in range(xmin, xmax + 1):
+        for z in range(zmin, zmax + 1):
+            for y, name in ((g, "minecraft:grass_block"), (g - 1, "minecraft:dirt")):
+                if (x, y, z) not in cleared:
+                    vox.setdefault((x, y, z), name)
     return vox
 
 # ---------------------------------------------------------------- vyerna ----
@@ -157,9 +195,11 @@ def render_topdown(vox, custom, path, ymax=None, area=((-45, 45), (-10, 95)), sc
     (x0, x1), (z0, z1) = area
     w, h = (x1 - x0) * scale, (z1 - z0) * scale
     img = [[(20, 22, 30, 255)] * w for _ in range(h)]
+    top = max(y for _, y, _ in vox) if ymax is None else ymax
+    bottom = min(y for _, y, _ in vox)
     for x in range(x0, x1):
         for z in range(z0, z1):
-            for y in range(-40 if ymax is None else ymax, -66, -1):
+            for y in range(top, bottom - 1, -1):
                 name = vox.get((x, y, z))
                 if not name: continue
                 c = color_of(name, custom)
@@ -218,7 +258,15 @@ def main():
     custom = _custom_colors()
     vox = build_voxels()
     print(f"{len(vox)} voxlar")
-    render_topdown(vox, custom, f"{OUT}/overview.png", area=((-60, 45), (-10, 95)), scale=5)
+    area = ((min(x for x, _, _ in vox), max(x for x, _, _ in vox) + 1),
+            (min(z for _, _, z in vox), max(z for _, _, z in vox) + 1))
+    render_topdown(vox, custom, f"{OUT}/overview.png", area=area, scale=5)
+    unknown = sorted({name for name in vox.values()
+                      if name not in MJAU and name not in custom
+                      and name.replace("minecraft:", "") not in VANILLA})
+    with open(f"{OUT}/unknown-blocks.json", "w") as report:
+        json.dump(unknown, report, indent=2)
+    print(f"overview bounds: {area}; unknown block colours: {len(unknown)}")
     # klipp vid MÖBELPLANET (-59): skyltarna på -58 skymmer annars bäddarna
     render_topdown(vox, custom, f"{OUT}/interior.png", ymax=-59,
                    area=((-10, 10), (5, 20)), scale=14)

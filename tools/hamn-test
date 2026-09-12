@@ -26,6 +26,7 @@ echo "=== Stjärnhamnen-test $(date '+%F %H:%M') ==="
 
 echo
 echo "[1/3] Bygger båda varianterna (2 serverbyggen, ~3 min)"
+if [ "${1:-}" != "--verify-existing" ]; then
 rm -rf "$OUT"
 for V in public private; do
   if python3 "$SRC/build_spaceworld.py" "$V" "$OUT" > /tmp/hamn-test-$V.txt 2>&1; then
@@ -35,6 +36,9 @@ for V in public private; do
     bad "variant $V föll i bygget"
   fi
 done
+else
+  ok "återanvänder färdigbyggda världar för nytt paket- och startprov"
+fi
 
 echo
 echo "[2/3] Statisk kontroll av paketen"
@@ -142,7 +146,7 @@ PY
   sed -i "s/^level-name=.*/level-name=StarHarbourSmoke/" "$PROPS"
   SLOG=/tmp/hamn-smoke.log
   { sleep 28
-    echo "tickingarea add -20 -70 -20 78 -20 40 station"; sleep 4
+    echo "tickingarea add -40 -70 -20 78 -20 48 station"; sleep 4
     # KUPOLEN
     echo "testforblock 0 -52 0 glass"; sleep 1            # kupoltaket
     echo "testforblock -3 -60 3 chest"; sleep 1           # startkistan
@@ -194,7 +198,7 @@ PY
     echo "testforblock 2 -60 11 standing_sign"; sleep 1
     # MÅNYTAN: generatorns egna lager, inte gräs och inte tomrum. Ytan MÅSTE
     # ligga på -61 — en nivå fel och stationens golv hade begravts.
-    echo "testforblock 20 -61 20 tuff"; sleep 1
+    echo "testforblock 20 -61 36 tuff"; sleep 1
     echo "testforblock -20 -61 -20 tuff"; sleep 1
     echo "testforblock 0 -60 25 air"; sleep 1
     echo "testforblock 0 -64 25 bedrock"; sleep 1
@@ -211,6 +215,14 @@ PY
     echo "testforblock -65 -60 45 sea_lantern"; sleep 1  # sondens kärna
     echo "testforblock -62 -60 45 chest"; sleep 1
     echo "tickingarea remove t3"; sleep 1
+    # New activity wing: all landmarks plus every cell of connecting paths.
+    python3 - <<'PYEXP'
+import sys
+sys.path.insert(0,'/opt/purrfect-companions')
+from harbour_expansion import CHECKS
+for x,y,z,b in CHECKS:print(f'testforblock {x} {y} {z} {b}')
+PYEXP
+    sleep 5
     # KATTERNA + kistprovet
     echo "testfor @e[type=mjau:misty,x=-6,y=-60,z=6,r=40]"; sleep 1
     # SKEPPEN: två flygbara jaktplan, inte kulisser av block
@@ -225,8 +237,9 @@ PY
   grep -q "Pack Stack.*Purrfect Companions" "$SLOG" && ok "paketen laddades ur den skeppade världen" \
     || bad "paketen laddades INTE ur världen"
   FB=$(grep -c 'found the block' "$SLOG")
-  [ "$FB" -ge 87 ] && ok "alla $FB/87 kontroller: nyckelblock, hela gångvägen kupol->korridor->hangar->torn, vägvisarna, månytan och de tre utposterna" \
-    || bad "bara $FB/87 kontroller i den paketerade världen — se $SLOG för vilket block som fattas"
+  EXPECTED=$(python3 -c "import sys;sys.path.insert(0,'$SRC');from harbour_expansion import CHECKS;print(87+len(CHECKS))")
+  [ "$FB" -ge "$EXPECTED" ] && ok "alla $FB/$EXPECTED kontroller: nyckelblock, hela gångvägen kupol->korridor->hangar->torn, vägvisarna, månytan och de tre utposterna" \
+    || bad "bara $FB/$EXPECTED kontroller i den paketerade världen — se $SLOG för vilket block som fattas"
   grep -qE "Found (Spear Fighter|Spjutjaktare)" "$SLOG" \
     && ok "de två jaktplanen är flygbara entiteter, inte kulisser av block" \
     || bad "jaktplanen saknas i den paketerade världen"

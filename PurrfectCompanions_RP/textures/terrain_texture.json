@@ -2,6 +2,36 @@
   "resource_pack_name": "PurrfectCompanions",
   "texture_name": "atlas.terrain",
   "texture_data": {
+    "pc_fonsterbadd": {
+      "textures": "textures/blocks/pc_fonsterbadd"
+    },
+    "pc_sovkorg": {
+      "textures": "textures/blocks/pc_sovkorg"
+    },
+    "pc_kattspa": {
+      "textures": "textures/blocks/pc_kattspa"
+    },
+    "pc_katt_tv": {
+      "textures": "textures/blocks/pc_katt_tv"
+    },
+    "pc_gomstalle": {
+      "textures": "textures/blocks/pc_gomstalle"
+    },
+    "pc_leksakslada": {
+      "textures": "textures/blocks/pc_leksakslada"
+    },
+    "pc_kattfontan": {
+      "textures": "textures/blocks/pc_kattfontan"
+    },
+    "pc_klosbrada": {
+      "textures": "textures/blocks/pc_klosbrada"
+    },
+    "pc_kattunnel": {
+      "textures": "textures/blocks/pc_kattunnel"
+    },
+    "pc_hangmatta": {
+      "textures": "textures/blocks/pc_hangmatta"
+    },
     "pc_kattbadd": {
       "textures": "textures/blocks/pc_kattbadd"
     },

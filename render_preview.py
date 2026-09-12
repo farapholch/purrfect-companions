@@ -7,7 +7,7 @@ texturregionen pixelvis i stället (se README, fallgrop om renderaren).
 
     python3 render_preview.py            # skriver alla bilder till publish/
 """
-import json, math, zlib, struct, os
+import json, math, zlib, struct, os, sys
 
 BASE = "/opt/purrfect-companions"; RP = f"{BASE}/PurrfectCompanions_RP"; OUT = f"{BASE}/publish"
 
@@ -151,6 +151,63 @@ def render3d(cat, acc, W, H, yaw_deg=32, pitch_deg=20, bg=(24,27,36,255), pad_fr
                     zb[py][px]=Z
     return cv
 
+
+def render_block3d(block_id, W, H, yaw_deg=32, pitch_deg=20, bg=(24,27,36,255), pad_frac=0.09):
+    """Rendera ett custom-block ur dess riktiga Bedrock-geometri och textur."""
+    geo_path = f"{RP}/models/blocks/{block_id}.geo.json"
+    block_geo = json.load(open(geo_path))["minecraft:geometry"][0]
+    desc = block_geo["description"]
+    cubes = [(c["origin"], c["size"], c["uv"], "default")
+             for bone in block_geo["bones"] for c in bone.get("cubes", [])]
+    tw, th, tex = read_png(f"{RP}/textures/blocks/pc_{block_id}.png")
+    TEX = {"default": (tex, tw, th, tw / desc["texture_width"])}
+    ya = math.radians(yaw_deg); pa = math.radians(pitch_deg)
+
+    def pj(x, y, z):
+        xr = x * math.cos(ya) + z * math.sin(ya)
+        zr = -x * math.sin(ya) + z * math.cos(ya)
+        return (xr, y * math.cos(pa) - zr * math.sin(pa),
+                zr * math.cos(pa) + y * math.sin(pa))
+
+    pts = [pj(o[0] + dx, o[1] + dy, o[2] + dz)
+           for o, s, _, _ in cubes
+           for dx in (0, s[0]) for dy in (0, s[1]) for dz in (0, s[2])]
+    minx, maxx = min(p[0] for p in pts), max(p[0] for p in pts)
+    miny, maxy = min(p[1] for p in pts), max(p[1] for p in pts)
+    pad = int(min(W, H) * pad_frac)
+    sc = min((W - 2 * pad) / (maxx - minx), (H - 2 * pad) / (maxy - miny))
+    offx = pad - minx * sc + (W - 2 * pad - (maxx - minx) * sc) / 2
+    offy = pad - miny * sc + (H - 2 * pad - (maxy - miny) * sc) / 2
+    cv = [[bg] * W for _ in range(H)]
+    zb = [[9e9] * W for _ in range(H)]
+    shade = {"top": 1.00, "bottom": 0.45, "north": 0.92,
+             "south": 0.55, "east": 0.72, "west": 0.66}
+    for o, s, uv, _ in cubes:
+        tex, tw, th, k = TEX["default"]
+        ox, oy, oz = o; w, h, d = s; U, V = uv; F = faces(U, V, w, h, d)
+        fns = {
+            "top": lambda a, b: (ox + a * w, oy + h, oz + b * d),
+            "bottom": lambda a, b: (ox + a * w, oy, oz + b * d),
+            "north": lambda a, b: (ox + a * w, oy + (1 - b) * h, oz),
+            "south": lambda a, b: (ox + a * w, oy + (1 - b) * h, oz + d),
+            "east": lambda a, b: (ox + w, oy + (1 - b) * h, oz + a * d),
+            "west": lambda a, b: (ox, oy + (1 - b) * h, oz + a * d),
+        }
+        for name, fn in fns.items():
+            u0, v0, fw, fh = F[name]
+            steps = max(int(max(fw, fh) * sc * 1.5), 12)
+            for i in range(steps + 1):
+                for j in range(steps + 1):
+                    a, b = i / steps, j / steps
+                    X, Y, Z = pj(*fn(a, b))
+                    px, py = int(X * sc + offx), int(H - (Y * sc + offy))
+                    if not (0 <= px < W and 0 <= py < H) or Z >= zb[py][px]: continue
+                    col = tex[min(th - 1, max(0, int((v0 + b * fh) * k)))][min(tw - 1, max(0, int((u0 + a * fw) * k)))]
+                    if col[3] < 8: continue
+                    cv[py][px] = (int(col[0] * shade[name]), int(col[1] * shade[name]), int(col[2] * shade[name]), 255)
+                    zb[py][px] = Z
+    return cv
+
 def sheet(panels, cols, PW, PH, gap=2):
     rows=(len(panels)+cols-1)//cols
     W=cols*PW+(cols-1)*gap; H=rows*PH+(rows-1)*gap
@@ -162,6 +219,13 @@ def sheet(panels, cols, PW, PH, gap=2):
     return W,H,out
 
 if __name__=="__main__":
+    if "--furniture" in sys.argv:
+        furniture = ["kattspa", "katt_tv", "gomstalle", "leksakslada",
+                     "kattfontan", "klosbrada", "kattunnel", "hangmatta"]
+        W, H, img = sheet([render_block3d(name, 320, 300, pitch_deg=-20) for name in furniture], 4, 320, 300)
+        write_png("/tmp/purrfect-furniture-render.png", W, H, img)
+        print("/tmp/purrfect-furniture-render.png")
+        raise SystemExit(0)
     os.makedirs(OUT,exist_ok=True)
     CATS=["misty","hazel","mocha","snow","ginger","domino"]
     PW=PH=300
@@ -195,4 +259,3 @@ if __name__=="__main__":
     write_png(f"{OUT}/05-alla-utstyrda.png",W,H,img); print("05-alla-utstyrda.png")
     # (projektloggan flyttad till tools/promo/make_logo.py: den bygger ur
     #  head_render och gör ett stort ansikte, som håller i avatarstorlek)
-

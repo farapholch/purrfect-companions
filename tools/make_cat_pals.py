@@ -170,7 +170,7 @@ class Duk:
                     self.px[y][x] = tuple(c) + (alfa,)
 
 
-def mala(namn, K):
+def mala(namn, K, sleeping=False):
     W, H = ENHETER[0] * SKALA, ENHETER[1] * SKALA
     duk = Duk(W, H)
     pals = K["pals"]
@@ -368,6 +368,9 @@ def mala(namn, K):
             r = math.hypot(dx, dy)
             if r > 1.0:
                 continue
+            if sleeping:
+                # A curved closed lid replaces iris/pupil, preserving the coat.
+                return mork if abs(dy - (0.15 + 0.3*(1-dx*dx))) < 0.12 else c
             if r > 0.86:
                 return mork
             iris = blanda(K["iris"], K["iris_mork"], max(0.0, min(1.0, 0.15 + 0.55 * (dy + 1) / 2)))
@@ -510,6 +513,8 @@ def main():
         if namn not in finns:
             print(f"  {namn:10s} (ingen entitet — hoppar över)")
             continue
+        sleeping = mala(namn, K, sleeping=True)
+        rr.write_png(f"{RP}/textures/entity/{namn}_sleep.png", W, H, sleeping.px)
         egen = f"{ART}/{namn}.png"
         if os.path.exists(egen):
             w, h, _ = rr.read_png(egen)

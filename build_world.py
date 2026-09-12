@@ -44,6 +44,8 @@ FLOOR = GROUND + 1         # fötterna/golvnivån
 TEXTS = {
     "public": {
         "world": "Cat Haven",
+        "relax_sign": "QUIET TIME\nSpa, then TV\nBring your cat\nTask 12",
+
         "welcome_sign": "Cat Haven\nThe shelter\nneeds a new\ncaretaker!",
         "den_clue": "Still warm...\npaw prints go\ndeeper into the\nsouthwest woods",
         "pool_sign": "CAT POOL\n/\\_/\\ ~\u2248~\n( ^.^ ) splash!\nno dogs allowed",
@@ -83,12 +85,15 @@ TEXTS = {
             "TASK 9 - THE TRADING POST\n\nA backpack cat's finds pile up fast. There is a barrel behind the house, east of the garden, that will take three string, three feathers and a diamond off your hands - and give something back.\n\nThe first trade brings out my old CAPE. Put it on a cat and go for a ride - you will see why I kept it.",
             "TASK 10 - TWO MORE OF US\n\nTwo cats came to the haven after I wrote the rest of this book.\n\nGINGER, a big ginger tabby from the north, keeps to the GROVE where the third key lies. She is not shy, only busy.\n\nDOMINO, black with white paws, sits by the LIGHTHOUSE and watches the sea. Bring cod for them both.",
             "TASK 11 - THE OLD MINE\n\nEast of the lake, where the path ends, a hill hides the old mine. It is dark all the way in, and things that like the dark live in there.\n\nThe lamp from the crystal cave is the key. Put it on a cat and let her light the way - the deepest chamber keeps what the miners left.",
+            "TASK 12 - QUIET TIME\n\nWest of the shelter is our new courtyard. Feed and tame a cat, then stay beside it at the spa until you see the message.\n\nBring the SAME cat to the TV at the far end and stay close for its mood bonus. Keep it fed!\n\nReward: 6 cat treats and 25 XP, once per caretaker.",
             "The beds inside carry the cats' names. Cat treats cheer them up when their tails droop - the recipe is sugar, wheat and cod.\n\nTake good care of them.\n\nAnd mind the boxes. Some hide more than dust.\n\nKeep your eyes open as you go, too - six coloured ribbons are hiding in places you already visit. Carry all six at once for a surprise.\n\n- The Old Caretaker",
             "One more thing, if you will believe an old man.\n\nThe cats used to tell of a FIFTH - black as the gap between the stars, with eyes of amber.\n\nShe shows herself only to those who leave the SILVER FISH from the lighthouse chest on a cat's bed while the moon stands at its highest.",
         ],
     },
     "private": {
         "world": "Kattgården",
+        "relax_sign": "EN LUGN STUND\nSpa, sedan TV\nTa med katten\nUppdrag 12",
+
         "welcome_sign": "Kattgården\nKatthemmet\nbehöver en ny\nföreståndare!",
         "den_clue": "Ännu varm...\ntassavtryck mot\nsydväst, djupt\nin i skogen",
         "pool_sign": "KATTPOOLEN\n/\\_/\\ ~\u2248~\n( ^.^ ) plask!\ninga hundar!",
@@ -128,11 +133,16 @@ TEXTS = {
             "UPPDRAG 9 - HANDELSPOSTEN\n\nEn ryggsäckskatts fynd hopar sig fort. Det finns en tunna bakom huset, öster om täppan, som tar emot tre snören, tre fjädrar och en diamant - och ger något tillbaka.\n\nFörsta bytet plockar fram min gamla MANTEL. Sätt den på en katt och rid ut - då förstår du varför jag behöll den.",
             "UPPDRAG 10 - TVÅ TILL AV OSS\n\nTvå katter kom till hemmet efter att jag skrivit resten av den här boken.\n\nGINGER, en stor ingefärsrandig från norr, håller till i SKOGSLUNDEN där tredje nyckeln ligger. Hon är inte skygg, bara upptagen.\n\nDOMINO, svart med vita tassar, sitter vid FYREN och spanar ut över havet. Ta med torsk till dem båda.",
             "UPPDRAG 11 - GAMLA GRUVAN\n\nÖster om sjön, där stigen tar slut, gömmer en kulle den gamla gruvan. Det är mörkt hela vägen in, och sådant som trivs i mörker bor där.\n\nLampan från kristallgrottan är nyckeln. Sätt den på en katt och låt henne lysa vägen - den djupaste kammaren gömmer det gruvarbetarna lämnade.",
+            "UPPDRAG 12 - EN LUGN STUND\n\nVäster om katthemmet finns vår nya trivselgård. Mata och tämj en katt. Stanna intill den vid spat tills du får ett meddelande.\n\nTa sedan SAMMA katt till TV:n i andra änden och vänta nära den på humörbonusen. Håll den mätt!\n\nBelöning: 6 kattgodis och 25 XP, en gång per föreståndare.",
             "Sängarna därinne bär katternas namn. Kattgodis piggar upp dem när svansen hänger - receptet är socker, vete och torsk.\n\nTa väl hand om dem.\n\nOch se upp med lådorna. Vissa gömmer mer än damm.\n\nHåll ögonen öppna medan du utforskar också - sex färgade band gömmer sig på platser du redan besökt. Bär alla sex samtidigt för en överraskning.\n\n- Gamla föreståndaren",
             "En sak till, om du tror en gammal man.\n\nKatterna berättade om en FEMTE - svart som mellanrummet mellan stjärnorna, med ögon av bärnsten.\n\nHon visar sig bara för den som lämnar SILVERFISKEN ur fyrens kista på en kattbädd när månen står som högst.",
         ],
     },
 }
+
+import haven_expansion as expansion
+for variant in TEXTS:
+    TEXTS[variant]["book_pages"].extend(expansion.TEXT[variant]["pages"])
 
 # ------------------------------------------------------- strukturbyggare ----
 class Struct:
@@ -230,6 +240,7 @@ def sign_entity(text):
 
 # ----------------------------------------------------------- byggnaderna ----
 def build_structures(outdir, t, disp, cats):
+    expansion.structures(sys.modules[__name__],outdir,"private" if t["world"]=="Kattgården" else "public")
     st = f"{outdir}/structures/haven"
 
     # KATTHEMMET: 13 bred (x), 7 hög, 10 djup (z). Dörröppning mot söder (z=0).
@@ -324,6 +335,11 @@ def build_structures(outdir, t, disp, cats):
     s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 8})
     s.entity_at(0, 0, 0, sign_entity("/\\_/\\\n( o.o )\n > ^ <\nmjau!"))
     s.emit(f"{st}/catsign.mcstructure")
+
+    s = Struct(1, 1, 1)
+    s.set(0, 0, 0, "minecraft:standing_sign", {"ground_sign_direction": 8})
+    s.entity_at(0, 0, 0, sign_entity(t["relax_sign"]))
+    s.emit(f"{st}/relaxsign.mcstructure")
 
     # VÄLKOMSTSKYLT vid spawn (egen liten struktur, vänd mot norr=spelaren)
     s = Struct(1, 1, 1)
@@ -1249,6 +1265,37 @@ def build_commands(cats, disp, dog_name):
     c.append(("sleep", 3))
     c.append(f"testforblock {_fx0 + 3} {g + 1} {_fz0 + 3} spruce_log")   # stammen sitter lokalt (3,*,3) i strukturen
     c.append(("sleep", 1))
+    # Trivselgården: plan mark, öppen entré och två separata bonuszoner.
+    c.append(f"fill -17 {g} 8 -8 {g} 26 spruce_planks")
+    c.append(f"fill -17 {f} 8 -8 {f+5} 26 air")
+    c.append(f"fill -12 {g} 4 -11 {g} 7 gravel")
+    c.append(f"fill -11 {g} 4 -6 {g} 4 gravel")
+    for px, pz in ((-17, 8), (-8, 8), (-17, 26), (-8, 26)):
+        c.append(f"fill {px} {f} {pz} {px} {f+3} {pz} oak_log")
+    for za, zb in ((8, 13), (21, 26)):
+        c.append(f"fill -17 {f+4} {za} -8 {f+4} {zb} oak_slab")
+        c.append(f'setblock -12 {f+3} {za+2} lantern ["hanging"=true]')
+    c.append(f"structure load haven:relaxsign -10 {f} 7")
+    c.append(f"setblock -15 {f} 11 mjau:kattspa")
+    c.append(f"setblock -10 {f} 11 mjau:kattfontan")
+    c.append(f"setblock -15 {f} 23 mjau:katt_tv")
+    c.append(f"setblock -10 {f} 23 mjau:hangmatta")
+    c.append(f"setblock -10 {f} 16 mjau:gomstalle")
+    c.append(f"setblock -15 {f} 16 mjau:leksakslada")
+    c.append(f"setblock -15 {f} 19 mjau:kattunnel")
+    c.append(f"setblock -10 {f} 19 mjau:klosbrada")
+    c.append(("sleep", 2))
+    c.append(f"testforblock -15 {f} 11 mjau:kattspa")
+    c.append(f"testforblock -10 {f} 11 mjau:kattfontan")
+    c.append(f"testforblock -15 {f} 23 mjau:katt_tv")
+    c.append(f"testforblock -10 {f} 23 mjau:hangmatta")
+    c.append(f"testforblock -10 {f} 16 mjau:gomstalle")
+    c.append(f"testforblock -15 {f} 16 mjau:leksakslada")
+    c.append(f"testforblock -15 {f} 19 mjau:kattunnel")
+    c.append(f"testforblock -10 {f} 19 mjau:klosbrada")
+
+    c.extend(expansion.commands())
+
     # KATTERNA SIST AV ALLT (2026-09-03). De placerades förut mitt i bygget och
     # hade en–två minuter att ströva, falla i något eller hamna i en struktur-
     # box innan servern stängde: två av sex saknades i den paketerade

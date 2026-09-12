@@ -4,6 +4,46 @@
     1,
     0
   ],
+  "mjau:fonsterbadd": {
+    "textures": "pc_fonsterbadd",
+    "sound": "wood"
+  },
+  "mjau:sovkorg": {
+    "textures": "pc_sovkorg",
+    "sound": "wood"
+  },
+  "mjau:kattspa": {
+    "textures": "pc_kattspa",
+    "sound": "water"
+  },
+  "mjau:katt_tv": {
+    "textures": "pc_katt_tv",
+    "sound": "stone"
+  },
+  "mjau:gomstalle": {
+    "textures": "pc_gomstalle",
+    "sound": "wood"
+  },
+  "mjau:leksakslada": {
+    "textures": "pc_leksakslada",
+    "sound": "wood"
+  },
+  "mjau:kattfontan": {
+    "textures": "pc_kattfontan",
+    "sound": "stone"
+  },
+  "mjau:klosbrada": {
+    "textures": "pc_klosbrada",
+    "sound": "wood"
+  },
+  "mjau:kattunnel": {
+    "textures": "pc_kattunnel",
+    "sound": "cloth"
+  },
+  "mjau:hangmatta": {
+    "textures": "pc_hangmatta",
+    "sound": "cloth"
+  },
   "mjau:kattbadd": {
     "textures": "pc_kattbadd",
     "sound": "cloth"

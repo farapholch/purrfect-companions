@@ -974,6 +974,11 @@ rm -f /tmp/purrfect-uuids.txt
 
 echo
 echo "[2b/4] Referensintegritet (audit.py)"
+if python3 "$SRC/tests/test_achievements_compat.py" "$SRC"; then
+  ok "achievements-kompatibilitet: inga experiment eller Beta API:er"
+else
+  bad "achievements-kompatibilitet misslyckades"
+fi
 AOUT=$(python3 "$SRC/audit.py" "$SRC" 2>&1)
 if [ -n "$AOUT" ]; then echo "$AOUT" | while read -r l; do bad "$l"; done; FAIL=1
 else ok "allt som refereras finns, allt som finns går att nå"; fi

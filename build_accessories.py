@@ -371,10 +371,10 @@ ACC = {
    # plagget samma kulör): smalt blad, tydlig parerstång, avsmalnande spets.
    # Första versionen var en enkel stolpe och såg ut som ett rör.
    # UV-avtrycken läggs sida vid sida och ryms i det fria bandet v211-223.
-   cubes=[([2.6,5.6,-4.6],[1,2,1],(0,0)),          # grepp vid framtassen
-          ([1.6,7.6,-4.6],[3,0.8,1],(5,0)),        # parerstång
-          ([2.7,8.4,-4.45],[0.8,7,0.7],(14,0)),    # blad framför kroppen
-          ([2.85,15.4,-4.38],[0.5,1.2,0.45],(18,0))], # spets
+   cubes=[([2.6,2.0,-4.6],[1,2,1],(0,0)),          # grepp vid framtassen
+          ([1.6,4.0,-4.6],[3,0.8,1],(5,0)),        # parerstång
+          ([2.7,4.8,-4.45],[0.8,6,0.7],(14,0)),     # blad framför kroppen
+          ([2.85,10.8,-4.38],[0.5,1.2,0.45],(18,0))], # spets
    recipe=lambda mat: dict(pattern=["G","G","I"],
        key={"G":{"item":mat},"I":{"item":"minecraft:iron_ingot"}},
        unlock=[{"item":mat},{"item":"minecraft:iron_ingot"}]),

@@ -41,7 +41,11 @@ table and the cat, its spawn-egg icon and the preview images follow.
   sneak up beside her
 - **Live together** — cats groom each other when they stand close, and at night
   the flock gathers on cat beds and boxes and curls up in a sleeping pile
-  instead of wandering off one by one. Kittens play with each other
+  instead of wandering off one by one. Two friendly cats can share the double
+  sleeping basket. Kittens play with each other
+- **Furniture habits** — cats visit the scratching board, tunnel, hammock,
+  window bed, toy box, grooming station and fountain; they settle at the spa
+  and sit in front of the TV to watch
 - **Warns you** — she bristles and calls out when something hostile closes in
   from 8–16 blocks away
 - **Creepers and phantoms flee** from them (they carry the `cat` family)
@@ -71,6 +75,13 @@ part. A new garment makes the book thinner, never wrong.
 |---|---|
 | **Cat Bed** | 3 wool + 3 leather |
 | **Yarn Ball** | 8 string + 1 wool |
+
+The furniture set adds a **double sleeping basket**, **window bed**, hammock,
+scratching board, tunnel, toy box, grooming station, **cat spa**, fountain and
+cat TV. Cats choose nearby furniture based on mood and needs: they groom at the
+station, drink at the fountain, scratch, play and relax, while spa and TV visits
+keep them in place for a little while so the behavior is visible. The TV and spa
+also have animated screen and water textures.
 
 Cats seek both out on their own (`minecraft:behavior.move_to_block`).
 
@@ -157,7 +168,7 @@ manually in sync.
 |---|---|
 | `build_accessories.py` | Outfits: geometry, render controllers, entity properties and events, interactions, items, icons, recipes, language keys |
 | `tools/plaggmaterial.py` | The outfits' textures: one shared 1024x1024 sheet at four texels per unit, one material painter per outfit (leather, knit, metal, planks, feathers, glass, glow) |
-| `build_blocks.py` | Cat Bed and Yarn Ball, plus the behaviour that makes cats seek them out |
+| `build_blocks.py` | Cat Bed, Yarn Ball and the furniture behaviour that makes cats seek, use and leave activity blocks |
 | `tools/make_cat_pals.py` | The coats: every cat's fur sheet (`<cat>_pals.png`, 512x128), painted from a per-cat table onto the UV layout read from the geometry |
 | `tools/make_cat_textures.py` | The spawn-egg icons of the derived and secret breeds |
 | `tools/make_player_gear.py` | The player's cat suit: geometry, textures, attachables, items, recipes |
